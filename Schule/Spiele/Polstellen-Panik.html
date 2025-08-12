@@ -760,7 +760,8 @@
                 // Alternate spawn direction
                 const direction = gameState.monsters.length % 2 === 0 ? 1 : -1;
                 let startX;
-                const speed = 30 + gameState.level * 5;
+                // Increase speed significantly with each level for more challenge
+                const speed = 30 + gameState.level * 15; // Much faster progression
                 
                 if (direction === 1) {
                     // Spawn from right (moving left)
@@ -994,6 +995,9 @@
                         
                         // Create explosion function to be called when projectile hits
                         const createExplosion = () => {
+                            // NOW remove the monster (when projectile hits)
+                            monster.alive = false;
+                            
                             // Reveal monster type and score
                             monster.revealType();
                             
@@ -1035,8 +1039,7 @@
                         // Play shoot sound immediately
                         playSound('shoot');
                         
-                        // Mark monster as dead immediately (but explosion happens when projectile hits)
-                        monster.alive = false;
+                        // DON'T mark monster as dead yet - let it live until projectile hits
                         break;
                     }
                 }
