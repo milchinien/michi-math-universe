@@ -249,6 +249,7 @@
             level: 1,
             monsters: [],
             particles: [],
+            projectiles: [],
             lastSpawn: 0,
             spawnRate: 4000,
             canvas: null,
@@ -471,9 +472,11 @@
                     gameState.health--;
                     gameState.score = Math.max(0, gameState.score - 100);
                     this.createEnergyBeam();
+                    playSound('damage');
                 } else if (this.type === 'removable') {
                     gameState.score += 50;
                     this.createPowerUpEffect();
+                    playSound('powerup');
                 }
                 this.alive = false;
             }
@@ -574,7 +577,89 @@
             isClicked(mouseX, mouseY) {
                 const dx = mouseX - this.x;
                 const dy = mouseY - this.y;
-                return Math.sqrt(dx * dx + dy * dy) < this.radius;
+                // Larger hitbox for easier clicking
+                return Math.sqrt(dx * dx + dy * dy) < (this.radius + 15);
+            }
+        }
+
+        // Projectile Class
+        class Projectile {
+            constructor(startX, startY, targetX, targetY) {
+                this.x = startX;
+                this.y = startY;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.speed = 800; // pixels per second
+                this.alive = true;
+                
+                // Calculate direction
+                const dx = targetX - startX;
+                const dy = targetY - startY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                this.vx = (dx / distance) * this.speed;
+                this.vy = (dy / distance) * this.speed;
+                
+                // Visual properties
+                this.trail = [];
+            }
+            
+            update(deltaTime) {
+                if (!this.alive) return;
+                
+                // Add current position to trail
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > 8) {
+                    this.trail.shift();
+                }
+                
+                // Move projectile
+                this.x += this.vx * deltaTime / 1000;
+                this.y += this.vy * deltaTime / 1000;
+                
+                // Check if reached target area
+                const dx = this.x - this.targetX;
+                const dy = this.y - this.targetY;
+                if (Math.sqrt(dx * dx + dy * dy) < 20) {
+                    this.alive = false;
+                }
+                
+                // Remove if off screen
+                if (this.x < -50 || this.x > gameState.canvas.width + 50 || 
+                    this.y < -50 || this.y > gameState.canvas.height + 50) {
+                    this.alive = false;
+                }
+            }
+            
+            draw(ctx) {
+                if (!this.alive) return;
+                
+                // Draw trail
+                ctx.strokeStyle = 'rgba(0, 255, 255, 0.6)';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                
+                for (let i = 0; i < this.trail.length - 1; i++) {
+                    const alpha = (i + 1) / this.trail.length;
+                    ctx.globalAlpha = alpha * 0.6;
+                    
+                    if (i === 0) {
+                        ctx.moveTo(this.trail[i].x, this.trail[i].y);
+                    } else {
+                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                }
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                
+                // Draw projectile
+                ctx.fillStyle = '#00ffff';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#00ffff';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
             }
         }
 
@@ -644,6 +729,12 @@
                     return particle.life > 0;
                 });
                 
+                // Update projectiles
+                gameState.projectiles = gameState.projectiles.filter(projectile => {
+                    projectile.update(deltaTime);
+                    return projectile.alive;
+                });
+                
                 if (gameState.health <= 0) {
                     this.gameOver();
                 }
@@ -692,6 +783,7 @@
                 
                 gameState.monsters.forEach(monster => monster.draw(ctx));
                 this.drawParticles(ctx);
+                this.drawProjectiles(ctx);
             }
 
             drawCoordinateSystem(ctx, canvas) {
@@ -771,6 +863,10 @@
                 });
             }
 
+            drawProjectiles(ctx) {
+                gameState.projectiles.forEach(projectile => projectile.draw(ctx));
+            }
+
             updateFunctionDisplay() {
                 const display = document.getElementById('functionDisplay');
                 display.innerHTML = '';
@@ -794,6 +890,51 @@
                 document.getElementById('finalScore').textContent = gameState.score;
                 document.getElementById('finalLevel').textContent = gameState.level;
                 document.getElementById('gameOver').classList.remove('hidden');
+            }
+        }
+
+        // Audio System
+        function playSound(type) {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                switch (type) {
+                    case 'shoot':
+                        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+                        break;
+                    case 'hit_correct':
+                        // Positive sound - ascending notes
+                        oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.2);
+                        break;
+                    case 'hit_wrong':
+                        // Negative sound - descending notes
+                        oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(150, audioContext.currentTime + 0.3);
+                        break;
+                    case 'damage':
+                        oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.5);
+                        break;
+                    case 'powerup':
+                        oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3);
+                        break;
+                }
+                
+                gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.4);
+            } catch (e) {
+                console.log('Audio not supported:', e);
             }
         }
 
@@ -842,16 +983,27 @@
                         hitMonster = monster;
                         console.log('Hit monster type:', monster.type);
                         
+                        // Create projectile
+                        const centerX = gameState.canvas.width / 2;
+                        const centerY = gameState.canvas.height / 2;
+                        const projectile = new Projectile(centerX, centerY, mouseX, mouseY);
+                        gameState.projectiles.push(projectile);
+                        
+                        // Play shoot sound
+                        playSound('shoot');
+                        
                         // Reveal monster type and score
                         monster.revealType();
                         
-                        // Score based on monster type
+                        // Score based on monster type with appropriate sounds
                         if (monster.type === 'dangerous') {
                             gameState.score += 100;
                             console.log('Correct hit! +100 points');
+                            playSound('hit_correct');
                         } else {
                             gameState.score = Math.max(0, gameState.score - 50);
                             console.log('Wrong target! -50 points');
+                            playSound('hit_wrong');
                         }
                         
                         // Create colored explosion effect based on monster type
@@ -908,6 +1060,7 @@
             gameState.level = 1;
             gameState.monsters = [];
             gameState.particles = [];
+            gameState.projectiles = [];
             gameState.lastSpawn = 0;
             gameState.spawnRate = 4000;
             
