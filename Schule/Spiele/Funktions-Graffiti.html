@@ -91,6 +91,7 @@
           <button class="btn primary" id="spray">Spray!</button>
           <button class="btn" id="clear">Zurücksetzen</button>
           <button class="btn" id="hint">Hinweis</button>
+          <button class="btn" id="solution">Lösung anzeigen</button>
         </div>
       </div>
     </div>
@@ -203,11 +204,44 @@
 
     function safeEval(expr, x) {
       try {
-        const js = expr.replaceAll('^','**').replaceAll('x',`(${x})`).replaceAll('x*', '(x)*');
+        // Simple but robust approach: handle each component type explicitly
+        let js = expr;
+        
+        // Handle specific component patterns in order of complexity
+        const replacements = [
+          // Parenthetical expressions first
+          { pattern: /\(x-(-?\d+)\)/g, replacement: (match, num) => `((${x})-(${num}))` },
+          { pattern: /\(x\+(-?\d+)\)/g, replacement: (match, num) => `((${x})+(${num}))` },
+          
+          // Polynomials
+          { pattern: /x\^(\d+)/g, replacement: (match, exp) => `((${x})**(${exp}))` },
+          
+          // Implicit multiplication patterns
+          { pattern: /(-?\d+)x/g, replacement: (match, coef) => `(${coef}*(${x}))` },
+          { pattern: /-x(?![a-zA-Z])/g, replacement: `((-1)*(${x}))` },
+          
+          // Standalone x
+          { pattern: /(?<![a-zA-Z])x(?![a-zA-Z\^])/g, replacement: `(${x})` }
+        ];
+        
+        // Apply replacements
+        replacements.forEach(({pattern, replacement}) => {
+          js = js.replace(pattern, replacement);
+        });
+        
+        // Handle remaining exponents
+        js = js.replace(/\^/g, '**');
+        
+        // Add multiplication between adjacent parentheses
+        js = js.replace(/\)\(/g, ')*(');
+        
         const val = eval(js);
         if (!isFinite(val)) return null;
         return val;
-      } catch { return null; }
+      } catch (e) {
+        console.error('safeEval error:', e, 'expr:', expr, 'x:', x);
+        return null;
+      }
     }
 
     // ---- Canvas / Graph ----
@@ -308,56 +342,220 @@
 
     // ---- Levels ----
     function generateSolvableLevel(level) {
-      // Generate a level where the target function can be built from available components
-      const solutions = [
-        // Level 1: Simple rational function
-        { num: ['x'], den: ['(x-1)'], testPoints: [0, 2, 3], hint: 'Vermeide x=1 im Nenner. Nutze x/(x-1).' },
-        // Level 2: Polynomial over constant
-        { num: ['x^2'], den: ['2'], testPoints: [1, 2, -1], hint: 'Einfache Parabel: x²/2.' },
-        // Level 3: Removable discontinuity
-        { num: ['(x-2)', 'x'], den: ['(x-2)'], testPoints: [0, 1, 3], hint: 'Kürze (x-2) weg für hebbare Lücke bei x=2.' },
-        // Level 4: More complex
-        { num: ['2x'], den: ['(x+1)'], testPoints: [0, 1, -2], hint: 'Nutze 2x/(x+1), vermeide x=-1.' },
-        // Level 5: Quadratic over linear
-        { num: ['x^2'], den: ['(x-1)'], testPoints: [0, 2, 3], hint: 'x²/(x-1) hat Asymptote bei x=1.' }
-      ];
+      // Dynamically generate levels from available components
+      const { components } = state;
       
-      const sol = solutions[(level-1) % solutions.length];
+      // Seed random generator with level for reproducibility within same level
+      const rng = (() => {
+        let seed = level * 12345;
+        return () => {
+          seed = (seed * 9301 + 49297) % 233280;
+          return seed / 233280;
+        };
+      })();
       
-      // Calculate actual target points by evaluating the solution
-      const targets = [];
-      const vlines = [];
+      const pickRandom = (arr) => arr[Math.floor(rng() * arr.length)];
+      const pickRandoms = (arr, count) => {
+        const result = [];
+        for (let i = 0; i < count; i++) {
+          result.push(pickRandom(arr));
+        }
+        return result;
+      };
       
-      // Build the expression string
-      const numStr = sol.num.join('*');
-      const denStr = sol.den.join('*');
+      // Categorize components
+      const factors = components.filter(c => c.type === 'factor');
+      const polys = components.filter(c => c.type === 'poly');
+      const consts = components.filter(c => c.type === 'const');
+      
+      // Generate difficulty-appropriate function - ensure non-trivial
+      let numComponents, denComponents, testPoints;
+      
+      if (level <= 3) {
+        // Easy: simple rational functions, always meaningful
+        numComponents = [pickRandom(polys).id]; // Always polynomial in numerator
+        denComponents = rng() > 0.5 ? [pickRandom(factors).id] : [pickRandom(consts.filter(c => c.id !== '1')).id || '2'];
+        testPoints = [-2, -1, 0, 1, 2, 3];
+      } else if (level <= 6) {
+        // Medium: more complex, but still meaningful
+        if (rng() > 0.5) {
+          // Polynomial * constant over factor
+          numComponents = [pickRandom(polys).id, pickRandom(consts).id];
+          denComponents = [pickRandom(factors).id];
+        } else {
+          // Higher polynomial over constant
+          numComponents = [pickRandom(polys.filter(p => p.id.includes('^') || p.id.includes('x'))).id || 'x^2'];
+          denComponents = [pickRandom(consts.filter(c => c.id !== '1')).id || '2'];
+        }
+        testPoints = [-3, -2, -1, 0, 1, 2, 3, 4];
+      } else {
+        // Hard: complex fractions with guaranteed complexity
+        if (rng() > 0.6) {
+          // Removable discontinuity: same factor in num and den + something else
+          const commonFactor = pickRandom(factors);
+          numComponents = [commonFactor.id, pickRandom(polys).id];
+          denComponents = [commonFactor.id];
+        } else if (rng() > 0.3) {
+          // Multiple factors - but keep it simple for now
+          numComponents = [pickRandom(polys).id];
+          denComponents = [pickRandom(factors).id];
+        } else {
+          // Complex numerator over factor
+          numComponents = [pickRandom(factors).id, pickRandom(polys).id];
+          denComponents = [pickRandom(factors).id];
+        }
+        testPoints = [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
+      }
+      
+      // Ensure we have actual components (fallback if empty)
+      if (numComponents.length === 0) numComponents = ['x'];
+      if (denComponents.length === 0) denComponents = ['2'];
+      
+      // Build expression properly - this is just for internal calculation
+      const numStr = numComponents.join('*');
+      const denStr = denComponents.join('*');
       const expr = `(${numStr})/(${denStr})`;
       
-      // Find vertical asymptotes (where denominator = 0)
-      sol.den.forEach(factor => {
-        if (factor.includes('x-')) {
-          const match = factor.match(/x-(-?\d+)/);
-          if (match) vlines.push(parseInt(match[1]));
-        } else if (factor.includes('x+')) {
-          const match = factor.match(/x\+(-?\d+)/);
-          if (match) vlines.push(-parseInt(match[1]));
+      // Verify the expression can be evaluated correctly
+      const testEval = safeEval(expr, 1);
+      if (testEval === null) {
+        console.warn('Generated expression cannot be evaluated:', expr);
+        // Fallback to simpler expression
+        numComponents = ['x'];
+        denComponents = ['2'];
+      }
+      
+      // Find vertical asymptotes (only those in visible range)
+      const bounds = { xmin: -6, xmax: 6, ymin: -4, ymax: 4 };
+      const vlines = [];
+      denComponents.forEach(comp => {
+        if (comp.includes('x-')) {
+          const match = comp.match(/x-(-?\d+)/);
+          if (match) {
+            const asymptote = parseInt(match[1]);
+            if (asymptote >= bounds.xmin && asymptote <= bounds.xmax) {
+              vlines.push(asymptote);
+            }
+          }
+        } else if (comp.includes('x+')) {
+          const match = comp.match(/x\+(-?\d+)/);
+          if (match) {
+            const asymptote = -parseInt(match[1]);
+            if (asymptote >= bounds.xmin && asymptote <= bounds.xmax) {
+              vlines.push(asymptote);
+            }
+          }
         }
       });
       
-      // Calculate target points
-      sol.testPoints.forEach(x => {
-        const y = safeEval(expr, x);
-        if (y !== null && isFinite(y) && Math.abs(y) < 10) {
-          targets.push([x, Math.round(y * 100) / 100]); // Round to 2 decimals
+      // Calculate target points (avoid asymptotes and ensure visibility)
+      const targets = [];
+      const validTestPoints = testPoints.filter(x => 
+        !vlines.includes(x) && x >= bounds.xmin && x <= bounds.xmax
+      );
+      
+      // Pick 2-4 test points depending on level
+      const numTargets = Math.min(2 + Math.floor(level / 3), 4);
+      const selectedPoints = [];
+      
+      // Calculate targets using the corrected expression
+      const finalExpr = `(${numComponents.join('*')})/(${denComponents.join('*')})`;
+      
+      // Try to find good visible points with better validation
+      let attempts = 0;
+      while (selectedPoints.length < numTargets && attempts < 50) {
+        const x = pickRandom(validTestPoints);
+        if (!selectedPoints.includes(x)) {
+          const y = safeEval(finalExpr, x);
+          if (y !== null && isFinite(y) && 
+              y >= bounds.ymin && y <= bounds.ymax && // Ensure y is visible
+              Math.abs(y) > 0.1) { // Avoid trivial near-zero values
+            targets.push([x, Math.round(y * 100) / 100]);
+            selectedPoints.push(x);
+          }
         }
-      });
+        attempts++;
+      }
+      
+      // Fallback: if no good points found, use simpler test points
+      if (targets.length === 0) {
+        const fallbackPoints = [0, 1, -1, 2, -2].filter(x => 
+          !vlines.includes(x) && x >= bounds.xmin && x <= bounds.xmax
+        );
+        for (const x of fallbackPoints) {
+          const y = safeEval(finalExpr, x);
+          if (y !== null && isFinite(y) && y >= bounds.ymin && y <= bounds.ymax) {
+            targets.push([x, Math.round(y * 100) / 100]);
+            if (targets.length >= 2) break;
+          }
+        }
+      }
+      
+      // Final validation: ensure we have at least one target
+      if (targets.length === 0) {
+        // Emergency fallback with guaranteed simple function
+        numComponents = ['x'];
+        denComponents = ['2'];
+        const fallbackExpr = `(${numComponents.join('*')})/(${denComponents.join('*')})`;
+        targets.push([1, safeEval(fallbackExpr, 1)], [2, safeEval(fallbackExpr, 2)]);
+      }
+      
+      // Generate helpful hints (not solutions)
+      let hint = '';
+      
+      if (level <= 3) {
+        // Basic hints for beginners
+        if (vlines.length > 0) {
+          hint = `Achtung: Bei x=${vlines.join(', x=')} gibt es Probleme. `;
+        }
+        if (numComponents.some(c => c.includes('^'))) {
+          hint += 'Du brauchst ein Polynom höherer Ordnung.';
+        } else if (numComponents.some(c => c.includes('x'))) {
+          hint += 'Ein einfaches Polynom im Zähler könnte helfen.';
+        } else {
+          hint += 'Probiere verschiedene Kombinationen aus Zähler und Nenner.';
+        }
+      } else if (level <= 6) {
+        // Medium hints
+        if (vlines.length > 0) {
+          hint = `Vertikale Asymptoten bei x=${vlines.join(', x=')}. `;
+        }
+        if (numComponents.length > 1) {
+          hint += 'Du brauchst mehrere Terme im Zähler.';
+        } else if (denComponents.some(c => c.includes('x'))) {
+          hint += 'Der Nenner sollte einen Faktor mit x enthalten.';
+        } else {
+          hint += 'Achte auf das Verhältnis zwischen Zähler und Nenner.';
+        }
+      } else {
+        // Advanced hints
+        if (numComponents.some(c => denComponents.includes(c))) {
+          hint = 'Tipp: Manche Faktoren können sich wegkürzen (hebbare Lücke).';
+        } else if (vlines.length > 1) {
+          hint = `Mehrere Asymptoten bei x=${vlines.join(', x=')}. Komplexer Nenner nötig.`;
+        } else if (denComponents.length > 1) {
+          hint = 'Der Nenner braucht mehrere Faktoren.';
+        } else {
+          hint = 'Experimentiere mit komplexeren Kombinationen.';
+        }
+      }
+      
+      // Add target info without giving away the solution
+      if (targets.length > 0) {
+        const targetHints = targets.map(([x, y]) => {
+          if (Math.abs(y) < 1) return `bei x=${x} einen kleinen Wert`;
+          if (Math.abs(y) > 5) return `bei x=${x} einen großen Wert`;
+          return `bei x=${x} den Wert ${y > 0 ? 'über' : 'unter'} der x-Achse`;
+        });
+        hint += ` Die Funktion sollte ${targetHints.join(' und ')} haben.`;
+      }
       
       return {
         targets,
         vlines,
         hlines: [],
-        hint: sol.hint,
-        solution: { num: sol.num, den: sol.den }
+        hint,
+        solution: { num: numComponents, den: denComponents }
       };
     }
     
@@ -376,6 +574,19 @@
 
     function onClear() { state.builder = { num: [], den: [] }; renderBuilder(); updateFunctionText(); drawScene(); }
     function onHint() { toast(state.levelData.hint || 'Kein Hinweis.'); }
+    function onSolution() {
+      if (!state.levelData || !state.levelData.solution) {
+        toast('Keine Lösung verfügbar.');
+        return;
+      }
+      
+      const { num, den } = state.levelData.solution;
+      const numStr = num.join(' × ');
+      const denStr = den.join(' × ');
+      const solutionText = `Lösung: ${numStr} / ${denStr}`;
+      
+      toast(solutionText, 4000); // Show for 4 seconds
+    }
 
     function loadLevel() {
       state.levelData = getLevelData(state.level);
@@ -388,6 +599,7 @@
       document.getElementById('spray').onclick = onSpray;
       document.getElementById('clear').onclick = onClear;
       document.getElementById('hint').onclick = onHint;
+      document.getElementById('solution').onclick = onSolution;
       loadLevel();
     }
     window.addEventListener('load', init);
