@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Tree Mathematik Oberstufe</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .skill-tree-container {
+            max-width: 1600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+        }
+
+        h2 { /* Hauptkategorien Titel */
+            font-size: 1.8em;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 30px;
+            color: #fff;
+        }
+
+        h3 { /* Unterkategorien Titel */
+            font-size: 1.4em;
+            color: #555;
+            border-bottom: 2px solid;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .foundation h2 { background-color: #778899; /* LightSlateGray */ }
+        .analysis h2 { background-color: #5F9EA0; /* CadetBlue */ }
+        .geometry h2 { background-color: #8FBC8F; /* DarkSeaGreen */ }
+        .stochastics h2 { background-color: #FFA07A; /* LightSalmon */ }
+
+        .foundation h3 { border-bottom-color: #778899; }
+        .analysis h3 { border-bottom-color: #5F9EA0; }
+        .geometry h3 { border-bottom-color: #8FBC8F; }
+        .stochastics h3 { border-bottom-color: #FFA07A; }
+
+        .category-content {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping for smaller screens / many items */
+            gap: 20px; /* Space between subcategories or direct skill groups */
+            justify-content: space-around;
+        }
+        
+        .subcategory, .skill-group {
+            background-color: #fdfdfd;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            flex: 1 1 300px; /* Flex properties for responsiveness */
+            min-width: 280px; /* Minimum width before wrapping */
+        }
+
+        .skill-node {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-left: 5px solid; /* For color indication of main category */
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            position: relative;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .skill-node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Color coding for skill nodes border */
+        .foundation .skill-node { border-left-color: #778899; }
+        .analysis .skill-node { border-left-color: #5F9EA0; }
+        .geometry .skill-node { border-left-color: #8FBC8F; }
+        .stochastics .skill-node { border-left-color: #FFA07A; }
+
+        .skill-node strong {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .skill-node ul {
+            list-style-type: none;
+            padding-left: 20px;
+            margin-top: 8px;
+        }
+
+        .skill-node ul li {
+            font-size: 0.9em;
+            color: #555;
+            padding-left: 15px;
+            position: relative;
+        }
+        
+        /* Simple line connector for direct children in a list */
+        .skill-node ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.6em; /* Adjust vertical position */
+            width: 10px;
+            height: 1px;
+            background-color: #aaa;
+        }
+        .skill-node ul li::after { /* Vertical part of the L-shape connector */
+            content: '';
+            position: absolute;
+            left: 0;
+            top: -0.4em; /* Start from the previous item's line or top */
+            bottom: 0.4em; /* Extend to current item's line */
+            width: 1px;
+            background-color: #aaa;
+        }
+        .skill-node ul li:first-child::after {
+            top: 0.6em; /* Adjust for the first item */
+        }
+
+
+        .dependency {
+            font-size: 0.8em;
+            color: #c0392b; /* Reddish color for dependencies */
+            font-style: italic;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .central-skill {
+            font-weight: bold;
+            color: #27ae60; /* Green for central skills */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .category-content {
+                flex-direction: column; /* Stack subcategories vertically */
+            }
+            h1 { font-size: 2em; }
+            h2 { font-size: 1.5em; }
+            h3 { font-size: 1.2em; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="skill-tree-container">
+    <h1>Skill Tree: Mathematik Oberstufe (Gymnasium)</h1>
+
+    <section class="foundation">
+        <h2>[GRUNDLAGE] WISSEN DER MITTLEREN REIFE</h2>
+        <div class="category-content">
+            <div class="skill-group">
+                <h3>Algebraische Grundlagen</h3>
+                <div class="skill-node">Termumformungen (Klammern, Binomische Formeln)</div>
+                <div class="skill-node">Lineare Gleichungen & Ungleichungen</div>
+                <div class="skill-node">Lineare Gleichungssysteme</div>
+                <div class="skill-node">Quadratische Gleichungen (p-q-Formel)</div>
+                <div class="skill-node">Potenzen & Wurzeln</div>
+                <div class="skill-node">Prozent- & Zinsrechnung</div>
+            </div>
+            <div class="skill-group">
+                <h3>Funktionen (Einführung)</h3>
+                <div class="skill-node">Funktionsbegriff, Darstellungsformen</div>
+                <div class="skill-node">Lineare Funktionen</div>
+                <div class="skill-node">Quadratische Funktionen</div>
+                <div class="skill-node">Einfache Potenzfunktionen</div>
+            </div>
+            <div class="skill-group">
+                <h3>Geometrie</h3>
+                <div class="skill-node">Flächen- & Volumenberechnung</div>
+                <div class="skill-node">Satz des Pythagoras</div>
+                <div class="skill-node">Trigonometrie am rechtwinkligen Dreieck</div>
+            </div>
+            <div class="skill-group">
+                <h3>Stochastik (Einführung)</h3>
+                <div class="skill-node">Grundbegriffe (Zufall, Ereignis)</div>
+                <div class="skill-node">Laplace-Wahrscheinlichkeit</div>
+                <div class="skill-node">Einfache Baumdiagramme, Pfadregeln</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="analysis">
+        <h2>I. ANALYSIS (Differential- und Integralrechnung)</h2>
+        <div class="category-content">
+            <div class="subcategory">
+                <h3>A1: Funktionsbegriff & Eigenschaften</h3>
+                <div class="skill-node">
+                    <strong>A1.1: Polynomfunktionen höheren Grades</strong>
+                    <ul><li>A1.1.1: Verhalten im Unendlichen, Symmetrie, Nullstellen (Polynomdivision, Substitution)</li></ul>
+                </div>
+                <div class="skill-node">
+                    <strong>A1.2: Gebrochenrationale Funktionen</strong>
+                    <ul><li>A1.2.1: Definitionslücken, Polstellen, Asymptoten</li></ul>
+                </div>
+                <div class="skill-node"><strong>A1.3: Wurzelfunktionen</strong></div>
+                <div class="skill-node">
+                    <strong>A1.4: Exponentialfunktionen <span class="central-skill">(*)</span></strong>
+                    <ul><li>A1.4.1: Eigenschaften, Graphen, e-Funktion</li></ul>
+                </div>
+                <div class="skill-node">
+                    <strong>A1.5: Logarithmusfunktionen</strong>
+                    <ul><li>A1.5.1: Eigenschaften, Graphen, ln-Funktion, Rechengesetze</li></ul>
+                    <span class="dependency">Baut auf A1.4 auf</span>
+                </div>
+                <div class="skill-node">
+                    <strong>A1.6: Trigonometrische Funktionen (Sin, Cos, Tan als Funktionen)</strong>
+                    <ul><li>A1.6.1: Bogenmaß, Periode, Amplitude, Verschiebung</li></ul>
+                </div>
+                <div class="skill-node"><strong>A1.7: Verkettung & Umkehrung von Funktionen</strong></div>
+                <div class="skill-node"><strong>A1.8: Transformationen von Funktionsgraphen</strong></div>
+            </div>
+
+            <div class="subcategory">
+                <h3>A2: Differentialrechnung</h3>
+                <div class="skill-node">
+                    <strong>A2.1: Grenzwertbegriff</strong>
+                    <ul><li>A2.1.1: Stetigkeit</li></ul>
+                </div>
+                <div class="skill-node">
+                    <strong>A2.2: Änderungsraten (Differenzen- & Differentialquotient) <span class="central-skill">(*)</span></strong>
+                    <span class="dependency">Baut auf A2.1 auf</span>
+                </div>
+                <div class="skill-node">
+                    <strong>A2.3: Ableitungsbegriff & -funktion</strong>
+                    <ul><li>A2.3.1: Graphisches Ableiten</li></ul>
+                    <span class="dependency">Baut auf A2.2 auf</span>
+                </div>
+                <div class="skill-node">
+                    <strong>A2.4: Ableitungsregeln</strong>
+                    <ul>
+                        <li>A2.4.1: Potenz-, Faktor-, Summenregel (für Polynomfunktionen -> A1.1)</li>
+                        <li>A2.4.3: Ableitung von Exp.- & Log.-Funktionen (-> A1.4, A1.5)</li>
+                        <li>A2.4.4: Ableitung von trig.-Funktionen (-> A1.6)</li>
+                        <li>A2.4.5: Produktregel</li>
+                        <li>A2.4.6: Quotientenregel (-> A1.2)</li>
+                        <li>A2.4.7: Kettenregel <span class="central-skill">(*)</span> (-> A1.7)</li>
+                    </ul>
+                    <span class="dependency">Baut auf A2.3 auf</span>
+                </div>
+                <div class="skill-node"><strong>A2.5: Höhere Ableitungen</strong></div>
+                <div class="skill-node">
+                    <strong>A2.6: Anwendungen der Differentialrechnung</strong>
+                    <ul>
+                        <li>A2.6.1: Tangenten- & Normalengleichungen</li>
+                        <li>A2.6.2: Monotonie & Krümmung</li>
+                        <li>A2.6.3: Extremstellen <span class="central-skill">(*)</span></li>
+                        <li>A2.6.4: Wendepunkte</li>
+                        <li>A2.6.5: Kurvendiskussion</li>
+                        <li>A2.6.6: Optimierungsaufgaben</li>
+                        <li>A2.6.7: Rekonstruktion von Funktionen</li>
+                    </ul>
+                    <span class="dependency">Baut auf A2.4, A2.5 auf</span>
+                </div>
+            </div>
+
+            <div class="subcategory">
+                <h3>A3: Integralrechnung</h3>
+                <div class="skill-node">
+                    <strong>A3.1: Stammfunktion & unbestimmtes Integral</strong>
+                    <ul><li>A3.1.1: Aufleitungsregeln</li></ul>
+                </div>
+                <div class="skill-node">
+                    <strong>A3.2: Bestimmtes Integral (Riemann-Integral)</strong>
+                    <ul><li>A3.2.1: Geometrische Deutung als Fläche</li></ul>
+                </div>
+                <div class="skill-node">
+                    <strong>A3.3: Hauptsatz der Differential- & Integralrechnung (HDI) <span class="central-skill">(*)</span></strong>
+                    <span class="dependency">Verbindet A2 & A3</span>
+                </div>
+                <div class="skill-node">
+                    <strong>A3.4: Berechnung von Flächeninhalten</strong>
+                    <ul>
+                        <li>A3.4.1: Fläche zw. Graph & x-Achse</li>
+                        <li>A3.4.2: Fläche zw. zwei Graphen</li>
+                    </ul>
+                    <span class="dependency">Baut auf A3.3 auf</span>
+                </div>
+                 <div class="skill-node"><strong>A3.8: Integral-/Stammfunktionen für spezielle Funktionen</strong>
+                    <span class="dependency">Benötigt Kenntnisse aus A1.4, A1.5, A1.6</span>
+                </div>
+                <div class="skill-node"><strong>A3.7: Anwendungen des Integrals</strong> (z.B. Rekonstruktion von Beständen)</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="geometry">
+        <h2>II. LINEARE ALGEBRA / ANALYTISCHE GEOMETRIE</h2>
+        <div class="category-content">
+            <div class="subcategory">
+                <h3>G1: Vektoren im Anschauungsraum</h3>
+                <div class="skill-node"><strong>G1.1: Vektorbegriff</strong> (Pfeile, Orts-, Verbindungsvektoren)</div>
+                <div class="skill-node">
+                    <strong>G1.2: Rechnen mit Vektoren</strong>
+                    <ul>
+                        <li>G1.2.1: Addition, Subtraktion, S-Multiplikation</li>
+                        <li>G1.2.2: Linearkombinationen</li>
+                    </ul>
+                </div>
+                <div class="skill-node"><strong>G1.3: Betrag eines Vektors, Einheitsvektor</strong></div>
+                <div class="skill-node">
+                    <strong>G1.4: Skalarprodukt</strong>
+                    <ul>
+                        <li>G1.4.1: Definition, Eigenschaften</li>
+                        <li>G1.4.2: Winkel zwischen Vektoren</li>
+                        <li>G1.4.3: Orthogonalität</li>
+                    </ul>
+                </div>
+                <div class="skill-node">
+                    <strong>G1.5: Vektorprodukt / Kreuzprodukt (nur $\mathbb{R}^3$)</strong>
+                    <ul><li>G1.5.1: Normalenvektor, Flächeninhalt</li></ul>
+                </div>
+            </div>
+
+            <div class="subcategory">
+                <h3>G2: Geraden und Ebenen im Raum</h3>
+                <div class="skill-node"><strong>G2.1: Parameterdarstellung von Geraden</strong></div>
+                <div class="skill-node">
+                    <strong>G2.2: Parameterdarstellung von Ebenen</strong>
+                    <span class="dependency">Baut auf G1.2.2 auf</span>
+                </div>
+                <div class="skill-node">
+                    <strong>G2.3: Normalenform & Koordinatenform von Ebenen</strong>
+                    <span class="dependency">Baut auf G1.5 auf</span>
+                </div>
+                <div class="skill-node">
+                    <strong>G2.4: Lagebeziehungen <span class="central-skill">(*)</span></strong>
+                    <ul>
+                        <li>G2.4.1: Punkt-Gerade, Punkt-Ebene</li>
+                        <li>G2.4.2: Gerade-Gerade</li>
+                        <li>G2.4.3: Gerade-Ebene</li>
+                        <li>G2.4.4: Ebene-Ebene</li>
+                    </ul>
+                    <span class="dependency">Benötigt LGS (G4.1)</span>
+                </div>
+                <div class="skill-node"><strong>G2.5: Schnittpunkte & Schnittgeraden</strong>
+                    <span class="dependency">Benötigt LGS (G4.1)</span>
+                </div>
+            </div>
+
+            <div class="subcategory">
+                <h3>G3: Abstände und Winkel</h3>
+                <div class="skill-node"><strong>G3.1: Abstand Punkt-Punkt</strong> (-> G1.3)</div>
+                <div class="skill-node"><strong>G3.2: Abstand Punkt-Gerade</strong></div>
+                <div class="skill-node"><strong>G3.3: Abstand Punkt-Ebene</strong></div>
+                <div class="skill-node"><strong>G3.6: Winkelberechnungen</strong> (-> G1.4)</div>
+            </div>
+            
+            <div class="subcategory">
+                <h3>G4: Lineare Gleichungssysteme (LGS) & Matrizen</h3>
+                <div class="skill-node">
+                    <strong>G4.1: Gauß-Algorithmus zur Lösung von LGS <span class="central-skill">(*)</span></strong>
+                    <ul><li>G4.1.1: Lösbarkeit, geometrische Interpretation</li></ul>
+                    <span class="dependency">Erweitert LGS der Mittleren Reife</span>
+                </div>
+                <div class="skill-node"><strong>G4.2: Matrizen & Operationen</strong></div>
+                 <div class="skill-node"><strong>G4.5: Übergangsprozesse, stochastische Matrizen</strong>
+                    <span class="dependency">Verbindung zu S2.3 (Stochastik)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stochastics">
+        <h2>III. STOCHASTIK (Wahrscheinlichkeitsrechnung und Statistik)</h2>
+        <div class="category-content">
+            <div class="subcategory">
+                <h3>S1: Mehrstufige Zufallsexperimente & Bedingte Wahrscheinlichkeit</h3>
+                <div class="skill-node"><strong>S1.1: Baumdiagramme & Pfadregeln (vertieft)</strong></div>
+                <div class="skill-node">
+                    <strong>S1.2: Bedingte Wahrscheinlichkeit <span class="central-skill">(*)</span></strong>
+                    <ul>
+                        <li>S1.2.1: Vierfeldertafel, Satz von Bayes</li>
+                    </ul>
+                </div>
+                <div class="skill-node"><strong>S1.3: Stochastische Unabhängigkeit</strong></div>
+            </div>
+
+            <div class="subcategory">
+                <h3>S2: Zufallsgrößen & Wahrscheinlichkeitsverteilungen</h3>
+                <div class="skill-node"><strong>S2.1: Zufallsgrößen (diskret, stetig)</strong></div>
+                <div class="skill-node"><strong>S2.2: Erwartungswert, Varianz, Standardabweichung <span class="central-skill">(*)</span></strong></div>
+                <div class="skill-node">
+                    <strong>S2.3: Binomialverteilung</strong>
+                    <ul>
+                        <li>S2.3.1: Bernoulli-Kette, Formel</li>
+                        <li>S2.3.2: E(X), Var(X), σ(X) der Binomialverteilung</li>
+                        <li>S2.3.3: Kumulierte Binomialverteilung</li>
+                        <li>S2.3.4: Sigma-Regeln</li>
+                    </ul>
+                </div>
+                <div class="skill-node">
+                    <strong>S2.5: Stetige Zufallsgrößen & Dichtefunktionen (optional)</strong>
+                    <ul>
+                        <li>S2.5.1: Normalverteilung <span class="central-skill">(*)</span> (Glockenkurve)</li>
+                         <li>S2.5.1.2: Sigma-Umgebungen</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="subcategory">
+                <h3>S3: Testen von Hypothesen</h3>
+                <div class="skill-node"><strong>S3.1: Grundbegriffe des Hypothesentestens</strong></div>
+                <div class="skill-node">
+                    <strong>S3.2: Einseitiger Signifikanztest (Binomialvtlg.)</strong>
+                    <ul>
+                        <li>S3.2.1: Annahme-, Ablehnungsbereich</li>
+                        <li>S3.2.2: Fehler 1. & 2. Art</li>
+                    </ul>
+                    <span class="dependency">Baut auf S2.3 auf</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>
