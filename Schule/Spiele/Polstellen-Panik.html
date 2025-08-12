@@ -260,7 +260,7 @@
             monsters: [],
             particles: [],
             lastSpawn: 0,
-            spawnRate: 2000,
+            spawnRate: 4000,
             canvas: null,
             ctx: null,
             mouseX: 0,
@@ -352,14 +352,27 @@
         // Function Generator
         class FunctionGenerator {
             static generateFunction(difficulty = 1) {
-                const templates = [
-                    ['1/x', '(x-1)/x', 'x/(x-1)', '(x+1)/x', 'x/(x+1)', '2/x'],
-                    ['(x^2)/x', '(x-1)/(x^2)', 'x^2/(x-1)', '(x^2-1)/x', '(2*x-1)/x'],
-                    ['(x^2-1)/(x^2-x)', '(x^2)/(x^2-4*x)', '(x^3-x)/(x^2)']
-                ];
+                // Ensure balanced distribution of function types
+                const dangerousFunctions = ['1/x', '2/x', '(x-1)/x', '(x+1)/x', '3/x', '(2*x-1)/x'];
+                const harmlessFunctions = ['x/(x-1)', 'x/(x+1)', 'x/(x-2)', 'x/(x+2)', '(x+2)/(x-1)', '(x-2)/(x+1)'];
+                const removableFunctions = ['(x^2)/x', '(x^3)/x', '(2*x^2)/x', '(x^2-x)/x'];
                 
-                const levelTemplates = templates[Math.min(difficulty - 1, templates.length - 1)];
-                return levelTemplates[Math.floor(Math.random() * levelTemplates.length)];
+                // Force distribution: 40% dangerous, 40% harmless, 20% removable
+                const rand = Math.random();
+                let selectedFunction;
+                
+                if (rand < 0.4) {
+                    // Dangerous functions
+                    selectedFunction = dangerousFunctions[Math.floor(Math.random() * dangerousFunctions.length)];
+                } else if (rand < 0.8) {
+                    // Harmless functions
+                    selectedFunction = harmlessFunctions[Math.floor(Math.random() * harmlessFunctions.length)];
+                } else {
+                    // Removable gap functions
+                    selectedFunction = removableFunctions[Math.floor(Math.random() * removableFunctions.length)];
+                }
+                
+                return selectedFunction;
             }
 
             static analyzeFunction(functionString) {
@@ -376,10 +389,11 @@
 
         // Monster Class
         class Monster {
-            constructor(functionString, startX, speed, canvas) {
+            constructor(functionString, startX, speed, canvas, direction = 1) {
                 this.function = functionString;
                 this.x = startX;
-                this.speed = speed;
+                this.speed = speed * direction; // Negative speed for left-to-right movement
+                this.direction = direction; // 1 for right-to-left, -1 for left-to-right
                 this.canvas = canvas;
                 this.analysis = FunctionGenerator.analyzeFunction(functionString);
                 this.type = this.analysis.type;
@@ -389,6 +403,26 @@
                 this.y = this.calculateY();
                 this.glowIntensity = 0;
                 this.glowDirection = 1;
+                this.pathPoints = []; // Store path points for curve drawing
+                this.generatePath();
+            }
+
+            generatePath() {
+                // Generate path points for the entire visible range
+                this.pathPoints = [];
+                const centerX = this.canvas.width / 2;
+                
+                for (let canvasX = 0; canvasX <= this.canvas.width; canvasX += 10) {
+                    const mathX = (canvasX - centerX) / 50;
+                    const yValue = MathAnalyzer.evaluateFunction(this.function, mathX);
+                    
+                    if (isFinite(yValue) && Math.abs(yValue) < 20) {
+                        const canvasY = this.canvas.height / 2 - (yValue * 30);
+                        if (canvasY >= 0 && canvasY <= this.canvas.height) {
+                            this.pathPoints.push({ x: canvasX, y: canvasY });
+                        }
+                    }
+                }
             }
 
             calculateY() {
@@ -412,6 +446,7 @@
             update(deltaTime) {
                 if (!this.alive) return;
                 
+                // Move based on direction
                 this.x -= this.speed * deltaTime / 1000;
                 this.y = this.calculateY();
                 
@@ -424,8 +459,9 @@
                     this.glowDirection = 1;
                 }
                 
-                // Check if reached center (y-axis)
-                if (this.x <= this.canvas.width / 2 + 25 && !this.reachedCenter) {
+                // Check if reached center (y-axis) from either direction
+                const centerX = this.canvas.width / 2;
+                if (Math.abs(this.x - centerX) <= 25 && !this.reachedCenter) {
                     this.reachedCenter = true;
                     this.handleReachCenter();
                 }
@@ -471,6 +507,9 @@
             draw(ctx) {
                 if (!this.alive) return;
                 
+                // Draw function curve (dashed line)
+                this.drawPath(ctx);
+                
                 let color;
                 switch (this.type) {
                     case 'dangerous': color = `rgba(255, 68, 68, ${0.8 + this.glowIntensity * 0.2})`; break;
@@ -491,6 +530,26 @@
                 ctx.font = '12px monospace';
                 ctx.textAlign = 'center';
                 ctx.fillText(this.function, this.x, this.y - this.radius - 10);
+            }
+
+            drawPath(ctx) {
+                if (this.pathPoints.length < 2) return;
+                
+                // Set up dashed line style
+                ctx.save();
+                ctx.setLineDash([5, 5]);
+                ctx.strokeStyle = `rgba(255, 255, 255, 0.3)`;
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                ctx.moveTo(this.pathPoints[0].x, this.pathPoints[0].y);
+                
+                for (let i = 1; i < this.pathPoints.length; i++) {
+                    ctx.lineTo(this.pathPoints[i].x, this.pathPoints[i].y);
+                }
+                
+                ctx.stroke();
+                ctx.restore();
             }
 
             isClicked(mouseX, mouseY) {
@@ -549,7 +608,8 @@
                 
                 gameState.monsters = gameState.monsters.filter(monster => {
                     monster.update(deltaTime);
-                    return monster.alive && monster.x > -50;
+                    // Keep monsters that are alive and still on screen (from either direction)
+                    return monster.alive && monster.x > -150 && monster.x < gameState.canvas.width + 150;
                 });
                 
                 gameState.particles = gameState.particles.filter(particle => {
@@ -568,7 +628,7 @@
                 const newLevel = Math.floor(gameState.score / 500) + 1;
                 if (newLevel > gameState.level) {
                     gameState.level = newLevel;
-                    gameState.spawnRate = Math.max(800, 2000 - (gameState.level * 200));
+                    gameState.spawnRate = Math.max(2000, 4000 - (gameState.level * 300)); // Slower spawn rate
                 }
                 
                 this.updateUI();
@@ -578,14 +638,24 @@
                 const canvas = gameState.canvas;
                 const functionString = FunctionGenerator.generateFunction(gameState.level);
                 
-                // Start monsters from further right to give more time
-                const startX = canvas.width + 100;
-                const speed = 30 + gameState.level * 8; // Slightly slower for better gameplay
+                // Alternate spawn direction
+                const direction = gameState.monsters.length % 2 === 0 ? 1 : -1;
+                let startX, speed;
                 
-                const monster = new Monster(functionString, startX, speed, canvas);
+                if (direction === 1) {
+                    // Spawn from right (moving left)
+                    startX = canvas.width + 100;
+                    speed = 30 + gameState.level * 5;
+                } else {
+                    // Spawn from left (moving right)
+                    startX = -100;
+                    speed = -(30 + gameState.level * 5);
+                }
+                
+                const monster = new Monster(functionString, startX, speed, canvas, direction);
                 gameState.monsters.push(monster);
                 
-                console.log('Spawned monster:', functionString, 'Type:', monster.type);
+                console.log('Spawned monster:', functionString, 'Type:', monster.type, 'Direction:', direction);
                 this.updateFunctionDisplay();
             }
 
@@ -794,7 +864,7 @@
             gameState.monsters = [];
             gameState.particles = [];
             gameState.lastSpawn = 0;
-            gameState.spawnRate = 2000;
+            gameState.spawnRate = 4000;
             
             gameEngine.start();
         }
