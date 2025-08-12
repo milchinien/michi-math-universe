@@ -99,19 +99,9 @@
             transition: all 0.3s ease;
         }
 
-        .function-card.dangerous {
-            border-color: #ff4444;
-            box-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
-        }
-
-        .function-card.harmless {
-            border-color: #44ff44;
-            box-shadow: 0 0 15px rgba(68, 255, 68, 0.5);
-        }
-
-        .function-card.removable {
-            border-color: #ffaa44;
-            box-shadow: 0 0 15px rgba(255, 170, 68, 0.5);
+        .function-card {
+            border-color: #9696ff;
+            box-shadow: 0 0 15px rgba(150, 150, 255, 0.5);
         }
 
         .controls {
@@ -357,18 +347,18 @@
                 const harmlessFunctions = ['x/(x-1)', 'x/(x+1)', 'x/(x-2)', 'x/(x+2)', '(x+2)/(x-1)', '(x-2)/(x+1)'];
                 const removableFunctions = ['(x^2)/x', '(x^3)/x', '(2*x^2)/x', '(x^2-x)/x'];
                 
-                // Force distribution: 40% dangerous, 40% harmless, 20% removable
+                // Force distribution: 45% dangerous, 45% harmless, 10% removable (reduced yellow)
                 const rand = Math.random();
                 let selectedFunction;
                 
-                if (rand < 0.4) {
+                if (rand < 0.45) {
                     // Dangerous functions
                     selectedFunction = dangerousFunctions[Math.floor(Math.random() * dangerousFunctions.length)];
-                } else if (rand < 0.8) {
+                } else if (rand < 0.9) {
                     // Harmless functions
                     selectedFunction = harmlessFunctions[Math.floor(Math.random() * harmlessFunctions.length)];
                 } else {
-                    // Removable gap functions
+                    // Removable gap functions (reduced probability)
                     selectedFunction = removableFunctions[Math.floor(Math.random() * removableFunctions.length)];
                 }
                 
@@ -474,6 +464,9 @@
             }
 
             handleReachCenter() {
+                // Reveal true color when reaching center
+                this.revealType();
+                
                 if (this.type === 'dangerous') {
                     gameState.health--;
                     gameState.score = Math.max(0, gameState.score - 100);
@@ -483,6 +476,30 @@
                     this.createPowerUpEffect();
                 }
                 this.alive = false;
+            }
+
+            revealType() {
+                // Show true color briefly when type is revealed
+                const canvas = this.canvas;
+                const ctx = canvas.getContext('2d');
+                
+                let revealColor;
+                switch (this.type) {
+                    case 'dangerous': revealColor = '#ff4444'; break;
+                    case 'harmless': revealColor = '#44ff44'; break;
+                    case 'removable': revealColor = '#ffaa44'; break;
+                }
+                
+                // Create a reveal effect at monster position
+                const reveal = {
+                    x: this.x,
+                    y: this.y,
+                    color: revealColor,
+                    life: 1500,
+                    maxLife: 1500,
+                    type: 'reveal'
+                };
+                gameState.particles.push(reveal);
             }
 
             createEnergyBeam() {
@@ -516,17 +533,13 @@
                 // Draw function curve (dashed line)
                 this.drawPath(ctx);
                 
-                let color;
-                switch (this.type) {
-                    case 'dangerous': color = `rgba(255, 68, 68, ${0.8 + this.glowIntensity * 0.2})`; break;
-                    case 'harmless': color = `rgba(68, 255, 68, ${0.8 + this.glowIntensity * 0.2})`; break;
-                    case 'removable': color = `rgba(255, 170, 68, ${0.8 + this.glowIntensity * 0.2})`; break;
-                }
+                // All monsters have neutral color until revealed
+                const neutralColor = `rgba(150, 150, 255, ${0.8 + this.glowIntensity * 0.2})`; // Light blue/purple
                 
                 ctx.shadowBlur = 20 + this.glowIntensity * 20;
-                ctx.shadowColor = color;
+                ctx.shadowColor = neutralColor;
                 
-                ctx.fillStyle = color;
+                ctx.fillStyle = neutralColor;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 ctx.fill();
@@ -744,6 +757,16 @@
                         ctx.beginPath();
                         ctx.arc(particle.x, particle.y, 3, 0, Math.PI * 2);
                         ctx.fill();
+                    } else if (particle.type === 'reveal') {
+                        // Type reveal effect
+                        const alpha = particle.life / particle.maxLife;
+                        ctx.fillStyle = particle.color;
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = particle.color;
+                        ctx.beginPath();
+                        ctx.arc(particle.x, particle.y, 8 * (1 - alpha), 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
                     }
                 });
             }
@@ -819,6 +842,9 @@
                         hitMonster = monster;
                         console.log('Hit monster type:', monster.type);
                         
+                        // Reveal monster type and score
+                        monster.revealType();
+                        
                         // Score based on monster type
                         if (monster.type === 'dangerous') {
                             gameState.score += 100;
@@ -828,13 +854,23 @@
                             console.log('Wrong target! -50 points');
                         }
                         
-                        // Create explosion effect
+                        // Create colored explosion effect based on monster type
                         const explosion = document.createElement('div');
                         explosion.className = 'explosion';
                         explosion.style.position = 'fixed';
                         explosion.style.left = (e.clientX - 25) + 'px';
                         explosion.style.top = (e.clientY - 25) + 'px';
                         explosion.style.zIndex = '1000';
+                        
+                        // Set explosion color based on monster type
+                        let explosionColor;
+                        switch (monster.type) {
+                            case 'dangerous': explosionColor = 'radial-gradient(circle, #ff4444 0%, #ffff00 50%, transparent 100%)'; break;
+                            case 'harmless': explosionColor = 'radial-gradient(circle, #44ff44 0%, #ffff00 50%, transparent 100%)'; break;
+                            case 'removable': explosionColor = 'radial-gradient(circle, #ffaa44 0%, #ffff00 50%, transparent 100%)'; break;
+                        }
+                        explosion.style.background = explosionColor;
+                        
                         document.body.appendChild(explosion);
                         setTimeout(() => explosion.remove(), 500);
                         
