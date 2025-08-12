@@ -584,13 +584,14 @@
 
         // Projectile Class
         class Projectile {
-            constructor(startX, startY, targetX, targetY) {
+            constructor(startX, startY, targetX, targetY, onHit = null) {
                 this.x = startX;
                 this.y = startY;
                 this.targetX = targetX;
                 this.targetY = targetY;
-                this.speed = 800; // pixels per second
+                this.speed = 2000; // pixels per second - much faster
                 this.alive = true;
+                this.onHit = onHit; // Callback for when projectile hits target
                 
                 // Calculate direction
                 const dx = targetX - startX;
@@ -622,6 +623,10 @@
                 const dy = this.y - this.targetY;
                 if (Math.sqrt(dx * dx + dy * dy) < 20) {
                     this.alive = false;
+                    // Trigger explosion when projectile reaches target
+                    if (this.onHit) {
+                        this.onHit();
+                    }
                 }
                 
                 // Remove if off screen
@@ -983,49 +988,54 @@
                         hitMonster = monster;
                         console.log('Hit monster type:', monster.type);
                         
-                        // Create projectile
+                        // Create projectile with explosion callback
                         const centerX = gameState.canvas.width / 2;
                         const centerY = gameState.canvas.height / 2;
-                        const projectile = new Projectile(centerX, centerY, mouseX, mouseY);
+                        
+                        // Create explosion function to be called when projectile hits
+                        const createExplosion = () => {
+                            // Reveal monster type and score
+                            monster.revealType();
+                            
+                            // Score based on monster type with appropriate sounds
+                            if (monster.type === 'dangerous') {
+                                gameState.score += 100;
+                                console.log('Correct hit! +100 points');
+                                playSound('hit_correct');
+                            } else {
+                                gameState.score = Math.max(0, gameState.score - 50);
+                                console.log('Wrong target! -50 points');
+                                playSound('hit_wrong');
+                            }
+                            
+                            // Create colored explosion effect based on monster type
+                            const explosion = document.createElement('div');
+                            explosion.className = 'explosion';
+                            explosion.style.position = 'fixed';
+                            explosion.style.left = (e.clientX - 25) + 'px';
+                            explosion.style.top = (e.clientY - 25) + 'px';
+                            explosion.style.zIndex = '1000';
+                            
+                            // Set explosion color based on monster type
+                            let explosionColor;
+                            switch (monster.type) {
+                                case 'dangerous': explosionColor = 'radial-gradient(circle, #ff4444 0%, #ffff00 50%, transparent 100%)'; break;
+                                case 'harmless': explosionColor = 'radial-gradient(circle, #44ff44 0%, #ffff00 50%, transparent 100%)'; break;
+                                case 'removable': explosionColor = 'radial-gradient(circle, #ffaa44 0%, #ffff00 50%, transparent 100%)'; break;
+                            }
+                            explosion.style.background = explosionColor;
+                            
+                            document.body.appendChild(explosion);
+                            setTimeout(() => explosion.remove(), 500);
+                        };
+                        
+                        const projectile = new Projectile(centerX, centerY, mouseX, mouseY, createExplosion);
                         gameState.projectiles.push(projectile);
                         
-                        // Play shoot sound
+                        // Play shoot sound immediately
                         playSound('shoot');
                         
-                        // Reveal monster type and score
-                        monster.revealType();
-                        
-                        // Score based on monster type with appropriate sounds
-                        if (monster.type === 'dangerous') {
-                            gameState.score += 100;
-                            console.log('Correct hit! +100 points');
-                            playSound('hit_correct');
-                        } else {
-                            gameState.score = Math.max(0, gameState.score - 50);
-                            console.log('Wrong target! -50 points');
-                            playSound('hit_wrong');
-                        }
-                        
-                        // Create colored explosion effect based on monster type
-                        const explosion = document.createElement('div');
-                        explosion.className = 'explosion';
-                        explosion.style.position = 'fixed';
-                        explosion.style.left = (e.clientX - 25) + 'px';
-                        explosion.style.top = (e.clientY - 25) + 'px';
-                        explosion.style.zIndex = '1000';
-                        
-                        // Set explosion color based on monster type
-                        let explosionColor;
-                        switch (monster.type) {
-                            case 'dangerous': explosionColor = 'radial-gradient(circle, #ff4444 0%, #ffff00 50%, transparent 100%)'; break;
-                            case 'harmless': explosionColor = 'radial-gradient(circle, #44ff44 0%, #ffff00 50%, transparent 100%)'; break;
-                            case 'removable': explosionColor = 'radial-gradient(circle, #ffaa44 0%, #ffff00 50%, transparent 100%)'; break;
-                        }
-                        explosion.style.background = explosionColor;
-                        
-                        document.body.appendChild(explosion);
-                        setTimeout(() => explosion.remove(), 500);
-                        
+                        // Mark monster as dead immediately (but explosion happens when projectile hits)
                         monster.alive = false;
                         break;
                     }
