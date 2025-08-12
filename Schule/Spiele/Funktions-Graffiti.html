@@ -92,6 +92,7 @@
           <button class="btn" id="clear">Zurücksetzen</button>
           <button class="btn" id="hint">Hinweis</button>
           <button class="btn" id="solution">Lösung anzeigen</button>
+          <button class="btn primary" id="nextLevel" style="display: none;">Nächstes Level</button>
         </div>
       </div>
     </div>
@@ -125,6 +126,8 @@
       builder: { num: [], den: [] },
       levelData: null,
       canvas: null, ctx: null,
+      levelCompleted: false,
+      currentFunction: null
     };
 
     function toast(msg, ms=1400) {
@@ -566,14 +569,39 @@
     // ---- Controls ----
     function onSpray() {
       const expr = buildFunctionString();
+      state.currentFunction = expr;
       drawScene(expr);
       const res = validateLevel(expr);
-      toast(res.msg);
-      if (res.ok) { state.score += 100; document.getElementById('score').textContent = state.score; state.level += 1; document.getElementById('level').textContent = state.level; loadLevel(); }
+      
+      if (res.ok) {
+        // Level completed successfully
+        state.levelCompleted = true;
+        state.score += 100;
+        document.getElementById('score').textContent = state.score;
+        
+        // Show success message and next level button
+        toast(`✓ Level ${state.level} geschafft! +100 Punkte`, 3000);
+        document.getElementById('nextLevel').style.display = 'inline-block';
+        document.getElementById('spray').disabled = true;
+        
+        // Keep the function visible on screen
+      } else {
+        // Level not completed, show error
+        toast(res.msg);
+        state.levelCompleted = false;
+      }
     }
 
-    function onClear() { state.builder = { num: [], den: [] }; renderBuilder(); updateFunctionText(); drawScene(); }
+    function onClear() { 
+      if (state.levelCompleted) return; // Don't allow clearing after completion
+      state.builder = { num: [], den: [] }; 
+      renderBuilder(); 
+      updateFunctionText(); 
+      drawScene(); 
+    }
+    
     function onHint() { toast(state.levelData.hint || 'Kein Hinweis.'); }
+    
     function onSolution() {
       if (!state.levelData || !state.levelData.solution) {
         toast('Keine Lösung verfügbar.');
@@ -586,6 +614,26 @@
       const solutionText = `Lösung: ${numStr} / ${denStr}`;
       
       toast(solutionText, 4000); // Show for 4 seconds
+    }
+    
+    function onNextLevel() {
+      // Advance to next level
+      state.level += 1;
+      document.getElementById('level').textContent = state.level;
+      
+      // Reset state
+      state.levelCompleted = false;
+      state.currentFunction = null;
+      state.builder = { num: [], den: [] };
+      
+      // Reset UI
+      document.getElementById('nextLevel').style.display = 'none';
+      document.getElementById('spray').disabled = false;
+      
+      // Load new level
+      renderBuilder();
+      updateFunctionText();
+      loadLevel();
     }
 
     function loadLevel() {
@@ -600,6 +648,7 @@
       document.getElementById('clear').onclick = onClear;
       document.getElementById('hint').onclick = onHint;
       document.getElementById('solution').onclick = onSolution;
+      document.getElementById('nextLevel').onclick = onNextLevel;
       loadLevel();
     }
     window.addEventListener('load', init);
