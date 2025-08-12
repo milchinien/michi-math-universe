@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funktions-Graffiti</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <style>
+    :root {
+      --bg: #0c0f14;
+      --panel: #131823;
+      --neon: #00ffff;
+      --accent: #ff4d6d;
+      --good: #44ff44;
+      --bad: #ff4444;
+      --warn: #ffd447;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: radial-gradient(1200px 800px at 50% 40%, #151a25, var(--bg)); color: #e8eef6; font-family: system-ui, Segoe UI, Roboto, Arial; height: 100vh; display: flex; flex-direction: column; }
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #0b111a; border-bottom: 1px solid #182235; }
+    .title { color: var(--neon); font-weight: 700; letter-spacing: 0.5px; }
+    .stats { display: flex; gap: 16px; font-size: 14px; }
+    .stat b { color: var(--neon); }
+
+    .layout { display: grid; grid-template-columns: 360px 1fr; gap: 12px; padding: 12px; height: calc(100vh - 54px); }
+    .panel { background: var(--panel); border: 1px solid #1e2840; border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.3) inset; }
+    .panel h3 { margin: 0; padding: 10px 12px; border-bottom: 1px solid #1e2840; color: #b7c7e6; font-size: 14px; text-transform: uppercase; letter-spacing: .6px; }
+
+    .left { display: grid; grid-template-rows: auto auto 1fr; gap: 12px; }
+    .library { padding: 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .chip { background: #0e1420; border: 1px solid #243150; color: #dfe8f7; border-radius: 8px; padding: 8px; text-align: center; cursor: grab; user-select: none; box-shadow: 0 0 0 0 rgba(0,255,255,.0); transition: transform .1s ease, box-shadow .2s ease; }
+    .chip:hover { transform: translateY(-1px); box-shadow: 0 0 12px rgba(0,255,255,.25); }
+
+    .builder { padding: 12px; display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .fraction { display: grid; grid-template-rows: auto auto auto; align-items: center; gap: 6px; }
+    .frac-label { font-size: 12px; color: #a7b5cf; }
+    .slot { min-height: 54px; background: #0a0f19; border: 2px dashed #2a395e; border-radius: 10px; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-content: flex-start; transition: border-color .15s ease, background .15s ease; }
+    .slot.dragover { border-color: var(--neon); background: #0e1624; }
+    .tag { background: #172238; border: 1px solid #2a3b62; border-radius: 8px; padding: 6px 8px; display: inline-flex; align-items: center; gap: 6px; }
+    .tag .rm { color: #8aa4cf; cursor: pointer; }
+
+    .controls { padding: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn { background: linear-gradient(180deg,#162236,#0c1422); border: 1px solid #2a395e; color: #e8eef6; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn.primary { border-color: var(--neon); color: var(--neon); box-shadow: inset 0 0 0 1px rgba(0,255,255,.3); }
+
+    .canvas-wrap { position: relative; }
+    canvas { width: 100%; height: calc(100vh - 78px); display: block; background: repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 12px, transparent 12px 24px),
+             radial-gradient(1000px 700px at 50% 40%, #101625, #0c0f14); border-radius: 10px; border: 1px solid #1e2840; }
+    .overlay { position: absolute; inset: 0; pointer-events: none; }
+
+    .legend { position: absolute; top: 10px; right: 10px; background: #0e1420cc; border: 1px solid #1e2840; border-radius: 8px; padding: 8px 10px; font-size: 12px; }
+    .legend div { margin: 4px 0; }
+    .legend b { color: #b7c7e6; }
+
+    .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: #0e1420; border: 1px solid #2a395e; padding: 10px 14px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">🎨 Funktions-Graffiti</div>
+    <div class="stats">
+      <div class="stat">Level: <b id="level">1</b></div>
+      <div class="stat">Punkte: <b id="score">0</b></div>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="left">
+      <div class="panel">
+        <h3>Baustein-Bibliothek</h3>
+        <div class="library" id="library"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Funktion zusammenstellen</h3>
+        <div class="builder">
+          <div class="fraction">
+            <div class="frac-label">Zähler</div>
+            <div class="slot" id="slot-num" data-slot="num"></div>
+            <div class="frac-label">Nenner</div>
+            <div class="slot" id="slot-den" data-slot="den"></div>
+          </div>
+          <div id="functionText"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Aktionen</h3>
+        <div class="controls">
+          <button class="btn primary" id="spray">Spray!</button>
+          <button class="btn" id="clear">Zurücksetzen</button>
+          <button class="btn" id="hint">Hinweis</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel canvas-wrap">
+      <canvas id="gameCanvas"></canvas>
+      <div class="overlay">
+        <div class="legend">
+          <div><b>Zielpunkte</b>: leuchten grün</div>
+          <div><b>Sperrzonen</b>: rot (nicht sprühen)</div>
+          <div><b>Asymptoten</b>: gestrichelt</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjs@11.11.0/lib/browser/math.min.js"></script>
+  <script>
+    // ---- State ----
+    const state = {
+      level: 1,
+      score: 0,
+      components: [
+        { id:'(x-1)', type:'factor'}, { id:'(x+1)', type:'factor'}, { id:'(x-2)', type:'factor'}, { id:'(x+2)', type:'factor'},
+        { id:'x', type:'poly'}, { id:'x^2', type:'poly'}, { id:'x^3', type:'poly'},
+        { id:'2', type:'const'}, { id:'-1', type:'const'}, { id:'3', type:'const'},
+        { id:'2x', type:'poly'}, { id:'-x', type:'poly'}
+      ],
+      builder: { num: [], den: [] },
+      levelData: null,
+      canvas: null, ctx: null,
+    };
+
+    function toast(msg, ms=1400) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'), ms);
+    }
+
+    // ---- Drag & Drop library ----
+    function renderLibrary() {
+      const lib = document.getElementById('library');
+      lib.innerHTML = '';
+      state.components.forEach(c => {
+        const el = document.createElement('div');
+        el.className = 'chip';
+        el.textContent = c.id;
+        el.draggable = true;
+        el.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', c.id);
+        });
+        lib.appendChild(el);
+      });
+    }
+
+    function setupSlots() {
+      document.querySelectorAll('.slot').forEach(slot => {
+        slot.addEventListener('dragover', e => { e.preventDefault(); slot.classList.add('dragover'); });
+        slot.addEventListener('dragleave', () => slot.classList.remove('dragover'));
+        slot.addEventListener('drop', e => {
+          e.preventDefault(); slot.classList.remove('dragover');
+          const id = e.dataTransfer.getData('text/plain');
+          const where = slot.dataset.slot; // 'num' or 'den'
+          addToBuilder(where, id);
+        });
+      });
+    }
+
+    function addToBuilder(where, token) {
+      state.builder[where].push(token);
+      renderBuilder();
+      updateFunctionText();
+    }
+
+    function removeFromBuilder(where, idx) {
+      state.builder[where].splice(idx, 1);
+      renderBuilder();
+      updateFunctionText();
+    }
+
+    function renderBuilder() {
+      ['num','den'].forEach(where => {
+        const slot = document.getElementById('slot-'+where);
+        slot.innerHTML = '';
+        state.builder[where].forEach((tok, idx) => {
+          const tag = document.createElement('div');
+          tag.className = 'tag';
+          tag.innerHTML = `<span>${tok}</span><span class="rm" title="Entfernen">✕</span>`;
+          tag.querySelector('.rm').onclick = ()=> removeFromBuilder(where, idx);
+          slot.appendChild(tag);
+        });
+      });
+    }
+
+    // ---- Function building/evaluation ----
+    function buildFunctionString() {
+      const mul = arr => arr.length? arr.join('*') : '1';
+      const num = mul(state.builder.num);
+      const den = mul(state.builder.den);
+      return `(${num})/(${den})`;
+    }
+
+    function updateFunctionText() {
+      const f = buildFunctionString();
+      const el = document.getElementById('functionText');
+      el.textContent = `f(x) = ${f}`;
+    }
+
+    function safeEval(expr, x) {
+      try {
+        const js = expr.replaceAll('^','**').replaceAll('x',`(${x})`).replaceAll('x*', '(x)*');
+        const val = eval(js);
+        if (!isFinite(val)) return null;
+        return val;
+      } catch { return null; }
+    }
+
+    // ---- Canvas / Graph ----
+    function setupCanvas() {
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      // Assign to state BEFORE first resize -> drawScene() might be called inside resize
+      state.canvas = canvas; state.ctx = ctx;
+      const resize = ()=> { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; drawScene(); };
+      window.addEventListener('resize', resize);
+      resize();
+    }
+
+    function toScreen(x, y, bounds) {
+      const {xmin,xmax,ymin,ymax} = bounds; const {width,height} = state.canvas;
+      const sx = (x - xmin) / (xmax - xmin) * width;
+      const sy = height - (y - ymin) / (ymax - ymin) * height;
+      return [sx, sy];
+    }
+
+    function drawAxes(bounds) {
+      const {ctx, canvas} = state; const {xmin,xmax,ymin,ymax} = bounds;
+      ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.15)'; ctx.lineWidth = 1;
+      // grid
+      const step = 1;
+      for (let x=Math.ceil(xmin); x<=xmax; x+=step) { const [sx] = toScreen(x,0,bounds); ctx.beginPath(); ctx.moveTo(sx,0); ctx.lineTo(sx,canvas.height); ctx.stroke(); }
+      for (let y=Math.ceil(ymin); y<=ymax; y+=step) { const [,sy] = toScreen(0,y,bounds); ctx.beginPath(); ctx.moveTo(0,sy); ctx.lineTo(canvas.width,sy); ctx.stroke(); }
+      // axes
+      ctx.strokeStyle = 'rgba(0,255,255,.5)'; ctx.lineWidth = 2;
+      const [y0x,y0y] = toScreen(0,0,bounds);
+      ctx.beginPath(); ctx.moveTo(y0x,0); ctx.lineTo(y0x,canvas.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,y0y); ctx.lineTo(canvas.width,y0y); ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawTargetsAndZones(bounds) {
+      const {ctx} = state;
+      if (!state.levelData) return; // safety during early init
+      const {targets, vlines, hlines} = state.levelData;
+      ctx.save();
+      // forbidden vertical lines
+      ctx.setLineDash([8,8]); ctx.strokeStyle = 'rgba(255,80,80,.9)'; ctx.lineWidth = 2;
+      vlines.forEach(x => { const [sx] = toScreen(x,0,bounds); ctx.beginPath(); ctx.moveTo(sx,0); ctx.lineTo(sx,state.canvas.height); ctx.stroke(); });
+      // forbidden horizontal lines
+      hlines.forEach(y => { const [,sy] = toScreen(0,y,bounds); ctx.beginPath(); ctx.moveTo(0,sy); ctx.lineTo(state.canvas.width,sy); ctx.stroke(); });
+      ctx.setLineDash([]);
+      // targets
+      targets.forEach(p => { const [sx,sy] = toScreen(p[0], p[1], bounds); const glow=8; ctx.fillStyle = 'rgba(68,255,68,.25)'; ctx.beginPath(); ctx.arc(sx,sy,glow,0,Math.PI*2); ctx.fill(); ctx.fillStyle = '#44ff44'; ctx.beginPath(); ctx.arc(sx,sy,3,0,Math.PI*2); ctx.fill(); });
+      ctx.restore();
+    }
+
+    function drawFunctionCurve(expr, bounds) {
+      const {ctx} = state; ctx.save();
+      ctx.strokeStyle = '#9ab6ff'; ctx.lineWidth = 2;
+      let last=null; const N = state.canvas.width; // pixel sampling
+      for (let i=0;i<=N;i++) {
+        const x = bounds.xmin + (i/N)*(bounds.xmax-bounds.xmin);
+        const y = safeEval(expr, x);
+        if (y===null || y>1e6 || y<-1e6) { last=null; continue; }
+        if (y<bounds.ymin-5 || y>bounds.ymax+5) { last=null; continue; }
+        const pt = toScreen(x,y,bounds);
+        if (!last) { last=pt; continue; }
+        // break near vertical asymptotes by slope threshold
+        if (Math.abs(pt[1]-last[1])>120) { last=pt; continue; }
+        ctx.beginPath(); ctx.moveTo(last[0], last[1]); ctx.lineTo(pt[0], pt[1]); ctx.stroke(); last=pt;
+      }
+      ctx.restore();
+    }
+
+    function validateLevel(expr) {
+      const {targets, vlines, hlines} = state.levelData;
+      // forbidden zones: we consider a violation if the curve samples close to line
+      for (const x0 of vlines) {
+        const l = safeEval(expr, x0);
+        if (l!==null) return { ok:false, msg:`Verbotene vertikale Linie x=${x0} berührt.` };
+      }
+      for (const y0 of hlines) {
+        // approximate: check limits for +/- large x for horizontal asymptote management is complex; simplified: ensure |f(±10)|<|y0|+something if required. For tutorial levels, we skip.
+      }
+      // targets: sample near point x with tolerance
+      const tol = 0.25;
+      for (const [tx,ty] of targets) {
+        const y = safeEval(expr, tx);
+        if (y===null || Math.abs(y-ty)>tol) return { ok:false, msg:`Ziel (${tx}, ${ty}) nicht getroffen.` };
+      }
+      return { ok:true, msg:'Sauber gesprüht! ✔' };
+    }
+
+    function drawScene(expr=null) {
+      const bounds = { xmin:-6, xmax:6, ymin:-4, ymax:4 };
+      const {ctx, canvas} = state;
+      if (!ctx || !canvas) return; // safety during early init
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      drawAxes(bounds);
+      drawTargetsAndZones(bounds);
+      if (expr) drawFunctionCurve(expr, bounds);
+    }
+
+    // ---- Levels ----
+    function generateSolvableLevel(level) {
+      // Generate a level where the target function can be built from available components
+      const solutions = [
+        // Level 1: Simple rational function
+        { num: ['x'], den: ['(x-1)'], testPoints: [0, 2, 3], hint: 'Vermeide x=1 im Nenner. Nutze x/(x-1).' },
+        // Level 2: Polynomial over constant
+        { num: ['x^2'], den: ['2'], testPoints: [1, 2, -1], hint: 'Einfache Parabel: x²/2.' },
+        // Level 3: Removable discontinuity
+        { num: ['(x-2)', 'x'], den: ['(x-2)'], testPoints: [0, 1, 3], hint: 'Kürze (x-2) weg für hebbare Lücke bei x=2.' },
+        // Level 4: More complex
+        { num: ['2x'], den: ['(x+1)'], testPoints: [0, 1, -2], hint: 'Nutze 2x/(x+1), vermeide x=-1.' },
+        // Level 5: Quadratic over linear
+        { num: ['x^2'], den: ['(x-1)'], testPoints: [0, 2, 3], hint: 'x²/(x-1) hat Asymptote bei x=1.' }
+      ];
+      
+      const sol = solutions[(level-1) % solutions.length];
+      
+      // Calculate actual target points by evaluating the solution
+      const targets = [];
+      const vlines = [];
+      
+      // Build the expression string
+      const numStr = sol.num.join('*');
+      const denStr = sol.den.join('*');
+      const expr = `(${numStr})/(${denStr})`;
+      
+      // Find vertical asymptotes (where denominator = 0)
+      sol.den.forEach(factor => {
+        if (factor.includes('x-')) {
+          const match = factor.match(/x-(-?\d+)/);
+          if (match) vlines.push(parseInt(match[1]));
+        } else if (factor.includes('x+')) {
+          const match = factor.match(/x\+(-?\d+)/);
+          if (match) vlines.push(-parseInt(match[1]));
+        }
+      });
+      
+      // Calculate target points
+      sol.testPoints.forEach(x => {
+        const y = safeEval(expr, x);
+        if (y !== null && isFinite(y) && Math.abs(y) < 10) {
+          targets.push([x, Math.round(y * 100) / 100]); // Round to 2 decimals
+        }
+      });
+      
+      return {
+        targets,
+        vlines,
+        hlines: [],
+        hint: sol.hint,
+        solution: { num: sol.num, den: sol.den }
+      };
+    }
+    
+    function getLevelData(level) {
+      return generateSolvableLevel(level);
+    }
+
+    // ---- Controls ----
+    function onSpray() {
+      const expr = buildFunctionString();
+      drawScene(expr);
+      const res = validateLevel(expr);
+      toast(res.msg);
+      if (res.ok) { state.score += 100; document.getElementById('score').textContent = state.score; state.level += 1; document.getElementById('level').textContent = state.level; loadLevel(); }
+    }
+
+    function onClear() { state.builder = { num: [], den: [] }; renderBuilder(); updateFunctionText(); drawScene(); }
+    function onHint() { toast(state.levelData.hint || 'Kein Hinweis.'); }
+
+    function loadLevel() {
+      state.levelData = getLevelData(state.level);
+      drawScene();
+    }
+
+    // ---- Init ----
+    function init() {
+      renderLibrary(); setupSlots(); setupCanvas(); renderBuilder(); updateFunctionText();
+      document.getElementById('spray').onclick = onSpray;
+      document.getElementById('clear').onclick = onClear;
+      document.getElementById('hint').onclick = onHint;
+      loadLevel();
+    }
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>
