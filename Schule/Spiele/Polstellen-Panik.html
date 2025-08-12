@@ -271,12 +271,17 @@
         class MathAnalyzer {
             static hasPolstelle(functionString, x = 0) {
                 try {
-                    // Simple check for common patterns
+                    // More comprehensive check for polstellen at x=0
                     if (functionString.includes('/x') && !functionString.includes('/(x-') && !functionString.includes('/(x+')) {
-                        return true;
+                        // Check if numerator is also zero at x=0
+                        const numerator = functionString.split('/')[0];
+                        const numeratorAtZero = this.evaluateExpression(numerator, 0);
+                        return Math.abs(numeratorAtZero) > 0.0001; // Polstelle if numerator ≠ 0
                     }
                     if (functionString.includes('/(x^2)') || functionString.includes('/(x*x)')) {
-                        return true;
+                        const numerator = functionString.split('/')[0];
+                        const numeratorAtZero = this.evaluateExpression(numerator, 0);
+                        return Math.abs(numeratorAtZero) > 0.0001;
                     }
                     return false;
                 } catch (e) {
@@ -290,20 +295,56 @@
                     if (functionString.match(/x\^?\d*\/x/) && !functionString.includes('x-') && !functionString.includes('x+')) {
                         return true;
                     }
+                    // Check if both numerator and denominator are zero
+                    if (functionString.includes('/x')) {
+                        const numerator = functionString.split('/')[0];
+                        const numeratorAtZero = this.evaluateExpression(numerator, 0);
+                        return Math.abs(numeratorAtZero) < 0.0001; // Removable if numerator = 0
+                    }
                     return false;
                 } catch (e) {
                     return false;
                 }
             }
 
+            static evaluateExpression(expr, x) {
+                try {
+                    // Handle parentheses and common patterns
+                    let cleanExpr = expr.replace(/\(/g, '').replace(/\)/g, '');
+                    cleanExpr = cleanExpr.replace(/\^/g, '**');
+                    cleanExpr = cleanExpr.replace(/x/g, `(${x})`);
+                    cleanExpr = cleanExpr.replace(/\*/g, '*');
+                    return eval(cleanExpr);
+                } catch (e) {
+                    return 0;
+                }
+            }
+
             static evaluateFunction(functionString, x) {
                 try {
-                    // Simple evaluation for basic functions
+                    // Handle division by zero cases
+                    if (Math.abs(x) < 0.001) {
+                        // Near zero, check for special behavior
+                        if (this.hasPolstelle(functionString, 0)) {
+                            return x > 0 ? 1000 : -1000; // Simulate approach to infinity
+                        }
+                        if (this.hasRemovableGap(functionString, 0)) {
+                            // For removable gaps, use limit
+                            return this.evaluateFunction(functionString, 0.001);
+                        }
+                    }
+                    
                     let expr = functionString.replace(/\^/g, '**');
                     expr = expr.replace(/x/g, `(${x})`);
-                    return eval(expr);
+                    const result = eval(expr);
+                    
+                    // Clamp extreme values for display
+                    if (!isFinite(result) || Math.abs(result) > 1000) {
+                        return result > 0 ? 1000 : -1000;
+                    }
+                    return result;
                 } catch (e) {
-                    return Math.random() * 200 - 100; // Random fallback
+                    return 0;
                 }
             }
         }
@@ -352,11 +393,16 @@
 
             calculateY() {
                 try {
-                    const yValue = MathAnalyzer.evaluateFunction(this.function, this.x);
+                    // Convert canvas x to mathematical x coordinate
+                    const mathX = (this.x - this.canvas.width / 2) / 50; // Scale factor
+                    const yValue = MathAnalyzer.evaluateFunction(this.function, mathX);
+                    
                     if (isNaN(yValue) || !isFinite(yValue)) {
                         return this.canvas.height / 2;
                     }
-                    const scaledY = this.canvas.height / 2 - (yValue * 20);
+                    
+                    // Convert mathematical y to canvas y (inverted)
+                    const scaledY = this.canvas.height / 2 - (yValue * 30);
                     return Math.max(50, Math.min(this.canvas.height - 50, scaledY));
                 } catch (e) {
                     return this.canvas.height / 2;
@@ -378,7 +424,8 @@
                     this.glowDirection = 1;
                 }
                 
-                if (this.x <= this.canvas.width / 2 + 30 && !this.reachedCenter) {
+                // Check if reached center (y-axis)
+                if (this.x <= this.canvas.width / 2 + 25 && !this.reachedCenter) {
                     this.reachedCenter = true;
                     this.handleReachCenter();
                 }
@@ -530,12 +577,15 @@
             spawnMonster() {
                 const canvas = gameState.canvas;
                 const functionString = FunctionGenerator.generateFunction(gameState.level);
-                const startX = canvas.width + 50;
-                const speed = 50 + gameState.level * 10;
+                
+                // Start monsters from further right to give more time
+                const startX = canvas.width + 100;
+                const speed = 30 + gameState.level * 8; // Slightly slower for better gameplay
                 
                 const monster = new Monster(functionString, startX, speed, canvas);
                 gameState.monsters.push(monster);
                 
+                console.log('Spawned monster:', functionString, 'Type:', monster.type);
                 this.updateFunctionDisplay();
             }
 
@@ -677,28 +727,45 @@
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
                 
+                console.log('Click at:', mouseX, mouseY);
+                console.log('Monsters:', gameState.monsters.length);
+                
                 // Check if any monster was clicked
+                let hitMonster = null;
                 for (let i = gameState.monsters.length - 1; i >= 0; i--) {
                     const monster = gameState.monsters[i];
+                    console.log('Checking monster at:', monster.x, monster.y, 'alive:', monster.alive);
+                    
                     if (monster.alive && monster.isClicked(mouseX, mouseY)) {
-                        // Shoot monster
+                        hitMonster = monster;
+                        console.log('Hit monster type:', monster.type);
+                        
+                        // Score based on monster type
                         if (monster.type === 'dangerous') {
                             gameState.score += 100;
+                            console.log('Correct hit! +100 points');
                         } else {
                             gameState.score = Math.max(0, gameState.score - 50);
+                            console.log('Wrong target! -50 points');
                         }
                         
                         // Create explosion effect
                         const explosion = document.createElement('div');
                         explosion.className = 'explosion';
+                        explosion.style.position = 'fixed';
                         explosion.style.left = (e.clientX - 25) + 'px';
                         explosion.style.top = (e.clientY - 25) + 'px';
+                        explosion.style.zIndex = '1000';
                         document.body.appendChild(explosion);
                         setTimeout(() => explosion.remove(), 500);
                         
                         monster.alive = false;
                         break;
                     }
+                }
+                
+                if (!hitMonster) {
+                    console.log('No monster hit');
                 }
             });
             
