@@ -392,7 +392,7 @@
             constructor(functionString, startX, speed, canvas, direction = 1) {
                 this.function = functionString;
                 this.x = startX;
-                this.speed = speed * direction; // Negative speed for left-to-right movement
+                this.speed = speed; // Keep speed positive, handle direction in update
                 this.direction = direction; // 1 for right-to-left, -1 for left-to-right
                 this.canvas = canvas;
                 this.analysis = FunctionGenerator.analyzeFunction(functionString);
@@ -447,7 +447,13 @@
                 if (!this.alive) return;
                 
                 // Move based on direction
-                this.x -= this.speed * deltaTime / 1000;
+                if (this.direction === 1) {
+                    // Moving from right to left (toward center)
+                    this.x -= this.speed * deltaTime / 1000;
+                } else {
+                    // Moving from left to right (toward center)
+                    this.x += this.speed * deltaTime / 1000;
+                }
                 this.y = this.calculateY();
                 
                 this.glowIntensity += this.glowDirection * deltaTime / 500;
@@ -609,7 +615,11 @@
                 gameState.monsters = gameState.monsters.filter(monster => {
                     monster.update(deltaTime);
                     // Keep monsters that are alive and still on screen (from either direction)
-                    return monster.alive && monster.x > -150 && monster.x < gameState.canvas.width + 150;
+                    const onScreen = monster.x > -150 && monster.x < gameState.canvas.width + 150;
+                    if (!monster.alive || !onScreen) {
+                        console.log('Removing monster:', monster.function, 'alive:', monster.alive, 'x:', monster.x, 'onScreen:', onScreen);
+                    }
+                    return monster.alive && onScreen;
                 });
                 
                 gameState.particles = gameState.particles.filter(particle => {
@@ -640,16 +650,15 @@
                 
                 // Alternate spawn direction
                 const direction = gameState.monsters.length % 2 === 0 ? 1 : -1;
-                let startX, speed;
+                let startX;
+                const speed = 30 + gameState.level * 5;
                 
                 if (direction === 1) {
                     // Spawn from right (moving left)
                     startX = canvas.width + 100;
-                    speed = 30 + gameState.level * 5;
                 } else {
                     // Spawn from left (moving right)
                     startX = -100;
-                    speed = -(30 + gameState.level * 5);
                 }
                 
                 const monster = new Monster(functionString, startX, speed, canvas, direction);
