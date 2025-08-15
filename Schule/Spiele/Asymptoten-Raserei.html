@@ -14,12 +14,25 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            background: linear-gradient(135deg, #2a1a1a 0%, #3a1a2e 50%, #361a2e 100%);
             font-family: 'Orbitron', monospace;
             color: #00ffff;
             overflow: hidden;
             height: 100vh;
+            transition: background 1s ease-in-out;
         }
+        
+        /* Dynamische Level-Hintergründe - Rot/Pink/Rosa/Lila Spektrum */
+        body.level-1 { background: linear-gradient(135deg, #2a1a1a 0%, #3a1a2e 50%, #361a2e 100%); }
+        body.level-2 { background: linear-gradient(135deg, #2a0a1a 0%, #3a0a2e 50%, #360a2e 100%); }
+        body.level-3 { background: linear-gradient(135deg, #2a0a0a 0%, #3a0a1e 50%, #360a1e 100%); }
+        body.level-4 { background: linear-gradient(135deg, #1a0a0a 0%, #2a0a1e 50%, #260a1e 100%); }
+        body.level-5 { background: linear-gradient(135deg, #1a0a0a 0%, #1a0a1e 50%, #160a1e 100%); }
+        body.level-6 { background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1e 50%, #160a1e 100%); }
+        body.level-7 { background: linear-gradient(135deg, #0a0a0a 0%, #0a0a1e 50%, #0a0a1e 100%); }
+        body.level-8 { background: linear-gradient(135deg, #0a0a0a 0%, #0a0a0e 50%, #0a0a1e 100%); }
+        body.level-9 { background: linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 50%, #0a0a1e 100%); }
+        body.level-10 { background: linear-gradient(135deg, #0a0a0a 0%, #0a0a0a 50%, #0a0a0a 100%); }
         
         #gameContainer {
             position: relative;
@@ -138,9 +151,58 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+        
+        #pauseMenu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 0 30px #00ffff;
+            z-index: 1000;
+        }
+        
+        #pauseMenu h2 {
+            color: #00ffff;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px #00ffff;
+        }
+        
+        .pause-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .pause-buttons button {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            border: none;
+            color: #000;
+            padding: 15px 30px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 200px;
+        }
+        
+        .pause-buttons button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #00ffff;
+        }
     </style>
 </head>
 <body>
+    <!-- Hintergrund-Effekte Canvas -->
+    <canvas id="backgroundCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
+    
     <div id="gameContainer">
         <canvas id="gameCanvas" width="1000" height="600"></canvas>
         
@@ -156,9 +218,19 @@
         </div>
         
         <div id="controls">
-            <p>← Bremsen | → Beschleunigen | Leertaste: Sprung | R: Restart</p>
+            <p>← Bremsen | → Beschleunigen | Leertaste: Sprung | R: Restart | P: Pause</p>
             <p style="font-size: 10px; margin-top: 5px;">🎯 Fahre automatisch! Springe über gelbe Lücken, nutze pinke Asymptoten für Boosts!</p>
             <p style="font-size: 10px; margin-top: 5px;">🔧 Level 8: 1/2 für Pfad-Wechsel | Level 10: Chaos-Effekte alle 2 Sekunden!</p>
+            <p style="font-size: 10px; margin-top: 5px;">⭐ PERFECT TIMING: Bei jedem Sprung erscheint ein schrumpfender Kreis! Perfekter Moment = +500 Punkte!</p>
+        </div>
+        
+        <div id="pauseMenu" style="display: none;">
+            <h2>Spiel pausiert</h2>
+            <div class="pause-buttons">
+                <button onclick="game.resumeGame()">Weiterspielen</button>
+                <button onclick="game.restart()">Neustart</button>
+                <button onclick="game.showMainMenu()">Hauptmenü</button>
+            </div>
         </div>
         
         <div id="gameOver">
@@ -175,6 +247,204 @@
     </div>
 
     <script>
+        class BackgroundEffects {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.resizeCanvas();
+                this.particles = [];
+                this.scanlines = [];
+                this.vignette = 0;
+                this.level = 1;
+                
+                // Event-Listener für Canvas-Resize
+                window.addEventListener('resize', () => this.resizeCanvas());
+                
+                // Initialisiere Effekte
+                this.initEffects();
+            }
+            
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            }
+            
+            initEffects() {
+                // Scanlines erstellen
+                for (let i = 0; i < this.canvas.height; i += 2) {
+                    this.scanlines.push({
+                        y: i,
+                        alpha: Math.random() * 0.1 + 0.05
+                    });
+                }
+                
+                // Partikel erstellen - mehr und intensivere
+                const baseParticleCount = 80; // Mehr Basis-Partikel
+                for (let i = 0; i < baseParticleCount; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        vx: (Math.random() - 0.5) * 0.8, // Schnellere Bewegung
+                        vy: (Math.random() - 0.5) * 0.8,
+                        size: Math.random() * 3 + 1.5, // Größere Partikel
+                        alpha: Math.random() * 0.5 + 0.2, // Intensivere Transparenz
+                        color: this.getRandomRetroColor()
+                    });
+                }
+            }
+            
+            getRandomRetroColor() {
+                const colors = [
+                    { r: 255, g: 0, b: 255 },   // Magenta
+                    { r: 255, g: 20, b: 147 },  // Deep Pink
+                    { r: 255, g: 105, b: 180 }, // Hot Pink
+                    { r: 255, g: 0, b: 127 },   // Rose
+                    { r: 255, g: 0, b: 0 },     // Rot
+                    { r: 128, g: 0, b: 128 },   // Lila
+                    { r: 255, g: 20, b: 147 },  // Deep Pink
+                    { r: 199, g: 21, b: 133 }   // Medium Violet Red
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            setLevel(level) {
+                this.level = level;
+                this.vignette = (level - 1) * 0.1; // Intensität steigt mit dem Level
+            }
+            
+            update() {
+                // Partikel aktualisieren
+                this.particles.forEach(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    
+                    // Partikel am Rand zurücksetzen
+                    if (particle.x < 0 || particle.x > this.canvas.width) particle.vx *= -1;
+                    if (particle.y < 0 || particle.y > this.canvas.height) particle.vy *= -1;
+                    
+                    // Partikel-Größe und Alpha variieren
+                    particle.size = Math.max(0.5, particle.size + (Math.random() - 0.5) * 0.1);
+                    particle.alpha = Math.max(0.05, particle.alpha + (Math.random() - 0.5) * 0.02);
+                });
+            }
+            
+            render() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Vignette-Effekt (wird mit dem Level intensiver) - Roter Schimmer
+                const gradient = this.ctx.createRadialGradient(
+                    this.canvas.width / 2, this.canvas.height / 2, 0,
+                    this.canvas.width / 2, this.canvas.height / 2, this.canvas.width / 2
+                );
+                const vignetteIntensity = this.vignette * 1.5; // Intensiver
+                gradient.addColorStop(0, `rgba(255, 0, 127, ${vignetteIntensity * 0.3})`); // Rosa Schimmer in der Mitte
+                gradient.addColorStop(0.5, `rgba(128, 0, 128, ${vignetteIntensity * 0.6})`); // Lila Übergang
+                gradient.addColorStop(1, `rgba(0, 0, 0, ${vignetteIntensity})`); // Schwarzer Rand
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Scanlines (Retro-TV-Effekt) - Intensiver und roter
+                const scanlineIntensity = 0.15 + this.level * 0.03; // Steigert sich mit dem Level
+                this.ctx.strokeStyle = `rgba(255, 0, 255, ${scanlineIntensity})`;
+                this.ctx.lineWidth = 1 + this.level * 0.2; // Dickere Linien in höheren Leveln
+                this.scanlines.forEach(line => {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, line.y);
+                    this.ctx.lineTo(this.canvas.width, line.y);
+                    this.ctx.stroke();
+                });
+                
+                // Partikel rendern
+                this.particles.forEach(particle => {
+                    this.ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${particle.alpha})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+                
+                // Glitch-Effekt für höhere Level - Früher und intensiver
+                if (this.level >= 5) {
+                    this.renderGlitchEffect();
+                }
+                
+                // Matrix-Regen für Level 10
+                if (this.level === 10) {
+                    this.renderMatrixRain();
+                }
+            }
+            
+            renderGlitchEffect() {
+                // Zufällige Glitch-Linien - Intensiver und häufiger
+                const glitchChance = 0.15 + this.level * 0.02; // Häufiger in höheren Leveln
+                if (Math.random() < glitchChance) {
+                    const glitchY = Math.random() * this.canvas.height;
+                    const glitchIntensity = 0.4 + this.level * 0.08; // Intensiver
+                    this.ctx.strokeStyle = `rgba(255, 0, 255, ${glitchIntensity})`;
+                    this.ctx.lineWidth = 3 + this.level * 0.3; // Dickere Linien
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, glitchY);
+                    this.ctx.lineTo(this.canvas.width, glitchY);
+                    this.ctx.stroke();
+                    
+                    // Zusätzliche Glitch-Blöcke für höhere Level
+                    if (this.level >= 7) {
+                        this.renderGlitchBlocks();
+                    }
+                }
+            }
+            
+            renderGlitchBlocks() {
+                // Zufällige Glitch-Blöcke für zusätzliche Intensität
+                if (Math.random() < 0.3) {
+                    const blockX = Math.random() * this.canvas.width;
+                    const blockY = Math.random() * this.canvas.height;
+                    const blockSize = 10 + Math.random() * 20;
+                    
+                    this.ctx.fillStyle = `rgba(255, 0, 127, ${0.6 + this.level * 0.05})`;
+                    this.ctx.fillRect(blockX, blockY, blockSize, blockSize);
+                }
+            }
+            
+            renderMatrixRain() {
+                // Matrix-ähnliche fallende Zeichen - Intensiver und roter
+                const rainIntensity = 0.5 + this.level * 0.08; // Intensiver
+                this.ctx.fillStyle = `rgba(255, 0, 255, ${rainIntensity})`; // Magenta statt Grün
+                this.ctx.font = `${14 + this.level}px monospace`; // Größere Schrift in höheren Leveln
+                
+                // Mehr Zeichen in höheren Leveln
+                const charCount = 25 + this.level * 3;
+                for (let i = 0; i < charCount; i++) {
+                    const x = (i * 40) % this.canvas.width;
+                    const y = (Date.now() * 0.015 + i * 25) % this.canvas.height;
+                    
+                    // Verschiedene Zeichen für mehr Variation
+                    const chars = ['01', '10', '11', '00', 'XX', '//', '\\\\'];
+                    const randomChar = chars[Math.floor(Math.random() * chars.length)];
+                    
+                    this.ctx.fillText(randomChar, x, y);
+                }
+                
+                // Zusätzliche rote Glitch-Partikel für Level 10
+                if (this.level === 10) {
+                    this.renderIntenseGlitchParticles();
+                }
+            }
+            
+            renderIntenseGlitchParticles() {
+                // Intensive Glitch-Partikel für das finale Level
+                for (let i = 0; i < 15; i++) {
+                    const x = Math.random() * this.canvas.width;
+                    const y = Math.random() * this.canvas.height;
+                    const size = Math.random() * 8 + 4;
+                    
+                    this.ctx.fillStyle = `rgba(255, 0, 0, ${0.7 + Math.random() * 0.3})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+        }
+        
         class MathEngine {
             constructor() {
                 this.epsilon = 0.001;
@@ -702,6 +972,115 @@
                     this.ctx.fillText(`Pfad ${index + 1}`, midX, this.offsetY - 25);
                 });
             }
+            
+            // Perfect Timing Rendering
+            drawPerfectTimingCircle(circle) {
+                const screenPos = this.worldToScreen(circle.x, circle.y);
+                
+                // Äußerer Kreis mit Glow-Effekt
+                this.ctx.strokeStyle = circle.color;
+                this.ctx.lineWidth = 4;
+                this.ctx.shadowColor = circle.color;
+                this.ctx.shadowBlur = 30;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(screenPos.x, screenPos.y, circle.radius * this.scale, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                // Innerer pulsierender Kreis
+                const pulse = Math.sin(Date.now() * 0.01) * 0.3 + 0.7;
+                this.ctx.globalAlpha = pulse;
+                this.ctx.strokeStyle = '#ffffff';
+                this.ctx.lineWidth = 2;
+                this.ctx.shadowBlur = 20;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(screenPos.x, screenPos.y, (circle.radius - 10) * this.scale, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                this.ctx.globalAlpha = 1;
+                this.ctx.shadowBlur = 0;
+            }
+            
+            drawScreenFlashEffects(effects) {
+                effects.forEach(effect => {
+                    const screenPos = this.worldToScreen(effect.x, effect.y);
+                    const alpha = effect.timer / effect.duration;
+                    
+                    this.ctx.globalAlpha = alpha;
+                    this.ctx.fillStyle = effect.color;
+                    this.ctx.shadowColor = effect.color;
+                    this.ctx.shadowBlur = 50;
+                    
+                    switch (effect.type) {
+                        case 'circle':
+                            this.ctx.beginPath();
+                            this.ctx.arc(screenPos.x, screenPos.y, 100 * alpha, 0, Math.PI * 2);
+                            this.ctx.fill();
+                            break;
+                            
+                        case 'star':
+                            this.drawStar(screenPos.x, screenPos.y, 80 * alpha);
+                            break;
+                            
+                        case 'wave':
+                            this.drawWave(screenPos.x, screenPos.y, 120 * alpha);
+                            break;
+                            
+                        case 'explosion':
+                            this.drawExplosion(screenPos.x, screenPos.y, 90 * alpha);
+                            break;
+                    }
+                    
+                    this.ctx.globalAlpha = 1;
+                    this.ctx.shadowBlur = 0;
+                });
+            }
+            
+            drawStar(x, y, size) {
+                this.ctx.beginPath();
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
+                    const px = x + Math.cos(angle) * size;
+                    const py = y + Math.sin(angle) * size;
+                    
+                    if (i === 0) this.ctx.moveTo(px, py);
+                    else this.ctx.lineTo(px, py);
+                    
+                    const innerAngle = angle + Math.PI / 5;
+                    const innerSize = size * 0.4;
+                    const ix = x + Math.cos(innerAngle) * innerSize;
+                    const iy = y + Math.sin(innerAngle) * innerSize;
+                    this.ctx.lineTo(ix, iy);
+                }
+                this.ctx.closePath();
+                this.ctx.fill();
+            }
+            
+            drawWave(x, y, size) {
+                this.ctx.beginPath();
+                for (let i = 0; i < 360; i += 10) {
+                    const angle = (i * Math.PI) / 180;
+                    const waveSize = size + Math.sin(angle * 3) * 20;
+                    const px = x + Math.cos(angle) * waveSize;
+                    const py = y + Math.sin(angle) * waveSize;
+                    
+                    if (i === 0) this.ctx.moveTo(px, py);
+                    else this.ctx.lineTo(px, py);
+                }
+                this.ctx.closePath();
+                this.ctx.fill();
+            }
+            
+            drawExplosion(x, y, size) {
+                // Explosions-Form mit mehreren Kreisen
+                for (let i = 0; i < 3; i++) {
+                    const explosionSize = size * (0.5 + i * 0.3);
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, explosionSize, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
 
             // Zusätzliche Teleporter-Markierungen für Level 3
             drawTeleporterMarkers(discontinuities) {
@@ -794,6 +1173,10 @@
                 this.mathEngine = new MathEngine();
                 this.renderer = new Renderer(this.canvas, this.ctx);
                 
+                // Hintergrund-Effekte initialisieren
+                this.backgroundCanvas = document.getElementById('backgroundCanvas');
+                this.backgroundEffects = new BackgroundEffects(this.backgroundCanvas);
+                
                 this.player = new Player(-5, 0);
                 this.currentLevel = 1;
                 this.score = 0;
@@ -814,6 +1197,17 @@
                 this.chaosMode = false;
                 this.chaosTimer = 0;
                 this.currentPath = 0; // Für Multi-Path Level
+                
+                // Pause-Funktionalität
+                this.isPaused = false;
+                this.pauseMenuVisible = false;
+                
+                // Perfect Timing System
+                this.perfectTimingActive = false;
+                this.perfectTimingCircle = null;
+                this.perfectTimingTimer = 0;
+                this.perfectTimingCooldown = 0;
+                this.screenFlashEffects = [];
                 
                 this.keys = {};
                 this.currentFunction = null;
@@ -846,6 +1240,11 @@
                                 this.switchToPath(pathIndex);
                             }
                         }
+                    }
+                    
+                    // Pause-Taste
+                    if (e.code === 'Escape') {
+                        this.togglePause();
                     }
                 });
                 
@@ -918,6 +1317,10 @@
                     // Fallback: kleine Verschiebung oberhalb der aktuellen y
                     targetY = (this.player.y + 0.5);
                 }
+                
+                // Perfect Timing bei jedem Sprung aktivieren
+                this.activatePerfectTimingForJump(targetX, targetY);
+                
                 this.player.startArcJump(targetX, targetY);
             }
             
@@ -984,6 +1387,9 @@
                 // UI aktualisieren
                 document.getElementById('level').textContent = `Level: ${level}`;
                 
+                // Hintergrund und Effekte für das Level setzen
+                this.setLevelBackground(level);
+                
                 const functionTexts = {
                     1: 'f(x) = 1/(x-2)',
                     2: 'f(x) = 1/((x-1)(x+1))',
@@ -1001,7 +1407,7 @@
             }
             
             update() {
-                if (!this.gameRunning) return;
+                if (!this.gameRunning || this.isPaused) return;
                 const prevX = this.player.x;
                 
                 // Automatisches Fahren nach rechts (geschwindigkeitsabhängig pro Level)
@@ -1058,6 +1464,9 @@
                     }
                 }
                 
+                // Perfect Timing System
+                this.updatePerfectTiming();
+                
                 // Während des Arc-Sprungs steuert der Bogen x/y direkt – kein Air-Assist nötig
                 
                 this.player.update(this.mathEngine, this.currentFunction);
@@ -1083,6 +1492,14 @@
                     this.createJumpParticles();
                 } else if (collision === 'discontinuity_fail') {
                     this.loseLife(); // Bestrafung für vergessenen Sprung
+                }
+                
+                // Perfect Timing Kollisionserkennung
+                this.checkPerfectTimingHit();
+                
+                // Perfect Timing bei Sprung-Ende überprüfen
+                if (this.player.jumping && this.perfectTimingActive) {
+                    this.checkJumpPerfectTiming();
                 }
                 
                 // Kein automatischer Score mehr!
@@ -1123,11 +1540,26 @@
                 
                 this.renderer.drawParticles(this.particles);
                 this.renderer.drawPlayer(this.player);
+                
+                // Perfect Timing Kreis zeichnen
+                if (this.perfectTimingActive && this.perfectTimingCircle) {
+                    this.renderer.drawPerfectTimingCircle(this.perfectTimingCircle);
+                }
+                
+                // Screen Flash Effekte zeichnen
+                this.renderer.drawScreenFlashEffects(this.screenFlashEffects);
             }
             
             gameLoop() {
                 this.update();
                 this.render();
+                
+                // Hintergrund-Effekte aktualisieren und rendern
+                if (this.backgroundEffects) {
+                    this.backgroundEffects.update();
+                    this.backgroundEffects.render();
+                }
+                
                 requestAnimationFrame(() => this.gameLoop());
             }
             
@@ -1200,6 +1632,9 @@
                 this.chaosMode = false;
                 this.chaosTimer = 0;
                 this.currentPath = 0;
+                
+                // Hintergrund zurücksetzen
+                document.body.className = '';
                 
                 this.loadLevel(this.currentLevel);
                 
@@ -1355,6 +1790,374 @@
                 if (level >= 7 && level <= 9) return -18;     // Hohe Schwierigkeit - noch weiter links
                 if (level === 10) return -25;                 // Chaos-Modus - am weitesten links
                 return -5; // Fallback
+            }
+            
+            // Pause-Funktionalität
+            togglePause() {
+                if (this.isPaused) {
+                    this.resumeGame();
+                } else {
+                    this.pauseGame();
+                }
+            }
+            
+            pauseGame() {
+                this.isPaused = true;
+                this.pauseMenuVisible = true;
+                document.getElementById('pauseMenu').style.display = 'block';
+            }
+            
+            resumeGame() {
+                this.isPaused = false;
+                this.pauseMenuVisible = false;
+                document.getElementById('pauseMenu').style.display = 'none';
+            }
+            
+            showMainMenu() {
+                this.pauseMenuVisible = false;
+                document.getElementById('pauseMenu').style.display = 'none';
+                this.restart();
+            }
+            
+            setLevelBackground(level) {
+                // Body-Klasse für CSS-Hintergrund ändern
+                document.body.className = `level-${level}`;
+                
+                // BackgroundEffects-Level setzen
+                if (this.backgroundEffects) {
+                    this.backgroundEffects.setLevel(level);
+                }
+            }
+            
+            // Perfect Timing System - Bei jedem Sprung
+            updatePerfectTiming() {
+                // Perfect Timing aktualisieren
+                if (this.perfectTimingActive) {
+                    this.perfectTimingTimer++;
+                    
+                    // Perfect Timing beenden nach 2 Sekunden
+                    if (this.perfectTimingTimer > 120) {
+                        this.deactivatePerfectTiming();
+                        return;
+                    }
+                    
+                    // Kreis schrumpfen lassen - schneller für bessere Timing-Herausforderung
+                    if (this.perfectTimingCircle) {
+                        this.perfectTimingCircle.radius = Math.max(8, 80 - this.perfectTimingTimer * 0.6);
+                    }
+                }
+                
+                // Screen Flash Effekte aktualisieren
+                this.updateScreenFlashEffects();
+            }
+            
+            activatePerfectTiming() {
+                this.perfectTimingActive = true;
+                this.perfectTimingTimer = 0;
+                
+                // Kreis um den Spieler erstellen
+                this.perfectTimingCircle = {
+                    x: this.player.x,
+                    y: this.player.y,
+                    radius: 100,
+                    color: '#ff00ff'
+                };
+                
+                // UI-Hinweis anzeigen
+                this.showPerfectTimingHint();
+            }
+            
+            activatePerfectTimingForJump(targetX, targetY) {
+                this.perfectTimingActive = true;
+                this.perfectTimingTimer = 0;
+                
+                // Kreis um den Spieler erstellen, der den idealen Sprung-Moment markiert
+                this.perfectTimingCircle = {
+                    x: this.player.x,
+                    y: this.player.y,
+                    radius: 80, // Etwas kleiner für bessere Präzision
+                    color: '#00ffff', // Cyan für Sprung-Perfect Timing
+                    targetX: targetX,
+                    targetY: targetY
+                };
+                
+                // UI-Hinweis für Sprung-Perfect Timing
+                this.showJumpPerfectTimingHint();
+            }
+            
+            deactivatePerfectTiming() {
+                this.perfectTimingActive = false;
+                this.perfectTimingCircle = null;
+                this.perfectTimingCooldown = 300; // 5 Sekunden Cooldown
+            }
+            
+            checkPerfectTimingHit() {
+                if (!this.perfectTimingActive || !this.perfectTimingCircle) return false;
+                
+                const distance = Math.sqrt(
+                    Math.pow(this.player.x - this.perfectTimingCircle.x, 2) + 
+                    Math.pow(this.player.y - this.perfectTimingCircle.y, 2)
+                );
+                
+                // Perfekter Treffer wenn der Kreis den Spieler berührt
+                if (distance <= this.perfectTimingCircle.radius) {
+                    this.triggerPerfectTiming();
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            checkJumpPerfectTiming() {
+                if (!this.perfectTimingActive || !this.perfectTimingCircle) return false;
+                
+                // Überprüfe ob der Spieler den idealen Sprung-Moment getroffen hat
+                const jumpProgress = this.player.jumpTime / this.player.jumpDuration;
+                
+                // Perfekter Moment ist in der Mitte des Sprungs (bei 50%)
+                if (Math.abs(jumpProgress - 0.5) < 0.1) {
+                    this.triggerJumpPerfectTiming();
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            triggerPerfectTiming() {
+                // Massive Belohnungen
+                this.addScore(1000); // 1000 Punkte Bonus
+                this.player.boostTime = 120; // 2 Sekunden Boost
+                
+                // Bildschirm-Aufleuchtung
+                this.createScreenFlashEffects();
+                
+                // Partikel-Explosion
+                this.createPerfectTimingParticles();
+                
+                // Perfect Timing beenden
+                this.deactivatePerfectTiming();
+                
+                // UI-Feedback
+                this.showPerfectTimingSuccess();
+            }
+            
+            triggerJumpPerfectTiming() {
+                // Belohnungen für perfekten Sprung
+                this.addScore(500); // 500 Punkte für perfekten Sprung
+                this.player.boostTime = 60; // 1 Sekunde Boost
+                
+                // Bildschirm-Aufleuchtung
+                this.createJumpScreenFlashEffects();
+                
+                // Partikel-Explosion
+                this.createJumpPerfectTimingParticles();
+                
+                // Perfect Timing beenden
+                this.deactivatePerfectTiming();
+                
+                // UI-Feedback
+                this.showJumpPerfectTimingSuccess();
+            }
+            
+            createScreenFlashEffects() {
+                // Verschiedene Flash-Effekte
+                const effects = [
+                    { type: 'circle', color: '#ff00ff', duration: 60 },
+                    { type: 'star', color: '#ffff00', duration: 45 },
+                    { type: 'wave', color: '#00ffff', duration: 90 },
+                    { type: 'explosion', color: '#ff0080', duration: 75 }
+                ];
+                
+                effects.forEach(effect => {
+                    this.screenFlashEffects.push({
+                        ...effect,
+                        timer: effect.duration,
+                        x: this.player.x,
+                        y: this.player.y
+                    });
+                });
+            }
+            
+            updateScreenFlashEffects() {
+                this.screenFlashEffects = this.screenFlashEffects.filter(effect => {
+                    effect.timer--;
+                    return effect.timer > 0;
+                });
+            }
+            
+            createPerfectTimingParticles() {
+                // Massive Partikel-Explosion
+                for (let i = 0; i < 50; i++) {
+                    this.particles.push({
+                        x: this.player.x + (Math.random() - 0.5) * 2,
+                        y: this.player.y + (Math.random() - 0.5) * 2,
+                        vx: (Math.random() - 0.5) * 0.8,
+                        vy: (Math.random() - 0.5) * 0.8,
+                        size: Math.random() * 8 + 4,
+                        alpha: 1,
+                        color: this.getRandomPerfectTimingColor(),
+                        life: 120
+                    });
+                }
+            }
+            
+            createJumpScreenFlashEffects() {
+                // Spezielle Flash-Effekte für Sprung-Perfect Timing
+                const effects = [
+                    { type: 'circle', color: '#00ffff', duration: 40 }, // Cyan für Sprünge
+                    { type: 'star', color: '#00ff00', duration: 30 },   // Grün für Erfolg
+                    { type: 'wave', color: '#0080ff', duration: 60 }    // Blau für Bewegung
+                ];
+                
+                effects.forEach(effect => {
+                    this.screenFlashEffects.push({
+                        ...effect,
+                        timer: effect.duration,
+                        x: this.player.x,
+                        y: this.player.y
+                    });
+                });
+            }
+            
+            createJumpPerfectTimingParticles() {
+                // Partikel-Explosion für perfekten Sprung
+                for (let i = 0; i < 30; i++) {
+                    this.particles.push({
+                        x: this.player.x + (Math.random() - 0.5) * 1.5,
+                        y: this.player.y + (Math.random() - 0.5) * 1.5,
+                        vx: (Math.random() - 0.5) * 1.0,
+                        vy: (Math.random() - 0.5) * 1.0,
+                        size: Math.random() * 6 + 3,
+                        alpha: 1,
+                        color: this.getRandomJumpPerfectTimingColor(),
+                        life: 90
+                    });
+                }
+            }
+            
+            getRandomJumpPerfectTimingColor() {
+                const colors = [
+                    { r: 0, g: 255, b: 255 },   // Cyan
+                    { r: 0, g: 255, b: 0 },     // Grün
+                    { r: 0, g: 128, b: 255 },   // Blau
+                    { r: 255, g: 255, b: 255 }  // Weiß
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            getRandomPerfectTimingColor() {
+                const colors = [
+                    { r: 255, g: 0, b: 255 },   // Magenta
+                    { r: 255, g: 255, b: 0 },   // Gelb
+                    { r: 0, g: 255, b: 255 },   // Cyan
+                    { r: 255, g: 0, b: 127 },   // Rose
+                    { r: 255, g: 255, b: 255 }  // Weiß
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            showPerfectTimingHint() {
+                // Temporärer UI-Hinweis
+                const hint = document.createElement('div');
+                hint.textContent = 'PERFECT TIMING!';
+                hint.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: #ff00ff;
+                    font-size: 48px;
+                    font-weight: bold;
+                    text-shadow: 0 0 20px #ff00ff;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(hint);
+                
+                // Nach 2 Sekunden entfernen
+                setTimeout(() => {
+                    if (hint.parentNode) {
+                        hint.parentNode.removeChild(hint);
+                    }
+                }, 2000);
+            }
+            
+            showPerfectTimingSuccess() {
+                // Erfolgs-Animation
+                const success = document.createElement('div');
+                success.textContent = 'PERFECT! +1000';
+                success.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: #ffff00;
+                    font-size: 36px;
+                    font-weight: bold;
+                    text-shadow: 0 0 15px #ffff00;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(success);
+                
+                // Nach 3 Sekunden entfernen
+                setTimeout(() => {
+                    if (success.parentNode) {
+                        success.parentNode.removeChild(success);
+                    }
+                }, 3000);
+            }
+            
+            showJumpPerfectTimingHint() {
+                // UI-Hinweis für Sprung-Perfect Timing
+                const hint = document.createElement('div');
+                hint.textContent = 'PERFECT TIMING!';
+                hint.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: #00ffff;
+                    font-size: 36px;
+                    font-weight: bold;
+                    text-shadow: 0 0 20px #00ffff;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(hint);
+                
+                // Nach 1.5 Sekunden entfernen (kürzer für Sprünge)
+                setTimeout(() => {
+                    if (hint.parentNode) {
+                        hint.parentNode.removeChild(hint);
+                    }
+                }, 1500);
+            }
+            
+            showJumpPerfectTimingSuccess() {
+                // Erfolgs-Animation für perfekten Sprung
+                const success = document.createElement('div');
+                success.textContent = 'PERFECT JUMP! +500';
+                success.style.cssText = `
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: #00ff00;
+                    font-size: 32px;
+                    font-weight: bold;
+                    text-shadow: 0 0 15px #00ff00;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(success);
+                
+                // Nach 2 Sekunden entfernen
+                setTimeout(() => {
+                    if (success.parentNode) {
+                        success.parentNode.removeChild(success);
+                    }
+                }, 2000);
             }
         }
         

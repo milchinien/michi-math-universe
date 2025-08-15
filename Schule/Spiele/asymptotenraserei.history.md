@@ -85,6 +85,79 @@ Dieses Dokument fasst die wichtigsten Änderungen und Entscheidungen im Projekt 
 - __Verbesserte Spielerfahrung__: Deutlich mehr Zeit zum Einarbeiten in komplexe Level-Mechaniken
 - __Reaktionszeit-Verbesserung__: Spieler haben jetzt genug Zeit, um Hindernisse zu erkennen und zu planen
 
+## Phase 10 – Pause-Funktionalität hinzugefügt
+- __Pause-Button__: Taste **P** pausiert das Spiel
+- __Pause-Menü__: Vollständiges Menü mit drei Optionen:
+  - **Weiterspielen**: Spiel wird fortgesetzt
+  - **Neustart**: Spiel wird von vorne gestartet
+  - **Hauptmenü**: Spiel wird neu gestartet (äquivalent zu Neustart)
+- __Pause-Logik__: 
+  - `Game.togglePause()`: Wechselt zwischen Pause und Spiel
+  - `Game.pauseGame()`: Pausiert das Spiel und zeigt das Menü
+  - `Game.resumeGame()`: Setzt das Spiel fort
+  - `Game.showMainMenu()`: Schließt Pause-Menü und startet neu
+- __Update-Blockierung__: Bei Pause wird die `update()`-Funktion nicht ausgeführt
+- __Cyberpunk-Design__: Pause-Menü im gleichen Stil wie der Rest des Spiels
+- __Steuerungshinweise__: Pause-Taste in den Steuerungshinweisen dokumentiert
+
+## Phase 11 – Dynamische Hintergrund-Effekte mit Retro-80s-Ästhetik
+- __Levelabhängige Hintergründe__: Jedes Level hat eine eigene Hintergrundfarbe
+  - Level 1-3: Gräuliche Töne (hell bis mittel)
+  - Level 4-6: Dunklere Blautöne
+  - Level 7-9: Intensive dunkle Töne
+  - Level 10: Komplett schwarzer Hintergrund
+- __Retro-80s-Effekte__: `BackgroundEffects`-Klasse für authentische Atmosphäre
+  - **Scanlines**: Horizontale Linien wie bei alten CRT-Monitoren
+  - **Farbige Partikel**: Magenta, Cyan, Gelb, Grün, Rot in Retro-Ästhetik
+  - **Vignette-Effekt**: Wird mit dem Level intensiver (dunklerer Rand)
+  - **Glitch-Effekte**: Ab Level 7 zufällige Glitch-Linien
+  - **Matrix-Regen**: Level 10 zeigt fallende "01"-Zeichen
+- __Dynamische Intensität__: Effekte werden mit steigendem Level intensiver
+- __Smooth Transitions__: CSS-Übergänge für sanfte Hintergrund-Wechsel
+- __Performance-optimiert__: Hintergrund-Effekte laufen auf separatem Canvas
+- __Responsive Design__: Canvas passt sich automatisch der Fenstergröße an
+
+## Phase 12 – Intensive rote/pinke Hintergrund-Effekte
+- __Rot/Pink/Rosa/Lila Farbspektrum__: Komplett neue Farbpalette für intensive Atmosphäre
+  - **Hintergrund-Gradienten**: Von gräulich-rot (Level 1) zu komplett schwarz (Level 10)
+  - **Partikel-Farben**: Magenta, Deep Pink, Hot Pink, Rose, Rot, Lila, Medium Violet Red
+- __Steigende Intensität pro Level__: Alle Effekte werden mit jedem Level intensiver
+  - **Scanlines**: Dickere Linien (1px + 0.2px pro Level) in Magenta
+  - **Partikel**: Größer (1.5-4.5px), schneller (0.8 Geschwindigkeit), intensivere Transparenz
+  - **Vignette**: Rosa Schimmer in der Mitte, lila Übergang, schwarzer Rand
+- __Frühere und intensivere Glitch-Effekte__:
+  - **Glitch-Linien**: Ab Level 5 (statt Level 7), dickere Linien, höhere Wahrscheinlichkeit
+  - **Glitch-Blöcke**: Ab Level 7 zusätzliche rosa Rechtecke für mehr Chaos
+- __Matrix-Regen für Level 10**: Intensiver und roter
+  - **Magenta-Zeichen**: Statt grüner "01"-Zeichen
+  - **Verschiedene Symbole**: 01, 10, 11, 00, XX, //, \\ für mehr Variation
+  - **Intensive Glitch-Partikel**: Rote Kreise für maximalen visuellen Impact
+- __Performance-Optimierung**: Mehr Basis-Partikel (80 statt 50) für intensivere Atmosphäre
+
+## Phase 13 – Perfect Timing System mit epischen Effekten
+- __Perfect Timing Mechanik__: Schrumpfender Kreis markiert den perfekten Boost-Moment
+  - **Aktivierung**: Zufällig alle 8-15 Sekunden (2% Wahrscheinlichkeit pro Frame)
+  - **Kreis-Schrumpfung**: Startet bei 100px Radius, schrumpft auf 5px in 3 Sekunden
+  - **Perfekter Treffer**: Spieler muss den Kreis berühren für massive Belohnungen
+- __Epische Belohnungen bei Perfect Timing**:
+  - **Score-Bonus**: +1000 Punkte (massiver Boost)
+  - **Spieler-Boost**: 2 Sekunden lang erhöhte Geschwindigkeit
+  - **Cooldown**: 5 Sekunden Pause zwischen Perfect Timing Events
+- __Bildschirm-Aufleuchtung mit verschiedenen Effekten**:
+  - **Kreis-Flash**: Magenta-Kreis mit Glow-Effekt
+  - **Stern-Flash**: Gelber 5-zackiger Stern
+  - **Wellen-Flash**: Cyan-Welle mit Sinus-Animation
+  - **Explosions-Flash**: Rosa Explosion mit mehreren Kreisen
+- __Partikel-Explosion**: 50 intensive Partikel in verschiedenen Farben
+- __UI-Feedback**: 
+  - **Hinweis**: "PERFECT TIMING!" erscheint bei Aktivierung
+  - **Erfolg**: "PERFECT! +1000" bei erfolgreichem Treffer
+- __Rendering-System**: Spezielle Funktionen für alle Perfect Timing Effekte
+  - **drawPerfectTimingCircle()**: Schrumpfender Kreis mit Glow und Pulsieren
+  - **drawScreenFlashEffects()**: Alle Flash-Effekte mit Alpha-Animation
+  - **drawStar()**, **drawWave()**, **drawExplosion()**: Spezielle Formen
+- __Integration**: Perfekt in bestehende Spielmechanik integriert
+
 ## Aktueller Stand (heute)
 - __10 Level__ mit einzigartigen Mechaniken und steigender Komplexität
 - __Automatikfahrt__ mit levelabhängiger Geschwindigkeit
