@@ -260,24 +260,36 @@
                 this.maxTrailLength = 20;
                 this.jumping = false;
                 this.jumpTime = 0;
-                this.jumpDuration = 70; // etwas länger für sichere Landung auf anderer Kurve
-                this.gravity = -0.006; // leichtere Schwerkraft, damit der Bogen länger trägt
+                this.jumpDuration = 50; // Arc-Jump Dauer in Frames
+                this.gravity = -0.006; // derzeit ungenutzt im Arc-Jump, behalten für evtl. future
                 this.boostTime = 0;
+                // Arc-Jump Parameter
+                this.jumpStartX = 0;
+                this.jumpStartY = 0;
+                this.jumpTargetX = 0;
+                this.jumpTargetY = 0;
+                this.ctrlX = 0;
+                this.ctrlY = 0;
             }
             
             update(mathEngine, currentFunction) {
-                // Bewegung
-                this.x += this.vx;
+                // Bewegung nur am Boden (im Arc-Jump steuern wir x/y direkt)
+                if (!this.jumping) {
+                    this.x += this.vx;
+                }
                 
                 // Sprung-Logik
                 if (this.jumping) {
                     this.jumpTime++;
-                    this.y += this.vy;
-                    this.vy += this.gravity;
-                    if (this.jumpTime >= this.jumpDuration) {
+                    const t = Math.min(1, this.jumpTime / this.jumpDuration);
+                    const omt = 1 - t;
+                    // Quadratischer Bezier-Bogen
+                    this.x = omt * omt * this.jumpStartX + 2 * omt * t * this.ctrlX + t * t * this.jumpTargetX;
+                    this.y = omt * omt * this.jumpStartY + 2 * omt * t * this.ctrlY + t * t * this.jumpTargetY;
+                    if (t >= 1) {
                         this.jumping = false;
                         this.jumpTime = 0;
-                        // Sanft auf die Funktion zurücksetzen
+                        // Snap auf Kurve zur Sicherheit
                         const newY = mathEngine.safeEvaluate(currentFunction, this.x);
                         if (newY !== null) this.y = newY;
                     }
@@ -303,17 +315,25 @@
                 }
             }
             
-            jump() {
-                if (!this.jumping) {
-                    this.jumping = true;
-                    this.jumpTime = 0;
-                    this.vy = 0.26; // stärkerer Startimpuls nach oben (Welt-y nimmt zu)
-                }
+            startArcJump(targetX, targetY) {
+                if (this.jumping) return;
+                this.jumping = true;
+                this.jumpTime = 0;
+                this.jumpStartX = this.x;
+                this.jumpStartY = this.y;
+                this.jumpTargetX = targetX;
+                this.jumpTargetY = targetY;
+                // Kontrollpunkt in der Mitte mit zusätzlicher Höhe für schönen Bogen
+                const midX = (this.jumpStartX + this.jumpTargetX) / 2;
+                const baseMidY = (this.jumpStartY + this.jumpTargetY) / 2;
+                const arcHeight = Math.max(0.6, Math.abs(this.jumpTargetY - this.jumpStartY) * 0.8) + 0.6;
+                this.ctrlX = midX;
+                this.ctrlY = baseMidY + arcHeight; // nach oben (Welt-y nimmt zu)
             }
             
             checkCollisions(mathEngine, currentFunction, game) {
                 // Polstellen-Kollision
-                if (mathEngine.isNearPole(this.x, currentFunction.poles)) {
+                if (!this.jumping && mathEngine.isNearPole(this.x, currentFunction.poles)) {
                     return 'pole';
                 }
                 
@@ -588,10 +608,11 @@
                 this.player = new Player(-5, 0);
                 this.currentLevel = 1;
                 this.score = 0;
-                this.lives = 3;
+                this.lives = 7;
                 this.gameRunning = true;
                 this.particles = [];
                 this.jumpBuffer = 0; // kurzzeitiger Sprungpuffer für forgiving timing
+                this.levelStartCooldown = 0; // Frames bis Levelabschluss erlaubt ist
                 // Jump-Forward-Dash Parameter
                 this.jumpDashFrames = 24; // wie lange zusätzlicher Vorschub wirkt
                 this.jumpDashMultiplier = 3.0; // wie stark der Vorschub ist
@@ -610,7 +631,7 @@
                     
                     if (e.code === 'Space') {
                         e.preventDefault();
-                        this.player.jump();
+                        this.startJump();
                         this.jumpBuffer = 12; // wenige Frames Puffer aktivieren
                     }
                     
@@ -624,13 +645,63 @@
                 });
             }
             
+            // Berechne ein sinnvolles Landeziel rechts von der aktuellen Position
+            computeJumpTargetX() {
+                const x0 = this.player.x;
+                const maxReach = 2.2; // maximale horizontale Reichweite eines Sprungs
+                let target = x0 + 1.2; // Default-Landeplatz
+                // Suche nächstgelegenes Hindernis rechts (Pol oder Lücke)
+                const candidates = [
+                    ...(this.currentFunction.poles || []),
+                    ...(this.currentFunction.discontinuities || [])
+                ].filter(x => x > x0 && x - x0 < maxReach).sort((a,b)=>a-b);
+                if (candidates.length > 0) {
+                    const obst = candidates[0];
+                    target = obst + 0.6; // etwas hinter dem Hindernis landen
+                }
+                return target;
+            }
+
+            // Starte einen deterministischen Bogen-Sprung zur anderen Kurve
+            startJump() {
+                if (this.player.jumping) return;
+                let targetX = this.computeJumpTargetX();
+                let targetY = this.mathEngine.safeEvaluate(this.currentFunction, targetX);
+                // Falls direkt auf Pol/Lücke, etwas weiter springen
+                if (targetY === null) {
+                    const delta = 0.2;
+                    for (let i = 1; i <= 5 && targetY === null; i++) {
+                        targetY = this.mathEngine.safeEvaluate(this.currentFunction, targetX + i * delta);
+                        if (targetY !== null) { targetX += i * delta; break; }
+                    }
+                }
+                if (targetY === null) {
+                    // Fallback: kleine Verschiebung oberhalb der aktuellen y
+                    targetY = (this.player.y + 0.5);
+                }
+                this.player.startArcJump(targetX, targetY);
+            }
+            
             loadLevel(level) {
                 this.currentFunction = this.mathEngine.parseFunction(level);
                 // Basisgeschwindigkeit pro Level (Level 1 langsam, pro Level schneller)
-                this.baseSpeed = 0.003 + (level - 1) * 0.006;
+                this.baseSpeed = 0.006 + (level - 1) * 0.006;
                 this.player.x = -5;
                 this.player.y = this.mathEngine.safeEvaluate(this.currentFunction, this.player.x) || 0;
+                // Spielerzustand vollständig zurücksetzen
                 this.player.trail = [];
+                this.player.jumping = false;
+                this.player.jumpTime = 0;
+                this.player.boostTime = 0;
+                // Arc-Parameter zurücksetzen
+                this.player.jumpStartX = this.player.x;
+                this.player.jumpStartY = this.player.y;
+                this.player.jumpTargetX = this.player.x;
+                this.player.jumpTargetY = this.player.y;
+                // Eingaben und Buffer/Cooldown zurücksetzen
+                this.keys = {};
+                this.jumpBuffer = 0;
+                this.levelStartCooldown = 30; // ~0.5s bei 60fps
                 
                 // UI aktualisieren
                 document.getElementById('level').textContent = `Level: ${level}`;
@@ -665,21 +736,13 @@
                     this.player.vx *= 2;
                 }
                 
-                // Zusätzlicher Schub in der Luft, um Lücken sicher zu überqueren
-                if (this.player.jumping) {
-                    // Starkes Anfangs-Dash für die ersten Frames des Sprungs
-                    if (this.player.jumpTime < this.jumpDashFrames) {
-                        this.player.vx = Math.max(this.player.vx, this.baseSpeed * this.jumpDashMultiplier);
-                    } else {
-                        // leichter Air-Assist danach
-                        this.player.vx *= 1.15;
-                    }
-                }
+                // Während des Arc-Sprungs steuert der Bogen x/y direkt – kein Air-Assist nötig
                 
                 this.player.update(this.mathEngine, this.currentFunction);
                 
                 // Sprungpuffer herunterzählen
                 if (this.jumpBuffer > 0) this.jumpBuffer--;
+                if (this.levelStartCooldown > 0) this.levelStartCooldown--;
 
                 // Kollisionserkennung
                 const collision = this.player.checkCollisions(this.mathEngine, this.currentFunction, this);
@@ -698,8 +761,8 @@
                 
                 // Kein automatischer Score mehr!
                 
-                // Level-Completion (Spieler erreicht x = 5)
-                if (this.player.x > 5) {
+                // Level-Completion (Spieler erreicht x = 5) – erst nach Cooldown
+                if (this.levelStartCooldown === 0 && this.player.x > 5) {
                     this.completeLevel();
                 }
                 
@@ -743,6 +806,14 @@
                     this.player.x = -5;
                     this.player.y = this.mathEngine.safeEvaluate(this.currentFunction, this.player.x) || 0;
                     this.player.trail = [];
+                    this.player.jumping = false;
+                    this.player.jumpTime = 0;
+                    this.player.boostTime = 0;
+                    // Arc-Parameter zurücksetzen
+                    this.player.jumpStartX = this.player.x;
+                    this.player.jumpStartY = this.player.y;
+                    this.player.jumpTargetX = this.player.x;
+                    this.player.jumpTargetY = this.player.y;
                 }
             }
             
