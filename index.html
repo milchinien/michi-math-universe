@@ -1,15 +1,279 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Michis Mathe Universe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .header.hidden {
+            opacity: 0;
+            height: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #fff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .game-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            border-color: #667eea;
+        }
+
+        .game-card h3 {
+            color: #667eea;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .game-card p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .play-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .game-frame {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin: 0;
+            display: none;
+            height: calc(100vh - 50px);
+            overflow: hidden;
+        }
+        
+        .game-frame.active {
+            display: block;
+        }
+
+        .game-frame-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 60px;
+            box-sizing: border-box;
+        }
+
+        .game-frame-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .game-frame iframe {
+            width: 100%;
+            height: calc(100vh - 110px);
+            border: none;
+            border-radius: 0 0 15px 15px;
+            display: block;
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-frame {
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .game-frame-header {
+                border-radius: 0;
+                padding: 12px 15px;
+            }
+            
+            .game-frame iframe {
+                height: calc(100vh - 80px);
+                border-radius: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Michi's Mathe Universe</h1>
-    <p>Willkommen in der Welt von Michis Mathe Universe! Hier kannst du Mathe üben und lernen.</p>
-    <p>Du kannst die Aufgaben in verschiedenen Schwierigkeitsgraden auswählen.</p>
-    <p>Viel Spaß!</p>
-    <p>Du kannst die Aufgaben in verschiedenen Schwierigkeitsgraden auswählen.</p>
+    <div class="container">
+        <div class="header">
+            <h1>Michis Mathe Universe</h1>
+            <p>Willkommen in der faszinierenden Welt der Mathematik!</p>
+            <p>Entdecke spannende Spiele und lerne spielerisch die Grundlagen der Analysis</p>
+        </div>
+
+        <div class="games-grid" id="gamesGrid">
+            <div class="game-card" onclick="loadGame('asymptoten')">
+                <h3>🚀 Asymptoten-Raserei</h3>
+                <p>Rase durch die Welt der Asymptoten! Lerne spielerisch, wie sich Funktionen verhalten, wenn sie sich dem Unendlichen nähern.</p>
+                <button class="play-button">Jetzt spielen!</button>
+            </div>
+
+            <div class="game-card" onclick="loadGame('polstellen')">
+                <h3>💥 Polstellen-Panik</h3>
+                <p>Entdecke die Geheimnisse der Polstellen! Verstehe, wo Funktionen "explodieren" und warum das passiert.</p>
+                <button class="play-button">Jetzt spielen!</button>
+            </div>
+
+            <div class="game-card" onclick="loadGame('graffiti')">
+                <h3>🎨 Funktions-Graffiti</h3>
+                <p>Male mit Mathematik! Erstelle wunderschöne Funktionsgraphen und verstehe ihre Eigenschaften.</p>
+                <button class="play-button">Jetzt spielen!</button>
+            </div>
+        </div>
+
+        <div class="game-frame" id="asymptotenFrame">
+            <div class="game-frame-header">
+                <div class="game-frame-title">🚀 Asymptoten-Raserei</div>
+                <button class="back-button" onclick="showGames()">← Zurück</button>
+            </div>
+            <iframe src="Schule/Spiele/Asymptoten-Raserei.html" title="Asymptoten-Raserei"></iframe>
+        </div>
+
+        <div class="game-frame" id="polstellenFrame">
+            <div class="game-frame-header">
+                <div class="game-frame-title">💥 Polstellen-Panik</div>
+                <button class="back-button" onclick="showGames()">← Zurück</button>
+            </div>
+            <iframe src="Schule/Spiele/Polstellen-Panik.html" title="Polstellen-Panik"></iframe>
+        </div>
+
+        <div class="game-frame" id="graffitiFrame">
+            <div class="game-frame-header">
+                <div class="game-frame-title">🎨 Funktions-Graffiti</div>
+                <button class="back-button" onclick="showGames()">← Zurück</button>
+            </div>
+            <iframe src="Schule/Spiele/Funktions-Graffiti.html" title="Funktions-Graffiti"></iframe>
+        </div>
+
+    </div>
+
+    <script>
+        function loadGame(gameType) {
+            // Header ausblenden
+            document.querySelector('.header').classList.add('hidden');
+            
+            // Alle Spiele ausblenden
+            document.getElementById('gamesGrid').style.display = 'none';
+            
+            // Alle Frames ausblenden
+            document.querySelectorAll('.game-frame').forEach(frame => {
+                frame.classList.remove('active');
+            });
+            
+            // Gewählten Frame anzeigen
+            const frameId = gameType + 'Frame';
+            document.getElementById(frameId).classList.add('active');
+        }
+
+        function showGames() {
+            // Header wieder anzeigen
+            document.querySelector('.header').classList.remove('hidden');
+            
+            // Alle Frames ausblenden
+            document.querySelectorAll('.game-frame').forEach(frame => {
+                frame.classList.remove('active');
+            });
+            
+            // Spiele-Grid wieder anzeigen
+            document.getElementById('gamesGrid').style.display = 'grid';
+        }
+    </script>
 </body>
 </html>
