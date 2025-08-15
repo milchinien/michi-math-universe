@@ -608,11 +608,12 @@
                 this.player = new Player(-5, 0);
                 this.currentLevel = 1;
                 this.score = 0;
-                this.lives = 7;
+                this.lives = 3;
                 this.gameRunning = true;
                 this.particles = [];
                 this.jumpBuffer = 0; // kurzzeitiger Sprungpuffer für forgiving timing
                 this.levelStartCooldown = 0; // Frames bis Levelabschluss erlaubt ist
+                this.teleportCooldown = 0; // Cooldown für Teleporter (Frames)
                 // Jump-Forward-Dash Parameter
                 this.jumpDashFrames = 24; // wie lange zusätzlicher Vorschub wirkt
                 this.jumpDashMultiplier = 3.0; // wie stark der Vorschub ist
@@ -643,6 +644,36 @@
                 document.addEventListener('keyup', (e) => {
                     this.keys[e.code] = false;
                 });
+            }
+            
+            // Teleportiere den Spieler in Level 3 an der Lücke auf die rechte Seite
+            tryTeleportAtDiscontinuity(prevX) {
+                if (this.currentLevel !== 3) return;
+                if (this.teleportCooldown > 0) return;
+                if (this.player.jumping) return;
+                const discs = this.currentFunction.discontinuities || [];
+                for (let disc of discs) {
+                    const nearNow = Math.abs(this.player.x - disc) < 0.35; // wie Kollision
+                    const crossed = (Math.min(prevX, this.player.x) - 0.02) <= disc && (Math.max(prevX, this.player.x) + 0.02) >= disc;
+                    if (nearNow || crossed) {
+                        let newX = disc + 0.7;
+                        let newY = this.mathEngine.safeEvaluate(this.currentFunction, newX);
+                        if (newY === null) {
+                            const step = 0.1;
+                            for (let i = 1; i <= 10 && newY === null; i++) {
+                                newX = disc + 0.6 + i * step;
+                                newY = this.mathEngine.safeEvaluate(this.currentFunction, newX);
+                            }
+                        }
+                        this.player.x = newX;
+                        if (newY !== null) this.player.y = newY;
+                        this.teleportCooldown = 18; // ~0.3s
+                        // kleines Feedback
+                        this.addScore(100);
+                        if (this.createJumpParticles) this.createJumpParticles();
+                        break;
+                    }
+                }
             }
             
             // Berechne ein sinnvolles Landeziel rechts von der aktuellen Position
@@ -702,6 +733,7 @@
                 this.keys = {};
                 this.jumpBuffer = 0;
                 this.levelStartCooldown = 30; // ~0.5s bei 60fps
+                this.teleportCooldown = 0;
                 
                 // UI aktualisieren
                 document.getElementById('level').textContent = `Level: ${level}`;
@@ -719,6 +751,7 @@
             
             update() {
                 if (!this.gameRunning) return;
+                const prevX = this.player.x;
                 
                 // Automatisches Fahren nach rechts (geschwindigkeitsabhängig pro Level)
                 this.player.vx = this.baseSpeed; // Grundgeschwindigkeit pro Level
@@ -739,10 +772,14 @@
                 // Während des Arc-Sprungs steuert der Bogen x/y direkt – kein Air-Assist nötig
                 
                 this.player.update(this.mathEngine, this.currentFunction);
-                
+
                 // Sprungpuffer herunterzählen
                 if (this.jumpBuffer > 0) this.jumpBuffer--;
                 if (this.levelStartCooldown > 0) this.levelStartCooldown--;
+                if (this.teleportCooldown > 0) this.teleportCooldown--;
+
+                // Level 3: Teleporter an Definitionslücke
+                this.tryTeleportAtDiscontinuity(prevX);
 
                 // Kollisionserkennung
                 const collision = this.player.checkCollisions(this.mathEngine, this.currentFunction, this);
