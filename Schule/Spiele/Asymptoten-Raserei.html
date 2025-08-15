@@ -260,7 +260,8 @@
                 this.maxTrailLength = 20;
                 this.jumping = false;
                 this.jumpTime = 0;
-                this.jumpDuration = 30;
+                this.jumpDuration = 70; // etwas länger für sichere Landung auf anderer Kurve
+                this.gravity = -0.006; // leichtere Schwerkraft, damit der Bogen länger trägt
                 this.boostTime = 0;
             }
             
@@ -271,9 +272,14 @@
                 // Sprung-Logik
                 if (this.jumping) {
                     this.jumpTime++;
+                    this.y += this.vy;
+                    this.vy += this.gravity;
                     if (this.jumpTime >= this.jumpDuration) {
                         this.jumping = false;
                         this.jumpTime = 0;
+                        // Sanft auf die Funktion zurücksetzen
+                        const newY = mathEngine.safeEvaluate(currentFunction, this.x);
+                        if (newY !== null) this.y = newY;
                     }
                 }
                 
@@ -301,11 +307,11 @@
                 if (!this.jumping) {
                     this.jumping = true;
                     this.jumpTime = 0;
-                    this.vy = -0.3;
+                    this.vy = 0.26; // stärkerer Startimpuls nach oben (Welt-y nimmt zu)
                 }
             }
             
-            checkCollisions(mathEngine, currentFunction) {
+            checkCollisions(mathEngine, currentFunction, game) {
                 // Polstellen-Kollision
                 if (mathEngine.isNearPole(this.x, currentFunction.poles)) {
                     return 'pole';
@@ -319,10 +325,11 @@
                     }
                 }
                 
-                // Definitionslücken - nur Score wenn erfolgreich gesprungen
+                // Definitionslücken - mit Sprungpuffer ("Coyote Time")
                 for (let disc of currentFunction.discontinuities) {
-                    if (Math.abs(this.x - disc) < 0.15) {
-                        if (this.jumping) {
+                    if (Math.abs(this.x - disc) < 0.35) {
+                        if (this.jumping || (game && game.jumpBuffer > 0)) {
+                            if (game) game.jumpBuffer = 0; // Buffer verbrauchen
                             return 'discontinuity_success'; // Erfolgreicher Sprung
                         } else {
                             return 'discontinuity_fail'; // Vergessen zu springen
@@ -584,6 +591,10 @@
                 this.lives = 3;
                 this.gameRunning = true;
                 this.particles = [];
+                this.jumpBuffer = 0; // kurzzeitiger Sprungpuffer für forgiving timing
+                // Jump-Forward-Dash Parameter
+                this.jumpDashFrames = 24; // wie lange zusätzlicher Vorschub wirkt
+                this.jumpDashMultiplier = 3.0; // wie stark der Vorschub ist
                 
                 this.keys = {};
                 this.currentFunction = null;
@@ -600,6 +611,7 @@
                     if (e.code === 'Space') {
                         e.preventDefault();
                         this.player.jump();
+                        this.jumpBuffer = 12; // wenige Frames Puffer aktivieren
                     }
                     
                     if (e.code === 'KeyR') {
@@ -653,10 +665,24 @@
                     this.player.vx *= 2;
                 }
                 
+                // Zusätzlicher Schub in der Luft, um Lücken sicher zu überqueren
+                if (this.player.jumping) {
+                    // Starkes Anfangs-Dash für die ersten Frames des Sprungs
+                    if (this.player.jumpTime < this.jumpDashFrames) {
+                        this.player.vx = Math.max(this.player.vx, this.baseSpeed * this.jumpDashMultiplier);
+                    } else {
+                        // leichter Air-Assist danach
+                        this.player.vx *= 1.15;
+                    }
+                }
+                
                 this.player.update(this.mathEngine, this.currentFunction);
                 
+                // Sprungpuffer herunterzählen
+                if (this.jumpBuffer > 0) this.jumpBuffer--;
+
                 // Kollisionserkennung
-                const collision = this.player.checkCollisions(this.mathEngine, this.currentFunction);
+                const collision = this.player.checkCollisions(this.mathEngine, this.currentFunction, this);
                 
                 if (collision === 'pole') {
                     this.loseLife();
