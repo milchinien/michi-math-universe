@@ -221,7 +221,7 @@
             <p>← Bremsen | → Beschleunigen | Leertaste: Sprung | R: Restart | P: Pause</p>
             <p style="font-size: 10px; margin-top: 5px;">🎯 Fahre automatisch! Springe über gelbe Lücken, nutze pinke Asymptoten für Boosts!</p>
             <p style="font-size: 10px; margin-top: 5px;">🔧 Level 8: 1/2 für Pfad-Wechsel | Level 10: Chaos-Effekte alle 2 Sekunden!</p>
-            <p style="font-size: 10px; margin-top: 5px;">⭐ PERFECT TIMING: Bei jedem Sprung erscheint ein schrumpfender Kreis! Perfekter Moment = +500 Punkte!</p>
+
         </div>
         
         <div id="pauseMenu" style="display: none;">
@@ -589,6 +589,9 @@
                 // Neue Eigenschaften für erweiterte Level
                 this.chaosColor = null;
                 this.chaosSize = 1;
+                
+                // Optimale Sprungstelle
+                this.optimalJumpSpot = null;
             }
             
             update(mathEngine, currentFunction) {
@@ -973,114 +976,7 @@
                 });
             }
             
-            // Perfect Timing Rendering
-            drawPerfectTimingCircle(circle) {
-                const screenPos = this.worldToScreen(circle.x, circle.y);
-                
-                // Äußerer Kreis mit Glow-Effekt
-                this.ctx.strokeStyle = circle.color;
-                this.ctx.lineWidth = 4;
-                this.ctx.shadowColor = circle.color;
-                this.ctx.shadowBlur = 30;
-                
-                this.ctx.beginPath();
-                this.ctx.arc(screenPos.x, screenPos.y, circle.radius * this.scale, 0, Math.PI * 2);
-                this.ctx.stroke();
-                
-                // Innerer pulsierender Kreis
-                const pulse = Math.sin(Date.now() * 0.01) * 0.3 + 0.7;
-                this.ctx.globalAlpha = pulse;
-                this.ctx.strokeStyle = '#ffffff';
-                this.ctx.lineWidth = 2;
-                this.ctx.shadowBlur = 20;
-                
-                this.ctx.beginPath();
-                this.ctx.arc(screenPos.x, screenPos.y, (circle.radius - 10) * this.scale, 0, Math.PI * 2);
-                this.ctx.stroke();
-                
-                this.ctx.globalAlpha = 1;
-                this.ctx.shadowBlur = 0;
-            }
-            
-            drawScreenFlashEffects(effects) {
-                effects.forEach(effect => {
-                    const screenPos = this.worldToScreen(effect.x, effect.y);
-                    const alpha = effect.timer / effect.duration;
-                    
-                    this.ctx.globalAlpha = alpha;
-                    this.ctx.fillStyle = effect.color;
-                    this.ctx.shadowColor = effect.color;
-                    this.ctx.shadowBlur = 50;
-                    
-                    switch (effect.type) {
-                        case 'circle':
-                            this.ctx.beginPath();
-                            this.ctx.arc(screenPos.x, screenPos.y, 100 * alpha, 0, Math.PI * 2);
-                            this.ctx.fill();
-                            break;
-                            
-                        case 'star':
-                            this.drawStar(screenPos.x, screenPos.y, 80 * alpha);
-                            break;
-                            
-                        case 'wave':
-                            this.drawWave(screenPos.x, screenPos.y, 120 * alpha);
-                            break;
-                            
-                        case 'explosion':
-                            this.drawExplosion(screenPos.x, screenPos.y, 90 * alpha);
-                            break;
-                    }
-                    
-                    this.ctx.globalAlpha = 1;
-                    this.ctx.shadowBlur = 0;
-                });
-            }
-            
-            drawStar(x, y, size) {
-                this.ctx.beginPath();
-                for (let i = 0; i < 5; i++) {
-                    const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
-                    const px = x + Math.cos(angle) * size;
-                    const py = y + Math.sin(angle) * size;
-                    
-                    if (i === 0) this.ctx.moveTo(px, py);
-                    else this.ctx.lineTo(px, py);
-                    
-                    const innerAngle = angle + Math.PI / 5;
-                    const innerSize = size * 0.4;
-                    const ix = x + Math.cos(innerAngle) * innerSize;
-                    const iy = y + Math.sin(innerAngle) * innerSize;
-                    this.ctx.lineTo(ix, iy);
-                }
-                this.ctx.closePath();
-                this.ctx.fill();
-            }
-            
-            drawWave(x, y, size) {
-                this.ctx.beginPath();
-                for (let i = 0; i < 360; i += 10) {
-                    const angle = (i * Math.PI) / 180;
-                    const waveSize = size + Math.sin(angle * 3) * 20;
-                    const px = x + Math.cos(angle) * waveSize;
-                    const py = y + Math.sin(angle) * waveSize;
-                    
-                    if (i === 0) this.ctx.moveTo(px, py);
-                    else this.ctx.lineTo(px, py);
-                }
-                this.ctx.closePath();
-                this.ctx.fill();
-            }
-            
-            drawExplosion(x, y, size) {
-                // Explosions-Form mit mehreren Kreisen
-                for (let i = 0; i < 3; i++) {
-                    const explosionSize = size * (0.5 + i * 0.3);
-                    this.ctx.beginPath();
-                    this.ctx.arc(x, y, explosionSize, 0, Math.PI * 2);
-                    this.ctx.fill();
-                }
-            }
+
 
             // Zusätzliche Teleporter-Markierungen für Level 3
             drawTeleporterMarkers(discontinuities) {
@@ -1098,6 +994,43 @@
                         ctx.stroke();
                     });
                     ctx.shadowBlur = 0;
+                });
+            }
+            
+            // Zeichne optimale Sprungstellen
+            drawOptimalJumpSpots(optimalJumpSpots) {
+                optimalJumpSpots.forEach(spot => {
+                    const screenPos = this.worldToScreen(spot.x, spot.y);
+                    
+                    // Kleine pulsierende Markierung
+                    const pulse = Math.sin(Date.now() * 0.008) * 0.3 + 0.7;
+                    this.ctx.globalAlpha = pulse;
+                    
+                    // Farbe je nach Hindernis-Typ
+                    if (spot.obstacleType === 'pole') {
+                        this.ctx.fillStyle = '#00ff00'; // Grün für Pole
+                        this.ctx.strokeStyle = '#00ff00';
+                    } else {
+                        this.ctx.fillStyle = '#ffff00'; // Gelb für Definitionslücken
+                        this.ctx.strokeStyle = '#ffff00';
+                    }
+                    
+                    this.ctx.shadowColor = this.ctx.fillStyle;
+                    this.ctx.shadowBlur = 8;
+                    this.ctx.lineWidth = 2;
+                    
+                    // Zeichne kleinen Kreis (6px Radius)
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenPos.x, screenPos.y, 6, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    this.ctx.stroke();
+                    
+                    // Zeichne kleines Quadrat in der Mitte
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.fillRect(screenPos.x - 2, screenPos.y - 2, 4, 4);
+                    
+                    this.ctx.globalAlpha = 1;
+                    this.ctx.shadowBlur = 0;
                 });
             }
             
@@ -1164,6 +1097,162 @@
                     this.ctx.fill();
                 });
             }
+            
+            // Zeichne Präzisions-Effekte für exakte Sprünge
+            drawPrecisionEffects(effects) {
+                effects.forEach(effect => {
+                    const screenPos = this.worldToScreen(effect.x, effect.y);
+                    const progress = 1 - (effect.timer / effect.duration);
+                    const alpha = effect.timer / effect.duration;
+                    
+                    this.ctx.globalAlpha = alpha;
+                    
+                    // Verschiedene Effekt-Typen
+                    switch (effect.type) {
+                        case 'perfect':
+                            this.drawPerfectPrecisionEffect(screenPos, progress, effect.precision);
+                            break;
+                        case 'excellent':
+                            this.drawExcellentPrecisionEffect(screenPos, progress, effect.precision);
+                            break;
+                        case 'good':
+                            this.drawGoodPrecisionEffect(screenPos, progress, effect.precision);
+                            break;
+                        case 'okay':
+                            this.drawOkayPrecisionEffect(screenPos, progress, effect.precision);
+                            break;
+                    }
+                    
+                    this.ctx.globalAlpha = 1;
+                });
+            }
+            
+            drawPerfectPrecisionEffect(screenPos, progress, precision) {
+                // Goldener Stern-Explosion für perfekte Sprünge
+                this.ctx.fillStyle = '#FFD700'; // Gold
+                this.ctx.strokeStyle = '#FFA500'; // Orange
+                this.ctx.shadowColor = '#FFD700';
+                this.ctx.shadowBlur = 25;
+                this.ctx.lineWidth = 3;
+                
+                // Mehrere konzentrische Sterne
+                for (let i = 0; i < 3; i++) {
+                    const size = (30 + i * 15) * (1 + progress * 0.8);
+                    const rotation = progress * Math.PI * 2 * (i % 2 === 0 ? 1 : -1);
+                    this.drawRotatedStar(screenPos.x, screenPos.y, size, 8, rotation);
+                }
+                
+                // Leuchtende Partikel
+                for (let i = 0; i < 12; i++) {
+                    const angle = (i / 12) * Math.PI * 2 + progress * Math.PI;
+                    const radius = 60 + progress * 40;
+                    const px = screenPos.x + Math.cos(angle) * radius;
+                    const py = screenPos.y + Math.sin(angle) * radius;
+                    
+                    this.ctx.fillStyle = '#FFFF00'; // Helles Gelb
+                    this.ctx.beginPath();
+                    this.ctx.arc(px, py, 4, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+            }
+            
+            drawExcellentPrecisionEffect(screenPos, progress, precision) {
+                // Cyan-blaue Spirale für ausgezeichnete Sprünge
+                this.ctx.strokeStyle = '#00FFFF';
+                this.ctx.shadowColor = '#00FFFF';
+                this.ctx.shadowBlur = 20;
+                this.ctx.lineWidth = 4;
+                
+                // Doppel-Spirale
+                for (let spiral = 0; spiral < 2; spiral++) {
+                    this.ctx.beginPath();
+                    for (let i = 0; i < 100; i++) {
+                        const angle = (i / 100) * Math.PI * 4 + spiral * Math.PI + progress * Math.PI * 2;
+                        const radius = (i / 100) * 50 * (1 + progress * 0.5);
+                        const x = screenPos.x + Math.cos(angle) * radius;
+                        const y = screenPos.y + Math.sin(angle) * radius;
+                        
+                        if (i === 0) this.ctx.moveTo(x, y);
+                        else this.ctx.lineTo(x, y);
+                    }
+                    this.ctx.stroke();
+                }
+                
+                // Zentrale Explosion
+                this.ctx.fillStyle = '#FFFFFF';
+                this.ctx.beginPath();
+                this.ctx.arc(screenPos.x, screenPos.y, 8 + progress * 12, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            drawGoodPrecisionEffect(screenPos, progress, precision) {
+                // Grüne Wellen für gute Sprünge
+                this.ctx.strokeStyle = '#00FF00';
+                this.ctx.shadowColor = '#00FF00';
+                this.ctx.shadowBlur = 15;
+                this.ctx.lineWidth = 3;
+                
+                // Konzentrische Kreise
+                for (let i = 0; i < 4; i++) {
+                    const radius = (i * 15 + 20) * (1 + progress * 0.6);
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenPos.x, screenPos.y, radius, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                }
+                
+                // Plus-Zeichen
+                const size = 25 + progress * 15;
+                this.ctx.lineWidth = 5;
+                this.ctx.beginPath();
+                this.ctx.moveTo(screenPos.x - size, screenPos.y);
+                this.ctx.lineTo(screenPos.x + size, screenPos.y);
+                this.ctx.moveTo(screenPos.x, screenPos.y - size);
+                this.ctx.lineTo(screenPos.x, screenPos.y + size);
+                this.ctx.stroke();
+            }
+            
+            drawOkayPrecisionEffect(screenPos, progress, precision) {
+                // Einfache gelbe Kreise für okay Sprünge
+                this.ctx.strokeStyle = '#FFFF00';
+                this.ctx.shadowColor = '#FFFF00';
+                this.ctx.shadowBlur = 10;
+                this.ctx.lineWidth = 2;
+                
+                // Zwei pulsierende Kreise
+                for (let i = 0; i < 2; i++) {
+                    const radius = (15 + i * 10) * (1 + progress * 0.4);
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenPos.x, screenPos.y, radius, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                }
+            }
+            
+            drawRotatedStar(x, y, size, points, rotation) {
+                this.ctx.save();
+                this.ctx.translate(x, y);
+                this.ctx.rotate(rotation);
+                
+                this.ctx.beginPath();
+                for (let i = 0; i < points; i++) {
+                    const angle = (i * 2 * Math.PI) / points - Math.PI / 2;
+                    const px = Math.cos(angle) * size;
+                    const py = Math.sin(angle) * size;
+                    
+                    if (i === 0) this.ctx.moveTo(px, py);
+                    else this.ctx.lineTo(px, py);
+                    
+                    const innerAngle = angle + Math.PI / points;
+                    const innerSize = size * 0.4;
+                    const ix = Math.cos(innerAngle) * innerSize;
+                    const iy = Math.sin(innerAngle) * innerSize;
+                    this.ctx.lineTo(ix, iy);
+                }
+                this.ctx.closePath();
+                this.ctx.fill();
+                this.ctx.stroke();
+                
+                this.ctx.restore();
+            }
         }
         
         class Game {
@@ -1198,16 +1287,18 @@
                 this.chaosTimer = 0;
                 this.currentPath = 0; // Für Multi-Path Level
                 
+                // Optimale Sprungstellen-Berechnung
+                this.optimalJumpSpots = [];
+                
+                // Präzisions-Belohnungssystem
+                this.jumpPrecisionEffects = [];
+                this.lastJumpPrecision = null;
+                
                 // Pause-Funktionalität
                 this.isPaused = false;
                 this.pauseMenuVisible = false;
                 
-                // Perfect Timing System
-                this.perfectTimingActive = false;
-                this.perfectTimingCircle = null;
-                this.perfectTimingTimer = 0;
-                this.perfectTimingCooldown = 0;
-                this.screenFlashEffects = [];
+
                 
                 this.keys = {};
                 this.currentFunction = null;
@@ -1299,10 +1390,181 @@
                 }
                 return target;
             }
+            
+            // Berechne optimale Absprungstellen für alle Hindernisse
+            calculateOptimalJumpSpots() {
+                this.optimalJumpSpots = [];
+                const playerX = this.player.x;
+                const maxSearchRange = 3.0; // Bereich vor dem Spieler scannen
+                const searchStep = 0.05; // Auflösung der Suche
+                
+                // Sammle alle Hindernisse (Pole + Definitionslücken)
+                const obstacles = [
+                    ...(this.currentFunction.poles || []).map(x => ({ x, type: 'pole' })),
+                    ...(this.currentFunction.discontinuities || []).map(x => ({ x, type: 'discontinuity' }))
+                ].filter(obs => obs.x > playerX && obs.x - playerX <= maxSearchRange)
+                 .sort((a, b) => a.x - b.x);
+                
+                // Für jedes Hindernis die optimale Absprungstelle finden
+                obstacles.forEach(obstacle => {
+                    const optimalSpot = this.findOptimalJumpSpot(obstacle.x, obstacle.type);
+                    if (optimalSpot) {
+                        this.optimalJumpSpots.push({
+                            x: optimalSpot.jumpX,
+                            y: optimalSpot.jumpY,
+                            targetX: optimalSpot.targetX,
+                            targetY: optimalSpot.targetY,
+                            distance: optimalSpot.distance,
+                            obstacleType: obstacle.type
+                        });
+                    }
+                });
+            }
+            
+            // Finde die optimale Absprungstelle für ein bestimmtes Hindernis
+            findOptimalJumpSpot(obstacleX, obstacleType) {
+                const searchRange = 1.5; // Bereich vor dem Hindernis
+                const searchStep = 0.05;
+                const jumpReach = 2.5; // Maximale Sprungreichweite
+                
+                let bestSpot = null;
+                let minDistance = Infinity;
+                
+                // Suche rückwärts vom Hindernis nach der besten Absprungstelle
+                for (let jumpX = obstacleX - 0.1; jumpX >= obstacleX - searchRange; jumpX -= searchStep) {
+                    // Prüfe ob diese Position auf der Kurve existiert
+                    const jumpY = this.mathEngine.safeEvaluate(this.currentFunction, jumpX);
+                    if (jumpY === null) continue;
+                    
+                    // Suche nach der nächsten gültigen Position nach dem Hindernis
+                    for (let targetX = obstacleX + 0.2; targetX <= obstacleX + jumpReach; targetX += searchStep) {
+                        const targetY = this.mathEngine.safeEvaluate(this.currentFunction, targetX);
+                        if (targetY === null) continue;
+                        
+                        // Berechne Luftlinien-Abstand
+                        const distance = Math.sqrt(
+                            Math.pow(targetX - jumpX, 2) + Math.pow(targetY - jumpY, 2)
+                        );
+                        
+                        // Prüfe ob dies der kürzeste Abstand ist
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            bestSpot = {
+                                jumpX: jumpX,
+                                jumpY: jumpY,
+                                targetX: targetX,
+                                targetY: targetY,
+                                distance: distance
+                            };
+                        }
+                    }
+                }
+                
+                return bestSpot;
+            }
+            
+            // Prüfe wie präzise der Spieler von einer optimalen Sprungstelle abspringt
+            checkJumpPrecision() {
+                const playerX = this.player.x;
+                const playerY = this.player.y;
+                
+                // Finde die nächste optimale Sprungstelle
+                let closestSpot = null;
+                let minDistance = Infinity;
+                
+                this.optimalJumpSpots.forEach(spot => {
+                    const distance = Math.sqrt(
+                        Math.pow(spot.x - playerX, 2) + Math.pow(spot.y - playerY, 2)
+                    );
+                    
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestSpot = spot;
+                    }
+                });
+                
+                if (!closestSpot) return null;
+                
+                // Präzisionsbewertung basierend auf Abstand
+                const maxPrecisionDistance = 0.15; // Maximaler Abstand für Präzisionspunkte
+                
+                if (minDistance <= maxPrecisionDistance) {
+                    // Berechne Präzisionswert (1.0 = perfekt, 0.0 = gerade noch gültig)
+                    const precision = Math.max(0, 1 - (minDistance / maxPrecisionDistance));
+                    
+                    return {
+                        precision: precision,
+                        distance: minDistance,
+                        spotX: closestSpot.x,
+                        spotY: closestSpot.y,
+                        obstacleType: closestSpot.obstacleType
+                    };
+                }
+                
+                return null;
+            }
+            
+            // Belohne präzise Sprünge mit Punkten und visuellen Effekten
+            triggerPrecisionReward(precisionData) {
+                const precision = precisionData.precision;
+                const baseScore = 150; // Basis-Bonuspunkte
+                let bonusScore = Math.floor(baseScore * precision);
+                let effectType = 'good';
+                let message = '';
+                
+                // Präzisionsstufen definieren
+                if (precision >= 0.9) {
+                    // Perfekt (90-100%)
+                    bonusScore = Math.floor(bonusScore * 2.5); // 2.5x Multiplikator
+                    effectType = 'perfect';
+                    message = `PERFEKT! +${bonusScore}`;
+                } else if (precision >= 0.7) {
+                    // Sehr gut (70-89%)
+                    bonusScore = Math.floor(bonusScore * 1.8); // 1.8x Multiplikator
+                    effectType = 'excellent';
+                    message = `AUSGEZEICHNET! +${bonusScore}`;
+                } else if (precision >= 0.5) {
+                    // Gut (50-69%)
+                    bonusScore = Math.floor(bonusScore * 1.3); // 1.3x Multiplikator
+                    effectType = 'good';
+                    message = `GUT! +${bonusScore}`;
+                } else {
+                    // Okay (0-49%)
+                    effectType = 'okay';
+                    message = `BONUS! +${bonusScore}`;
+                }
+                
+                // Punkte vergeben
+                this.addScore(bonusScore);
+                
+                // Visuellen Effekt erstellen
+                this.createPrecisionEffect({
+                    x: this.player.x,
+                    y: this.player.y,
+                    type: effectType,
+                    precision: precision,
+                    message: message,
+                    obstacleType: precisionData.obstacleType
+                });
+                
+                // Spezielle Partikel für hohe Präzision
+                if (precision >= 0.7) {
+                    this.createPrecisionParticles(effectType, precision);
+                }
+                
+                this.lastJumpPrecision = precisionData;
+            }
 
             // Starte einen deterministischen Bogen-Sprung zur anderen Kurve
             startJump() {
                 if (this.player.jumping) return;
+                
+                // Prüfe Sprungpräzision vor dem Absprung
+                const precision = this.checkJumpPrecision();
+                if (precision) {
+                    this.triggerPrecisionReward(precision);
+                }
+                
                 let targetX = this.computeJumpTargetX();
                 let targetY = this.mathEngine.safeEvaluate(this.currentFunction, targetX);
                 // Falls direkt auf Pol/Lücke, etwas weiter springen
@@ -1317,9 +1579,6 @@
                     // Fallback: kleine Verschiebung oberhalb der aktuellen y
                     targetY = (this.player.y + 0.5);
                 }
-                
-                // Perfect Timing bei jedem Sprung aktivieren
-                this.activatePerfectTimingForJump(targetX, targetY);
                 
                 this.player.startArcJump(targetX, targetY);
             }
@@ -1464,8 +1723,13 @@
                     }
                 }
                 
-                // Perfect Timing System
-                this.updatePerfectTiming();
+                // Optimale Sprungstellen berechnen
+                this.calculateOptimalJumpSpots();
+                
+                // Präzisions-Effekte aktualisieren
+                this.updatePrecisionEffects();
+                
+
                 
                 // Während des Arc-Sprungs steuert der Bogen x/y direkt – kein Air-Assist nötig
                 
@@ -1494,13 +1758,7 @@
                     this.loseLife(); // Bestrafung für vergessenen Sprung
                 }
                 
-                // Perfect Timing Kollisionserkennung
-                this.checkPerfectTimingHit();
-                
-                // Perfect Timing bei Sprung-Ende überprüfen
-                if (this.player.jumping && this.perfectTimingActive) {
-                    this.checkJumpPerfectTiming();
-                }
+
                 
                 // Kein automatischer Score mehr!
                 
@@ -1541,13 +1799,13 @@
                 this.renderer.drawParticles(this.particles);
                 this.renderer.drawPlayer(this.player);
                 
-                // Perfect Timing Kreis zeichnen
-                if (this.perfectTimingActive && this.perfectTimingCircle) {
-                    this.renderer.drawPerfectTimingCircle(this.perfectTimingCircle);
-                }
+                // Optimale Sprungstellen zeichnen
+                this.renderer.drawOptimalJumpSpots(this.optimalJumpSpots);
                 
-                // Screen Flash Effekte zeichnen
-                this.renderer.drawScreenFlashEffects(this.screenFlashEffects);
+                // Präzisions-Effekte zeichnen
+                this.renderer.drawPrecisionEffects(this.jumpPrecisionEffects);
+                
+
             }
             
             gameLoop() {
@@ -1783,6 +2041,115 @@
                 }
             }
             
+            // Erstelle Präzisions-Effekt für genaue Sprünge
+            createPrecisionEffect(effectData) {
+                this.jumpPrecisionEffects.push({
+                    x: effectData.x,
+                    y: effectData.y,
+                    type: effectData.type,
+                    precision: effectData.precision,
+                    timer: 120, // 2 Sekunden bei 60fps
+                    duration: 120,
+                    message: effectData.message
+                });
+                
+                // UI-Nachricht anzeigen
+                this.showPrecisionMessage(effectData.message, effectData.type);
+            }
+            
+            // Aktualisiere Präzisions-Effekte
+            updatePrecisionEffects() {
+                this.jumpPrecisionEffects = this.jumpPrecisionEffects.filter(effect => {
+                    effect.timer--;
+                    return effect.timer > 0;
+                });
+            }
+            
+            // Erstelle spezielle Partikel für hohe Präzision
+            createPrecisionParticles(effectType, precision) {
+                const particleCount = effectType === 'perfect' ? 25 : 15;
+                const colors = {
+                    perfect: [{ r: 255, g: 215, b: 0 }, { r: 255, g: 255, b: 0 }, { r: 255, g: 165, b: 0 }], // Gold-Töne
+                    excellent: [{ r: 0, g: 255, b: 255 }, { r: 0, g: 191, b: 255 }, { r: 255, g: 255, b: 255 }], // Cyan-Töne
+                    good: [{ r: 0, g: 255, b: 0 }, { r: 127, g: 255, b: 0 }, { r: 0, g: 255, b: 127 }] // Grün-Töne
+                };
+                
+                const colorSet = colors[effectType] || colors.good;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const angle = (i / particleCount) * Math.PI * 2;
+                    const speed = 0.1 + precision * 0.15;
+                    
+                    this.particles.push({
+                        x: this.player.x,
+                        y: this.player.y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        size: Math.random() * 4 + 2,
+                        alpha: 1,
+                        color: colorSet[Math.floor(Math.random() * colorSet.length)],
+                        life: 90 + Math.floor(precision * 30)
+                    });
+                }
+            }
+            
+            // Zeige Präzisions-Nachricht
+            showPrecisionMessage(message, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.textContent = message;
+                
+                const colors = {
+                    perfect: '#FFD700',
+                    excellent: '#00FFFF', 
+                    good: '#00FF00',
+                    okay: '#FFFF00'
+                };
+                
+                const sizes = {
+                    perfect: '42px',
+                    excellent: '36px',
+                    good: '30px',
+                    okay: '24px'
+                };
+                
+                messageDiv.style.cssText = `
+                    position: absolute;
+                    top: 40%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: ${colors[type] || '#FFFF00'};
+                    font-size: ${sizes[type] || '24px'};
+                    font-weight: bold;
+                    text-shadow: 0 0 20px ${colors[type] || '#FFFF00'};
+                    z-index: 1000;
+                    pointer-events: none;
+                    animation: precision-bounce 0.5s ease-out;
+                `;
+                
+                // Animation für das Aufpoppen hinzufügen
+                if (!document.querySelector('#precision-animation-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'precision-animation-style';
+                    style.textContent = `
+                        @keyframes precision-bounce {
+                            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+                            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+                            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+                
+                document.body.appendChild(messageDiv);
+                
+                // Nach 2.5 Sekunden entfernen
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 2500);
+            }
+            
             // Hilfsfunktion für Spawn-Position
             getSpawnPosition(level) {
                 if (level >= 1 && level <= 3) return -5;      // Einfache Level
@@ -1829,336 +2196,7 @@
                 }
             }
             
-            // Perfect Timing System - Bei jedem Sprung
-            updatePerfectTiming() {
-                // Perfect Timing aktualisieren
-                if (this.perfectTimingActive) {
-                    this.perfectTimingTimer++;
-                    
-                    // Perfect Timing beenden nach 2 Sekunden
-                    if (this.perfectTimingTimer > 120) {
-                        this.deactivatePerfectTiming();
-                        return;
-                    }
-                    
-                    // Kreis schrumpfen lassen - schneller für bessere Timing-Herausforderung
-                    if (this.perfectTimingCircle) {
-                        this.perfectTimingCircle.radius = Math.max(8, 80 - this.perfectTimingTimer * 0.6);
-                    }
-                }
-                
-                // Screen Flash Effekte aktualisieren
-                this.updateScreenFlashEffects();
-            }
-            
-            activatePerfectTiming() {
-                this.perfectTimingActive = true;
-                this.perfectTimingTimer = 0;
-                
-                // Kreis um den Spieler erstellen
-                this.perfectTimingCircle = {
-                    x: this.player.x,
-                    y: this.player.y,
-                    radius: 100,
-                    color: '#ff00ff'
-                };
-                
-                // UI-Hinweis anzeigen
-                this.showPerfectTimingHint();
-            }
-            
-            activatePerfectTimingForJump(targetX, targetY) {
-                this.perfectTimingActive = true;
-                this.perfectTimingTimer = 0;
-                
-                // Kreis um den Spieler erstellen, der den idealen Sprung-Moment markiert
-                this.perfectTimingCircle = {
-                    x: this.player.x,
-                    y: this.player.y,
-                    radius: 80, // Etwas kleiner für bessere Präzision
-                    color: '#00ffff', // Cyan für Sprung-Perfect Timing
-                    targetX: targetX,
-                    targetY: targetY
-                };
-                
-                // UI-Hinweis für Sprung-Perfect Timing
-                this.showJumpPerfectTimingHint();
-            }
-            
-            deactivatePerfectTiming() {
-                this.perfectTimingActive = false;
-                this.perfectTimingCircle = null;
-                this.perfectTimingCooldown = 300; // 5 Sekunden Cooldown
-            }
-            
-            checkPerfectTimingHit() {
-                if (!this.perfectTimingActive || !this.perfectTimingCircle) return false;
-                
-                const distance = Math.sqrt(
-                    Math.pow(this.player.x - this.perfectTimingCircle.x, 2) + 
-                    Math.pow(this.player.y - this.perfectTimingCircle.y, 2)
-                );
-                
-                // Perfekter Treffer wenn der Kreis den Spieler berührt
-                if (distance <= this.perfectTimingCircle.radius) {
-                    this.triggerPerfectTiming();
-                    return true;
-                }
-                
-                return false;
-            }
-            
-            checkJumpPerfectTiming() {
-                if (!this.perfectTimingActive || !this.perfectTimingCircle) return false;
-                
-                // Überprüfe ob der Spieler den idealen Sprung-Moment getroffen hat
-                const jumpProgress = this.player.jumpTime / this.player.jumpDuration;
-                
-                // Perfekter Moment ist in der Mitte des Sprungs (bei 50%)
-                if (Math.abs(jumpProgress - 0.5) < 0.1) {
-                    this.triggerJumpPerfectTiming();
-                    return true;
-                }
-                
-                return false;
-            }
-            
-            triggerPerfectTiming() {
-                // Massive Belohnungen
-                this.addScore(1000); // 1000 Punkte Bonus
-                this.player.boostTime = 120; // 2 Sekunden Boost
-                
-                // Bildschirm-Aufleuchtung
-                this.createScreenFlashEffects();
-                
-                // Partikel-Explosion
-                this.createPerfectTimingParticles();
-                
-                // Perfect Timing beenden
-                this.deactivatePerfectTiming();
-                
-                // UI-Feedback
-                this.showPerfectTimingSuccess();
-            }
-            
-            triggerJumpPerfectTiming() {
-                // Belohnungen für perfekten Sprung
-                this.addScore(500); // 500 Punkte für perfekten Sprung
-                this.player.boostTime = 60; // 1 Sekunde Boost
-                
-                // Bildschirm-Aufleuchtung
-                this.createJumpScreenFlashEffects();
-                
-                // Partikel-Explosion
-                this.createJumpPerfectTimingParticles();
-                
-                // Perfect Timing beenden
-                this.deactivatePerfectTiming();
-                
-                // UI-Feedback
-                this.showJumpPerfectTimingSuccess();
-            }
-            
-            createScreenFlashEffects() {
-                // Verschiedene Flash-Effekte
-                const effects = [
-                    { type: 'circle', color: '#ff00ff', duration: 60 },
-                    { type: 'star', color: '#ffff00', duration: 45 },
-                    { type: 'wave', color: '#00ffff', duration: 90 },
-                    { type: 'explosion', color: '#ff0080', duration: 75 }
-                ];
-                
-                effects.forEach(effect => {
-                    this.screenFlashEffects.push({
-                        ...effect,
-                        timer: effect.duration,
-                        x: this.player.x,
-                        y: this.player.y
-                    });
-                });
-            }
-            
-            updateScreenFlashEffects() {
-                this.screenFlashEffects = this.screenFlashEffects.filter(effect => {
-                    effect.timer--;
-                    return effect.timer > 0;
-                });
-            }
-            
-            createPerfectTimingParticles() {
-                // Massive Partikel-Explosion
-                for (let i = 0; i < 50; i++) {
-                    this.particles.push({
-                        x: this.player.x + (Math.random() - 0.5) * 2,
-                        y: this.player.y + (Math.random() - 0.5) * 2,
-                        vx: (Math.random() - 0.5) * 0.8,
-                        vy: (Math.random() - 0.5) * 0.8,
-                        size: Math.random() * 8 + 4,
-                        alpha: 1,
-                        color: this.getRandomPerfectTimingColor(),
-                        life: 120
-                    });
-                }
-            }
-            
-            createJumpScreenFlashEffects() {
-                // Spezielle Flash-Effekte für Sprung-Perfect Timing
-                const effects = [
-                    { type: 'circle', color: '#00ffff', duration: 40 }, // Cyan für Sprünge
-                    { type: 'star', color: '#00ff00', duration: 30 },   // Grün für Erfolg
-                    { type: 'wave', color: '#0080ff', duration: 60 }    // Blau für Bewegung
-                ];
-                
-                effects.forEach(effect => {
-                    this.screenFlashEffects.push({
-                        ...effect,
-                        timer: effect.duration,
-                        x: this.player.x,
-                        y: this.player.y
-                    });
-                });
-            }
-            
-            createJumpPerfectTimingParticles() {
-                // Partikel-Explosion für perfekten Sprung
-                for (let i = 0; i < 30; i++) {
-                    this.particles.push({
-                        x: this.player.x + (Math.random() - 0.5) * 1.5,
-                        y: this.player.y + (Math.random() - 0.5) * 1.5,
-                        vx: (Math.random() - 0.5) * 1.0,
-                        vy: (Math.random() - 0.5) * 1.0,
-                        size: Math.random() * 6 + 3,
-                        alpha: 1,
-                        color: this.getRandomJumpPerfectTimingColor(),
-                        life: 90
-                    });
-                }
-            }
-            
-            getRandomJumpPerfectTimingColor() {
-                const colors = [
-                    { r: 0, g: 255, b: 255 },   // Cyan
-                    { r: 0, g: 255, b: 0 },     // Grün
-                    { r: 0, g: 128, b: 255 },   // Blau
-                    { r: 255, g: 255, b: 255 }  // Weiß
-                ];
-                return colors[Math.floor(Math.random() * colors.length)];
-            }
-            
-            getRandomPerfectTimingColor() {
-                const colors = [
-                    { r: 255, g: 0, b: 255 },   // Magenta
-                    { r: 255, g: 255, b: 0 },   // Gelb
-                    { r: 0, g: 255, b: 255 },   // Cyan
-                    { r: 255, g: 0, b: 127 },   // Rose
-                    { r: 255, g: 255, b: 255 }  // Weiß
-                ];
-                return colors[Math.floor(Math.random() * colors.length)];
-            }
-            
-            showPerfectTimingHint() {
-                // Temporärer UI-Hinweis
-                const hint = document.createElement('div');
-                hint.textContent = 'PERFECT TIMING!';
-                hint.style.cssText = `
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    color: #ff00ff;
-                    font-size: 48px;
-                    font-weight: bold;
-                    text-shadow: 0 0 20px #ff00ff;
-                    z-index: 1000;
-                    pointer-events: none;
-                `;
-                document.body.appendChild(hint);
-                
-                // Nach 2 Sekunden entfernen
-                setTimeout(() => {
-                    if (hint.parentNode) {
-                        hint.parentNode.removeChild(hint);
-                    }
-                }, 2000);
-            }
-            
-            showPerfectTimingSuccess() {
-                // Erfolgs-Animation
-                const success = document.createElement('div');
-                success.textContent = 'PERFECT! +1000';
-                success.style.cssText = `
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    color: #ffff00;
-                    font-size: 36px;
-                    font-weight: bold;
-                    text-shadow: 0 0 15px #ffff00;
-                    z-index: 1000;
-                    pointer-events: none;
-                `;
-                document.body.appendChild(success);
-                
-                // Nach 3 Sekunden entfernen
-                setTimeout(() => {
-                    if (success.parentNode) {
-                        success.parentNode.removeChild(success);
-                    }
-                }, 3000);
-            }
-            
-            showJumpPerfectTimingHint() {
-                // UI-Hinweis für Sprung-Perfect Timing
-                const hint = document.createElement('div');
-                hint.textContent = 'PERFECT TIMING!';
-                hint.style.cssText = `
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    color: #00ffff;
-                    font-size: 36px;
-                    font-weight: bold;
-                    text-shadow: 0 0 20px #00ffff;
-                    z-index: 1000;
-                    pointer-events: none;
-                `;
-                document.body.appendChild(hint);
-                
-                // Nach 1.5 Sekunden entfernen (kürzer für Sprünge)
-                setTimeout(() => {
-                    if (hint.parentNode) {
-                        hint.parentNode.removeChild(hint);
-                    }
-                }, 1500);
-            }
-            
-            showJumpPerfectTimingSuccess() {
-                // Erfolgs-Animation für perfekten Sprung
-                const success = document.createElement('div');
-                success.textContent = 'PERFECT JUMP! +500';
-                success.style.cssText = `
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    color: #00ff00;
-                    font-size: 32px;
-                    font-weight: bold;
-                    text-shadow: 0 0 15px #00ff00;
-                    z-index: 1000;
-                    pointer-events: none;
-                `;
-                document.body.appendChild(success);
-                
-                // Nach 2 Sekunden entfernen
-                setTimeout(() => {
-                    if (success.parentNode) {
-                        success.parentNode.removeChild(success);
-                    }
-                }, 2000);
-            }
+
         }
         
         // Spiel starten
