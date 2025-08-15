@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asymptoten-Raserei</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Orbitron', monospace;
+            color: #00ffff;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #gameCanvas {
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            box-shadow: 
+                0 0 20px #00ffff,
+                inset 0 0 20px rgba(0, 255, 255, 0.1);
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000000 100%);
+        }
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+        
+        .ui-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ffff;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 0 10px #00ffff;
+        }
+        
+        #score, #level, #lives {
+            font-size: 18px;
+            font-weight: 700;
+            text-shadow: 0 0 10px #00ffff;
+        }
+        
+        #function {
+            font-size: 14px;
+            color: #ff00ff;
+            text-shadow: 0 0 5px #ff00ff;
+            max-width: 300px;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        #gameOver, #levelComplete {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 0 30px #ff00ff;
+            display: none;
+        }
+        
+        #gameOver h2, #levelComplete h2 {
+            color: #ff00ff;
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px #ff00ff;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            border: none;
+            color: #000;
+            padding: 10px 20px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #00ffff;
+        }
+        
+        .glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #00ffff; }
+            to { text-shadow: 0 0 20px #00ffff, 0 0 30px #00ffff; }
+        }
+        
+        .pulse {
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="1000" height="600"></canvas>
+        
+        <div id="ui">
+            <div class="ui-panel">
+                <div id="score" class="glow">Score: 0</div>
+                <div id="level">Level: 1</div>
+                <div id="lives">Lives: 3</div>
+            </div>
+            <div class="ui-panel">
+                <div id="function">f(x) = 1/(x-2)</div>
+            </div>
+        </div>
+        
+        <div id="controls">
+            <p>← Bremsen | → Beschleunigen | Leertaste: Sprung | R: Restart</p>
+            <p style="font-size: 10px; margin-top: 5px;">🎯 Fahre automatisch! Springe über gelbe Lücken, nutze pinke Asymptoten für Boosts!</p>
+        </div>
+        
+        <div id="gameOver">
+            <h2>Game Over!</h2>
+            <p>Score: <span id="finalScore">0</span></p>
+            <button onclick="game.restart()">Nochmal spielen</button>
+        </div>
+        
+        <div id="levelComplete">
+            <h2>Level geschafft!</h2>
+            <p>Bonus: <span id="levelBonus">0</span></p>
+            <button onclick="game.nextLevel()">Nächstes Level</button>
+        </div>
+    </div>
+
+    <script>
+        class MathEngine {
+            constructor() {
+                this.epsilon = 0.001;
+            }
+            
+            parseFunction(functionString) {
+                // Vereinfachter Parser für gebrochenrationale Funktionen
+                const functions = {
+                    1: { // Level 1: f(x) = 1/(x-2)
+                        evaluate: (x) => 1 / (x - 2),
+                        poles: [2],
+                        asymptotes: { horizontal: 0, vertical: [2] },
+                        discontinuities: []
+                    },
+                    2: { // Level 2: f(x) = 1/((x-1)(x+1))
+                        evaluate: (x) => 1 / ((x - 1) * (x + 1)),
+                        poles: [-1, 1],
+                        asymptotes: { horizontal: 0, vertical: [-1, 1] },
+                        discontinuities: []
+                    },
+                    3: { // Level 3: f(x) = (x-1)/((x-1)(x-2)) = 1/(x-2) mit Lücke bei x=1
+                        evaluate: (x) => Math.abs(x - 1) < this.epsilon ? 1 : 1 / (x - 2),
+                        poles: [2],
+                        asymptotes: { horizontal: 0, vertical: [2] },
+                        discontinuities: [1]
+                    },
+                    4: { // Level 4: f(x) = (x²+1)/(x-1)
+                        evaluate: (x) => (x * x + 1) / (x - 1),
+                        poles: [1],
+                        asymptotes: { horizontal: null, vertical: [1], oblique: { slope: 1, intercept: 1 } },
+                        discontinuities: []
+                    },
+                    5: { // Level 5: f(x) = (x²-4)/((x-1)(x+2)(x-3))
+                        evaluate: (x) => (x * x - 4) / ((x - 1) * (x + 2) * (x - 3)),
+                        poles: [-2, 1, 3],
+                        asymptotes: { horizontal: 0, vertical: [-2, 1, 3] },
+                        discontinuities: []
+                    }
+                };
+                
+                return functions[functionString] || functions[1];
+            }
+            
+            isNearPole(x, poles) {
+                return poles.some(pole => Math.abs(x - pole) < this.epsilon * 5);
+            }
+            
+            isNearAsymptote(x, y, asymptotes) {
+                // Prüfe horizontale Asymptote
+                if (asymptotes.horizontal !== null && Math.abs(y - asymptotes.horizontal) < 0.5) {
+                    return true;
+                }
+                
+                // Prüfe schiefe Asymptote
+                if (asymptotes.oblique) {
+                    const asymptoteY = asymptotes.oblique.slope * x + asymptotes.oblique.intercept;
+                    if (Math.abs(y - asymptoteY) < 0.5) {
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+            
+            safeEvaluate(func, x) {
+                try {
+                    const result = func.evaluate(x);
+                    if (!isFinite(result)) return null;
+                    return result;
+                } catch (e) {
+                    return null;
+                }
+            }
+        }
+        
+        class Player {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = 0;
+                this.vy = 0;
+                this.radius = 8;
+                this.trail = [];
+                this.maxTrailLength = 20;
+                this.jumping = false;
+                this.jumpTime = 0;
+                this.jumpDuration = 30;
+                this.boostTime = 0;
+            }
+            
+            update(mathEngine, currentFunction) {
+                // Bewegung
+                this.x += this.vx;
+                
+                // Sprung-Logik
+                if (this.jumping) {
+                    this.jumpTime++;
+                    if (this.jumpTime >= this.jumpDuration) {
+                        this.jumping = false;
+                        this.jumpTime = 0;
+                    }
+                }
+                
+                // Y-Position aus Funktion berechnen (wenn nicht springend)
+                if (!this.jumping) {
+                    const newY = mathEngine.safeEvaluate(currentFunction, this.x);
+                    if (newY !== null) {
+                        this.y = newY;
+                    }
+                }
+                
+                // Trail aktualisieren
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > this.maxTrailLength) {
+                    this.trail.shift();
+                }
+                
+                // Boost-Timer
+                if (this.boostTime > 0) {
+                    this.boostTime--;
+                }
+            }
+            
+            jump() {
+                if (!this.jumping) {
+                    this.jumping = true;
+                    this.jumpTime = 0;
+                    this.vy = -0.3;
+                }
+            }
+            
+            checkCollisions(mathEngine, currentFunction) {
+                // Polstellen-Kollision
+                if (mathEngine.isNearPole(this.x, currentFunction.poles)) {
+                    return 'pole';
+                }
+                
+                // Asymptoten-Boost
+                if (mathEngine.isNearAsymptote(this.x, this.y, currentFunction.asymptotes)) {
+                    if (this.boostTime === 0) {
+                        this.boostTime = 60;
+                        return 'boost';
+                    }
+                }
+                
+                // Definitionslücken - nur Score wenn erfolgreich gesprungen
+                for (let disc of currentFunction.discontinuities) {
+                    if (Math.abs(this.x - disc) < 0.15) {
+                        if (this.jumping) {
+                            return 'discontinuity_success'; // Erfolgreicher Sprung
+                        } else {
+                            return 'discontinuity_fail'; // Vergessen zu springen
+                        }
+                    }
+                }
+                
+                return null;
+            }
+        }
+        
+        class Renderer {
+            constructor(canvas, ctx) {
+                this.canvas = canvas;
+                this.ctx = ctx;
+                this.scale = 50;
+                this.offsetX = canvas.width / 2;
+                this.offsetY = canvas.height / 2;
+            }
+            
+            clear() {
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+            
+            worldToScreen(x, y) {
+                return {
+                    x: this.offsetX + x * this.scale,
+                    y: this.offsetY - y * this.scale
+                };
+            }
+            
+            drawGrid() {
+                this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+                this.ctx.lineWidth = 1;
+                
+                // Vertikale Linien
+                for (let x = -10; x <= 10; x++) {
+                    const screenX = this.offsetX + x * this.scale;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(screenX, 0);
+                    this.ctx.lineTo(screenX, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                
+                // Horizontale Linien
+                for (let y = -6; y <= 6; y++) {
+                    const screenY = this.offsetY - y * this.scale;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, screenY);
+                    this.ctx.lineTo(this.canvas.width, screenY);
+                    this.ctx.stroke();
+                }
+                
+                // Achsen
+                this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+                this.ctx.lineWidth = 2;
+                
+                // X-Achse
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, this.offsetY);
+                this.ctx.lineTo(this.canvas.width, this.offsetY);
+                this.ctx.stroke();
+                
+                // Y-Achse
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.offsetX, 0);
+                this.ctx.lineTo(this.offsetX, this.canvas.height);
+                this.ctx.stroke();
+            }
+            
+            drawFunction(mathEngine, func, playerX) {
+                this.ctx.strokeStyle = '#00ffff';
+                this.ctx.lineWidth = 3;
+                this.ctx.shadowColor = '#00ffff';
+                this.ctx.shadowBlur = 10;
+                
+                this.ctx.beginPath();
+                let started = false;
+                
+                for (let screenX = 0; screenX < this.canvas.width; screenX += 2) {
+                    const worldX = (screenX - this.offsetX) / this.scale;
+                    const y = mathEngine.safeEvaluate(func, worldX);
+                    
+                    if (y !== null && Math.abs(y) < 10) {
+                        const screenPos = this.worldToScreen(worldX, y);
+                        
+                        if (!started) {
+                            this.ctx.moveTo(screenPos.x, screenPos.y);
+                            started = true;
+                        } else {
+                            this.ctx.lineTo(screenPos.x, screenPos.y);
+                        }
+                    } else {
+                        started = false;
+                    }
+                }
+                
+                this.ctx.stroke();
+                this.ctx.shadowBlur = 0;
+            }
+            
+            drawPoles(poles) {
+                poles.forEach(pole => {
+                    const screenPos = this.worldToScreen(pole, 0);
+                    
+                    // Energiewand-Effekt
+                    this.ctx.strokeStyle = '#ff0000';
+                    this.ctx.lineWidth = 4;
+                    this.ctx.shadowColor = '#ff0000';
+                    this.ctx.shadowBlur = 20;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(screenPos.x, 0);
+                    this.ctx.lineTo(screenPos.x, this.canvas.height);
+                    this.ctx.stroke();
+                    
+                    // Pulsierender Effekt
+                    const pulse = Math.sin(Date.now() * 0.01) * 0.5 + 0.5;
+                    this.ctx.shadowBlur = 10 + pulse * 20;
+                    this.ctx.stroke();
+                    
+                    this.ctx.shadowBlur = 0;
+                });
+            }
+            
+            drawAsymptotes(asymptotes) {
+                // Horizontale Asymptote
+                if (asymptotes.horizontal !== null) {
+                    const screenY = this.offsetY - asymptotes.horizontal * this.scale;
+                    
+                    this.ctx.strokeStyle = '#ff00ff';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.shadowColor = '#ff00ff';
+                    this.ctx.shadowBlur = 15;
+                    this.ctx.setLineDash([10, 5]);
+                    
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, screenY);
+                    this.ctx.lineTo(this.canvas.width, screenY);
+                    this.ctx.stroke();
+                    
+                    this.ctx.setLineDash([]);
+                    this.ctx.shadowBlur = 0;
+                }
+                
+                // Schiefe Asymptote
+                if (asymptotes.oblique) {
+                    this.ctx.strokeStyle = '#ff00ff';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.shadowColor = '#ff00ff';
+                    this.ctx.shadowBlur = 15;
+                    this.ctx.setLineDash([10, 5]);
+                    
+                    this.ctx.beginPath();
+                    for (let screenX = 0; screenX < this.canvas.width; screenX += 10) {
+                        const worldX = (screenX - this.offsetX) / this.scale;
+                        const y = asymptotes.oblique.slope * worldX + asymptotes.oblique.intercept;
+                        const screenPos = this.worldToScreen(worldX, y);
+                        
+                        if (screenX === 0) {
+                            this.ctx.moveTo(screenPos.x, screenPos.y);
+                        } else {
+                            this.ctx.lineTo(screenPos.x, screenPos.y);
+                        }
+                    }
+                    this.ctx.stroke();
+                    
+                    this.ctx.setLineDash([]);
+                    this.ctx.shadowBlur = 0;
+                }
+            }
+            
+            drawDiscontinuities(discontinuities) {
+                discontinuities.forEach(disc => {
+                    const screenPos = this.worldToScreen(disc, 0);
+                    
+                    // Sprungmarkierung
+                    this.ctx.fillStyle = '#ffff00';
+                    this.ctx.shadowColor = '#ffff00';
+                    this.ctx.shadowBlur = 10;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenPos.x, this.offsetY, 15, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    this.ctx.fillStyle = '#000000';
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenPos.x, this.offsetY, 8, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    this.ctx.shadowBlur = 0;
+                });
+            }
+            
+            drawPlayer(player) {
+                const screenPos = this.worldToScreen(player.x, player.y);
+                
+                // Trail zeichnen
+                if (player.trail.length > 1) {
+                    this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.beginPath();
+                    
+                    for (let i = 0; i < player.trail.length; i++) {
+                        const trailPos = this.worldToScreen(player.trail[i].x, player.trail[i].y);
+                        if (i === 0) {
+                            this.ctx.moveTo(trailPos.x, trailPos.y);
+                        } else {
+                            this.ctx.lineTo(trailPos.x, trailPos.y);
+                        }
+                    }
+                    this.ctx.stroke();
+                }
+                
+                // Spieler zeichnen
+                this.ctx.fillStyle = player.boostTime > 0 ? '#ffff00' : '#00ffff';
+                this.ctx.shadowColor = player.boostTime > 0 ? '#ffff00' : '#00ffff';
+                this.ctx.shadowBlur = player.boostTime > 0 ? 25 : 15;
+                
+                this.ctx.beginPath();
+                this.ctx.arc(screenPos.x, screenPos.y, player.radius, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Sprung-Indikator
+                if (player.jumping) {
+                    this.ctx.strokeStyle = '#ffffff';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenPos.x, screenPos.y, player.radius + 5, 0, Math.PI * 2);
+                    this.ctx.stroke();
+                }
+                
+                this.ctx.shadowBlur = 0;
+            }
+            
+            drawParticles(particles) {
+                particles.forEach(particle => {
+                    const screenPos = this.worldToScreen(particle.x, particle.y);
+                    
+                    this.ctx.fillStyle = `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${particle.alpha})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(screenPos.x, screenPos.y, particle.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            }
+        }
+        
+        class Game {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.mathEngine = new MathEngine();
+                this.renderer = new Renderer(this.canvas, this.ctx);
+                
+                this.player = new Player(-5, 0);
+                this.currentLevel = 1;
+                this.score = 0;
+                this.lives = 3;
+                this.gameRunning = true;
+                this.particles = [];
+                
+                this.keys = {};
+                this.currentFunction = null;
+                
+                this.loadLevel(this.currentLevel);
+                this.setupEventListeners();
+                this.gameLoop();
+            }
+            
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    this.keys[e.code] = true;
+                    
+                    if (e.code === 'Space') {
+                        e.preventDefault();
+                        this.player.jump();
+                    }
+                    
+                    if (e.code === 'KeyR') {
+                        this.restart();
+                    }
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    this.keys[e.code] = false;
+                });
+            }
+            
+            loadLevel(level) {
+                this.currentFunction = this.mathEngine.parseFunction(level);
+                // Basisgeschwindigkeit pro Level (Level 1 langsam, pro Level schneller)
+                this.baseSpeed = 0.003 + (level - 1) * 0.006;
+                this.player.x = -5;
+                this.player.y = this.mathEngine.safeEvaluate(this.currentFunction, this.player.x) || 0;
+                this.player.trail = [];
+                
+                // UI aktualisieren
+                document.getElementById('level').textContent = `Level: ${level}`;
+                
+                const functionTexts = {
+                    1: 'f(x) = 1/(x-2)',
+                    2: 'f(x) = 1/((x-1)(x+1))',
+                    3: 'f(x) = (x-1)/((x-1)(x-2))',
+                    4: 'f(x) = (x²+1)/(x-1)',
+                    5: 'f(x) = (x²-4)/((x-1)(x+2)(x-3))'
+                };
+                
+                document.getElementById('function').textContent = functionTexts[level] || functionTexts[1];
+            }
+            
+            update() {
+                if (!this.gameRunning) return;
+                
+                // Automatisches Fahren nach rechts (geschwindigkeitsabhängig pro Level)
+                this.player.vx = this.baseSpeed; // Grundgeschwindigkeit pro Level
+                
+                // Manuelle Geschwindigkeitskontrolle (optional)
+                if (this.keys['ArrowLeft'] || this.keys['KeyA']) {
+                    this.player.vx *= 0.5; // Verlangsamen
+                }
+                if (this.keys['ArrowRight'] || this.keys['KeyD']) {
+                    this.player.vx *= 1.5; // Beschleunigen
+                }
+                
+                // Boost-Geschwindigkeit
+                if (this.player.boostTime > 0) {
+                    this.player.vx *= 2;
+                }
+                
+                this.player.update(this.mathEngine, this.currentFunction);
+                
+                // Kollisionserkennung
+                const collision = this.player.checkCollisions(this.mathEngine, this.currentFunction);
+                
+                if (collision === 'pole') {
+                    this.loseLife();
+                } else if (collision === 'boost') {
+                    this.addScore(100); // Score nur durch Boost
+                    this.createBoostParticles();
+                } else if (collision === 'discontinuity_success') {
+                    this.addScore(200); // Score nur durch erfolgreichen Sprung
+                    this.createJumpParticles();
+                } else if (collision === 'discontinuity_fail') {
+                    this.loseLife(); // Bestrafung für vergessenen Sprung
+                }
+                
+                // Kein automatischer Score mehr!
+                
+                // Level-Completion (Spieler erreicht x = 5)
+                if (this.player.x > 5) {
+                    this.completeLevel();
+                }
+                
+                // Partikel aktualisieren
+                this.updateParticles();
+                
+                // Kamera folgt Spieler
+                this.renderer.offsetX = this.canvas.width / 2 - this.player.x * this.renderer.scale;
+            }
+            
+            render() {
+                this.renderer.clear();
+                this.renderer.drawGrid();
+                this.renderer.drawAsymptotes(this.currentFunction.asymptotes);
+                this.renderer.drawFunction(this.mathEngine, this.currentFunction, this.player.x);
+                this.renderer.drawPoles(this.currentFunction.poles);
+                this.renderer.drawDiscontinuities(this.currentFunction.discontinuities);
+                this.renderer.drawParticles(this.particles);
+                this.renderer.drawPlayer(this.player);
+            }
+            
+            gameLoop() {
+                this.update();
+                this.render();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+            
+            addScore(points) {
+                this.score += points;
+                document.getElementById('score').textContent = `Score: ${this.score}`;
+            }
+            
+            loseLife() {
+                this.lives--;
+                document.getElementById('lives').textContent = `Lives: ${this.lives}`;
+                
+                if (this.lives <= 0) {
+                    this.gameOver();
+                } else {
+                    // Respawn
+                    this.player.x = -5;
+                    this.player.y = this.mathEngine.safeEvaluate(this.currentFunction, this.player.x) || 0;
+                    this.player.trail = [];
+                }
+            }
+            
+            gameOver() {
+                this.gameRunning = false;
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('gameOver').style.display = 'block';
+            }
+            
+            completeLevel() {
+                const bonus = this.lives * 500;
+                this.addScore(bonus);
+                
+                document.getElementById('levelBonus').textContent = bonus;
+                document.getElementById('levelComplete').style.display = 'block';
+                this.gameRunning = false;
+            }
+            
+            nextLevel() {
+                this.currentLevel++;
+                if (this.currentLevel > 5) {
+                    alert('Herzlichen Glückwunsch! Du hast alle Level geschafft!');
+                    this.restart();
+                    return;
+                }
+                
+                this.loadLevel(this.currentLevel);
+                document.getElementById('levelComplete').style.display = 'none';
+                this.gameRunning = true;
+            }
+            
+            restart() {
+                this.currentLevel = 1;
+                this.score = 0;
+                this.lives = 3;
+                this.gameRunning = true;
+                this.particles = [];
+                
+                this.loadLevel(this.currentLevel);
+                
+                document.getElementById('score').textContent = `Score: ${this.score}`;
+                document.getElementById('lives').textContent = `Lives: ${this.lives}`;
+                document.getElementById('gameOver').style.display = 'none';
+                document.getElementById('levelComplete').style.display = 'none';
+            }
+            
+            createBoostParticles() {
+                for (let i = 0; i < 10; i++) {
+                    this.particles.push({
+                        x: this.player.x + (Math.random() - 0.5) * 0.5,
+                        y: this.player.y + (Math.random() - 0.5) * 0.5,
+                        vx: (Math.random() - 0.5) * 0.1,
+                        vy: (Math.random() - 0.5) * 0.1,
+                        size: Math.random() * 3 + 1,
+                        alpha: 1,
+                        color: { r: 255, g: 255, b: 0 },
+                        life: 60
+                    });
+                }
+            }
+            
+            createJumpParticles() {
+                for (let i = 0; i < 15; i++) {
+                    this.particles.push({
+                        x: this.player.x + (Math.random() - 0.5) * 0.3,
+                        y: this.player.y + (Math.random() - 0.5) * 0.3,
+                        vx: (Math.random() - 0.5) * 0.15,
+                        vy: (Math.random() - 0.5) * 0.15,
+                        size: Math.random() * 4 + 2,
+                        alpha: 1,
+                        color: { r: 0, g: 255, b: 255 },
+                        life: 45
+                    });
+                }
+            }
+            
+            updateParticles() {
+                this.particles = this.particles.filter(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.life--;
+                    particle.alpha = particle.life / 60;
+                    
+                    return particle.life > 0;
+                });
+            }
+        }
+        
+        // Spiel starten
+        let game;
+        window.addEventListener('load', () => {
+            game = new Game();
+        });
+    </script>
+</body>
+</html>
