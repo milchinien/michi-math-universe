@@ -158,6 +158,7 @@
         <div id="controls">
             <p>← Bremsen | → Beschleunigen | Leertaste: Sprung | R: Restart</p>
             <p style="font-size: 10px; margin-top: 5px;">🎯 Fahre automatisch! Springe über gelbe Lücken, nutze pinke Asymptoten für Boosts!</p>
+            <p style="font-size: 10px; margin-top: 5px;">🔧 Level 8: 1/2 für Pfad-Wechsel | Level 10: Chaos-Effekte alle 2 Sekunden!</p>
         </div>
         
         <div id="gameOver">
@@ -211,6 +212,50 @@
                         poles: [-2, 1, 3],
                         asymptotes: { horizontal: 0, vertical: [-2, 1, 3] },
                         discontinuities: []
+                    },
+                    6: { // Level 6: f(x) = (x³-2x)/(x²-4) - Zeitverzögerung
+                        evaluate: (x) => (x * x * x - 2 * x) / (x * x - 4),
+                        poles: [-2, 2],
+                        asymptotes: { horizontal: null, vertical: [-2, 2], oblique: { slope: 1, intercept: 0 } },
+                        discontinuities: [],
+                        timeWarp: { zones: [-1, 1], factor: 0.3 } // Zeitlupe in diesen Zonen
+                    },
+                    7: { // Level 7: f(x) = 1/(x²-1) - Gravitationswechsel
+                        evaluate: (x) => 1 / (x * x - 1),
+                        poles: [-1, 1],
+                        asymptotes: { horizontal: 0, vertical: [-1, 1] },
+                        discontinuities: [],
+                        gravityZones: { 
+                            left: { x: -3, strength: -0.8 }, // Schwerkraft nach oben
+                            right: { x: 3, strength: 1.2 }   // Schwerkraft nach unten verstärkt
+                        }
+                    },
+                    8: { // Level 8: f(x) = (x²-1)/(x-1) - Multi-Path
+                        evaluate: (x) => Math.abs(x - 1) < this.epsilon ? 2 : (x * x - 1) / (x - 1),
+                        poles: [],
+                        asymptotes: { horizontal: null, vertical: [], oblique: { slope: 1, intercept: 1 } },
+                        discontinuities: [1],
+                        multiPath: {
+                            paths: [
+                                { start: -2, end: 0.8, color: '#00ff00' },
+                                { start: 1.2, end: 3, color: '#ff8800' }
+                            ]
+                        }
+                    },
+                    9: { // Level 9: f(x) = (x³+1)/(x²-1) - Inverser Boost
+                        evaluate: (x) => (x * x * x + 1) / (x * x - 1),
+                        poles: [-1, 1],
+                        asymptotes: { horizontal: null, vertical: [-1, 1], oblique: { slope: 1, intercept: 0 } },
+                        discontinuities: [],
+                        inverseBoost: true // Asymptoten verlangsamen
+                    },
+                    10: { // Level 10: f(x) = (x⁴-5x²+4)/(x³-2x²-x+2) - Chaos-Modus
+                        evaluate: (x) => (x * x * x * x - 5 * x * x + 4) / (x * x * x - 2 * x * x - x + 2),
+                        poles: [-1, 1, 2],
+                        asymptotes: { horizontal: null, vertical: [-1, 1, 2], oblique: { slope: 1, intercept: -1 } },
+                        discontinuities: [],
+                        chaosMode: true, // Zufällige Effekte
+                        chaosEffects: ['timeWarp', 'gravityShift', 'colorShift', 'sizeShift']
                     }
                 };
                 
@@ -270,6 +315,10 @@
                 this.jumpTargetY = 0;
                 this.ctrlX = 0;
                 this.ctrlY = 0;
+                
+                // Neue Eigenschaften für erweiterte Level
+                this.chaosColor = null;
+                this.chaosSize = 1;
             }
             
             update(mathEngine, currentFunction) {
@@ -352,7 +401,11 @@
                             if (game) game.jumpBuffer = 0; // Buffer verbrauchen
                             return 'discontinuity_success'; // Erfolgreicher Sprung
                         } else {
-                            return 'discontinuity_fail'; // Vergessen zu springen
+                            // In Level 3 kein Tod an der Lücke – Teleporter übernimmt
+                            if (game && game.currentLevel === 3) {
+                                return null;
+                            }
+                            return 'discontinuity_fail'; // In anderen Levels: Bestrafung
                         }
                     }
                 }
@@ -545,6 +598,130 @@
                 });
             }
             
+            // Neue Visualisierungen für erweiterte Level
+            drawTimeWarpZones(timeWarp) {
+                if (!timeWarp) return;
+                
+                timeWarp.zones.forEach(zone => {
+                    const screenPos = this.worldToScreen(zone, 0);
+                    
+                    // Zeitlupe-Zone als grüne, pulsierende Kreise
+                    this.ctx.strokeStyle = '#00ff00';
+                    this.ctx.lineWidth = 3;
+                    this.ctx.shadowColor = '#00ff00';
+                    this.ctx.shadowBlur = 15;
+                    
+                    const pulse = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
+                    this.ctx.globalAlpha = pulse;
+                    
+                    for (let i = 0; i < 3; i++) {
+                        const radius = 20 + i * 15;
+                        this.ctx.beginPath();
+                        this.ctx.arc(screenPos.x, this.offsetY, radius, 0, Math.PI * 2);
+                        this.ctx.stroke();
+                    }
+                    
+                    this.ctx.globalAlpha = 1;
+                    this.ctx.shadowBlur = 0;
+                });
+            }
+            
+            drawGravityZones(gravityZones) {
+                if (!gravityZones) return;
+                
+                // Linke Gravitationszone
+                if (gravityZones.left) {
+                    const screenPos = this.worldToScreen(gravityZones.left.x, 0);
+                    this.drawGravityZone(screenPos, gravityZones.left.strength, '#ff0080');
+                }
+                
+                // Rechte Gravitationszone
+                if (gravityZones.right) {
+                    const screenPos = this.worldToScreen(gravityZones.right.x, 0);
+                    this.drawGravityZone(screenPos, gravityZones.right.strength, '#8000ff');
+                }
+            }
+            
+            drawGravityZone(screenPos, strength, color) {
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 4;
+                this.ctx.shadowColor = color;
+                this.ctx.shadowBlur = 20;
+                
+                // Gravitationslinien
+                const lineCount = Math.abs(Math.floor(strength * 5));
+                const lineLength = 30;
+                
+                for (let i = 0; i < lineCount; i++) {
+                    const x = screenPos.x + (i - lineCount/2) * 8;
+                    const y = this.offsetY;
+                    
+                    this.ctx.beginPath();
+                    if (strength > 0) {
+                        // Schwerkraft nach unten
+                        this.ctx.moveTo(x, y - lineLength);
+                        this.ctx.lineTo(x, y + lineLength);
+                    } else {
+                        // Schwerkraft nach oben
+                        this.ctx.moveTo(x, y + lineLength);
+                        this.ctx.lineTo(x, y - lineLength);
+                    }
+                    this.ctx.stroke();
+                }
+                
+                this.ctx.shadowBlur = 0;
+            }
+            
+            drawMultiPath(multiPath) {
+                if (!multiPath) return;
+                
+                multiPath.paths.forEach((path, index) => {
+                    const startPos = this.worldToScreen(path.start, 0);
+                    const endPos = this.worldToScreen(path.end, 0);
+                    
+                    // Pfad-Markierung
+                    this.ctx.strokeStyle = path.color;
+                    this.ctx.lineWidth = 6;
+                    this.ctx.shadowColor = path.color;
+                    this.ctx.shadowBlur = 15;
+                    this.ctx.setLineDash([15, 10]);
+                    
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(startPos.x, this.offsetY);
+                    this.ctx.lineTo(endPos.x, this.offsetY);
+                    this.ctx.stroke();
+                    
+                    this.ctx.setLineDash([]);
+                    this.ctx.shadowBlur = 0;
+                    
+                    // Pfad-Nummer
+                    this.ctx.fillStyle = path.color;
+                    this.ctx.font = 'bold 16px Orbitron';
+                    this.ctx.textAlign = 'center';
+                    const midX = (startPos.x + endPos.x) / 2;
+                    this.ctx.fillText(`Pfad ${index + 1}`, midX, this.offsetY - 25);
+                });
+            }
+
+            // Zusätzliche Teleporter-Markierungen für Level 3
+            drawTeleporterMarkers(discontinuities) {
+                discontinuities.forEach(disc => {
+                    const center = this.worldToScreen(disc, 0);
+                    const ctx = this.ctx;
+                    const rings = [22, 28, 34];
+                    rings.forEach((r, i) => {
+                        ctx.strokeStyle = i % 2 === 0 ? '#ff00ff' : '#ffff00';
+                        ctx.lineWidth = 2;
+                        ctx.shadowColor = ctx.strokeStyle;
+                        ctx.shadowBlur = 12;
+                        ctx.beginPath();
+                        ctx.arc(center.x, this.offsetY, r, 0, Math.PI * 2);
+                        ctx.stroke();
+                    });
+                    ctx.shadowBlur = 0;
+                });
+            }
+            
             drawPlayer(player) {
                 const screenPos = this.worldToScreen(player.x, player.y);
                 
@@ -566,12 +743,24 @@
                 }
                 
                 // Spieler zeichnen
-                this.ctx.fillStyle = player.boostTime > 0 ? '#ffff00' : '#00ffff';
-                this.ctx.shadowColor = player.boostTime > 0 ? '#ffff00' : '#00ffff';
+                let playerColor = player.boostTime > 0 ? '#ffff00' : '#00ffff';
+                let playerShadow = player.boostTime > 0 ? '#ffff00' : '#00ffff';
+                
+                // Chaos-Modus: Zufällige Farbe
+                if (player.chaosColor) {
+                    playerColor = player.chaosColor;
+                    playerShadow = player.chaosColor;
+                }
+                
+                this.ctx.fillStyle = playerColor;
+                this.ctx.shadowColor = playerShadow;
                 this.ctx.shadowBlur = player.boostTime > 0 ? 25 : 15;
                 
+                // Chaos-Modus: Größenänderung
+                const radius = player.radius * (player.chaosSize || 1);
+                
                 this.ctx.beginPath();
-                this.ctx.arc(screenPos.x, screenPos.y, player.radius, 0, Math.PI * 2);
+                this.ctx.arc(screenPos.x, screenPos.y, radius, 0, Math.PI * 2);
                 this.ctx.fill();
                 
                 // Sprung-Indikator
@@ -618,6 +807,14 @@
                 this.jumpDashFrames = 24; // wie lange zusätzlicher Vorschub wirkt
                 this.jumpDashMultiplier = 3.0; // wie stark der Vorschub ist
                 
+                // Neue Level-Mechaniken
+                this.timeWarpActive = false;
+                this.timeWarpFactor = 1;
+                this.gravityShift = 0;
+                this.chaosMode = false;
+                this.chaosTimer = 0;
+                this.currentPath = 0; // Für Multi-Path Level
+                
                 this.keys = {};
                 this.currentFunction = null;
                 
@@ -638,6 +835,17 @@
                     
                     if (e.code === 'KeyR') {
                         this.restart();
+                    }
+                    
+                    // Multi-Path Level 8: Pfad-Wechsel
+                    if (e.code === 'Digit1' || e.code === 'Digit2') {
+                        if (this.currentLevel === 8 && this.currentFunction.multiPath) {
+                            const pathIndex = parseInt(e.code.replace('Digit', '')) - 1;
+                            if (pathIndex < this.currentFunction.multiPath.paths.length) {
+                                this.currentPath = pathIndex;
+                                this.switchToPath(pathIndex);
+                            }
+                        }
                     }
                 });
                 
@@ -716,8 +924,46 @@
             loadLevel(level) {
                 this.currentFunction = this.mathEngine.parseFunction(level);
                 // Basisgeschwindigkeit pro Level (Level 1 langsam, pro Level schneller)
-                this.baseSpeed = 0.006 + (level - 1) * 0.006;
-                this.player.x = -5;
+                this.baseSpeed = 0.003 + (level - 1) * 0.006;
+                if (level === 3) {
+                    // Level 3 etwas langsamer, um Teleporter/Sprung zu üben
+                    this.baseSpeed *= 0.8;
+                }
+                
+                // Spezielle Level-Mechaniken
+                if (level === 6) {
+                    // Level 6: Zeitlupe in bestimmten Zonen
+                    this.timeWarpActive = true;
+                } else {
+                    this.timeWarpActive = false;
+                }
+                
+                if (level === 7) {
+                    // Level 7: Gravitationswechsel
+                    this.gravityShift = 0;
+                } else {
+                    this.gravityShift = 0;
+                }
+                
+                if (level === 8) {
+                    // Level 8: Multi-Path
+                    this.currentPath = 0;
+                }
+                
+                if (level === 9) {
+                    // Level 9: Inverser Boost
+                    // Wird in der Kollisionserkennung behandelt
+                }
+                
+                if (level === 10) {
+                    // Level 10: Chaos-Modus
+                    this.chaosMode = true;
+                    this.chaosTimer = 0;
+                } else {
+                    this.chaosMode = false;
+                }
+                // Spawn-Position je nach Level-Schwierigkeit
+                this.player.x = this.getSpawnPosition(level);
                 this.player.y = this.mathEngine.safeEvaluate(this.currentFunction, this.player.x) || 0;
                 // Spielerzustand vollständig zurücksetzen
                 this.player.trail = [];
@@ -741,9 +987,14 @@
                 const functionTexts = {
                     1: 'f(x) = 1/(x-2)',
                     2: 'f(x) = 1/((x-1)(x+1))',
-                    3: 'f(x) = (x-1)/((x-1)(x-2))',
+                    3: 'f(x) = (x-1)/((x-1)(x-2)) — Teleporter an der gelben Lücke! Springe für Bonus.',
                     4: 'f(x) = (x²+1)/(x-1)',
-                    5: 'f(x) = (x²-4)/((x-1)(x+2)(x-3))'
+                    5: 'f(x) = (x²-4)/((x-1)(x+2)(x-3))',
+                    6: 'f(x) = (x³-2x)/(x²-4) — Zeitlupe in grünen Zonen!',
+                    7: 'f(x) = 1/(x²-1) — Gravitationswechsel! Schwerkraft ändert sich!',
+                    8: 'f(x) = (x²-1)/(x-1) — Multi-Path! Wähle deinen Weg!',
+                    9: 'f(x) = (x³+1)/(x²-1) — Inverser Boost! Asymptoten verlangsamen!',
+                    10: 'f(x) = (x⁴-5x²+4)/(x³-2x²-x+2) — Chaos-Modus! Alles ist möglich!'
                 };
                 
                 document.getElementById('function').textContent = functionTexts[level] || functionTexts[1];
@@ -766,7 +1017,45 @@
                 
                 // Boost-Geschwindigkeit
                 if (this.player.boostTime > 0) {
-                    this.player.vx *= 2;
+                    if (this.currentLevel === 9 && this.currentFunction.inverseBoost) {
+                        // Level 9: Inverser Boost - verlangsamt
+                        this.player.vx *= 0.3;
+                    } else {
+                        // Normaler Boost
+                        this.player.vx *= 2;
+                    }
+                }
+                
+                // Level 6: Zeitlupe in bestimmten Zonen
+                if (this.timeWarpActive && this.currentFunction.timeWarp) {
+                    const inTimeWarpZone = this.currentFunction.timeWarp.zones.some(zone => 
+                        Math.abs(this.player.x - zone) < 1
+                    );
+                    if (inTimeWarpZone) {
+                        this.timeWarpFactor = this.currentFunction.timeWarp.factor;
+                        this.player.vx *= this.timeWarpFactor;
+                    } else {
+                        this.timeWarpFactor = 1;
+                    }
+                }
+                
+                // Level 7: Gravitationswechsel
+                if (this.currentLevel === 7 && this.currentFunction.gravityZones) {
+                    if (this.player.x < this.currentFunction.gravityZones.left.x) {
+                        this.gravityShift = this.currentFunction.gravityZones.left.strength;
+                    } else if (this.player.x > this.currentFunction.gravityZones.right.x) {
+                        this.gravityShift = this.currentFunction.gravityZones.right.strength;
+                    } else {
+                        this.gravityShift = 0;
+                    }
+                }
+                
+                // Level 10: Chaos-Modus
+                if (this.chaosMode) {
+                    this.chaosTimer++;
+                    if (this.chaosTimer % 120 === 0) { // Alle 2 Sekunden
+                        this.triggerRandomChaosEffect();
+                    }
                 }
                 
                 // Während des Arc-Sprungs steuert der Bogen x/y direkt – kein Air-Assist nötig
@@ -817,6 +1106,21 @@
                 this.renderer.drawFunction(this.mathEngine, this.currentFunction, this.player.x);
                 this.renderer.drawPoles(this.currentFunction.poles);
                 this.renderer.drawDiscontinuities(this.currentFunction.discontinuities);
+                
+                // Level-spezifische Visualisierungen
+                if (this.currentLevel === 3) {
+                    this.renderer.drawTeleporterMarkers(this.currentFunction.discontinuities);
+                }
+                if (this.currentLevel === 6 && this.currentFunction.timeWarp) {
+                    this.renderer.drawTimeWarpZones(this.currentFunction.timeWarp);
+                }
+                if (this.currentLevel === 7 && this.currentFunction.gravityZones) {
+                    this.renderer.drawGravityZones(this.currentFunction.gravityZones);
+                }
+                if (this.currentLevel === 8 && this.currentFunction.multiPath) {
+                    this.renderer.drawMultiPath(this.currentFunction.multiPath);
+                }
+                
                 this.renderer.drawParticles(this.particles);
                 this.renderer.drawPlayer(this.player);
             }
@@ -839,8 +1143,8 @@
                 if (this.lives <= 0) {
                     this.gameOver();
                 } else {
-                    // Respawn
-                    this.player.x = -5;
+                    // Respawn an der levelabhängigen Position
+                    this.player.x = this.getSpawnPosition(this.currentLevel);
                     this.player.y = this.mathEngine.safeEvaluate(this.currentFunction, this.player.x) || 0;
                     this.player.trail = [];
                     this.player.jumping = false;
@@ -871,8 +1175,8 @@
             
             nextLevel() {
                 this.currentLevel++;
-                if (this.currentLevel > 5) {
-                    alert('Herzlichen Glückwunsch! Du hast alle Level geschafft!');
+                if (this.currentLevel > 10) {
+                    alert('Herzlichen Glückwunsch! Du hast alle 10 Level geschafft! Du bist ein Asymptoten-Meister! 🎉');
                     this.restart();
                     return;
                 }
@@ -888,6 +1192,14 @@
                 this.lives = 3;
                 this.gameRunning = true;
                 this.particles = [];
+                
+                // Alle Level-Mechaniken zurücksetzen
+                this.timeWarpActive = false;
+                this.timeWarpFactor = 1;
+                this.gravityShift = 0;
+                this.chaosMode = false;
+                this.chaosTimer = 0;
+                this.currentPath = 0;
                 
                 this.loadLevel(this.currentLevel);
                 
@@ -936,6 +1248,113 @@
                     
                     return particle.life > 0;
                 });
+            }
+            
+            triggerRandomChaosEffect() {
+                if (!this.chaosMode) return;
+                
+                const effects = this.currentFunction.chaosEffects || [];
+                if (effects.length === 0) return;
+                
+                const randomEffect = effects[Math.floor(Math.random() * effects.length)];
+                
+                switch (randomEffect) {
+                    case 'timeWarp':
+                        this.timeWarpFactor = Math.random() * 0.5 + 0.3; // 0.3 bis 0.8
+                        this.player.vx *= this.timeWarpFactor;
+                        this.createTimeWarpParticles();
+                        break;
+                    case 'gravityShift':
+                        this.gravityShift = (Math.random() - 0.5) * 2; // -1 bis 1
+                        this.createGravityParticles();
+                        break;
+                    case 'colorShift':
+                        // Spielerfarbe ändern
+                        this.player.chaosColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                        setTimeout(() => { this.player.chaosColor = null; }, 3000);
+                        break;
+                    case 'sizeShift':
+                        // Spielergröße ändern
+                        this.player.chaosSize = Math.random() * 1.5 + 0.5; // 0.5 bis 2.0
+                        setTimeout(() => { this.player.chaosSize = 1; }, 3000);
+                        break;
+                }
+            }
+            
+            createTimeWarpParticles() {
+                for (let i = 0; i < 8; i++) {
+                    this.particles.push({
+                        x: this.player.x + (Math.random() - 0.5) * 0.8,
+                        y: this.player.y + (Math.random() - 0.5) * 0.8,
+                        vx: (Math.random() - 0.5) * 0.2,
+                        vy: (Math.random() - 0.5) * 0.2,
+                        size: Math.random() * 4 + 2,
+                        alpha: 1,
+                        color: { r: 0, g: 255, b: 0 },
+                        life: 90
+                    });
+                }
+            }
+            
+            createGravityParticles() {
+                for (let i = 0; i < 6; i++) {
+                    this.particles.push({
+                        x: this.player.x + (Math.random() - 0.5) * 0.6,
+                        y: this.player.y + (Math.random() - 0.5) * 0.6,
+                        vx: (Math.random() - 0.5) * 0.15,
+                        vy: this.gravityShift * 0.1,
+                        size: Math.random() * 3 + 1,
+                        alpha: 1,
+                        color: { r: 255, g: 0, b: 255 },
+                        life: 75
+                    });
+                }
+            }
+            
+            switchToPath(pathIndex) {
+                if (this.currentLevel !== 8 || !this.currentFunction.multiPath) return;
+                
+                const path = this.currentFunction.multiPath.paths[pathIndex];
+                if (!path) return;
+                
+                // Spieler auf den gewählten Pfad teleportieren
+                const targetX = (path.start + path.end) / 2;
+                const targetY = this.mathEngine.safeEvaluate(this.currentFunction, targetX);
+                
+                if (targetY !== null) {
+                    this.player.x = targetX;
+                    this.player.y = targetY;
+                    
+                    // Partikel-Effekt für Pfad-Wechsel
+                    this.createPathSwitchParticles();
+                    
+                    // Score-Bonus für Pfad-Wechsel
+                    this.addScore(150);
+                }
+            }
+            
+            createPathSwitchParticles() {
+                for (let i = 0; i < 12; i++) {
+                    this.particles.push({
+                        x: this.player.x + (Math.random() - 0.5) * 0.8,
+                        y: this.player.y + (Math.random() - 0.5) * 0.8,
+                        vx: (Math.random() - 0.5) * 0.2,
+                        vy: (Math.random() - 0.5) * 0.2,
+                        size: Math.random() * 5 + 3,
+                        alpha: 1,
+                        color: { r: 255, g: 255, b: 0 },
+                        life: 60
+                    });
+                }
+            }
+            
+            // Hilfsfunktion für Spawn-Position
+            getSpawnPosition(level) {
+                if (level >= 1 && level <= 3) return -5;      // Einfache Level
+                if (level >= 4 && level <= 6) return -12;     // Mittlere Schwierigkeit - viel weiter links
+                if (level >= 7 && level <= 9) return -18;     // Hohe Schwierigkeit - noch weiter links
+                if (level === 10) return -25;                 // Chaos-Modus - am weitesten links
+                return -5; // Fallback
             }
         }
         
