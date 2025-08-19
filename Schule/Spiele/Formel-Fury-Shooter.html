@@ -3007,6 +3007,8 @@
                  this.gameMode = 'night'; // 'day' or 'night'
                  this.isRunning = false;
                  this.cheatMode = false;
+                 
+                 console.log('🎮 GameEngine initialized - cheatMode:', this.cheatMode);
                 
                 // Game objects
                 this.player = null;
@@ -3053,36 +3055,55 @@
              }
 
              setupCheatCode() {
-                 // Cheat code: Ctrl + Shift + C + H + E + A + T
-                 this.cheatSequence = ['ControlLeft', 'ShiftLeft', 'KeyC', 'KeyH', 'KeyE', 'KeyA', 'KeyT'];
-                 this.cheatProgress = [];
-                 this.cheatTimeout = null;
+                 // Cheat code: Ctrl + Shift + Y (simple 3-key combination)
+                 this.cheatKeys = {
+                     ctrl: false,
+                     shift: false,
+                     y: false
+                 };
+                 
+                 console.log('🔧 Cheat code system initialized. Use Ctrl+Shift+Y to toggle.');
 
                  document.addEventListener('keydown', (e) => {
-                     // Reset if wrong key or timeout
-                     if (this.cheatTimeout) {
-                         clearTimeout(this.cheatTimeout);
+                     // Track key states
+                     if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
+                         this.cheatKeys.ctrl = true;
+                         console.log('🔧 Ctrl pressed');
+                     }
+                     if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+                         this.cheatKeys.shift = true;
+                         console.log('🔧 Shift pressed');
+                     }
+                     if (e.code === 'KeyY') {
+                         this.cheatKeys.y = true;
+                         console.log('🔧 Y pressed');
                      }
 
-                     // Check if current key matches expected sequence
-                     const expectedKey = this.cheatSequence[this.cheatProgress.length];
-                     if (e.code === expectedKey) {
-                         this.cheatProgress.push(e.code);
+                     // Check if all keys are pressed
+                     if (this.cheatKeys.ctrl && this.cheatKeys.shift && this.cheatKeys.y) {
+                         // Prevent event bubbling
+                         e.preventDefault();
+                         e.stopPropagation();
                          
-                         // Complete sequence?
-                         if (this.cheatProgress.length === this.cheatSequence.length) {
-                             this.toggleCheatMode();
-                             this.cheatProgress = [];
-                             return;
-                         }
+                         this.toggleCheatMode();
                          
-                         // Set timeout for next key (2 seconds)
-                         this.cheatTimeout = setTimeout(() => {
-                             this.cheatProgress = [];
-                         }, 2000);
-                     } else {
-                         // Wrong key, reset
-                         this.cheatProgress = [];
+                         // Reset keys to prevent rapid toggling
+                         this.cheatKeys = { ctrl: false, shift: false, y: false };
+                         
+                         console.log('🔧 Cheat code detected: Ctrl+Shift+Y');
+                     }
+                 });
+
+                 document.addEventListener('keyup', (e) => {
+                     // Reset key states on release
+                     if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
+                         this.cheatKeys.ctrl = false;
+                     }
+                     if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+                         this.cheatKeys.shift = false;
+                     }
+                     if (e.code === 'KeyY') {
+                         this.cheatKeys.y = false;
                      }
                  });
              }
@@ -3092,14 +3113,19 @@
                  const indicator = document.getElementById('cheatIndicator');
                  
                  if (this.cheatMode) {
-                     indicator.style.display = 'block';
+                     if (indicator) indicator.style.display = 'block';
                      this.playerMaxHealth = 999999;
                      this.playerHealth = 999999;
-                     console.log('🔧 CHEAT MODE ACTIVATED! Infinite health enabled.');
+                     
+                     // Show visible confirmation
+                     alert('🔧 CHEAT-MODUS AKTIVIERT!\n\n✅ Unendlich Leben (999,999 HP)\n✅ Kein Schaden\n✅ Alle Features testbar\n\nTastenkombination: Strg+Shift+Y');
+                     console.log('🔧 CHEAT MODE ACTIVATED! (Ctrl+Shift+Y) Infinite health enabled.');
                  } else {
-                     indicator.style.display = 'none';
+                     if (indicator) indicator.style.display = 'none';
                      this.playerMaxHealth = 100;
                      this.playerHealth = Math.min(this.playerHealth, 100);
+                     
+                     alert('🔧 CHEAT-MODUS DEAKTIVIERT!\n\n❌ Normale Gesundheit wiederhergestellt\n❌ Normaler Schwierigkeitsgrad');
                      console.log('🔧 CHEAT MODE DEACTIVATED! Normal health restored.');
                  }
                  
@@ -3112,10 +3138,16 @@
              initializeMenuStats() {
                  // Load and display menu statistics
                  const stats = this.loadGameStats();
-                 document.getElementById('menuHighScore').textContent = stats.highScore;
-                 document.getElementById('menuBestCombo').textContent = stats.bestCombo;
-                 document.getElementById('menuTotalCorrect').textContent = stats.totalCorrect;
-                 document.getElementById('menuGamesPlayed').textContent = stats.gamesPlayed;
+                 
+                 const highScoreEl = document.getElementById('menuHighScore');
+                 const bestComboEl = document.getElementById('menuBestCombo');
+                 const totalCorrectEl = document.getElementById('menuTotalCorrect');
+                 const gamesPlayedEl = document.getElementById('menuGamesPlayed');
+                 
+                 if (highScoreEl) highScoreEl.textContent = stats.highScore;
+                 if (bestComboEl) bestComboEl.textContent = stats.bestCombo;
+                 if (totalCorrectEl) totalCorrectEl.textContent = stats.totalCorrect;
+                 if (gamesPlayedEl) gamesPlayedEl.textContent = stats.gamesPlayed;
              }
 
              loadGameStats() {
@@ -3267,20 +3299,30 @@
              }
 
              showMultipleChoice() {
-                 document.getElementById('multipleChoiceHUD').style.display = 'block';
+                 const mcHUD = document.getElementById('multipleChoiceHUD');
+                 if (mcHUD) {
+                     mcHUD.style.display = 'block';
+                 }
              }
 
              hideMultipleChoice() {
-                 document.getElementById('multipleChoiceHUD').style.display = 'none';
+                 const mcHUD = document.getElementById('multipleChoiceHUD');
+                 if (mcHUD) {
+                     mcHUD.style.display = 'none';
+                 }
              }
 
              showGameModeSelection() {
-                 document.getElementById('mainMenu').classList.add('hidden');
-                 document.getElementById('gameModeMenu').style.display = 'flex';
+                 const mainMenu = document.getElementById('mainMenu');
+                 const gameModeMenu = document.getElementById('gameModeMenu');
+                 
+                 if (mainMenu) mainMenu.classList.add('hidden');
+                 if (gameModeMenu) gameModeMenu.style.display = 'flex';
              }
 
              hideGameModeSelection() {
-                 document.getElementById('gameModeMenu').style.display = 'none';
+                 const gameModeMenu = document.getElementById('gameModeMenu');
+                 if (gameModeMenu) gameModeMenu.style.display = 'none';
              }
 
              startGameWithMode(mode) {
@@ -3298,9 +3340,11 @@
 
              updateGameModeInfo() {
                  const modeInfo = document.getElementById('gameModeInfo');
-                 const modeText = this.gameMode === 'day' ? 'TAG ☀️' : 'NACHT 🌙';
-                 const cheatText = this.cheatMode ? ' | CHEAT 🔧' : '';
-                 modeInfo.textContent = `Modus: ${modeText}${cheatText} | Controls: WASD + Maus + ESC`;
+                 if (modeInfo) {
+                     const modeText = this.gameMode === 'day' ? 'TAG ☀️' : 'NACHT 🌙';
+                     const cheatText = this.cheatMode ? ' | CHEAT 🔧' : '';
+                     modeInfo.textContent = `Modus: ${modeText}${cheatText} | Controls: WASD + Maus + ESC`;
+                 }
              }
 
              startGame() {
@@ -3555,7 +3599,11 @@
                  this.mcTimeLeft = 15; // 15 seconds for multiple choice
                  
                  // Update UI
-                 document.getElementById('mcQuestion').textContent = formula.text;
+                 const mcQuestion = document.getElementById('mcQuestion');
+                 if (mcQuestion) {
+                     mcQuestion.textContent = formula.text;
+                 }
+                 
                  const answerButtons = document.querySelectorAll('.mc-answer');
                  answerButtons.forEach((btn, index) => {
                      btn.textContent = `${String.fromCharCode(65 + index)}) ${shuffledOptions[index]}`;
@@ -3602,7 +3650,10 @@
              startMultipleChoiceTimer() {
                  this.mcTimer = setInterval(() => {
                      this.mcTimeLeft--;
-                     document.getElementById('mcTimeLeft').textContent = this.mcTimeLeft;
+                     const timeElement = document.getElementById('mcTimeLeft');
+                     if (timeElement) {
+                         timeElement.textContent = this.mcTimeLeft;
+                     }
                      
                      if (this.mcTimeLeft <= 0) {
                          this.handleMultipleChoiceTimeout();
@@ -4131,7 +4182,7 @@
          }
 
          function selectMultipleChoice(index) {
-             if (window.game) {
+             if (window.game && typeof window.game.selectMultipleChoice === 'function') {
                  window.game.selectMultipleChoice(index);
              }
          }
