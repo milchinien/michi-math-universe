@@ -59,3 +59,5 @@ Dieser Ordner enthält den aufgeteilten Implementierungsplan für das Formel-Fur
 - Howler.js für Audio (ab Schritt 11)
 - LocalStorage für Persistierung
 
+
+
