@@ -1,0 +1,867 @@
+/* =============================================================================
+   FORMEL-FURY-SHOOTER - MAIN STYLESHEET
+   Phase 4.2: Modulare Struktur
+   ============================================================================= */
+
+/* =============================================================================
+   BASE STYLES
+   ============================================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+}
+
+/* =============================================================================
+   CANVAS STYLES
+   ============================================================================= */
+#gameCanvas {
+    display: block;
+    background-color: #111;
+    cursor: crosshair;
+}
+
+/* =============================================================================
+   HUD ELEMENTS
+   ============================================================================= */
+#fpsCounter {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #00ff00;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 100;
+}
+
+#gameInfo {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #00ff00;
+    font-size: 14px;
+    text-align: right;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 100;
+}
+
+#scoreDisplay {
+    position: absolute;
+    top: 80px;
+    left: 10px;
+    color: #00ff00;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 100;
+}
+
+#comboDisplay {
+    position: absolute;
+    top: 80px;
+    right: 10px;
+    color: #ffff00;
+    font-size: 16px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    text-align: right;
+}
+
+.combo-active {
+    color: #ff6600 !important;
+    text-shadow: 0 0 10px #ff660080 !important;
+    animation: comboGlow 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes comboGlow {
+    0% { text-shadow: 0 0 10px #ff660080; }
+    100% { text-shadow: 0 0 20px #ff6600ff; }
+}
+
+#highScoreDisplay {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #00ffff;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    text-align: center;
+}
+
+/* =============================================================================
+   GAME UI SYSTEM
+   ============================================================================= */
+#gameUI {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 200;
+}
+
+#formulaHUD {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(145deg, #001a00, #003300);
+    border: 2px solid #00ff00;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 
+        0 0 20px #00ff0080,
+        inset 0 0 20px #00ff0020;
+    pointer-events: auto;
+    display: none;
+    min-width: 400px;
+    text-align: center;
+}
+
+#formulaDisplay {
+    background: #000;
+    border: 1px solid #00ff00;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    color: #00ff00;
+    text-shadow: 0 0 10px #00ff0080;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#formulaInput {
+    width: 100%;
+    background: #000;
+    border: 2px solid #00ff00;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff0080;
+    outline: none;
+    margin-bottom: 15px;
+}
+
+#formulaInput:focus {
+    box-shadow: 0 0 15px #00ff00;
+    border-color: #00ff88;
+}
+
+#formulaInput::placeholder {
+    color: #00ff0060;
+}
+
+#formulaButtons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.formula-btn {
+    background: linear-gradient(145deg, #003300, #006600);
+    border: 1px solid #00ff00;
+    border-radius: 6px;
+    padding: 8px 16px;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-shadow: 0 0 5px #00ff0080;
+}
+
+.formula-btn:hover {
+    background: linear-gradient(145deg, #006600, #009900);
+    box-shadow: 0 0 10px #00ff0060;
+}
+
+.formula-btn:active {
+    transform: scale(0.95);
+}
+
+#feedbackDisplay {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    display: none;
+    z-index: 300;
+    animation: feedbackPulse 0.5s ease-out;
+}
+
+.feedback-correct {
+    background: linear-gradient(145deg, #003300, #006600);
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    box-shadow: 0 0 20px #00ff0080;
+}
+
+.feedback-incorrect {
+    background: linear-gradient(145deg, #330000, #660000);
+    color: #ff0000;
+    border: 2px solid #ff0000;
+    box-shadow: 0 0 20px #ff000080;
+}
+
+@keyframes feedbackPulse {
+    0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+    50% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+    100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+/* =============================================================================
+   MULTIPLE CHOICE INTERFACE
+   ============================================================================= */
+#multipleChoiceHUD {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #ffff00;
+    border-radius: 15px;
+    padding: 20px;
+    display: none;
+    min-width: 600px;
+    box-shadow: 0 0 30px #ffff0080;
+}
+
+#mcQuestion {
+    color: #ffff00;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+    text-shadow: 0 0 10px #ffff0080;
+}
+
+#mcAnswers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.mc-answer {
+    background: linear-gradient(145deg, #333300, #666600);
+    border: 2px solid #ffff00;
+    border-radius: 8px;
+    padding: 12px;
+    color: #ffff00;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.mc-answer:hover {
+    background: linear-gradient(145deg, #666600, #999900);
+    box-shadow: 0 0 15px #ffff0060;
+    transform: scale(1.02);
+}
+
+.mc-answer.correct {
+    background: linear-gradient(145deg, #003300, #006600);
+    border-color: #00ff00;
+    color: #00ff00;
+}
+
+.mc-answer.incorrect {
+    background: linear-gradient(145deg, #330000, #660000);
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
+#mcTimer {
+    color: #ffff00;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* =============================================================================
+   PAUSE MENU SYSTEM
+   ============================================================================= */
+#pauseMenu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: none;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+#pauseContent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(145deg, #001a00, #003300);
+    border: 3px solid #00ff00;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 
+        0 0 30px #00ff0080,
+        inset 0 0 30px #00ff0020;
+    text-align: center;
+    min-width: 400px;
+}
+
+#pauseTitle {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 36px;
+    font-weight: bold;
+    text-shadow: 0 0 20px #00ff0080;
+    margin-bottom: 30px;
+    animation: pausePulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes pausePulse {
+    0% { text-shadow: 0 0 20px #00ff0080; }
+    100% { text-shadow: 0 0 30px #00ff00ff; }
+}
+
+.pause-btn {
+    display: block;
+    width: 100%;
+    background: linear-gradient(145deg, #003300, #006600);
+    border: 2px solid #00ff00;
+    border-radius: 10px;
+    padding: 15px 20px;
+    margin: 15px 0;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-shadow: 0 0 10px #00ff0080;
+}
+
+.pause-btn:hover {
+    background: linear-gradient(145deg, #006600, #009900);
+    box-shadow: 0 0 20px #00ff0060;
+    transform: scale(1.05);
+}
+
+.pause-btn:active {
+    transform: scale(0.95);
+}
+
+#pauseStats {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #00ff00;
+    border-radius: 10px;
+}
+
+.pause-stat {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.pause-warning {
+    color: #ffff00;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 0, 0.1);
+    border: 1px solid #ffff00;
+    border-radius: 5px;
+}
+
+/* =============================================================================
+   MAIN MENU SYSTEM
+   ============================================================================= */
+#mainMenu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #000000, #001a00, #000000);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+#mainMenu.hidden {
+    display: none;
+}
+
+#menuTitle {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 48px;
+    font-weight: bold;
+    text-shadow: 0 0 30px #00ff00ff;
+    margin-bottom: 20px;
+    animation: titlePulse 3s ease-in-out infinite alternate;
+    text-align: center;
+    line-height: 1.2;
+}
+
+#menuSubtitle {
+    color: #00ff0080;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    margin-bottom: 40px;
+    text-align: center;
+    animation: subtitleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes titlePulse {
+    0% { 
+        text-shadow: 0 0 30px #00ff00ff;
+        transform: scale(1);
+    }
+    100% { 
+        text-shadow: 0 0 50px #00ff00ff, 0 0 80px #00ff0080;
+        transform: scale(1.02);
+    }
+}
+
+@keyframes subtitleGlow {
+    0% { text-shadow: 0 0 10px #00ff0080; }
+    100% { text-shadow: 0 0 20px #00ff00ff; }
+}
+
+#menuButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.menu-btn {
+    background: linear-gradient(145deg, #003300, #006600);
+    border: 2px solid #00ff00;
+    border-radius: 12px;
+    padding: 15px 40px;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 10px #00ff0080;
+    min-width: 280px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-btn:hover {
+    background: linear-gradient(145deg, #006600, #009900);
+    box-shadow: 0 0 30px #00ff0060;
+    transform: scale(1.05);
+    border-color: #00ff88;
+}
+
+.menu-btn:active {
+    transform: scale(0.98);
+}
+
+.menu-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.menu-btn:hover::before {
+    left: 100%;
+}
+
+#menuStats {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #00ff00;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.menu-stat {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    min-width: 250px;
+}
+
+#menuInfo {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    color: #00ff0060;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    text-align: right;
+}
+
+/* =============================================================================
+   GAME MODE SELECTION MENU
+   ============================================================================= */
+#gameModeMenu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #000000, #001a00, #000000);
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 2050;
+    backdrop-filter: blur(5px);
+}
+
+#gameModeTitle {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 36px;
+    font-weight: bold;
+    text-shadow: 0 0 30px #00ff00ff;
+    margin-bottom: 40px;
+    text-align: center;
+    animation: titlePulse 3s ease-in-out infinite alternate;
+}
+
+.mode-selection {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.mode-card {
+    background: linear-gradient(145deg, #001a00, #003300);
+    border: 3px solid #00ff00;
+    border-radius: 20px;
+    padding: 30px;
+    min-width: 280px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.mode-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 40px #00ff0080;
+    border-color: #00ff88;
+}
+
+.mode-card.day-mode {
+    background: linear-gradient(145deg, #1a1a00, #333300);
+    border-color: #ffff00;
+}
+
+.mode-card.day-mode:hover {
+    box-shadow: 0 0 40px #ffff0080;
+    border-color: #ffff88;
+}
+
+.mode-card.night-mode {
+    background: linear-gradient(145deg, #00001a, #000033);
+    border-color: #0088ff;
+}
+
+.mode-card.night-mode:hover {
+    box-shadow: 0 0 40px #0088ff80;
+    border-color: #88ccff;
+}
+
+.mode-icon {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.mode-title {
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.day-mode .mode-title {
+    color: #ffff00;
+    text-shadow: 0 0 20px #ffff0080;
+}
+
+.night-mode .mode-title {
+    color: #0088ff;
+    text-shadow: 0 0 20px #0088ff80;
+}
+
+.mode-description {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+.day-mode .mode-description {
+    color: #ffff88;
+}
+
+.night-mode .mode-description {
+    color: #88ccff;
+}
+
+.mode-features {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    text-align: left;
+}
+
+.mode-features li {
+    margin: 5px 0;
+}
+
+.day-mode .mode-features {
+    color: #ffff66;
+}
+
+.night-mode .mode-features {
+    color: #66aaff;
+}
+
+/* =============================================================================
+   SETTINGS MENU
+   ============================================================================= */
+#settingsMenu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2100;
+    backdrop-filter: blur(10px);
+}
+
+#settingsContent {
+    background: linear-gradient(145deg, #001a00, #003300);
+    border: 3px solid #00ff00;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 
+        0 0 30px #00ff0080,
+        inset 0 0 30px #00ff0020;
+    text-align: center;
+    min-width: 400px;
+}
+
+#settingsTitle {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 0 0 20px #00ff0080;
+    margin-bottom: 30px;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+.setting-label {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+}
+
+.setting-value {
+    color: #00ffff;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* =============================================================================
+   INSTRUCTIONS MENU
+   ============================================================================= */
+#instructionsMenu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2100;
+    backdrop-filter: blur(10px);
+}
+
+#instructionsContent {
+    background: linear-gradient(145deg, #001a00, #003300);
+    border: 3px solid #00ff00;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 
+        0 0 30px #00ff0080,
+        inset 0 0 30px #00ff0020;
+    text-align: left;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+#instructionsTitle {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 0 0 20px #00ff0080;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.instruction-section {
+    margin-bottom: 20px;
+}
+
+.instruction-section h3 {
+    color: #00ffff;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.instruction-section p, .instruction-section ul {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.instruction-section ul {
+    padding-left: 20px;
+}
+
+.enemy-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.enemy-type {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #00ff00;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.enemy-type-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.enemy-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border-radius: 3px;
+}
+
+.pz { background-color: #00ff00; }
+.gg { background-color: #00ffff; }
+.eb { background-color: #ff0080; }
+.standard { background-color: #ff3300; }
+
+/* =============================================================================
+   CHEAT MODE INDICATOR
+   ============================================================================= */
+#cheatIndicator {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(45deg, #ff0080, #ff4080);
+    border: 2px solid #ff0080;
+    border-radius: 10px;
+    padding: 10px 15px;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 0 0 10px #ff0080;
+    box-shadow: 0 0 20px #ff008040;
+    z-index: 3000;
+    display: none;
+    animation: cheatPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes cheatPulse {
+    0% { 
+        box-shadow: 0 0 20px #ff008040;
+        transform: scale(1);
+    }
+    100% { 
+        box-shadow: 0 0 30px #ff0080ff, 0 0 50px #ff008080;
+        transform: scale(1.02);
+    }
+}

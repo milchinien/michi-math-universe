@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formel-Fury-Shooter</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Main Menu -->
+    <div id="mainMenu">
+        <div id="menuTitle">
+            FORMEL-FURY<br>SHOOTER
+        </div>
+        <div id="menuSubtitle">
+            Binomische Formeln treffen auf Alien-Action!
+        </div>
+        
+        <div id="menuButtons">
+            <button class="menu-btn" onclick="showGameModeSelection()">
+                🎮 SPIEL STARTEN
+            </button>
+            <button class="menu-btn" onclick="showInstructions()">
+                📚 SPIELANLEITUNG
+            </button>
+            <button class="menu-btn" onclick="showSettings()">
+                ⚙️ EINSTELLUNGEN
+            </button>
+            <button class="menu-btn" onclick="showHighScores()">
+                🏆 BESTENLISTE
+            </button>
+        </div>
+
+        <div id="menuStats">
+            <div class="menu-stat">
+                <span>🏆 Rekord-Punktzahl:</span>
+                <span id="menuHighScore">0</span>
+            </div>
+            <div class="menu-stat">
+                <span>🎯 Beste Combo:</span>
+                <span id="menuBestCombo">0</span>
+            </div>
+            <div class="menu-stat">
+                <span>✅ Richtige Antworten:</span>
+                <span id="menuTotalCorrect">0</span>
+            </div>
+            <div class="menu-stat">
+                <span>🎲 Spiele gespielt:</span>
+                <span id="menuGamesPlayed">0</span>
+            </div>
+        </div>
+
+        <div id="menuInfo">
+            <div>Formel-Fury-Shooter v1.0</div>
+            <div>Phase 4.2: Modulare Struktur</div>
+            <div>© 2024 Michi Prompts</div>
+        </div>
+    </div>
+
+    <!-- Game Mode Selection Menu -->
+    <div id="gameModeMenu">
+        <div id="gameModeTitle">
+            SPIELMODUS WÄHLEN
+        </div>
+        
+        <div class="mode-selection">
+            <div class="mode-card day-mode" onclick="startGameWithMode('day')">
+                <div class="mode-icon">☀️</div>
+                <div class="mode-title">TAG-MODUS</div>
+                <div class="mode-description">
+                    Entspanntes Lernen mit Multiple-Choice
+                </div>
+                <ul class="mode-features">
+                    <li>✅ Multiple-Choice Antworten</li>
+                    <li>⚡ Schnellere Kämpfe</li>
+                    <li>🎯 Anfängerfreundlich</li>
+                    <li>🌟 Perfekt zum Üben</li>
+                </ul>
+            </div>
+            
+            <div class="mode-card night-mode" onclick="startGameWithMode('night')">
+                <div class="mode-icon">🌙</div>
+                <div class="mode-title">NACHT-MODUS</div>
+                <div class="mode-description">
+                    Herausforderung mit freier Eingabe
+                </div>
+                <ul class="mode-features">
+                    <li>✏️ Freie Antwort-Eingabe</li>
+                    <li>🧠 Vollständiges Verständnis</li>
+                    <li>⚔️ Maximale Herausforderung</li>
+                    <li>🏆 Höhere Belohnungen</li>
+                </ul>
+            </div>
+        </div>
+        
+        <button class="menu-btn" onclick="backToMainMenu()" style="margin-top: 20px;">
+            ↩️ ZURÜCK ZUM HAUPTMENÜ
+        </button>
+    </div>
+
+    <!-- Settings Menu -->
+    <div id="settingsMenu">
+        <div id="settingsContent">
+            <div id="settingsTitle">EINSTELLUNGEN</div>
+            
+            <div class="setting-item">
+                <span class="setting-label">Schwierigkeit:</span>
+                <span class="setting-value" id="difficultyValue">Normal</span>
+            </div>
+            
+            <div class="setting-item">
+                <span class="setting-label">Sound-Effekte:</span>
+                <span class="setting-value" id="soundValue">Ein</span>
+            </div>
+            
+            <div class="setting-item">
+                <span class="setting-label">Partikel-Effekte:</span>
+                <span class="setting-value" id="particlesValue">Ein</span>
+            </div>
+            
+            <div class="setting-item">
+                <span class="setting-label">Debug-Info:</span>
+                <span class="setting-value" id="debugValue">Aus</span>
+            </div>
+
+            <button class="menu-btn" onclick="resetProgress()" style="margin-top: 20px;">
+                🔄 FORTSCHRITT ZURÜCKSETZEN
+            </button>
+            
+            <button class="menu-btn" onclick="closeSettings()" style="margin-top: 10px;">
+                ↩️ ZURÜCK
+            </button>
+        </div>
+    </div>
+
+    <!-- Instructions Menu -->
+    <div id="instructionsMenu">
+        <div id="instructionsContent">
+            <div id="instructionsTitle">SPIELANLEITUNG</div>
+            
+            <div class="instruction-section">
+                <h3>🎯 Spielziel</h3>
+                <p>Eliminiere Alien-Gegner durch das Lösen binomischer Formeln! Erreiche hohe Combos und sammle Punkte, um neue Formel-Typen freizuschalten.</p>
+            </div>
+
+            <div class="instruction-section">
+                <h3>🎮 Steuerung</h3>
+                <ul>
+                    <li><strong>WASD</strong> - Bewegung</li>
+                    <li><strong>Maus</strong> - Gegner anvisieren und anklicken</li>
+                    <li><strong>SPACE</strong> - Formel-HUD öffnen/schließen</li>
+                    <li><strong>ESC</strong> - Pause-Menü</li>
+                    <li><strong>Enter</strong> - Antwort bestätigen</li>
+                </ul>
+            </div>
+
+            <div class="instruction-section">
+                <h3>🧮 Formel-Typen</h3>
+                <ul>
+                    <li><strong>1. Binomische:</strong> (a+b)² = a² + 2ab + b²</li>
+                    <li><strong>2. Binomische:</strong> (a-b)² = a² - 2ab + b²</li>
+                    <li><strong>3. Binomische:</strong> (a+b)(a-b) = a² - b²</li>
+                    <li><strong>Faktorisierung:</strong> Umkehrung der Binomischen Formeln</li>
+                </ul>
+            </div>
+
+            <div class="instruction-section">
+                <h3>👾 Gegner-Typen</h3>
+                <div class="enemy-types">
+                    <div class="enemy-type">
+                        <div class="enemy-type-header">
+                            <div class="enemy-icon pz"></div>
+                            <strong>Polynom-Zombie (PZ)</strong>
+                        </div>
+                        <p>Langsam, 80 HP, einfache Formeln<br>Belohnung: 1.0x</p>
+                    </div>
+                    <div class="enemy-type">
+                        <div class="enemy-type-header">
+                            <div class="enemy-icon gg"></div>
+                            <strong>Gleichungs-Geist (GG)</strong>
+                        </div>
+                        <p>Schnell, 60 HP, mittlere Formeln<br>Belohnung: 1.3x</p>
+                    </div>
+                    <div class="enemy-type">
+                        <div class="enemy-type-header">
+                            <div class="enemy-icon eb"></div>
+                            <strong>Elite-Algebra-Bestie (EB)</strong>
+                        </div>
+                        <p>Langsam, 150 HP, schwere Formeln<br>Belohnung: 2.0x</p>
+                    </div>
+                    <div class="enemy-type">
+                        <div class="enemy-type-header">
+                            <div class="enemy-icon standard"></div>
+                            <strong>Standard-Gegner</strong>
+                        </div>
+                        <p>Normal, 100 HP, gemischte Formeln<br>Belohnung: 1.0x</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="instruction-section">
+                <h3>🔥 Combo-System</h3>
+                <p>Richtige Antworten in Folge erhöhen deine Combo! Hohe Combos bringen Bonus-Punkte und schalten schwierigere Gegner frei.</p>
+            </div>
+
+            <div class="instruction-section">
+                <h3>📈 Progression</h3>
+                <p>Mit steigender Punktzahl und Combo-Level schaltest du neue Formel-Typen frei und triffst auf stärkere Gegner. Bleib wachsam!</p>
+            </div>
+            
+            <button class="menu-btn" onclick="closeInstructions()" style="margin-top: 20px;">
+                ↩️ ZURÜCK ZUM MENÜ
+            </button>
+        </div>
+    </div>
+
+    <!-- Cheat Mode Indicator -->
+    <div id="cheatIndicator">
+        🔧 CHEAT-MODUS AKTIV 🔧
+    </div>
+   
+   <!-- Game UI Overlay -->
+   <div id="gameUI">
+       <!-- Formula Challenge HUD -->
+       <div id="formulaHUD">
+           <div id="formulaDisplay">Drücke SPACE für eine neue Formel...</div>
+           <input type="text" id="formulaInput" placeholder="Gib die Lösung ein... (z.B. x² + 4x + 4)" />
+           <div id="formulaButtons">
+               <button class="formula-btn" onclick="game.formulaSystem.submitAnswer()">Antworten</button>
+               <button class="formula-btn" onclick="game.formulaSystem.skipFormula()">Überspringen</button>
+               <button class="formula-btn" onclick="game.formulaSystem.hideFormulaHUD()">Schließen</button>
+           </div>
+       </div>
+       
+       <!-- Feedback Display -->
+       <div id="feedbackDisplay"></div>
+   </div>
+
+   <!-- Multiple Choice HUD (Day Mode) -->
+   <div id="multipleChoiceHUD">
+       <div id="mcQuestion">Welche Antwort ist korrekt?</div>
+       <div id="mcAnswers">
+           <button class="mc-answer" onclick="selectMultipleChoice(0)">A) Option 1</button>
+           <button class="mc-answer" onclick="selectMultipleChoice(1)">B) Option 2</button>
+           <button class="mc-answer" onclick="selectMultipleChoice(2)">C) Option 3</button>
+           <button class="mc-answer" onclick="selectMultipleChoice(3)">D) Option 4</button>
+       </div>
+       <div id="mcTimer">Zeit: <span id="mcTimeLeft">15</span>s</div>
+   </div>
+
+   <!-- Pause Menu -->
+   <div id="pauseMenu">
+       <div id="pauseContent">
+           <div id="pauseTitle">SPIEL PAUSIERT</div>
+           
+           <button class="pause-btn" onclick="game.resumeGame()">
+               ▶ Spiel Fortsetzen
+           </button>
+           
+           <button class="pause-btn" onclick="game.restartGame()">
+               🔄 Neustart
+           </button>
+           
+           <button class="pause-btn" onclick="game.togglePauseMenu()">
+               ⚙ Zurück zum Spiel
+           </button>
+           
+           <div id="pauseStats">
+               <div class="pause-stat">
+                   <span>Aktuelle Punktzahl:</span>
+                   <span id="pauseScore">0</span>
+               </div>
+               <div class="pause-stat">
+                   <span>Richtige Antworten:</span>
+                   <span id="pauseCorrect">0</span>
+               </div>
+               <div class="pause-stat">
+                   <span>Falsche Antworten:</span>
+                   <span id="pauseIncorrect">0</span>
+               </div>
+               <div class="pause-stat">
+                   <span>Genauigkeit:</span>
+                   <span id="pauseAccuracy">100%</span>
+               </div>
+               <div class="pause-stat">
+                   <span>Aktuelle Gesundheit:</span>
+                   <span id="pauseHealth">100/100</span>
+               </div>
+           </div>
+           
+           <div class="pause-warning">
+               ⚠ Formeln und Antworten sind im Pause-Menü verborgen ⚠<br>
+               Dies verhindert unfaires Nachschlagen während des Spiels.
+           </div>
+       </div>
+   </div>
+   
+   <!-- HUD Elements -->
+   <div id="fpsCounter">FPS: 0</div>
+   <div id="scoreDisplay">
+       <div>Score: <span id="scoreValue">0</span></div>
+       <div>Richtig: <span id="correctCount">0</span></div>
+       <div>Falsch: <span id="incorrectCount">0</span></div>
+   </div>
+   
+   <div id="comboDisplay">
+       <div>Combo: <span id="comboValue">0</span></div>
+       <div>Max: <span id="comboMaxValue">0</span></div>
+       <div>⏱ Zeit: <span id="comboTimer">10</span>s</div>
+   </div>
+   
+   <div id="highScoreDisplay">
+       <div>🏆 High Score: <span id="highScoreValue">0</span></div>
+   </div>
+   
+   <div id="gameInfo">
+       <div>Formel-Fury-Shooter v1.1</div>
+       <div>Phase 4.2: Modulare Struktur</div>
+       <div id="gameModeInfo">Modus: NACHT | Controls: WASD + Maus + ESC</div>
+   </div>
+
+   <!-- JavaScript Module Imports -->
+   <script src="js/formula-system.js"></script>
+   <script src="js/enemy-system.js"></script>
+   <script src="js/player-input.js"></script>
+   <script src="js/game-engine.js"></script>
+   <script src="js/menu-system.js"></script>
+   <script src="js/main.js"></script>
+</body>
+</html>
