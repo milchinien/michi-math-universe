@@ -24,3 +24,4 @@ Funktionierendes Scoring-System mit Combos, das Spieler motiviert schnell und ko
 
 ## Builds auf
 - Phase 2.2 (Kampf-System)
+

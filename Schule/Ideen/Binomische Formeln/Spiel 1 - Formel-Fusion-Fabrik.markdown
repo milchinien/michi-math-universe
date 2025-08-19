@@ -12,3 +12,4 @@ Das Spiel wird immer verrückter: Mehrere Fließbänder laufen gleichzeitig, Ter
 
 **Warum das bei Mathe hilft:** Du trainierst Pattern Recognition für binomische Formeln unter Zeitdruck. Das Gehirn lernt, die Strukturen a²±2ab+b² automatisch zu erkennen und missing pieces zu identifizieren. Durch die Visualisierung als Puzzle-Teile verstehst du den Aufbau der Formeln intuitiver.
 
+

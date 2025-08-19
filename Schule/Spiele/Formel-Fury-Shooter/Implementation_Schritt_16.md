@@ -28,3 +28,4 @@ Erweiterte Lern- und Engagement-Features für langfristige Nutzung.
 
 ## Hinweis
 Diese Phase ist optional und kann je nach Anforderungen implementiert werden.
+

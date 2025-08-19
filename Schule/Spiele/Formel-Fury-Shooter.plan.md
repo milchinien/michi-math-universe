@@ -235,3 +235,4 @@ class MathEngine {
 - **Daily Challenges**: Spezielle tägliche Dungeons
 
 Dieses Design erstellt ein vollständiges, süchtig machendes Rogue-like-Spiel, das binomische Formeln durch intensive, wiederholte Praxis unter Zeitdruck lehrt.
+

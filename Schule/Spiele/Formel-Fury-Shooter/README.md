@@ -58,3 +58,4 @@ Dieser Ordner enthält den aufgeteilten Implementierungsplan für das Formel-Fur
 - Math.js für mathematische Validierung
 - Howler.js für Audio (ab Schritt 11)
 - LocalStorage für Persistierung
+

@@ -13,3 +13,4 @@ Der Wahnsinn: Kunden bestellen verrückte Gebäude wie "Ich brauche ein Gebäude
 Herausforderungen: Baue Gebäude-Komplexe aus mehreren Formeln, löse "Renovierungs-Aufträge" (faktorisiere bestehende Strukturen), und überstehe "Mathematik-Stürme", wo du schnell reparieren musst. Power-ups wie "Röntgen-Brille" zeigen dir die versteckte Faktorisierung komplexer Gebäude.
 
 **Warum das bei Mathe hilft:** Du verstehst den geometrischen Ursprung der binomischen Formeln durch 3D-Visualisierung. Das räumliche Denken hilft dir, abstrakte algebraische Konzepte zu begreifen. Durch das Bauen verschiedener "Gebäude-Typen" erkennst du die Vielseitigkeit der Formeln und ihre praktischen Anwendungen.
+

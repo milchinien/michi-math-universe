@@ -1,4 +1,4 @@
-# Phase 3.2: Enemy-Typen und Variationen
+i# Phase 3.2: Enemy-Typen und Variationen
 
 ## Ziel
 Implementiere verschiedene Enemy-Typen mit unterschiedlichen Eigenschaften und Formeln.
@@ -26,3 +26,4 @@ Visuelle und mechanische Vielfalt durch verschiedene Enemy-Typen mit angepassten
 
 ## Builds auf
 - Phase 3.1 (Erweiterte Formeln)
+

@@ -26,3 +26,4 @@ Vielfältige binomische Formeln verschiedener Schwierigkeitsgrade werden generie
 
 ## Builds auf
 - Phase 2.3 (Score-System)
+

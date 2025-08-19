@@ -19,3 +19,4 @@ Power-ups spawnen zufällig: "Adrenalin-Shot" verdoppelt deine Tippgeschwindigke
 **Warum das bei Mathe hilft:** Unter extremem Zeitdruck entwickelst du automatische Reflexe für binomische Formeln. Die Rogue-like-Mechanik sorgt für endlose Wiederholung ohne Langeweile. Das Eintippen aktiviert motorisches Lernen - deine Finger "erinnern" sich an die Formel-Patterns. Verschiedene Gegner-Typen zwingen dich, alle Aspekte der binomischen Formeln zu beherrschen, von einfachem Ausmultiplizieren bis zu komplexer Faktorisierung.
 
 Das ist ein richtig hardcore Spiel, das dich durch pure Wiederholung und Adrenalin zum binomischen Formeln-Profi macht!
+

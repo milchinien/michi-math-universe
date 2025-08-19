@@ -187,6 +187,105 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
             z-index: 100;
         }
+
+        /* Pause Menu System */
+        #pauseMenu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        #pauseContent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, #001a00, #003300);
+            border: 3px solid #00ff00;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 
+                0 0 30px #00ff0080,
+                inset 0 0 30px #00ff0020;
+            text-align: center;
+            min-width: 400px;
+        }
+
+        #pauseTitle {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 0 0 20px #00ff0080;
+            margin-bottom: 30px;
+            animation: pausePulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pausePulse {
+            0% { text-shadow: 0 0 20px #00ff0080; }
+            100% { text-shadow: 0 0 30px #00ff00ff; }
+        }
+
+        .pause-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(145deg, #003300, #006600);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 0 0 10px #00ff0080;
+        }
+
+        .pause-btn:hover {
+            background: linear-gradient(145deg, #006600, #009900);
+            box-shadow: 0 0 20px #00ff0060;
+            transform: scale(1.05);
+        }
+
+        .pause-btn:active {
+            transform: scale(0.95);
+        }
+
+        #pauseStats {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+        }
+
+        .pause-stat {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .pause-warning {
+            color: #ffff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(255, 255, 0, 0.1);
+            border: 1px solid #ffff00;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -208,6 +307,53 @@
         <!-- Feedback Display -->
         <div id="feedbackDisplay"></div>
     </div>
+
+    <!-- Pause Menu -->
+    <div id="pauseMenu">
+        <div id="pauseContent">
+            <div id="pauseTitle">SPIEL PAUSIERT</div>
+            
+            <button class="pause-btn" onclick="game.resumeGame()">
+                ▶ Spiel Fortsetzen
+            </button>
+            
+            <button class="pause-btn" onclick="game.restartGame()">
+                🔄 Neustart
+            </button>
+            
+            <button class="pause-btn" onclick="game.togglePauseMenu()">
+                ⚙ Zurück zum Spiel
+            </button>
+            
+            <div id="pauseStats">
+                <div class="pause-stat">
+                    <span>Aktuelle Punktzahl:</span>
+                    <span id="pauseScore">0</span>
+                </div>
+                <div class="pause-stat">
+                    <span>Richtige Antworten:</span>
+                    <span id="pauseCorrect">0</span>
+                </div>
+                <div class="pause-stat">
+                    <span>Falsche Antworten:</span>
+                    <span id="pauseIncorrect">0</span>
+                </div>
+                <div class="pause-stat">
+                    <span>Genauigkeit:</span>
+                    <span id="pauseAccuracy">100%</span>
+                </div>
+                <div class="pause-stat">
+                    <span>Aktuelle Gesundheit:</span>
+                    <span id="pauseHealth">100/100</span>
+                </div>
+            </div>
+            
+            <div class="pause-warning">
+                ⚠ Formeln und Antworten sind im Pause-Menü verborgen ⚠<br>
+                Dies verhindert unfaires Nachschlagen während des Spiels.
+            </div>
+        </div>
+    </div>
     
     <!-- HUD Elements -->
     <div id="fpsCounter">FPS: 0</div>
@@ -217,9 +363,9 @@
         <div>Falsch: <span id="incorrectCount">0</span></div>
     </div>
     <div id="gameInfo">
-        <div>Formel-Fury-Shooter v0.4</div>
-        <div>Phase 2.1: Enemy System</div>
-        <div>Controls: WASD + SPACE, nähere dich Gegnern!</div>
+        <div>Formel-Fury-Shooter v0.6</div>
+        <div>Phase 2.2+: Pause System</div>
+        <div>Controls: WASD + Maus + ESC zum Pausieren</div>
     </div>
 
     <script>
@@ -480,6 +626,7 @@
                 // Formula assignment
                 this.assignedFormula = formulaSystem.generateFormula();
                 this.isTargeted = false; // When player is close enough to see formula
+                this.showTargetIndicator = false; // Show targeting reticle
                 
                 // Status effects
                 this.isDead = false;
@@ -672,6 +819,11 @@
                 ctx.restore();
                 this.renderHealthBar(ctx);
                 
+                // Draw targeting indicator
+                if (this.showTargetIndicator && !this.isDead) {
+                    this.renderTargetIndicator(ctx);
+                }
+                
                 // Draw formula if player is nearby
                 if (this.isTargeted && !this.isDead) {
                     this.renderFormula(ctx);
@@ -733,6 +885,43 @@
                 ctx.fillStyle = '#ff3300';
                 ctx.textAlign = 'center';
                 ctx.fillText(text, this.x, this.y - this.height / 2 - 20);
+                
+                ctx.restore();
+            }
+
+            renderTargetIndicator(ctx) {
+                ctx.save();
+                
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 2;
+                ctx.shadowColor = '#ffff0080';
+                ctx.shadowBlur = 5;
+                
+                // Draw targeting crosshairs
+                const size = this.width / 2 + 15;
+                
+                // Outer circle
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Cross lines
+                ctx.beginPath();
+                ctx.moveTo(this.x - size - 5, this.y);
+                ctx.lineTo(this.x - size + 5, this.y);
+                ctx.moveTo(this.x + size - 5, this.y);
+                ctx.lineTo(this.x + size + 5, this.y);
+                ctx.moveTo(this.x, this.y - size - 5);
+                ctx.lineTo(this.x, this.y - size + 5);
+                ctx.moveTo(this.x, this.y + size - 5);
+                ctx.lineTo(this.x, this.y + size + 5);
+                ctx.stroke();
+                
+                // Target text
+                ctx.fillStyle = '#ffff00';
+                ctx.font = '12px Courier New';
+                ctx.textAlign = 'center';
+                ctx.fillText('KLICKEN ZUM ANGRIFF', this.x, this.y + size + 20);
                 
                 ctx.restore();
             }
@@ -982,8 +1171,15 @@
         }
 
         class InputHandler {
-            constructor() {
+            constructor(canvas) {
+                this.canvas = canvas;
                 this.keys = {};
+                this.mouse = {
+                    x: 0,
+                    y: 0,
+                    clicked: false,
+                    justClicked: false
+                };
                 this.setupEventListeners();
             }
 
@@ -994,6 +1190,31 @@
 
                 document.addEventListener('keyup', (e) => {
                     this.keys[e.key] = false;
+                });
+                
+                // Mouse events
+                this.canvas.addEventListener('mousemove', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    this.mouse.x = e.clientX - rect.left;
+                    this.mouse.y = e.clientY - rect.top;
+                });
+
+                this.canvas.addEventListener('mousedown', (e) => {
+                    if (e.button === 0) { // Left click
+                        this.mouse.clicked = true;
+                        this.mouse.justClicked = true;
+                    }
+                });
+
+                this.canvas.addEventListener('mouseup', (e) => {
+                    if (e.button === 0) { // Left click
+                        this.mouse.clicked = false;
+                    }
+                });
+
+                // Prevent context menu on right click
+                this.canvas.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
                 });
                 
                 // Prevent default behavior for WASD keys
@@ -1018,9 +1239,23 @@
                 return this.keys[' '] || this.keys['Space'];
             }
 
+            getMousePosition() {
+                return { x: this.mouse.x, y: this.mouse.y };
+            }
+
+            isMouseClicked() {
+                return this.mouse.clicked;
+            }
+
+            wasMouseJustClicked() {
+                const wasClicked = this.mouse.justClicked;
+                this.mouse.justClicked = false; // Reset for next frame
+                return wasClicked;
+            }
+
             getDebugInfo() {
                 const pressedKeys = Object.keys(this.keys).filter(key => this.keys[key]);
-                return pressedKeys.join(', ') || 'None';
+                return `Keys: ${pressedKeys.join(', ') || 'None'}, Mouse: (${Math.round(this.mouse.x)}, ${Math.round(this.mouse.y)})`;
             }
         }
 
@@ -1052,6 +1287,24 @@
                 // Game state
                 this.playerHealth = 100;
                 this.playerMaxHealth = 100;
+                this.isGameOver = false;
+                this.isPaused = false;
+                
+                // Combat system
+                this.targetedEnemy = null;
+                this.combatMode = false;
+                this.lastDamageTime = 0;
+                this.damageImmuneTime = 1000; // 1 second immunity after taking damage
+                
+                // Pause menu elements
+                this.pauseMenu = null;
+                this.pauseStats = {
+                    score: null,
+                    correct: null,
+                    incorrect: null,
+                    accuracy: null,
+                    health: null
+                };
                 
                 this.init();
             }
@@ -1064,8 +1317,8 @@
             }
 
             initializeGameObjects() {
-                // Create input handler
-                this.inputHandler = new InputHandler();
+                // Create input handler (pass canvas for mouse events)
+                this.inputHandler = new InputHandler(this.canvas);
                 
                 // Create player at center of canvas
                 this.player = new Player(
@@ -1073,11 +1326,57 @@
                     this.canvas.height / 2
                 );
                 
-                // Create formula system
+                // Create formula system with combat integration
                 this.formulaSystem = new FormulaSystem();
+                this.integrateFormulaSystemWithCombat();
                 
                 // Create enemy spawner
                 this.enemySpawner = new EnemySpawner(this.formulaSystem);
+                
+                // Initialize pause menu
+                this.initializePauseMenu();
+            }
+
+            initializePauseMenu() {
+                this.pauseMenu = document.getElementById('pauseMenu');
+                this.pauseStats.score = document.getElementById('pauseScore');
+                this.pauseStats.correct = document.getElementById('pauseCorrect');
+                this.pauseStats.incorrect = document.getElementById('pauseIncorrect');
+                this.pauseStats.accuracy = document.getElementById('pauseAccuracy');
+                this.pauseStats.health = document.getElementById('pauseHealth');
+            }
+
+            integrateFormulaSystemWithCombat() {
+                // Override formula system methods to integrate with combat
+                const originalSubmitAnswer = this.formulaSystem.submitAnswer.bind(this.formulaSystem);
+                const originalSkipFormula = this.formulaSystem.skipFormula.bind(this.formulaSystem);
+                
+                this.formulaSystem.submitAnswer = () => {
+                    const userAnswer = this.formulaSystem.formulaInput.value.trim();
+                    
+                    if (!userAnswer) {
+                        this.formulaSystem.showFeedback('Bitte gib eine Antwort ein!', false);
+                        return;
+                    }
+                    
+                    const isCorrect = this.formulaSystem.validateAnswer(userAnswer);
+                    
+                    if (isCorrect) {
+                        this.handleCorrectAnswer();
+                    } else {
+                        this.handleWrongAnswer();
+                    }
+                    
+                    this.formulaSystem.formulaInput.value = '';
+                };
+                
+                this.formulaSystem.skipFormula = () => {
+                    if (this.targetedEnemy) {
+                        this.formulaSystem.showFeedback(`Übersprungen! Du nimmst Schaden!`, false);
+                        this.dealDamageToPlayer(15);
+                    }
+                    this.exitCombatMode();
+                };
             }
 
             resizeCanvas() {
@@ -1096,10 +1395,10 @@
                     this.resizeCanvas();
                 });
 
-                // Escape key to potentially pause later
+                // Escape key for pause
                 document.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') {
-                        console.log('Game paused/resumed');
+                        this.togglePauseMenu();
                     }
                 });
 
@@ -1160,6 +1459,16 @@
             }
 
             update(deltaTime) {
+                if (this.isGameOver) {
+                    this.handleGameOver();
+                    return;
+                }
+                
+                // Skip updates if paused
+                if (this.isPaused) {
+                    return;
+                }
+                
                 // Update player
                 if (this.player && this.inputHandler) {
                     this.player.update(deltaTime, this.inputHandler, this.canvas.width, this.canvas.height);
@@ -1170,11 +1479,211 @@
                     this.enemySpawner.update(deltaTime, this.player.x, this.player.y, this.canvas.width, this.canvas.height);
                 }
                 
-                // Check collisions
-                this.handleCollisions();
+                // Handle targeting system
+                this.handleTargeting();
+                
+                // Check collisions (only if not in combat mode)
+                if (!this.combatMode) {
+                    this.handleCollisions();
+                }
                 
                 // Handle SPACE key for formula system
                 this.handleFormulaInput();
+                
+                // Clean up dead targeted enemy
+                if (this.targetedEnemy && this.targetedEnemy.shouldBeRemoved()) {
+                    this.exitCombatMode();
+                }
+            }
+
+            handleTargeting() {
+                if (!this.inputHandler || !this.enemySpawner || this.combatMode || this.isPaused) return;
+                
+                // Handle mouse clicks for targeting
+                if (this.inputHandler.wasMouseJustClicked()) {
+                    const mousePos = this.inputHandler.getMousePosition();
+                    const clickedEnemy = this.getEnemyAtPosition(mousePos.x, mousePos.y);
+                    
+                    if (clickedEnemy && !clickedEnemy.isDead) {
+                        this.targetEnemy(clickedEnemy);
+                    }
+                }
+                
+                // Visual targeting for nearby enemies (backup method)
+                const nearbyEnemy = this.getNearestEnemyInRange(this.player.x, this.player.y, 80);
+                if (nearbyEnemy && !this.targetedEnemy) {
+                    // Show target indicator but don't auto-target
+                    nearbyEnemy.showTargetIndicator = true;
+                } else if (!nearbyEnemy) {
+                    // Clear target indicators
+                    this.enemySpawner.enemies.forEach(enemy => {
+                        enemy.showTargetIndicator = false;
+                    });
+                }
+            }
+
+            getEnemyAtPosition(x, y) {
+                for (const enemy of this.enemySpawner.enemies) {
+                    if (enemy.isDead) continue;
+                    
+                    const dx = x - enemy.x;
+                    const dy = y - enemy.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance <= enemy.width / 2 + 10) { // Small click tolerance
+                        return enemy;
+                    }
+                }
+                return null;
+            }
+
+            getNearestEnemyInRange(x, y, range) {
+                let nearest = null;
+                let nearestDistance = range;
+                
+                for (const enemy of this.enemySpawner.enemies) {
+                    if (enemy.isDead) continue;
+                    
+                    const dx = x - enemy.x;
+                    const dy = y - enemy.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < nearestDistance) {
+                        nearest = enemy;
+                        nearestDistance = distance;
+                    }
+                }
+                
+                return nearest;
+            }
+
+            targetEnemy(enemy) {
+                this.targetedEnemy = enemy;
+                this.combatMode = true;
+                
+                // Use the enemy's assigned formula
+                this.formulaSystem.currentFormula = enemy.assignedFormula;
+                this.formulaSystem.currentSolution = enemy.assignedFormula.solutions;
+                
+                // Show combat UI
+                this.formulaSystem.showFormulaHUD();
+                
+                console.log(`Targeted enemy with formula: ${enemy.assignedFormula.text}`);
+            }
+
+            exitCombatMode() {
+                this.targetedEnemy = null;
+                this.combatMode = false;
+                this.formulaSystem.hideFormulaHUD();
+                
+                // Clear target indicators
+                this.enemySpawner.enemies.forEach(enemy => {
+                    enemy.showTargetIndicator = false;
+                });
+            }
+
+            handleCorrectAnswer() {
+                if (this.targetedEnemy) {
+                    // Kill the enemy
+                    this.targetedEnemy.startDeathAnimation();
+                    this.formulaSystem.correctAnswers++;
+                    this.formulaSystem.score += 150; // Bonus for combat kill
+                    this.formulaSystem.showFeedback('Treffer! Gegner eliminiert! +150 Punkte', true);
+                    
+                    console.log(`Enemy killed with correct answer: ${this.formulaSystem.formulaInput.value}`);
+                } else {
+                    // Regular formula practice
+                    this.formulaSystem.correctAnswers++;
+                    this.formulaSystem.score += 100;
+                    this.formulaSystem.showFeedback('Richtig! +100 Punkte', true);
+                }
+                
+                this.formulaSystem.updateScoreDisplay();
+                this.exitCombatMode();
+                
+                // Generate new formula after delay
+                setTimeout(() => {
+                    this.formulaSystem.generateFormula();
+                }, 1500);
+            }
+
+            handleWrongAnswer() {
+                if (this.targetedEnemy) {
+                    // Player takes damage in combat
+                    this.formulaSystem.incorrectAnswers++;
+                    this.formulaSystem.score = Math.max(0, this.formulaSystem.score - 50);
+                    this.dealDamageToPlayer(20);
+                    this.formulaSystem.showFeedback(`Falsch! Du nimmst Schaden! Richtig: ${this.formulaSystem.currentSolution[0]}`, false);
+                } else {
+                    // Regular formula practice
+                    this.formulaSystem.incorrectAnswers++;
+                    this.formulaSystem.score = Math.max(0, this.formulaSystem.score - 25);
+                    this.formulaSystem.showFeedback(`Falsch! Richtig wäre: ${this.formulaSystem.currentSolution[0]}`, false);
+                }
+                
+                this.formulaSystem.updateScoreDisplay();
+                this.exitCombatMode();
+                
+                // Generate new formula after delay
+                setTimeout(() => {
+                    this.formulaSystem.generateFormula();
+                }, 2000);
+            }
+
+            dealDamageToPlayer(damage) {
+                const currentTime = Date.now();
+                if (currentTime - this.lastDamageTime < this.damageImmuneTime) {
+                    return; // Player is immune
+                }
+                
+                this.playerHealth -= damage;
+                this.playerHealth = Math.max(0, this.playerHealth);
+                this.lastDamageTime = currentTime;
+                
+                console.log(`Player took ${damage} damage. Health: ${this.playerHealth}/${this.playerMaxHealth}`);
+                
+                if (this.playerHealth <= 0) {
+                    this.triggerGameOver();
+                }
+            }
+
+            triggerGameOver() {
+                this.isGameOver = true;
+                this.exitCombatMode();
+                console.log('Game Over! Player died.');
+            }
+
+            handleGameOver() {
+                // Simple respawn for now
+                setTimeout(() => {
+                    this.restartGame();
+                }, 3000);
+            }
+
+            restartGame() {
+                this.isGameOver = false;
+                this.isPaused = false;
+                this.playerHealth = this.playerMaxHealth;
+                this.exitCombatMode();
+                
+                // Reset player position
+                this.player.x = this.canvas.width / 2;
+                this.player.y = this.canvas.height / 2;
+                
+                // Clear enemies
+                this.enemySpawner.enemies = [];
+                
+                // Reset formula system
+                this.formulaSystem.score = 0;
+                this.formulaSystem.correctAnswers = 0;
+                this.formulaSystem.incorrectAnswers = 0;
+                this.formulaSystem.updateScoreDisplay();
+                this.formulaSystem.generateFormula();
+                
+                // Hide pause menu
+                this.hidePauseMenu();
+                
+                console.log('Game restarted!');
             }
 
             handleCollisions() {
@@ -1182,24 +1691,19 @@
                 
                 const collidingEnemy = this.enemySpawner.checkCollisions(this.player);
                 if (collidingEnemy) {
-                    // Player takes damage
-                    this.playerHealth -= 10;
-                    this.playerHealth = Math.max(0, this.playerHealth);
+                    // Deal damage to player
+                    this.dealDamageToPlayer(10);
                     
-                    // Enemy takes damage (for now, simple damage)
-                    collidingEnemy.takeDamage(25);
+                    // Enemy takes minor damage from collision
+                    collidingEnemy.takeDamage(5);
                     
-                    console.log(`Collision! Player health: ${this.playerHealth}, Enemy health: ${collidingEnemy.health}`);
-                    
-                    // Player death
-                    if (this.playerHealth <= 0) {
-                        console.log('Player died! Game should restart...');
-                        this.playerHealth = this.playerMaxHealth; // Simple respawn for now
-                    }
+                    console.log(`Collision! Enemy health: ${collidingEnemy.health}`);
                 }
             }
 
             handleFormulaInput() {
+                if (this.isPaused) return; // Disable formula input when paused
+                
                 const spaceCurrentlyPressed = this.inputHandler.isSpacePressed();
                 
                 // Detect space key press (not held)
@@ -1208,6 +1712,55 @@
                 }
                 
                 this.spacePressed = spaceCurrentlyPressed;
+            }
+
+            togglePauseMenu() {
+                this.isPaused = !this.isPaused;
+                
+                if (this.isPaused) {
+                    this.showPauseMenu();
+                } else {
+                    this.hidePauseMenu();
+                }
+            }
+
+            showPauseMenu() {
+                // Exit combat mode safely
+                if (this.combatMode) {
+                    this.exitCombatMode();
+                }
+                
+                // Hide formula HUD to prevent cheating
+                this.formulaSystem.hideFormulaHUD();
+                
+                // Update pause menu stats
+                this.updatePauseStats();
+                
+                // Show pause menu
+                this.pauseMenu.style.display = 'block';
+                
+                console.log('Game paused');
+            }
+
+            hidePauseMenu() {
+                this.pauseMenu.style.display = 'none';
+                console.log('Game resumed');
+            }
+
+            updatePauseStats() {
+                const total = this.formulaSystem.correctAnswers + this.formulaSystem.incorrectAnswers;
+                const accuracy = total > 0 ? Math.round((this.formulaSystem.correctAnswers / total) * 100) : 100;
+                
+                this.pauseStats.score.textContent = this.formulaSystem.score;
+                this.pauseStats.correct.textContent = this.formulaSystem.correctAnswers;
+                this.pauseStats.incorrect.textContent = this.formulaSystem.incorrectAnswers;
+                this.pauseStats.accuracy.textContent = accuracy + '%';
+                this.pauseStats.health.textContent = `${this.playerHealth}/${this.playerMaxHealth}`;
+            }
+
+            resumeGame() {
+                this.isPaused = false;
+                this.hidePauseMenu();
             }
 
             render() {
@@ -1223,6 +1776,21 @@
                 
                 // Render player health bar
                 this.renderPlayerHealthBar();
+                
+                // Render game over screen
+                if (this.isGameOver) {
+                    this.renderGameOverScreen();
+                }
+                
+                // Render combat mode indicator
+                if (this.combatMode && this.targetedEnemy && !this.isPaused) {
+                    this.renderCombatModeIndicator();
+                }
+                
+                // Render pause indicator on canvas
+                if (this.isPaused && !this.isGameOver) {
+                    this.renderPauseIndicator();
+                }
             }
 
             renderPlayerHealthBar() {
@@ -1252,6 +1820,77 @@
                 this.ctx.fillStyle = '#00ff00';
                 this.ctx.font = '12px Courier New';
                 this.ctx.fillText(`Health: ${this.playerHealth}/${this.playerMaxHealth}`, barX, barY - 5);
+            }
+
+            renderGameOverScreen() {
+                // Dark overlay
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Game Over text
+                this.ctx.fillStyle = '#ff0000';
+                this.ctx.font = '48px Courier New';
+                this.ctx.textAlign = 'center';
+                this.ctx.shadowColor = '#ff000080';
+                this.ctx.shadowBlur = 20;
+                this.ctx.fillText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2 - 50);
+                
+                // Restart info
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '20px Courier New';
+                this.ctx.shadowBlur = 10;
+                this.ctx.fillText('Automatischer Neustart in 3 Sekunden...', this.canvas.width / 2, this.canvas.height / 2 + 20);
+                
+                // Final score
+                this.ctx.fillStyle = '#00ff00';
+                this.ctx.font = '24px Courier New';
+                this.ctx.fillText(`Endpunktzahl: ${this.formulaSystem.score}`, this.canvas.width / 2, this.canvas.height / 2 + 60);
+            }
+
+            renderCombatModeIndicator() {
+                if (!this.targetedEnemy) return;
+                
+                // Combat mode banner
+                const bannerHeight = 40;
+                this.ctx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+                this.ctx.fillRect(0, 0, this.canvas.width, bannerHeight);
+                
+                // Border
+                this.ctx.strokeStyle = '#ff0000';
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeRect(0, 0, this.canvas.width, bannerHeight);
+                
+                // Text
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '16px Courier New';
+                this.ctx.textAlign = 'center';
+                this.ctx.shadowColor = '#000000';
+                this.ctx.shadowBlur = 5;
+                this.ctx.fillText(`KAMPFMODUS - Löse: ${this.targetedEnemy.assignedFormula.text}`, this.canvas.width / 2, 25);
+                
+                // Target line to enemy
+                this.ctx.strokeStyle = '#ff000080';
+                this.ctx.lineWidth = 3;
+                this.ctx.setLineDash([10, 5]);
+                this.ctx.beginPath();
+                this.ctx.moveTo(this.player.x, this.player.y);
+                this.ctx.lineTo(this.targetedEnemy.x, this.targetedEnemy.y);
+                this.ctx.stroke();
+                this.ctx.setLineDash([]); // Reset line dash
+            }
+
+            renderPauseIndicator() {
+                // Dim the game background
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Pause indicator in corner
+                this.ctx.fillStyle = '#ffff00';
+                this.ctx.font = '20px Courier New';
+                this.ctx.textAlign = 'right';
+                this.ctx.shadowColor = '#ffff0080';
+                this.ctx.shadowBlur = 10;
+                this.ctx.fillText('⏸ PAUSIERT', this.canvas.width - 20, 40);
             }
 
             clearCanvas() {
@@ -1298,12 +1937,15 @@
                 const formulaDebug = this.formulaSystem ? this.formulaSystem.getDebugInfo() : null;
                 const enemyDebug = this.enemySpawner ? this.enemySpawner.getDebugInfo() : null;
                 
+                const gameStatus = this.isGameOver ? 'Game Over' : this.isPaused ? 'Paused' : 'Running';
+                
                 const debugInfo = [
                     `Canvas: ${this.canvas.width}x${this.canvas.height}`,
-                    `Engine Status: Running`,
-                    `Phase: 2.1 - Enemy System`,
+                    `Engine Status: ${gameStatus}`,
+                    `Phase: 2.2+ - Pause System`,
                     playerDebug ? `Player Pos: ${playerDebug.position}` : 'Player: None',
                     `Player Health: ${this.playerHealth}/${this.playerMaxHealth}`,
+                    `Combat Mode: ${this.combatMode ? 'Active' : 'Inactive'}`,
                     formulaDebug ? `Score: ${formulaDebug.score} (${formulaDebug.correct}/${formulaDebug.incorrect})` : '',
                     enemyDebug ? `Enemies: ${enemyDebug.enemyCount}, Next: ${enemyDebug.nextSpawn}s` : 'Enemies: None',
                     `Input: ${inputDebug}`

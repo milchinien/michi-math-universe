@@ -13,3 +13,4 @@ Um die Monster zu besiegen, musst du ihre Schutzschilde "ausmultiplizieren" oder
 Die Schlacht wird immer intensiver: Monster greifen mit falschen Lösungen an, die du parieren musst. Spezialattacken wie "Geometrie-Blitz" zeigen dir das Quadrat-Rechteck-Diagramm der Formel. Level-ups schalten neue Monster und komplexere Formeln frei.
 
 **Warum das bei Mathe hilft:** Du übst das bidirektionale Anwenden der Formeln (hin und zurück) spielerisch. Der Kampf-Kontext motiviert dich, schnell und präzise zu rechnen. Verschiedene Monster-Typen repräsentieren verschiedene Formel-Varianten, sodass du alle drei binomischen Formeln gleichmäßig trainierst.
+
