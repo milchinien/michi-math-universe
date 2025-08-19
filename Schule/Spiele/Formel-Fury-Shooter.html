@@ -1074,6 +1074,18 @@
         <div id="feedbackDisplay"></div>
     </div>
 
+    <!-- Multiple Choice HUD (Day Mode) -->
+    <div id="multipleChoiceHUD">
+        <div id="mcQuestion">Welche Antwort ist korrekt?</div>
+        <div id="mcAnswers">
+            <button class="mc-answer" onclick="selectMultipleChoice(0)">A) Option 1</button>
+            <button class="mc-answer" onclick="selectMultipleChoice(1)">B) Option 2</button>
+            <button class="mc-answer" onclick="selectMultipleChoice(2)">C) Option 3</button>
+            <button class="mc-answer" onclick="selectMultipleChoice(3)">D) Option 4</button>
+        </div>
+        <div id="mcTimer">Zeit: <span id="mcTimeLeft">15</span>s</div>
+    </div>
+
     <!-- Pause Menu -->
     <div id="pauseMenu">
         <div id="pauseContent">
@@ -2580,7 +2592,12 @@
             }
 
             shouldBeRemoved() {
-                return this.isDead && this.deathTimer >= this.deathDuration;
+                // Nur entfernen wenn tot und Animation abgeschlossen
+                if (this.isDead) {
+                    const deathDuration = 1000; // 1 Sekunde
+                    return Date.now() - (this.deathTime || 0) > deathDuration;
+                }
+                return this.health <= 0;
             }
 
                          getDebugInfo() {
@@ -2600,8 +2617,8 @@
                  this.formulaSystem = formulaSystem;
                  this.enemies = [];
                  this.spawnTimer = 0;
-                 this.spawnInterval = 3000; // Spawn every 3 seconds
-                 this.maxEnemies = 6; // Increased for variety
+                 this.spawnInterval = 5000; // Spawn every 5 seconds (weniger häufig)
+                 this.maxEnemies = 3; // Weniger Gegner gleichzeitig
                  this.spawnDistance = 100; // Minimum distance from player to spawn
                  
                  // Spawn probability configuration
@@ -3007,6 +3024,8 @@
                  this.gameMode = 'night'; // 'day' or 'night'
                  this.isRunning = false;
                  this.cheatMode = false;
+                 this.slowMotion = false;
+                 this.slowMotionFactor = 0.3; // 30% Geschwindigkeit
                  
                  console.log('🎮 GameEngine initialized - cheatMode:', this.cheatMode);
                 
@@ -3336,6 +3355,7 @@
                  this.start();
                  
                  console.log(`🎮 Starting game in ${mode.toUpperCase()} mode`);
+                 console.log(`🔧 Game mode set to: ${this.gameMode}`);
              }
 
              updateGameModeInfo() {
@@ -3556,6 +3576,9 @@
                  this.combatMode = true;
                  this.combatStartTime = Date.now();
                  
+                 // Zeitlupe aktivieren
+                 this.slowMotion = true;
+                 
                  // Use the enemy's assigned formula
                  this.formulaSystem.currentFormula = enemy.assignedFormula;
                  this.formulaSystem.currentSolution = enemy.assignedFormula.solutions;
@@ -3566,12 +3589,12 @@
                  } else {
                      this.formulaSystem.showFormulaHUD();
                  }
-                 
-                 console.log(`Targeted enemy with formula: ${enemy.assignedFormula.text} (Difficulty: ${enemy.assignedFormula.difficulty}) (Mode: ${this.gameMode})`);
              }
 
              startMultipleChoiceChallenge() {
-                 if (!this.targetedEnemy || !this.targetedEnemy.assignedFormula) return;
+                 if (!this.targetedEnemy || !this.targetedEnemy.assignedFormula) {
+                     return;
+                 }
                  
                  const formula = this.targetedEnemy.assignedFormula;
                  const correctAnswer = formula.solutions[0]; // Use first solution
@@ -3706,8 +3729,9 @@
                      this.formulaSystem.combo++;
                      this.formulaSystem.maxCombo = Math.max(this.formulaSystem.maxCombo, this.formulaSystem.combo);
                      
-                     // Remove enemy
-                     this.targetedEnemy.health = 0;
+                     // Gegner als tot markieren
+                     this.targetedEnemy.isDead = true;
+                     this.targetedEnemy.deathTime = Date.now();
                      
                      // Show feedback
                      this.formulaSystem.showFeedback(
@@ -3747,6 +3771,7 @@
             exitCombatMode() {
                 this.targetedEnemy = null;
                 this.combatMode = false;
+                this.slowMotion = false; // Zeitlupe beenden
                 this.formulaSystem.hideFormulaHUD();
                 this.hideMultipleChoice();
                 
