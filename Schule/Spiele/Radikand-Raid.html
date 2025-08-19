@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radikand-Raid - Dungeon der Wurzeln</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c0c0c, #1a1a2e);
+            color: #fff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .game-container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #gameCanvas {
+            border: 3px solid #00ff88;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #1a1a2e, #16213e);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .ui-panel {
+            background: rgba(22, 33, 62, 0.9);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            min-width: 250px;
+            height: fit-content;
+        }
+
+        .panel-title {
+            color: #00ff88;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px solid #00ff88;
+            padding-bottom: 5px;
+        }
+
+        .parameter {
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .parameter label {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .parameter-value {
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 16px;
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .function-display {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: center;
+            color: #00ff88;
+            font-size: 16px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-value {
+            color: #ff6b6b;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .stat-label {
+            color: #ccc;
+            font-size: 12px;
+        }
+
+        .inventory {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .card {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateX(5px);
+        }
+
+        .card.activated {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: #ff6b6b;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #00ff88;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .warning {
+            color: #ff6b6b;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            padding: 5px;
+            border: 1px solid #ff6b6b;
+            border-radius: 5px;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .success {
+            color: #00ff88;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            padding: 5px;
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .game-title {
+            text-align: center;
+            color: #00ff88;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-title">🏰 RADIKAND-RAID - Dungeon der Wurzeln 🏰</div>
+    
+    <div class="game-container">
+        <div class="ui-panel">
+            <div class="panel-title">📊 Parameter</div>
+            <div class="function-display" id="formel">f(x) = 1·√(1x + 0) + 0</div>
+            
+            <div class="parameter">
+                <label>a (Höhen-Streckung):</label>
+                <span class="parameter-value" id="param-a">1</span>
+            </div>
+            <div class="parameter">
+                <label>b (Horizontal-Streckung):</label>
+                <span class="parameter-value" id="param-b">1</span>
+            </div>
+            <div class="parameter">
+                <label>c (Horizontal-Verschiebung):</label>
+                <span class="parameter-value" id="param-c">0</span>
+            </div>
+            <div class="parameter">
+                <label>d (Vertikal-Verschiebung):</label>
+                <span class="parameter-value" id="param-d">0</span>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-value" id="leben">100</span>
+                    <span class="stat-label">❤️ Leben</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="schluessel">0</span>
+                    <span class="stat-label">🔑 Schlüssel</span>
+                </div>
+            </div>
+            
+            <div id="message" class="warning" style="display: none;"></div>
+        </div>
+
+        <div class="game-area">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+        </div>
+
+        <div class="ui-panel">
+            <div class="panel-title">🎒 Inventar</div>
+            <div class="inventory" id="inventar">
+                <div style="color: #666; text-align: center; padding: 20px;">
+                    Noch keine Parameterkarten gefunden...
+                </div>
+            </div>
+            
+            <div class="panel-title" style="margin-top: 20px;">🎯 Aktuelle Aufgabe</div>
+            <div id="aufgabe" style="color: #ccc; font-size: 14px; line-height: 1.4;">
+                Erkunde das 3×3 Dungeon und sammle Parameterkarten!<br><br>
+                🏠 9 Räume verbunden durch Korridore<br>
+                🚪 Türen öffnen nur wenn bx + c ≥ 0<br>
+                📍 Startpunkt: x = -c/b
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <strong>Steuerung:</strong> ⬅️ A | ➡️ D | ⬆️ W | ⬇️ S | 🔄 Leertaste (Karte verwenden)
+    </div>
+
+    <script>
+        // Mathematik-Engine
+        class WurzelFunktion {
+            constructor(a = 1, b = 1, c = 0, d = 0) {
+                this.a = a;
+                this.b = b;
+                this.c = c;
+                this.d = d;
+            }
+
+            istGueltig(x) {
+                return (this.b * x + this.c) >= 0;
+            }
+
+            berechne(x) {
+                if (!this.istGueltig(x)) return null;
+                return this.a * Math.sqrt(this.b * x + this.c) + this.d;
+            }
+
+            getStartpunkt() {
+                return -this.c / this.b;
+            }
+
+            kopiere() {
+                return new WurzelFunktion(this.a, this.b, this.c, this.d);
+            }
+        }
+
+        // Parameterkarten-System
+        class Parameterkarte {
+            constructor(typ, wert) {
+                this.typ = typ;
+                this.wert = wert;
+                this.aktiviert = false;
+                this.id = Math.random().toString(36).substr(2, 9);
+            }
+
+            anwenden(funktion) {
+                funktion[this.typ] = this.wert;
+                this.aktiviert = true;
+            }
+
+            getBeschreibung() {
+                const namen = {
+                    'a': 'Höhen-Streckung',
+                    'b': 'Horizontal-Streckung',
+                    'c': 'Horizontal-Verschiebung',
+                    'd': 'Vertikal-Verschiebung'
+                };
+                return `${this.typ} = ${this.wert} (${namen[this.typ]})`;
+            }
+        }
+
+        // Tür-System
+        class Tuer {
+            constructor(x, y, benoetigterWert = null) {
+                this.x = x;
+                this.y = y;
+                this.benoetigterWert = benoetigterWert;
+                this.offen = false;
+                this.size = 40;
+            }
+
+            pruefeOeffnung(spielerFunktion) {
+                this.offen = spielerFunktion.istGueltig(this.x);
+                return this.offen;
+            }
+
+            zeichne(ctx) {
+                ctx.save();
+                ctx.translate(this.x * 20 + 400, 300 - this.y * 20);
+                
+                if (this.offen) {
+                    this.zeichneOffeneTuer(ctx);
+                } else {
+                    this.zeichneGeschlosseneTuer(ctx);
+                }
+                
+                ctx.restore();
+            }
+
+            zeichneGeschlosseneTuer(ctx) {
+                // Türrahmen (Stein)
+                ctx.fillStyle = '#4a4a4a';
+                ctx.fillRect(-18, -18, 36, 36);
+                
+                // Rahmen-Highlights
+                ctx.fillStyle = '#5a5a5a';
+                ctx.fillRect(-18, -18, 36, 2);
+                ctx.fillRect(-18, -18, 2, 36);
+                ctx.fillStyle = '#3a3a3a';
+                ctx.fillRect(-18, 16, 36, 2);
+                ctx.fillRect(16, -18, 2, 36);
+                
+                // Türflügel (Holz-Look mit Grau)
+                ctx.fillStyle = '#666666';
+                ctx.fillRect(-14, -14, 28, 28);
+                
+                // Holzmaserung simulieren
+                ctx.fillStyle = '#5a5a5a';
+                for (let i = -12; i < 12; i += 4) {
+                    ctx.fillRect(i, -12, 2, 24);
+                }
+                
+                // Türbeschläge
+                ctx.fillStyle = '#404040';
+                ctx.fillRect(-12, -10, 4, 3);
+                ctx.fillRect(-12, 0, 4, 3);
+                ctx.fillRect(-12, 7, 4, 3);
+                
+                // Türknauf
+                ctx.fillStyle = '#505050';
+                ctx.beginPath();
+                ctx.arc(8, 0, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Schloss
+                ctx.fillStyle = '#303030';
+                ctx.fillRect(4, -2, 4, 4);
+                ctx.fillStyle = '#202020';
+                ctx.fillRect(5, -1, 2, 2);
+            }
+
+            zeichneOffeneTuer(ctx) {
+                // Geöffnete Tür (zur Seite gedreht)
+                ctx.fillStyle = '#4a4a4a';
+                ctx.fillRect(-18, -18, 36, 36);
+                
+                // Rahmen-Highlights
+                ctx.fillStyle = '#5a5a5a';
+                ctx.fillRect(-18, -18, 36, 2);
+                ctx.fillRect(-18, -18, 2, 36);
+                ctx.fillStyle = '#3a3a3a';
+                ctx.fillRect(-18, 16, 36, 2);
+                ctx.fillRect(16, -18, 2, 36);
+                
+                // Geöffnete Türfläche (perspektivisch)
+                ctx.fillStyle = '#555555';
+                ctx.fillRect(10, -14, 6, 28);
+                
+                // Schatten der geöffneten Tür
+                ctx.fillStyle = '#2a2a2a';
+                ctx.fillRect(-14, -14, 24, 28);
+                
+                // Durchgang-Indikator
+                ctx.fillStyle = '#00ff88';
+                ctx.font = '12px Courier';
+                ctx.textAlign = 'center';
+                ctx.fillText('OFFEN', 0, 4);
+            }
+        }
+
+        // Sammelbare Items
+        class SammelItem {
+            constructor(x, y, typ) {
+                this.x = x;
+                this.y = y;
+                this.typ = typ; // 'karte' oder 'schluessel'
+                this.gesammelt = false;
+                this.animation = 0;
+            }
+
+            update() {
+                this.animation += 0.1;
+            }
+
+            zeichne(ctx) {
+                if (this.gesammelt) return;
+                
+                ctx.save();
+                ctx.translate(this.x * 20 + 400, 300 - this.y * 20);
+                ctx.translate(0, Math.sin(this.animation) * 3);
+                
+                if (this.typ === 'karte') {
+                    ctx.fillStyle = '#ffeb3b';
+                    ctx.strokeStyle = '#ff9800';
+                    ctx.lineWidth = 2;
+                    ctx.fillRect(-8, -12, 16, 24);
+                    ctx.strokeRect(-8, -12, 16, 24);
+                    ctx.fillStyle = '#000';
+                    ctx.font = '12px Courier';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('📊', 0, 3);
+                } else if (this.typ === 'schluessel') {
+                    ctx.fillStyle = '#ffd700';
+                    ctx.font = '20px Courier';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🔑', 0, 5);
+                }
+                
+                ctx.restore();
+            }
+        }
+
+        // Hauptspiel-Klasse
+        class RadikandRaid {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.spielerFunktion = new WurzelFunktion(1, 1, 12, 0); // c=12 macht alle Räume gültig (x >= -12)
+                this.spielerX = 0;
+                this.spielerY = 0;
+                this.leben = 100;
+                this.schluessel = 0;
+                this.inventar = [];
+                this.selectedCard = null;
+                
+                this.initLevel();
+                this.bindEvents();
+                this.gameLoop();
+                this.updateUI();
+            }
+
+            initLevel() {
+                // 3x3 Raumstruktur generieren
+                this.generiereRaumstruktur();
+                
+                // Türen zwischen Räumen platzieren
+                this.tueren = [
+                    // Horizontale Verbindungen (West-Ost)
+                    new Tuer(-4, 0),   // SW zu S
+                    new Tuer(4, 0),    // S zu SO
+                    new Tuer(-4, 7),   // W zu Mitte
+                    new Tuer(4, 7),    // Mitte zu O
+                    new Tuer(-4, 14),  // NW zu N
+                    new Tuer(4, 14),   // N zu NO
+                    
+                    // Vertikale Verbindungen (Süd-Nord)
+                    new Tuer(-7, 3.5), // SW zu W
+                    new Tuer(0, 3.5),  // S zu Mitte
+                    new Tuer(7, 3.5),  // SO zu O
+                    new Tuer(-7, 10.5),// W zu NW
+                    new Tuer(0, 10.5), // Mitte zu N
+                    new Tuer(7, 10.5)  // O zu NO
+                ];
+
+                // Items in jedem Raum verteilen (3x3 = 9 Räume)
+                this.items = [
+                    // Untere Reihe
+                    new SammelItem(-7, 0, 'karte'),     // SW-Raum
+                    new SammelItem(0, 0, 'schluessel'), // S-Raum (Start)
+                    new SammelItem(7, 0, 'karte'),      // SO-Raum
+                    
+                    // Mittlere Reihe
+                    new SammelItem(-7, 7, 'karte'),     // W-Raum
+                    new SammelItem(0, 7, 'schluessel'), // Zentral-Raum
+                    new SammelItem(7, 7, 'karte'),      // O-Raum
+                    
+                    // Obere Reihe
+                    new SammelItem(-7, 14, 'karte'),    // NW-Raum
+                    new SammelItem(0, 14, 'schluessel'),// N-Raum
+                    new SammelItem(7, 14, 'karte')      // NO-Raum (Schatzkammer)
+                ];
+
+                // Erweiterte Parameterkarten für 9 Räume
+                this.kartenVorrat = [
+                    new Parameterkarte('a', 2),
+                    new Parameterkarte('b', 0.5),
+                    new Parameterkarte('c', 0),
+                    new Parameterkarte('d', 3),
+                    new Parameterkarte('a', -1),
+                    new Parameterkarte('b', 2),
+                    new Parameterkarte('c', 20),
+                    new Parameterkarte('d', -2),
+                    new Parameterkarte('a', 0.5)
+                ];
+            }
+
+            generiereRaumstruktur() {
+                // 3x3 Raumgitter: jeder Raum ist 6x6 Einheiten, Korridore sind 2 Einheiten breit
+                this.raeume = [
+                    // Untere Reihe (y: -2 bis 2)
+                    { id: 'SW', x: -10, y: -2, breite: 6, hoehe: 4, farbe: '#3a3a3a' },
+                    { id: 'S',  x: -3,  y: -2, breite: 6, hoehe: 4, farbe: '#424242' }, // Startbereich
+                    { id: 'SO', x: 4,   y: -2, breite: 6, hoehe: 4, farbe: '#383838' },
+                    
+                    // Mittlere Reihe (y: 5 bis 9)
+                    { id: 'W',   x: -10, y: 5, breite: 6, hoehe: 4, farbe: '#3c3c3c' },
+                    { id: 'Zentrum', x: -3, y: 5, breite: 6, hoehe: 4, farbe: '#454545' }, // Hauptraum
+                    { id: 'O',   x: 4,   y: 5, breite: 6, hoehe: 4, farbe: '#404040' },
+                    
+                    // Obere Reihe (y: 12 bis 16)
+                    { id: 'NW', x: -10, y: 12, breite: 6, hoehe: 4, farbe: '#3e3e3e' },
+                    { id: 'N',  x: -3,  y: 12, breite: 6, hoehe: 4, farbe: '#434343' },
+                    { id: 'NO', x: 4,   y: 12, breite: 6, hoehe: 4, farbe: '#484848' } // Schatzkammer
+                ];
+                
+                // Korridore zwischen den Räumen
+                this.korridore = [
+                    // Horizontale Korridore
+                    { x: -4, y: -1, breite: 2, hoehe: 2 }, // SW-S
+                    { x: 2,  y: -1, breite: 2, hoehe: 2 }, // S-SO
+                    { x: -4, y: 6,  breite: 2, hoehe: 2 }, // W-Zentrum
+                    { x: 2,  y: 6,  breite: 2, hoehe: 2 }, // Zentrum-O
+                    { x: -4, y: 13, breite: 2, hoehe: 2 }, // NW-N
+                    { x: 2,  y: 13, breite: 2, hoehe: 2 }, // N-NO
+                    
+                    // Vertikale Korridore
+                    { x: -8, y: 2,  breite: 2, hoehe: 3 }, // SW-W
+                    { x: -1, y: 2,  breite: 2, hoehe: 3 }, // S-Zentrum
+                    { x: 6,  y: 2,  breite: 2, hoehe: 3 }, // SO-O
+                    { x: -8, y: 9,  breite: 2, hoehe: 3 }, // W-NW
+                    { x: -1, y: 9,  breite: 2, hoehe: 3 }, // Zentrum-N
+                    { x: 6,  y: 9,  breite: 2, hoehe: 3 }  // O-NO
+                ];
+            }
+
+            bindEvents() {
+                document.addEventListener('keydown', (e) => {
+                    // Verhindere Standard-Verhalten für alle Spiel-Tasten
+                    if (['a', 'd', 'w', 's', 'arrowleft', 'arrowright', 'arrowup', 'arrowdown', ' '].includes(e.key.toLowerCase())) {
+                        e.preventDefault();
+                    }
+                    
+                    switch(e.key.toLowerCase()) {
+                        case 'a':
+                        case 'arrowleft':
+                            this.bewegeSpieler(-1, 0);
+                            break;
+                        case 'd':
+                        case 'arrowright':
+                            this.bewegeSpieler(1, 0);
+                            break;
+                        case 'w':
+                        case 'arrowup':
+                            this.bewegeSpieler(0, 1);
+                            break;
+                        case 's':
+                        case 'arrowdown':
+                            this.bewegeSpieler(0, -1);
+                            break;
+                        case ' ':
+                            this.useSelectedCard();
+                            break;
+                    }
+                });
+            }
+
+            bewegeSpieler(dx, dy) {
+                const neueX = this.spielerX + dx;
+                const neueY = this.spielerY + dy;
+                
+                // Prüfe Definitionsbereich
+                if (!this.spielerFunktion.istGueltig(neueX)) {
+                    this.showMessage('⚠️ Ungültiger Bereich! bx + c < 0', 'warning');
+                    this.leben = Math.max(0, this.leben - 5);
+                    this.updateUI();
+                    return;
+                }
+                
+                // Prüfe Grenzen
+                if (neueX < -15 || neueX > 15 || neueY < -5 || neueY > 15) {
+                    this.showMessage('🚧 Dungeongrenze erreicht!', 'warning');
+                    return;
+                }
+                
+                // Prüfe Kollision mit Wänden
+                if (!this.istInErlaubtemBereich(neueX, neueY)) {
+                    this.showMessage('🧱 Wand blockiert den Weg!', 'warning');
+                    return;
+                }
+                
+                this.spielerX = neueX;
+                this.spielerY = neueY;
+                
+                // Prüfe Items
+                this.checkItemCollection();
+                
+                // Prüfe Türen
+                this.checkDoorInteraction();
+                
+                this.updateUI();
+            }
+
+            istInErlaubtemBereich(x, y) {
+                // Prüfe ob Position in einem Raum oder Korridor ist
+                
+                // Prüfe Räume
+                for (let raum of this.raeume) {
+                    if (x >= raum.x && x < raum.x + raum.breite &&
+                        y >= raum.y && y < raum.y + raum.hoehe) {
+                        return true;
+                    }
+                }
+                
+                // Prüfe Korridore
+                for (let korridor of this.korridore) {
+                    if (x >= korridor.x && x < korridor.x + korridor.breite &&
+                        y >= korridor.y && y < korridor.y + korridor.hoehe) {
+                        return true;
+                    }
+                }
+                
+                return false;
+            }
+
+            checkItemCollection() {
+                this.items.forEach(item => {
+                    if (!item.gesammelt && 
+                        Math.abs(item.x - this.spielerX) <= 1 && 
+                        Math.abs(item.y - this.spielerY) <= 1) {
+                        
+                        item.gesammelt = true;
+                        
+                        if (item.typ === 'karte' && this.kartenVorrat.length > 0) {
+                            const karte = this.kartenVorrat.shift();
+                            this.inventar.push(karte);
+                            this.showMessage(`📊 Parameterkarte gefunden: ${karte.getBeschreibung()}`, 'success');
+                        } else if (item.typ === 'schluessel') {
+                            this.schluessel++;
+                            this.showMessage('🔑 Definitions-Schlüssel gefunden!', 'success');
+                        }
+                        
+                        this.updateInventoryUI();
+                    }
+                });
+            }
+
+            checkDoorInteraction() {
+                this.tueren.forEach(tuer => {
+                    if (Math.abs(tuer.x - this.spielerX) <= 1 && 
+                        Math.abs(tuer.y - this.spielerY) <= 1) {
+                        
+                        if (tuer.pruefeOeffnung(this.spielerFunktion)) {
+                            if (!tuer.wasOpen) {
+                                this.showMessage('🚪 Tür geöffnet! Definitionsbereich gültig.', 'success');
+                                tuer.wasOpen = true;
+                            }
+                        } else {
+                            this.showMessage('🔒 Tür verschlossen! bx + c < 0', 'warning');
+                        }
+                    }
+                });
+            }
+
+            useSelectedCard() {
+                if (this.selectedCard && !this.selectedCard.aktiviert) {
+                    this.selectedCard.anwenden(this.spielerFunktion);
+                    this.showMessage(`🎯 Parameter ${this.selectedCard.typ} = ${this.selectedCard.wert} aktiviert!`, 'success');
+                    this.updateUI();
+                    this.updateInventoryUI();
+                }
+            }
+
+            showMessage(text, type = 'warning') {
+                const messageElement = document.getElementById('message');
+                messageElement.textContent = text;
+                messageElement.className = type;
+                messageElement.style.display = 'block';
+                
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 3000);
+            }
+
+            updateUI() {
+                document.getElementById('param-a').textContent = this.spielerFunktion.a;
+                document.getElementById('param-b').textContent = this.spielerFunktion.b;
+                document.getElementById('param-c').textContent = this.spielerFunktion.c;
+                document.getElementById('param-d').textContent = this.spielerFunktion.d;
+                document.getElementById('leben').textContent = this.leben;
+                document.getElementById('schluessel').textContent = this.schluessel;
+                
+                const { a, b, c, d } = this.spielerFunktion;
+                document.getElementById('formel').innerHTML = 
+                    `f(x) = ${a}·√(${b}x ${c >= 0 ? '+' : ''} ${c}) ${d >= 0 ? '+' : ''} ${d}`;
+                
+                // Aktualisiere Aufgabe
+                const startpunkt = this.spielerFunktion.getStartpunkt();
+                const aktuellerRaum = this.getAktuellerRaum();
+                document.getElementById('aufgabe').innerHTML = 
+                    `🎯 Erkunde das 3×3 Dungeon!<br><br>📍 Startpunkt: x = ${startpunkt.toFixed(2)}<br>🔍 Gültig für: x ≥ ${startpunkt.toFixed(2)}<br>🏠 Aktueller Raum: ${aktuellerRaum}<br>📍 Position: (${this.spielerX}, ${this.spielerY})`;
+            }
+
+            updateInventoryUI() {
+                const inventarElement = document.getElementById('inventar');
+                
+                if (this.inventar.length === 0) {
+                    inventarElement.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">Noch keine Parameterkarten gefunden...</div>';
+                    return;
+                }
+                
+                inventarElement.innerHTML = this.inventar.map(karte => 
+                    `<div class="card ${karte.aktiviert ? 'activated' : ''} ${this.selectedCard === karte ? 'selected' : ''}" 
+                          onclick="game.selectCard('${karte.id}')">
+                        ${karte.getBeschreibung()}
+                        ${karte.aktiviert ? ' ✅' : ' (Klick für Auswahl)'}
+                    </div>`
+                ).join('');
+            }
+
+            selectCard(kartenId) {
+                this.selectedCard = this.inventar.find(k => k.id === kartenId);
+                this.updateInventoryUI();
+            }
+
+            getAktuellerRaum() {
+                // Bestimme in welchem Raum sich der Spieler befindet
+                for (let raum of this.raeume) {
+                    if (this.spielerX >= raum.x && this.spielerX < raum.x + raum.breite &&
+                        this.spielerY >= raum.y && this.spielerY < raum.y + raum.hoehe) {
+                        return raum.id;
+                    }
+                }
+                
+                // Falls in einem Korridor
+                for (let korridor of this.korridore) {
+                    if (this.spielerX >= korridor.x && this.spielerX < korridor.x + korridor.breite &&
+                        this.spielerY >= korridor.y && this.spielerY < korridor.y + korridor.hoehe) {
+                        return 'Korridor';
+                    }
+                }
+                
+                return 'Unbekannt';
+            }
+
+            zeichneKoordinatensystem() {
+                this.ctx.strokeStyle = '#2a2a2a';
+                this.ctx.lineWidth = 1;
+                
+                // Gitter (dezenter)
+                for (let x = -15; x <= 15; x++) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x * 20 + 400, 0);
+                    this.ctx.lineTo(x * 20 + 400, 600);
+                    this.ctx.stroke();
+                }
+                
+                for (let y = -5; y <= 15; y++) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, 300 - y * 20);
+                    this.ctx.lineTo(800, 300 - y * 20);
+                    this.ctx.stroke();
+                }
+                
+                // Achsen (grau)
+                this.ctx.strokeStyle = '#555';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.moveTo(400, 0);
+                this.ctx.lineTo(400, 600);
+                this.ctx.moveTo(0, 300);
+                this.ctx.lineTo(800, 300);
+                this.ctx.stroke();
+            }
+
+            zeichneRaumstruktur() {
+                // Zeichne alle Räume
+                this.raeume.forEach(raum => {
+                    this.zeichneRaum(raum);
+                });
+                
+                // Zeichne alle Korridore
+                this.korridore.forEach(korridor => {
+                    this.zeichneKorridor(korridor);
+                });
+            }
+
+            zeichneRaum(raum) {
+                const screenX = raum.x * 20 + 400;
+                const screenY = 300 - (raum.y + raum.hoehe) * 20;
+                const screenBreite = raum.breite * 20;
+                const screenHoehe = raum.hoehe * 20;
+                
+                // Raum-Boden
+                this.ctx.fillStyle = raum.farbe;
+                this.ctx.fillRect(screenX, screenY, screenBreite, screenHoehe);
+                
+                // Stone Brick Wände zeichnen
+                this.zeichneSteinWaende(screenX, screenY, screenBreite, screenHoehe);
+                
+                // Raum-Label
+                this.ctx.fillStyle = '#ccc';
+                this.ctx.font = '10px Courier';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(raum.id, screenX + screenBreite/2, screenY + 12);
+            }
+
+            zeichneSteinWaende(x, y, breite, hoehe) {
+                const steinGroesse = 8;
+                const wandDicke = 4;
+                
+                // Obere Wand
+                this.zeichneSteinReihe(x, y, breite, wandDicke);
+                // Untere Wand  
+                this.zeichneSteinReihe(x, y + hoehe - wandDicke, breite, wandDicke);
+                // Linke Wand
+                this.zeichneSteinSaeule(x, y, wandDicke, hoehe);
+                // Rechte Wand
+                this.zeichneSteinSaeule(x + breite - wandDicke, y, wandDicke, hoehe);
+            }
+
+            zeichneSteinReihe(x, y, breite, hoehe) {
+                const steinBreite = 16;
+                const steinHoehe = hoehe;
+                
+                for (let i = 0; i < breite; i += steinBreite) {
+                    const aktuelleBreite = Math.min(steinBreite, breite - i);
+                    this.zeichneSteinBlock(x + i, y, aktuelleBreite, steinHoehe);
+                }
+            }
+
+            zeichneSteinSaeule(x, y, breite, hoehe) {
+                const steinHoehe = 12;
+                
+                for (let i = 0; i < hoehe; i += steinHoehe) {
+                    const aktuelleHoehe = Math.min(steinHoehe, hoehe - i);
+                    this.zeichneSteinBlock(x, y + i, breite, aktuelleHoehe);
+                }
+            }
+
+            zeichneSteinBlock(x, y, breite, hoehe) {
+                // Basis Steinfarbe
+                this.ctx.fillStyle = '#5a5a5a';
+                this.ctx.fillRect(x, y, breite, hoehe);
+                
+                // Helle Kante (oben/links)
+                this.ctx.fillStyle = '#6a6a6a';
+                this.ctx.fillRect(x, y, breite, 1);
+                this.ctx.fillRect(x, y, 1, hoehe);
+                
+                // Dunkle Kante (unten/rechts)
+                this.ctx.fillStyle = '#4a4a4a';
+                this.ctx.fillRect(x, y + hoehe - 1, breite, 1);
+                this.ctx.fillRect(x + breite - 1, y, 1, hoehe);
+                
+                // Steinstruktur-Details
+                this.ctx.fillStyle = '#525252';
+                if (breite > 4 && hoehe > 4) {
+                    this.ctx.fillRect(x + 2, y + 2, breite - 4, 1);
+                    if (hoehe > 8) {
+                        this.ctx.fillRect(x + 1, y + hoehe/2, breite - 2, 1);
+                    }
+                }
+            }
+
+            zeichneKorridor(korridor) {
+                const screenX = korridor.x * 20 + 400;
+                const screenY = 300 - (korridor.y + korridor.hoehe) * 20;
+                const screenBreite = korridor.breite * 20;
+                const screenHoehe = korridor.hoehe * 20;
+                
+                // Korridor-Boden (dunkler grau)
+                this.ctx.fillStyle = '#2a2a2a';
+                this.ctx.fillRect(screenX, screenY, screenBreite, screenHoehe);
+                
+                // Steinwände für Korridore (dünner)
+                this.zeichneKorridorWaende(screenX, screenY, screenBreite, screenHoehe);
+                
+                // Boden-Pattern für Korridore (Steinplatten)
+                this.zeichneBodenplatten(screenX, screenY, screenBreite, screenHoehe);
+            }
+
+            zeichneKorridorWaende(x, y, breite, hoehe) {
+                const wandDicke = 2;
+                
+                // Nur seitliche Wände für Korridore
+                if (breite > hoehe) { // Horizontaler Korridor
+                    this.zeichneSteinReihe(x, y, breite, wandDicke);
+                    this.zeichneSteinReihe(x, y + hoehe - wandDicke, breite, wandDicke);
+                } else { // Vertikaler Korridor
+                    this.zeichneSteinSaeule(x, y, wandDicke, hoehe);
+                    this.zeichneSteinSaeule(x + breite - wandDicke, y, wandDicke, hoehe);
+                }
+            }
+
+            zeichneBodenplatten(x, y, breite, hoehe) {
+                const plattenGroesse = 10;
+                
+                for (let i = 0; i < breite; i += plattenGroesse) {
+                    for (let j = 0; j < hoehe; j += plattenGroesse) {
+                        const platteX = x + i;
+                        const platteY = y + j;
+                        const platteBreite = Math.min(plattenGroesse, breite - i);
+                        const platteHoehe = Math.min(plattenGroesse, hoehe - j);
+                        
+                        // Platte
+                        this.ctx.fillStyle = '#323232';
+                        this.ctx.fillRect(platteX, platteY, platteBreite, platteHoehe);
+                        
+                        // Fugen
+                        this.ctx.strokeStyle = '#1a1a1a';
+                        this.ctx.lineWidth = 1;
+                        this.ctx.strokeRect(platteX, platteY, platteBreite, platteHoehe);
+                    }
+                }
+            }
+
+            zeichneWurzelkurve() {
+                this.ctx.strokeStyle = '#00ff88';
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+                
+                let ersterPunkt = true;
+                for (let x = -15; x <= 15; x += 0.1) {
+                    const y = this.spielerFunktion.berechne(x);
+                    if (y !== null && y >= -5 && y <= 15) {
+                        const screenX = x * 20 + 400;
+                        const screenY = 300 - y * 20;
+                        
+                        if (ersterPunkt) {
+                            this.ctx.moveTo(screenX, screenY);
+                            ersterPunkt = false;
+                        } else {
+                            this.ctx.lineTo(screenX, screenY);
+                        }
+                    }
+                }
+                this.ctx.stroke();
+                
+                // Ungültiger Bereich
+                this.ctx.fillStyle = 'rgba(255, 107, 107, 0.2)';
+                const startX = this.spielerFunktion.getStartpunkt();
+                if (startX > -15) {
+                    this.ctx.fillRect(0, 0, (startX + 15) * 20, 600);
+                }
+            }
+
+            zeichneSpieler() {
+                this.ctx.save();
+                this.ctx.translate(this.spielerX * 20 + 400, 300 - this.spielerY * 20);
+                
+                // Schatten
+                this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+                this.ctx.fillRect(-12, 8, 24, 4);
+                
+                // Spieler
+                this.ctx.fillStyle = '#ffeb3b';
+                this.ctx.strokeStyle = '#ff9800';
+                this.ctx.lineWidth = 2;
+                this.ctx.fillRect(-10, -10, 20, 20);
+                this.ctx.strokeRect(-10, -10, 20, 20);
+                
+                // Augen
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(-6, -6, 3, 3);
+                this.ctx.fillRect(3, -6, 3, 3);
+                
+                // Mund
+                this.ctx.strokeStyle = '#000';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.arc(0, 2, 4, 0, Math.PI);
+                this.ctx.stroke();
+                
+                this.ctx.restore();
+            }
+
+            gameLoop() {
+                // Clear (dunklerer Grauton)
+                this.ctx.fillStyle = '#1a1a1a';
+                this.ctx.fillRect(0, 0, 800, 600);
+                
+                // Zeichne Szene in der richtigen Reihenfolge
+                this.zeichneKoordinatensystem();
+                this.zeichneRaumstruktur();
+                this.zeichneWurzelkurve();
+                
+                // Update und zeichne Items
+                this.items.forEach(item => {
+                    item.update();
+                    item.zeichne(this.ctx);
+                });
+                
+                // Zeichne Türen
+                this.tueren.forEach(tuer => {
+                    tuer.pruefeOeffnung(this.spielerFunktion);
+                    tuer.zeichne(this.ctx);
+                });
+                
+                // Zeichne Spieler
+                this.zeichneSpieler();
+                
+                // Koordinaten anzeigen
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '14px Courier';
+                this.ctx.fillText(`Position: (${this.spielerX}, ${this.spielerY})`, 10, 30);
+                this.ctx.fillText(`Gültig: ${this.spielerFunktion.istGueltig(this.spielerX) ? 'JA' : 'NEIN'}`, 10, 50);
+                
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        }
+
+        // Spiel starten
+        let game;
+        window.addEventListener('load', () => {
+            game = new RadikandRaid();
+        });
+    </script>
+</body>
+</html>

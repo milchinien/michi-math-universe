@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formel-Fury-Shooter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+        }
+
+        #gameCanvas {
+            display: block;
+            background-color: #111;
+            cursor: crosshair;
+        }
+
+        #fpsCounter {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #00ff00;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            z-index: 100;
+        }
+
+        #gameInfo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #00ff00;
+            font-size: 14px;
+            text-align: right;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <div id="fpsCounter">FPS: 0</div>
+    <div id="gameInfo">
+        <div>Formel-Fury-Shooter v0.1</div>
+        <div>Phase 1.2: Player System</div>
+        <div>Controls: WASD to move</div>
+    </div>
+
+    <script>
+        class Player {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = 20;
+                this.height = 20;
+                this.speed = 200; // pixels per second
+                this.maxSpeed = 300;
+                
+                // Movement state
+                this.velocity = { x: 0, y: 0 };
+                this.acceleration = 800; // pixels per second squared
+                this.friction = 0.85;
+                
+                // Visual properties
+                this.color = '#00ff00';
+                this.glowColor = '#00ff0080';
+                this.angle = 0; // for rotation effect
+            }
+
+            update(deltaTime, inputHandler, canvasWidth, canvasHeight) {
+                // Convert deltaTime from milliseconds to seconds
+                const dt = deltaTime / 1000;
+                
+                // Handle input and apply acceleration
+                let targetVelX = 0;
+                let targetVelY = 0;
+                
+                if (inputHandler.isPressed('w') || inputHandler.isPressed('W')) {
+                    targetVelY = -this.speed;
+                }
+                if (inputHandler.isPressed('s') || inputHandler.isPressed('S')) {
+                    targetVelY = this.speed;
+                }
+                if (inputHandler.isPressed('a') || inputHandler.isPressed('A')) {
+                    targetVelX = -this.speed;
+                }
+                if (inputHandler.isPressed('d') || inputHandler.isPressed('D')) {
+                    targetVelX = this.speed;
+                }
+                
+                // Diagonal movement compensation
+                if (targetVelX !== 0 && targetVelY !== 0) {
+                    targetVelX *= 0.707; // sqrt(2)/2 for diagonal movement
+                    targetVelY *= 0.707;
+                }
+                
+                // Apply acceleration towards target velocity
+                const velDiffX = targetVelX - this.velocity.x;
+                const velDiffY = targetVelY - this.velocity.y;
+                
+                this.velocity.x += velDiffX * this.acceleration * dt;
+                this.velocity.y += velDiffY * this.acceleration * dt;
+                
+                // Apply friction when no input
+                if (targetVelX === 0 && targetVelY === 0) {
+                    this.velocity.x *= this.friction;
+                    this.velocity.y *= this.friction;
+                }
+                
+                // Limit max speed
+                const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
+                if (speed > this.maxSpeed) {
+                    this.velocity.x = (this.velocity.x / speed) * this.maxSpeed;
+                    this.velocity.y = (this.velocity.y / speed) * this.maxSpeed;
+                }
+                
+                // Update position
+                this.x += this.velocity.x * dt;
+                this.y += this.velocity.y * dt;
+                
+                // Collision detection with canvas boundaries
+                this.handleBoundaryCollision(canvasWidth, canvasHeight);
+                
+                // Update visual angle for rotation effect
+                if (Math.abs(this.velocity.x) > 1 || Math.abs(this.velocity.y) > 1) {
+                    this.angle = Math.atan2(this.velocity.y, this.velocity.x);
+                }
+            }
+
+            handleBoundaryCollision(canvasWidth, canvasHeight) {
+                // Left boundary
+                if (this.x < this.width / 2) {
+                    this.x = this.width / 2;
+                    this.velocity.x = 0;
+                }
+                // Right boundary
+                if (this.x > canvasWidth - this.width / 2) {
+                    this.x = canvasWidth - this.width / 2;
+                    this.velocity.x = 0;
+                }
+                // Top boundary
+                if (this.y < this.height / 2) {
+                    this.y = this.height / 2;
+                    this.velocity.y = 0;
+                }
+                // Bottom boundary
+                if (this.y > canvasHeight - this.height / 2) {
+                    this.y = canvasHeight - this.height / 2;
+                    this.velocity.y = 0;
+                }
+            }
+
+            render(ctx) {
+                ctx.save();
+                
+                // Draw glow effect
+                ctx.shadowColor = this.glowColor;
+                ctx.shadowBlur = 15;
+                
+                // Translate to player position
+                ctx.translate(this.x, this.y);
+                
+                // Rotate based on movement direction
+                ctx.rotate(this.angle);
+                
+                // Draw player body (diamond shape for sci-fi look)
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.moveTo(this.width / 2, 0);
+                ctx.lineTo(0, this.height / 2);
+                ctx.lineTo(-this.width / 2, 0);
+                ctx.lineTo(0, -this.height / 2);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Draw center core
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(0, 0, 3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw direction indicator
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(this.width / 2 + 5, 0);
+                ctx.stroke();
+                
+                ctx.restore();
+            }
+
+            getDebugInfo() {
+                return {
+                    position: `(${Math.round(this.x)}, ${Math.round(this.y)})`,
+                    velocity: `(${Math.round(this.velocity.x)}, ${Math.round(this.velocity.y)})`,
+                    speed: Math.round(Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2))
+                };
+            }
+        }
+
+        class InputHandler {
+            constructor() {
+                this.keys = {};
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    this.keys[e.key] = true;
+                });
+
+                document.addEventListener('keyup', (e) => {
+                    this.keys[e.key] = false;
+                });
+                
+                // Prevent default behavior for WASD keys
+                document.addEventListener('keydown', (e) => {
+                    if (['w', 'a', 's', 'd', 'W', 'A', 'S', 'D'].includes(e.key)) {
+                        e.preventDefault();
+                    }
+                });
+            }
+
+            isPressed(key) {
+                return !!this.keys[key];
+            }
+
+            getDebugInfo() {
+                const pressedKeys = Object.keys(this.keys).filter(key => this.keys[key]);
+                return pressedKeys.join(', ') || 'None';
+            }
+        }
+
+        class GameEngine {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.fpsCounter = document.getElementById('fpsCounter');
+                
+                // FPS-Tracking
+                this.lastTime = 0;
+                this.frameCount = 0;
+                this.fps = 0;
+                this.fpsUpdateInterval = 1000; // Update FPS every second
+                this.lastFpsUpdate = 0;
+                
+                // Game state
+                this.isRunning = false;
+                
+                // Game objects
+                this.player = null;
+                this.inputHandler = null;
+                
+                this.init();
+            }
+
+            init() {
+                this.resizeCanvas();
+                this.setupEventListeners();
+                this.initializeGameObjects();
+                this.start();
+            }
+
+            initializeGameObjects() {
+                // Create input handler
+                this.inputHandler = new InputHandler();
+                
+                // Create player at center of canvas
+                this.player = new Player(
+                    this.canvas.width / 2,
+                    this.canvas.height / 2
+                );
+            }
+
+            resizeCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                
+                // Re-center player if it exists
+                if (this.player) {
+                    this.player.x = this.canvas.width / 2;
+                    this.player.y = this.canvas.height / 2;
+                }
+            }
+
+            setupEventListeners() {
+                window.addEventListener('resize', () => {
+                    this.resizeCanvas();
+                });
+
+                // Escape key to potentially pause later
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        console.log('Game paused/resumed');
+                    }
+                });
+
+                // Focus canvas for keyboard input
+                this.canvas.focus();
+                this.canvas.setAttribute('tabindex', '0');
+            }
+
+            start() {
+                this.isRunning = true;
+                this.gameLoop();
+            }
+
+            stop() {
+                this.isRunning = false;
+            }
+
+            gameLoop(currentTime = 0) {
+                if (!this.isRunning) return;
+
+                // Calculate delta time
+                const deltaTime = currentTime - this.lastTime;
+                this.lastTime = currentTime;
+
+                // Update FPS
+                this.updateFPS(currentTime);
+
+                // Update game objects
+                this.update(deltaTime);
+
+                // Clear canvas
+                this.clearCanvas();
+
+                // Render background
+                this.renderBackground();
+
+                // Render game objects
+                this.render();
+
+                // Render debug info
+                this.renderDebugInfo();
+
+                // Continue game loop
+                requestAnimationFrame((time) => this.gameLoop(time));
+            }
+
+            updateFPS(currentTime) {
+                this.frameCount++;
+                
+                if (currentTime - this.lastFpsUpdate >= this.fpsUpdateInterval) {
+                    this.fps = Math.round((this.frameCount * 1000) / (currentTime - this.lastFpsUpdate));
+                    this.frameCount = 0;
+                    this.lastFpsUpdate = currentTime;
+                    
+                    // Update FPS display
+                    this.fpsCounter.textContent = `FPS: ${this.fps}`;
+                }
+            }
+
+            update(deltaTime) {
+                // Update player
+                if (this.player && this.inputHandler) {
+                    this.player.update(deltaTime, this.inputHandler, this.canvas.width, this.canvas.height);
+                }
+            }
+
+            render() {
+                // Render player
+                if (this.player) {
+                    this.player.render(this.ctx);
+                }
+            }
+
+            clearCanvas() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+
+            renderBackground() {
+                // Create a subtle grid pattern for the dungeon feel
+                this.ctx.strokeStyle = '#222';
+                this.ctx.lineWidth = 1;
+                
+                const gridSize = 50;
+                
+                // Vertical lines
+                for (let x = 0; x < this.canvas.width; x += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.canvas.height);
+                    this.ctx.stroke();
+                }
+                
+                // Horizontal lines
+                for (let y = 0; y < this.canvas.height; y += gridSize) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, y);
+                    this.ctx.lineTo(this.canvas.width, y);
+                    this.ctx.stroke();
+                }
+
+                // Add some neon-style corner highlights
+                this.ctx.fillStyle = '#00ff0020';
+                this.ctx.fillRect(0, 0, 100, 100);
+                this.ctx.fillRect(this.canvas.width - 100, 0, 100, 100);
+                this.ctx.fillRect(0, this.canvas.height - 100, 100, 100);
+                this.ctx.fillRect(this.canvas.width - 100, this.canvas.height - 100, 100, 100);
+            }
+
+            renderDebugInfo() {
+                this.ctx.fillStyle = '#00ff00';
+                this.ctx.font = '12px Courier New';
+                
+                const playerDebug = this.player ? this.player.getDebugInfo() : null;
+                const inputDebug = this.inputHandler ? this.inputHandler.getDebugInfo() : 'None';
+                
+                const debugInfo = [
+                    `Canvas: ${this.canvas.width}x${this.canvas.height}`,
+                    `Engine Status: Running`,
+                    `Phase: 1.2 - Player System`,
+                    playerDebug ? `Player Pos: ${playerDebug.position}` : 'Player: None',
+                    playerDebug ? `Player Vel: ${playerDebug.velocity}` : '',
+                    playerDebug ? `Player Speed: ${playerDebug.speed}` : '',
+                    `Input: ${inputDebug}`
+                ];
+                
+                debugInfo.forEach((info, index) => {
+                    if (info) { // Only render non-empty strings
+                        this.ctx.fillText(info, 10, this.canvas.height - 105 + (index * 15));
+                    }
+                });
+            }
+        }
+
+        // Initialize game when page loads
+        window.addEventListener('load', () => {
+            console.log('🎮 Formel-Fury-Shooter initializing...');
+            const game = new GameEngine();
+            console.log('✅ Game engine started successfully!');
+            
+            // Make game accessible globally for debugging
+            window.game = game;
+        });
+    </script>
+</body>
+</html>
