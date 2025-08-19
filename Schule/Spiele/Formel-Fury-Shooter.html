@@ -409,11 +409,11 @@
          <div>🏆 High Score: <span id="highScoreValue">0</span></div>
      </div>
      
-     <div id="gameInfo">
-         <div>Formel-Fury-Shooter v0.7</div>
-         <div>Phase 2.3: Combo System</div>
-         <div>Controls: WASD + Maus + ESC | Combo für Bonus!</div>
-     </div>
+              <div id="gameInfo">
+             <div>Formel-Fury-Shooter v0.8</div>
+             <div>Phase 3.1: Erweiterte Formeln</div>
+             <div>Controls: WASD + Maus + ESC | Verschiedene Formel-Typen!</div>
+         </div>
 
     <script>
                  class FormulaSystem {
@@ -471,28 +471,85 @@
             }
 
                          generateFormula() {
-                 // Generate simple binomial formulas of type (a + b)²
-                 const a = Math.floor(Math.random() * 5) + 1; // 1-5
-                 const b = Math.floor(Math.random() * 5) + 1; // 1-5
-                 const variable = ['x', 'y', 'z'][Math.floor(Math.random() * 3)];
+                 // Select formula type based on difficulty progression
+                 const formulaTypes = [
+                     'expansion_plus',    // (a+b)² = a² + 2ab + b²
+                     'expansion_minus',   // (a-b)² = a² - 2ab + b²
+                     'difference_squares', // (a+b)(a-b) = a² - b²
+                     'factorization_difference', // a² - b² = (a+b)(a-b)
+                     'factorization_square' // a² + 2ab + b² = (a+b)²
+                 ];
                  
-                 // Create formula like (2x + 3)²
-                 const formulaText = `(${a}${variable} + ${b})²`;
+                 // Progressive difficulty: start with simple, add complexity over time
+                 const availableTypes = this.getAvailableFormulaTypes(formulaTypes);
+                 const selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+                 
+                 return this.generateFormulaByType(selectedType);
+             }
+
+             getAvailableFormulaTypes(allTypes) {
+                 // Progressive unlock based on score/combo
+                 const baseTypes = ['expansion_plus'];
+                 
+                 if (this.score >= 500 || this.maxCombo >= 3) {
+                     baseTypes.push('expansion_minus');
+                 }
+                 
+                 if (this.score >= 1000 || this.maxCombo >= 5) {
+                     baseTypes.push('difference_squares');
+                 }
+                 
+                 if (this.score >= 1500 || this.maxCombo >= 8) {
+                     baseTypes.push('factorization_difference');
+                 }
+                 
+                 if (this.score >= 2000 || this.maxCombo >= 10) {
+                     baseTypes.push('factorization_square');
+                 }
+                 
+                 return baseTypes;
+             }
+
+             generateFormulaByType(type) {
+                 switch (type) {
+                     case 'expansion_plus':
+                         return this.generateExpansionPlus();
+                     case 'expansion_minus':
+                         return this.generateExpansionMinus();
+                     case 'difference_squares':
+                         return this.generateDifferenceSquares();
+                     case 'factorization_difference':
+                         return this.generateFactorizationDifference();
+                     case 'factorization_square':
+                         return this.generateFactorizationSquare();
+                     default:
+                         return this.generateExpansionPlus();
+                 }
+             }
+
+             generateExpansionPlus() {
+                 const variables = ['x', 'y', 'z', 'a', 'b', 'c'];
+                 const variable = variables[Math.floor(Math.random() * variables.length)];
+                 
+                 // Generate coefficients with variety
+                 const a = this.generateCoefficient();
+                 const b = this.generateConstant();
+                 
+                 const formulaText = `(${this.formatTerm(a, variable)} + ${b})²`;
                  
                  // Calculate solution: (ax + b)² = a²x² + 2abx + b²
                  const coefficient_x2 = a * a;
                  const coefficient_x = 2 * a * b;
                  const constant = b * b;
                  
-                 // Calculate difficulty based on coefficients
-                 const difficulty = this.calculateDifficulty(a, b, coefficient_x2, coefficient_x, constant);
-                 
                  const formula = {
                      text: formulaText,
+                     type: 'expansion_plus',
+                     typeName: 'Erste Binomische Formel',
                      a: a,
                      b: b,
                      variable: variable,
-                     difficulty: difficulty,
+                     difficulty: this.calculateDifficulty(a, b, coefficient_x2, coefficient_x, constant),
                      coefficients: {
                          x2: coefficient_x2,
                          x: coefficient_x,
@@ -500,34 +557,220 @@
                      }
                  };
                  
-                 // Create multiple valid solution formats
-                 const solutions = this.generateSolutionVariants(coefficient_x2, coefficient_x, constant, variable);
-                 formula.solutions = solutions;
+                 formula.solutions = this.generateExpansionSolutions(coefficient_x2, coefficient_x, constant, variable);
+                 this.updateCurrentFormula(formula);
+                 return formula;
+             }
+
+             generateExpansionMinus() {
+                 const variables = ['x', 'y', 'z', 'a', 'b', 'c'];
+                 const variable = variables[Math.floor(Math.random() * variables.length)];
                  
-                 // Update current formula for UI
+                 const a = this.generateCoefficient();
+                 const b = this.generateConstant();
+                 
+                 const formulaText = `(${this.formatTerm(a, variable)} - ${b})²`;
+                 
+                 // Calculate solution: (ax - b)² = a²x² - 2abx + b²
+                 const coefficient_x2 = a * a;
+                 const coefficient_x = -2 * a * b; // Negative middle term
+                 const constant = b * b;
+                 
+                 const formula = {
+                     text: formulaText,
+                     type: 'expansion_minus',
+                     typeName: 'Zweite Binomische Formel',
+                     a: a,
+                     b: b,
+                     variable: variable,
+                     difficulty: this.calculateDifficulty(a, b, coefficient_x2, Math.abs(coefficient_x), constant),
+                     coefficients: {
+                         x2: coefficient_x2,
+                         x: coefficient_x,
+                         constant: constant
+                     }
+                 };
+                 
+                 formula.solutions = this.generateExpansionSolutions(coefficient_x2, coefficient_x, constant, variable);
+                 this.updateCurrentFormula(formula);
+                 return formula;
+             }
+
+             generateDifferenceSquares() {
+                 const variables = ['x', 'y', 'z', 'a', 'b', 'c'];
+                 const variable = variables[Math.floor(Math.random() * variables.length)];
+                 
+                 const a = this.generateCoefficient();
+                 const b = this.generateConstant();
+                 
+                 const formulaText = `(${this.formatTerm(a, variable)} + ${b})(${this.formatTerm(a, variable)} - ${b})`;
+                 
+                 // Calculate solution: (ax + b)(ax - b) = a²x² - b²
+                 const coefficient_x2 = a * a;
+                 const coefficient_x = 0; // No middle term
+                 const constant = -(b * b); // Negative constant
+                 
+                 const formula = {
+                     text: formulaText,
+                     type: 'difference_squares',
+                     typeName: 'Dritte Binomische Formel',
+                     a: a,
+                     b: b,
+                     variable: variable,
+                     difficulty: this.calculateDifficulty(a, b, coefficient_x2, 0, Math.abs(constant)) + 0.5,
+                     coefficients: {
+                         x2: coefficient_x2,
+                         x: coefficient_x,
+                         constant: constant
+                     }
+                 };
+                 
+                 formula.solutions = this.generateDifferenceSquaresSolutions(coefficient_x2, constant, variable);
+                 this.updateCurrentFormula(formula);
+                 return formula;
+             }
+
+             generateFactorizationDifference() {
+                 const variables = ['x', 'y', 'z', 'a', 'b', 'c'];
+                 const variable = variables[Math.floor(Math.random() * variables.length)];
+                 
+                 const a = this.generateCoefficient();
+                 const b = this.generateConstant();
+                 
+                 // Start with expanded form: a²x² - b²
+                 const coefficient_x2 = a * a;
+                 const constant = -(b * b);
+                 
+                 const formulaText = `${this.formatQuadraticTerm(coefficient_x2, variable)} ${constant >= 0 ? '+' : '-'} ${Math.abs(constant)}`;
+                 
+                 const formula = {
+                     text: formulaText,
+                     type: 'factorization_difference',
+                     typeName: 'Faktorisierung (Differenz)',
+                     a: a,
+                     b: b,
+                     variable: variable,
+                     difficulty: this.calculateDifficulty(a, b, coefficient_x2, 0, Math.abs(constant)) + 1.0,
+                     coefficients: {
+                         x2: coefficient_x2,
+                         x: 0,
+                         constant: constant
+                     }
+                 };
+                 
+                 formula.solutions = this.generateFactorizationDifferenceSolutions(a, b, variable);
+                 this.updateCurrentFormula(formula);
+                 return formula;
+             }
+
+             generateFactorizationSquare() {
+                 const variables = ['x', 'y', 'z', 'a', 'b', 'c'];
+                 const variable = variables[Math.floor(Math.random() * variables.length)];
+                 
+                 const a = this.generateCoefficient();
+                 const b = this.generateConstant();
+                 
+                 // Start with expanded form: a²x² + 2abx + b²
+                 const coefficient_x2 = a * a;
+                 const coefficient_x = 2 * a * b;
+                 const constant = b * b;
+                 
+                 const formulaText = this.formatExpandedForm(coefficient_x2, coefficient_x, constant, variable);
+                 
+                 const formula = {
+                     text: formulaText,
+                     type: 'factorization_square',
+                     typeName: 'Faktorisierung (Quadrat)',
+                     a: a,
+                     b: b,
+                     variable: variable,
+                     difficulty: this.calculateDifficulty(a, b, coefficient_x2, coefficient_x, constant) + 1.5,
+                     coefficients: {
+                         x2: coefficient_x2,
+                         x: coefficient_x,
+                         constant: constant
+                     }
+                 };
+                 
+                 formula.solutions = this.generateFactorizationSquareSolutions(a, b, variable);
+                 this.updateCurrentFormula(formula);
+                 return formula;
+             }
+
+             // Helper methods for coefficient generation
+             generateCoefficient() {
+                 // Progressive difficulty based on score
+                 if (this.score < 500) return Math.floor(Math.random() * 3) + 1; // 1-3
+                 if (this.score < 1500) return Math.floor(Math.random() * 5) + 1; // 1-5
+                 return Math.floor(Math.random() * 7) + 1; // 1-7
+             }
+
+             generateConstant() {
+                 if (this.score < 500) return Math.floor(Math.random() * 4) + 1; // 1-4
+                 if (this.score < 1500) return Math.floor(Math.random() * 6) + 1; // 1-6
+                 return Math.floor(Math.random() * 10) + 1; // 1-10
+             }
+
+             formatTerm(coefficient, variable) {
+                 if (coefficient === 1) return variable;
+                 return `${coefficient}${variable}`;
+             }
+
+             formatQuadraticTerm(coefficient, variable) {
+                 if (coefficient === 1) return `${variable}²`;
+                 return `${coefficient}${variable}²`;
+             }
+
+             formatExpandedForm(a2, a1, a0, variable) {
+                 let result = this.formatQuadraticTerm(a2, variable);
+                 
+                 if (a1 > 0) {
+                     result += ` + ${a1 === 1 ? variable : a1 + variable}`;
+                 } else if (a1 < 0) {
+                     result += ` - ${Math.abs(a1) === 1 ? variable : Math.abs(a1) + variable}`;
+                 }
+                 
+                 if (a0 > 0) {
+                     result += ` + ${a0}`;
+                 } else if (a0 < 0) {
+                     result += ` - ${Math.abs(a0)}`;
+                 }
+                 
+                 return result;
+             }
+
+             updateCurrentFormula(formula) {
                  this.currentFormula = formula;
-                 this.currentSolution = solutions;
+                 this.currentSolution = formula.solutions;
                  
-                 console.log('Generated formula:', formulaText);
-                 console.log('Expected solutions:', solutions);
-                 
-                 return formula; // Return formula object for enemies
+                 console.log(`Generated ${formula.typeName}:`, formula.text);
+                 console.log('Expected solutions:', formula.solutions);
              }
 
              calculateDifficulty(a, b, x2, x, constant) {
                  // Base difficulty factors
                  let difficulty = 1;
                  
-                 // Larger coefficients = harder
+                 // Coefficient complexity
                  if (a >= 4 || b >= 4) difficulty += 0.5;
+                 if (a >= 6 || b >= 8) difficulty += 0.5;
+                 
+                 // Result complexity  
                  if (x2 >= 16) difficulty += 0.5; // 4² or higher
-                 if (x >= 20) difficulty += 0.5; // 2*4*3 or higher
-                 if (constant >= 16) difficulty += 0.5; // 4² or higher
+                 if (Math.abs(x) >= 20) difficulty += 0.5; // Large middle terms
+                 if (Math.abs(constant) >= 25) difficulty += 0.5; // Large constants
                  
-                 // Complex numbers = harder
-                 if (x2 > 9 && x > 12 && constant > 9) difficulty += 1;
+                 // Very complex combinations
+                 if (x2 > 25 && Math.abs(x) > 30) difficulty += 1;
+                 if (Math.abs(constant) > 36) difficulty += 0.5;
                  
-                 return Math.max(1, Math.min(3, difficulty)); // Clamp between 1-3
+                 // Formula type bonus (added by specific generators)
+                 // expansion_plus: +0 (base)
+                 // expansion_minus: +0 (same complexity)
+                 // difference_squares: +0.5 (conceptually harder)
+                 // factorization_*: +1.0-1.5 (reverse thinking)
+                 
+                 return Math.max(1, Math.min(5, difficulty)); // Extended range 1-5
              }
 
              startComboTimer() {
@@ -605,78 +848,258 @@
                  return Math.round(score);
              }
 
-            generateSolutionVariants(a2, a1, a0, variable) {
-                const solutions = [];
-                
-                // Standard form: ax² + bx + c
-                if (a1 > 0) {
-                    solutions.push(`${a2}${variable}² + ${a1}${variable} + ${a0}`);
-                    solutions.push(`${a2}${variable}^2 + ${a1}${variable} + ${a0}`);
-                } else {
-                    solutions.push(`${a2}${variable}² - ${Math.abs(a1)}${variable} + ${a0}`);
-                    solutions.push(`${a2}${variable}^2 - ${Math.abs(a1)}${variable} + ${a0}`);
-                }
-                
-                // With spaces
-                if (a1 > 0) {
-                    solutions.push(`${a2} ${variable}² + ${a1} ${variable} + ${a0}`);
-                    solutions.push(`${a2} ${variable}^2 + ${a1} ${variable} + ${a0}`);
-                } else {
-                    solutions.push(`${a2} ${variable}² - ${Math.abs(a1)} ${variable} + ${a0}`);
-                    solutions.push(`${a2} ${variable}^2 - ${Math.abs(a1)} ${variable} + ${a0}`);
-                }
-                
-                // Handle coefficient 1
-                const x2_term = a2 === 1 ? `${variable}²` : `${a2}${variable}²`;
-                const x2_term_alt = a2 === 1 ? `${variable}^2` : `${a2}${variable}^2`;
-                const x_term = a1 === 1 ? variable : `${a1}${variable}`;
-                
-                if (a1 > 0) {
-                    solutions.push(`${x2_term} + ${x_term} + ${a0}`);
-                    solutions.push(`${x2_term_alt} + ${x_term} + ${a0}`);
-                } else {
-                    solutions.push(`${x2_term} - ${Math.abs(a1) === 1 ? variable : Math.abs(a1) + variable} + ${a0}`);
-                    solutions.push(`${x2_term_alt} - ${Math.abs(a1) === 1 ? variable : Math.abs(a1) + variable} + ${a0}`);
-                }
-                
-                return solutions;
-            }
+                         generateExpansionSolutions(a2, a1, a0, variable) {
+                 const solutions = [];
+                 
+                 // Standard expanded form
+                 const x2_term = a2 === 1 ? `${variable}²` : `${a2}${variable}²`;
+                 const x2_term_alt = a2 === 1 ? `${variable}^2` : `${a2}${variable}^2`;
+                 
+                 // Handle middle term
+                 let middleTerm = '';
+                 let middleTermAlt = '';
+                 if (a1 > 0) {
+                     middleTerm = a1 === 1 ? ` + ${variable}` : ` + ${a1}${variable}`;
+                     middleTermAlt = middleTerm;
+                 } else if (a1 < 0) {
+                     middleTerm = Math.abs(a1) === 1 ? ` - ${variable}` : ` - ${Math.abs(a1)}${variable}`;
+                     middleTermAlt = middleTerm;
+                 }
+                 
+                 // Handle constant term
+                 const constantTerm = a0 > 0 ? ` + ${a0}` : (a0 < 0 ? ` - ${Math.abs(a0)}` : '');
+                 
+                 // Main solutions
+                 solutions.push(`${x2_term}${middleTerm}${constantTerm}`);
+                 solutions.push(`${x2_term_alt}${middleTermAlt}${constantTerm}`);
+                 
+                 // With spaces
+                 const x2_spaced = a2 === 1 ? `${variable}²` : `${a2} ${variable}²`;
+                 const x2_spaced_alt = a2 === 1 ? `${variable}^2` : `${a2} ${variable}^2`;
+                 
+                 let middleSpaced = '';
+                 if (a1 > 0) {
+                     middleSpaced = a1 === 1 ? ` + ${variable}` : ` + ${a1} ${variable}`;
+                 } else if (a1 < 0) {
+                     middleSpaced = Math.abs(a1) === 1 ? ` - ${variable}` : ` - ${Math.abs(a1)} ${variable}`;
+                 }
+                 
+                 solutions.push(`${x2_spaced}${middleSpaced}${constantTerm}`);
+                 solutions.push(`${x2_spaced_alt}${middleSpaced}${constantTerm}`);
+                 
+                 // Different order variations
+                 if (a1 !== 0 && a0 !== 0) {
+                     solutions.push(`${x2_term}${constantTerm}${middleTerm}`);
+                     solutions.push(`${x2_term_alt}${constantTerm}${middleTermAlt}`);
+                 }
+                 
+                 return [...new Set(solutions)]; // Remove duplicates
+             }
 
-            normalizeExpression(expr) {
-                return expr
-                    .toLowerCase()
-                    .replace(/\s+/g, '') // Remove all spaces
-                    .replace(/\^2/g, '²') // Convert ^2 to ²
-                    .replace(/\*([xyz])/g, '$1') // Remove * before variables
-                    .replace(/([xyz])\*/g, '$1') // Remove * after variables
-                    .replace(/\+\+/g, '+') // Fix double plus
-                    .replace(/--/g, '+') // Convert -- to +
-                    .replace(/\+-/g, '-') // Convert +- to -
-                    .replace(/-\+/g, '-'); // Convert -+ to -
-            }
+             generateDifferenceSquaresSolutions(a2, constant, variable) {
+                 const solutions = [];
+                 
+                 // a²x² - b² format
+                 const x2_term = a2 === 1 ? `${variable}²` : `${a2}${variable}²`;
+                 const x2_term_alt = a2 === 1 ? `${variable}^2` : `${a2}${variable}^2`;
+                 
+                 const constantTerm = constant < 0 ? ` - ${Math.abs(constant)}` : ` + ${constant}`;
+                 
+                 solutions.push(`${x2_term}${constantTerm}`);
+                 solutions.push(`${x2_term_alt}${constantTerm}`);
+                 
+                 // With spaces
+                 const x2_spaced = a2 === 1 ? `${variable}²` : `${a2} ${variable}²`;
+                 const x2_spaced_alt = a2 === 1 ? `${variable}^2` : `${a2} ${variable}^2`;
+                 
+                 solutions.push(`${x2_spaced}${constantTerm}`);
+                 solutions.push(`${x2_spaced_alt}${constantTerm}`);
+                 
+                 return [...new Set(solutions)];
+             }
 
-            validateAnswer(userInput) {
-                const normalizedInput = this.normalizeExpression(userInput);
-                
-                for (let solution of this.currentSolution) {
-                    const normalizedSolution = this.normalizeExpression(solution);
-                    if (normalizedInput === normalizedSolution) {
-                        return true;
-                    }
-                }
-                
-                // Additional check for different order (ax² + c + bx)
-                const { x2, x, constant } = this.currentFormula.coefficients;
-                const variable = this.currentFormula.variable;
-                
-                // Check if user wrote terms in different order
-                const userHasX2 = normalizedInput.includes(`${x2 === 1 ? '' : x2}${variable}²`) || 
-                                 normalizedInput.includes(`${x2 === 1 ? '' : x2}${variable}^2`);
-                const userHasX = normalizedInput.includes(`${Math.abs(x) === 1 ? (x > 0 ? '' : '-') : x}${variable}`);
-                const userHasConstant = normalizedInput.includes(constant.toString());
-                
-                return userHasX2 && userHasX && userHasConstant;
-            }
+             generateFactorizationDifferenceSolutions(a, b, variable) {
+                 const solutions = [];
+                 
+                 // (ax + b)(ax - b) format
+                 const term1 = a === 1 ? variable : `${a}${variable}`;
+                 const term2 = a === 1 ? variable : `${a}${variable}`;
+                 
+                 solutions.push(`(${term1} + ${b})(${term2} - ${b})`);
+                 solutions.push(`(${term2} - ${b})(${term1} + ${b})`); // Commutative
+                 
+                 // With spaces
+                 solutions.push(`(${term1} + ${b}) (${term2} - ${b})`);
+                 solutions.push(`(${term2} - ${b}) (${term1} + ${b})`);
+                 
+                 // Alternative notation
+                 solutions.push(`(${term1}+${b})(${term2}-${b})`);
+                 solutions.push(`(${term2}-${b})(${term1}+${b})`);
+                 
+                 return [...new Set(solutions)];
+             }
+
+             generateFactorizationSquareSolutions(a, b, variable) {
+                 const solutions = [];
+                 
+                 // Determine if it's (a+b)² or (a-b)² based on middle term
+                 const middleCoeff = 2 * a * b;
+                 const term = a === 1 ? variable : `${a}${variable}`;
+                 
+                 if (middleCoeff > 0) {
+                     // (ax + b)²
+                     solutions.push(`(${term} + ${b})²`);
+                     solutions.push(`(${term} + ${b})^2`);
+                     solutions.push(`(${term}+${b})²`);
+                     solutions.push(`(${term}+${b})^2`);
+                 } else {
+                     // (ax - b)²
+                     solutions.push(`(${term} - ${b})²`);
+                     solutions.push(`(${term} - ${b})^2`);
+                     solutions.push(`(${term}-${b})²`);
+                     solutions.push(`(${term}-${b})^2`);
+                 }
+                 
+                 return [...new Set(solutions)];
+             }
+
+                         normalizeExpression(expr) {
+                 return expr
+                     .toLowerCase()
+                     .replace(/\s+/g, '') // Remove all spaces
+                     .replace(/\^2/g, '²') // Convert ^2 to ²
+                     .replace(/\*([xyzabc])/g, '$1') // Remove * before variables
+                     .replace(/([xyzabc])\*/g, '$1') // Remove * after variables
+                     .replace(/\+\+/g, '+') // Fix double plus
+                     .replace(/--/g, '+') // Convert -- to +
+                     .replace(/\+-/g, '-') // Convert +- to -
+                     .replace(/-\+/g, '-') // Convert -+ to -
+                     .replace(/\(\s*([^)]+)\s*\)/g, '($1)') // Normalize parentheses
+                     .replace(/([0-9])([xyzabc])/g, '$1$2') // Ensure no space between coefficient and variable
+                     .replace(/\+1([xyzabc])/g, '+$1') // Simplify +1x to +x
+                     .replace(/^1([xyzabc])/g, '$1') // Simplify 1x to x at start
+                     .replace(/-1([xyzabc])/g, '-$1'); // Simplify -1x to -x
+             }
+
+                         validateAnswer(userInput) {
+                 const normalizedInput = this.normalizeExpression(userInput);
+                 
+                 // Direct solution match
+                 for (let solution of this.currentSolution) {
+                     const normalizedSolution = this.normalizeExpression(solution);
+                     if (normalizedInput === normalizedSolution) {
+                         return true;
+                     }
+                 }
+                 
+                 // Type-specific validation
+                 return this.validateByFormulaType(normalizedInput);
+             }
+
+             validateByFormulaType(normalizedInput) {
+                 const formula = this.currentFormula;
+                 
+                 switch (formula.type) {
+                     case 'expansion_plus':
+                     case 'expansion_minus':
+                         return this.validateExpansion(normalizedInput);
+                     case 'difference_squares':
+                         return this.validateDifferenceSquares(normalizedInput);
+                     case 'factorization_difference':
+                         return this.validateFactorizationDifference(normalizedInput);
+                     case 'factorization_square':
+                         return this.validateFactorizationSquare(normalizedInput);
+                     default:
+                         return this.validateExpansion(normalizedInput);
+                 }
+             }
+
+             validateExpansion(normalizedInput) {
+                 const { x2, x, constant } = this.currentFormula.coefficients;
+                 const variable = this.currentFormula.variable;
+                 
+                 // Check for all required terms
+                 const hasX2Term = this.checkQuadraticTerm(normalizedInput, x2, variable);
+                 const hasXTerm = x === 0 || this.checkLinearTerm(normalizedInput, x, variable);
+                 const hasConstantTerm = constant === 0 || this.checkConstantTerm(normalizedInput, constant);
+                 
+                 return hasX2Term && hasXTerm && hasConstantTerm;
+             }
+
+             validateDifferenceSquares(normalizedInput) {
+                 const { x2, constant } = this.currentFormula.coefficients;
+                 const variable = this.currentFormula.variable;
+                 
+                 const hasX2Term = this.checkQuadraticTerm(normalizedInput, x2, variable);
+                 const hasConstantTerm = this.checkConstantTerm(normalizedInput, constant);
+                 
+                 // Should NOT have linear term
+                 const hasNoLinearTerm = !this.hasLinearTerm(normalizedInput, variable);
+                 
+                 return hasX2Term && hasConstantTerm && hasNoLinearTerm;
+             }
+
+             validateFactorizationDifference(normalizedInput) {
+                 const { a, b } = this.currentFormula;
+                 const variable = this.currentFormula.variable;
+                 
+                 // Should be in form (ax+b)(ax-b) or (ax-b)(ax+b)
+                 const pattern1 = this.normalizeExpression(`(${a === 1 ? variable : a + variable}+${b})(${a === 1 ? variable : a + variable}-${b})`);
+                 const pattern2 = this.normalizeExpression(`(${a === 1 ? variable : a + variable}-${b})(${a === 1 ? variable : a + variable}+${b})`);
+                 
+                 return normalizedInput === pattern1 || normalizedInput === pattern2;
+             }
+
+             validateFactorizationSquare(normalizedInput) {
+                 const { a, b } = this.currentFormula;
+                 const variable = this.currentFormula.variable;
+                 const middleCoeff = 2 * a * b;
+                 
+                 if (middleCoeff > 0) {
+                     // Should be (ax+b)²
+                     const pattern = this.normalizeExpression(`(${a === 1 ? variable : a + variable}+${b})²`);
+                     return normalizedInput === pattern;
+                 } else {
+                     // Should be (ax-b)²
+                     const pattern = this.normalizeExpression(`(${a === 1 ? variable : a + variable}-${b})²`);
+                     return normalizedInput === pattern;
+                 }
+             }
+
+             // Helper validation methods
+             checkQuadraticTerm(input, expectedCoeff, variable) {
+                 if (expectedCoeff === 1) {
+                     return input.includes(`${variable}²`) || input.includes(`${variable}^2`);
+                 }
+                 return input.includes(`${expectedCoeff}${variable}²`) || input.includes(`${expectedCoeff}${variable}^2`);
+             }
+
+             checkLinearTerm(input, expectedCoeff, variable) {
+                 if (expectedCoeff === 1) {
+                     return input.includes(`+${variable}`) || input.includes(`${variable}+`) || 
+                            (input.includes(variable) && !input.includes(`${variable}²`) && !input.includes(`${variable}^2`));
+                 } else if (expectedCoeff === -1) {
+                     return input.includes(`-${variable}`);
+                 } else if (expectedCoeff > 0) {
+                     return input.includes(`+${expectedCoeff}${variable}`) || input.includes(`${expectedCoeff}${variable}`);
+                 } else {
+                     return input.includes(`${expectedCoeff}${variable}`) || input.includes(`-${Math.abs(expectedCoeff)}${variable}`);
+                 }
+             }
+
+             checkConstantTerm(input, expectedConstant) {
+                 if (expectedConstant > 0) {
+                     return input.includes(`+${expectedConstant}`) || input.includes(`${expectedConstant}`);
+                 } else {
+                     return input.includes(`${expectedConstant}`) || input.includes(`-${Math.abs(expectedConstant)}`);
+                 }
+             }
+
+             hasLinearTerm(input, variable) {
+                 // Check if input contains linear term (variable without ²)
+                 const regex = new RegExp(`\\d*${variable}(?![²^2])`, 'g');
+                 return regex.test(input);
+             }
 
             submitAnswer() {
                 const userAnswer = this.formulaInput.value.trim();
@@ -786,11 +1209,23 @@
                  this.updateHighScoreDisplay();
              }
 
-            showFormulaHUD() {
-                this.formulaDisplay.textContent = this.currentFormula.text;
-                this.formulaHUD.style.display = 'block';
-                this.formulaInput.focus();
-            }
+                         showFormulaHUD() {
+                 // Enhanced display with formula type
+                 const displayText = `${this.currentFormula.typeName}: ${this.currentFormula.text}`;
+                 this.formulaDisplay.innerHTML = `
+                     <div style="font-size: 14px; color: #00ff0080; margin-bottom: 5px;">
+                         ${this.currentFormula.typeName}
+                     </div>
+                     <div style="font-size: 24px;">
+                         ${this.currentFormula.text}
+                     </div>
+                     <div style="font-size: 12px; color: #ffff0080; margin-top: 5px;">
+                         Schwierigkeit: ${'⭐'.repeat(Math.floor(this.currentFormula.difficulty))}
+                     </div>
+                 `;
+                 this.formulaHUD.style.display = 'block';
+                 this.formulaInput.focus();
+             }
 
             hideFormulaHUD() {
                 this.formulaHUD.style.display = 'none';

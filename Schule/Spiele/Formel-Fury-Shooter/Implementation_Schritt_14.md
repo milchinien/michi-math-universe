@@ -30,3 +30,4 @@ Strategisches Waffen-System, das verschiedene Lösungsansätze für Formeln biet
 
 
 
+
