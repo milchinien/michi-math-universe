@@ -188,6 +188,42 @@
             z-index: 100;
         }
 
+        #comboDisplay {
+            position: absolute;
+            top: 80px;
+            right: 10px;
+            color: #ffff00;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            text-align: right;
+        }
+
+        .combo-active {
+            color: #ff6600 !important;
+            text-shadow: 0 0 10px #ff660080 !important;
+            animation: comboGlow 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes comboGlow {
+            0% { text-shadow: 0 0 10px #ff660080; }
+            100% { text-shadow: 0 0 20px #ff6600ff; }
+        }
+
+        #highScoreDisplay {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00ffff;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            text-align: center;
+        }
+
         /* Pause Menu System */
         #pauseMenu {
             position: absolute;
@@ -357,15 +393,27 @@
     
     <!-- HUD Elements -->
     <div id="fpsCounter">FPS: 0</div>
+    
     <div id="scoreDisplay">
         <div>Score: <span id="scoreValue">0</span></div>
         <div>Richtig: <span id="correctCount">0</span></div>
         <div>Falsch: <span id="incorrectCount">0</span></div>
     </div>
+    
+    <div id="comboDisplay">
+        <div>Combo: <span id="comboValue">0</span></div>
+        <div>Max: <span id="comboMaxValue">0</span></div>
+        <div>⏱ Zeit: <span id="comboTimer">10</span>s</div>
+    </div>
+    
+    <div id="highScoreDisplay">
+        <div>🏆 High Score: <span id="highScoreValue">0</span></div>
+    </div>
+    
     <div id="gameInfo">
-        <div>Formel-Fury-Shooter v0.6</div>
-        <div>Phase 2.2+: Pause System</div>
-        <div>Controls: WASD + Maus + ESC zum Pausieren</div>
+        <div>Formel-Fury-Shooter v0.7</div>
+        <div>Phase 2.3: Combo System</div>
+        <div>Controls: WASD + Maus + ESC | Combo für Bonus!</div>
     </div>
 
     <script>
@@ -377,6 +425,19 @@
                 this.correctAnswers = 0;
                 this.incorrectAnswers = 0;
                 
+                // Combo system
+                this.combo = 0;
+                this.maxCombo = 0;
+                this.comboStartTime = 0;
+                this.comboTimeLimit = 10000; // 10 seconds per combo
+                this.lastAnswerTime = 0;
+                
+                // Scoring system
+                this.baseScore = 100;
+                this.comboMultiplier = 1.5;
+                this.speedBonus = 50;
+                this.combatBonus = 50;
+                
                 // UI Elements
                 this.formulaHUD = document.getElementById('formulaHUD');
                 this.formulaDisplay = document.getElementById('formulaDisplay');
@@ -386,8 +447,19 @@
                 this.correctCount = document.getElementById('correctCount');
                 this.incorrectCount = document.getElementById('incorrectCount');
                 
+                // Initialize high score
+                this.highScore = this.loadHighScore();
+                
+                // Additional UI elements
+                this.comboElement = document.getElementById('comboValue');
+                this.comboMaxElement = document.getElementById('comboMaxValue');
+                this.comboTimerElement = document.getElementById('comboTimer');
+                this.highScoreElement = document.getElementById('highScoreValue');
+                
                 this.setupEventListeners();
                 this.generateFormula();
+                this.startComboTimer();
+                this.updateHighScoreDisplay();
             }
 
             setupEventListeners() {
@@ -413,11 +485,15 @@
                 const coefficient_x = 2 * a * b;
                 const constant = b * b;
                 
+                // Calculate difficulty based on coefficients
+                const difficulty = this.calculateDifficulty(a, b, coefficient_x2, coefficient_x, constant);
+                
                 const formula = {
                     text: formulaText,
                     a: a,
                     b: b,
                     variable: variable,
+                    difficulty: difficulty,
                     coefficients: {
                         x2: coefficient_x2,
                         x: coefficient_x,
@@ -437,6 +513,97 @@
                 console.log('Expected solutions:', solutions);
                 
                 return formula; // Return formula object for enemies
+            }
+
+            calculateDifficulty(a, b, x2, x, constant) {
+                // Base difficulty factors
+                let difficulty = 1;
+                
+                // Larger coefficients = harder
+                if (a >= 4 || b >= 4) difficulty += 0.5;
+                if (x2 >= 16) difficulty += 0.5; // 4² or higher
+                if (x >= 20) difficulty += 0.5; // 2*4*3 or higher
+                if (constant >= 16) difficulty += 0.5; // 4² or higher
+                
+                // Complex numbers = harder
+                if (x2 > 9 && x > 12 && constant > 9) difficulty += 1;
+                
+                return Math.max(1, Math.min(3, difficulty)); // Clamp between 1-3
+            }
+
+            startComboTimer() {
+                this.comboStartTime = Date.now();
+                this.lastAnswerTime = Date.now();
+            }
+
+            updateComboTimer() {
+                const currentTime = Date.now();
+                const timeSinceLastAnswer = currentTime - this.lastAnswerTime;
+                
+                // Break combo if too much time has passed
+                if (this.combo > 0 && timeSinceLastAnswer > this.comboTimeLimit) {
+                    this.breakCombo('Zeit abgelaufen!');
+                }
+            }
+
+            incrementCombo() {
+                this.combo++;
+                if (this.combo > this.maxCombo) {
+                    this.maxCombo = this.combo;
+                }
+                this.lastAnswerTime = Date.now();
+                
+                // Show combo feedback
+                if (this.combo >= 3) {
+                    this.showComboFeedback();
+                }
+            }
+
+            breakCombo(reason = 'Falsche Antwort!') {
+                if (this.combo >= 3) {
+                    this.showFeedback(`Combo gebrochen! ${reason} (Combo: ${this.combo})`, false);
+                }
+                this.combo = 0;
+                this.lastAnswerTime = Date.now();
+            }
+
+            showComboFeedback() {
+                const comboMessages = {
+                    3: 'Combo x3! 🔥',
+                    5: 'Combo x5! ⚡',
+                    7: 'Combo x7! 💫',
+                    10: 'Combo x10! 🌟',
+                    15: 'MEGA COMBO x15! 💥',
+                    20: 'ULTRA COMBO x20! 🚀'
+                };
+                
+                const message = comboMessages[this.combo] || `Combo x${this.combo}! 🎯`;
+                this.showFeedback(message, true);
+            }
+
+            calculateScore(formula, timeTaken, isCombat = false) {
+                let score = this.baseScore;
+                
+                // Difficulty multiplier
+                score *= formula.difficulty;
+                
+                // Combo multiplier
+                if (this.combo >= 3) {
+                    score *= (1 + (this.combo - 1) * 0.2); // 20% per combo level after 3
+                }
+                
+                // Speed bonus (under 5 seconds = bonus)
+                if (timeTaken < 5000) {
+                    const speedMultiplier = Math.max(0.5, (5000 - timeTaken) / 5000);
+                    score += this.speedBonus * speedMultiplier;
+                }
+                
+                // Combat bonus
+                if (isCombat) {
+                    score += this.combatBonus;
+                }
+                
+                return Math.round(score);
             }
 
             generateSolutionVariants(a2, a1, a0, variable) {
@@ -566,6 +733,58 @@
                 this.scoreValue.textContent = this.score;
                 this.correctCount.textContent = this.correctAnswers;
                 this.incorrectCount.textContent = this.incorrectAnswers;
+                
+                // Update combo display
+                this.updateComboDisplay();
+                
+                // Check and update high score
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    this.saveHighScore();
+                }
+            }
+
+            updateComboDisplay() {
+                // Update combo counter
+                if (this.comboElement) {
+                    this.comboElement.textContent = this.combo;
+                    this.comboElement.className = this.combo >= 3 ? 'combo-active' : '';
+                }
+                
+                // Update max combo
+                if (this.comboMaxElement) {
+                    this.comboMaxElement.textContent = this.maxCombo;
+                }
+                
+                // Update combo timer
+                if (this.comboTimerElement && this.combo > 0) {
+                    const currentTime = Date.now();
+                    const timeSinceLastAnswer = currentTime - this.lastAnswerTime;
+                    const timeLeft = Math.max(0, this.comboTimeLimit - timeSinceLastAnswer);
+                    const secondsLeft = Math.ceil(timeLeft / 1000);
+                    
+                    this.comboTimerElement.textContent = secondsLeft;
+                    this.comboTimerElement.style.color = secondsLeft <= 3 ? '#ff0000' : '#ffff00';
+                } else if (this.comboTimerElement) {
+                    this.comboTimerElement.textContent = '10';
+                    this.comboTimerElement.style.color = '#ffff00';
+                }
+            }
+
+            updateHighScoreDisplay() {
+                if (this.highScoreElement) {
+                    this.highScoreElement.textContent = this.highScore;
+                }
+            }
+
+            loadHighScore() {
+                const saved = localStorage.getItem('formelFuryHighScore');
+                return saved ? parseInt(saved) : 0;
+            }
+
+            saveHighScore() {
+                localStorage.setItem('formelFuryHighScore', this.highScore.toString());
+                this.updateHighScoreDisplay();
             }
 
             showFormulaHUD() {
@@ -590,6 +809,9 @@
                 return {
                     currentFormula: this.currentFormula ? this.currentFormula.text : 'None',
                     score: this.score,
+                    highScore: this.highScore,
+                    combo: this.combo,
+                    maxCombo: this.maxCombo,
                     correct: this.correctAnswers,
                     incorrect: this.incorrectAnswers
                 };
@@ -1295,6 +1517,7 @@
                 this.combatMode = false;
                 this.lastDamageTime = 0;
                 this.damageImmuneTime = 1000; // 1 second immunity after taking damage
+                this.combatStartTime = 0;
                 
                 // Pause menu elements
                 this.pauseMenu = null;
@@ -1469,6 +1692,12 @@
                     return;
                 }
                 
+                // Update combo timer
+                if (this.formulaSystem) {
+                    this.formulaSystem.updateComboTimer();
+                    this.formulaSystem.updateComboDisplay();
+                }
+                
                 // Update player
                 if (this.player && this.inputHandler) {
                     this.player.update(deltaTime, this.inputHandler, this.canvas.width, this.canvas.height);
@@ -1560,6 +1789,7 @@
             targetEnemy(enemy) {
                 this.targetedEnemy = enemy;
                 this.combatMode = true;
+                this.combatStartTime = Date.now();
                 
                 // Use the enemy's assigned formula
                 this.formulaSystem.currentFormula = enemy.assignedFormula;
@@ -1568,7 +1798,7 @@
                 // Show combat UI
                 this.formulaSystem.showFormulaHUD();
                 
-                console.log(`Targeted enemy with formula: ${enemy.assignedFormula.text}`);
+                console.log(`Targeted enemy with formula: ${enemy.assignedFormula.text} (Difficulty: ${enemy.assignedFormula.difficulty})`);
             }
 
             exitCombatMode() {
@@ -1583,19 +1813,43 @@
             }
 
             handleCorrectAnswer() {
+                const currentTime = Date.now();
+                const timeTaken = this.combatMode ? currentTime - this.combatStartTime : 5000;
+                
                 if (this.targetedEnemy) {
+                    // Calculate score based on formula difficulty, combo, speed, and combat
+                    const earnedScore = this.formulaSystem.calculateScore(
+                        this.targetedEnemy.assignedFormula, 
+                        timeTaken, 
+                        true
+                    );
+                    
+                    // Update stats
+                    this.formulaSystem.correctAnswers++;
+                    this.formulaSystem.score += earnedScore;
+                    this.formulaSystem.incrementCombo();
+                    
                     // Kill the enemy
                     this.targetedEnemy.startDeathAnimation();
-                    this.formulaSystem.correctAnswers++;
-                    this.formulaSystem.score += 150; // Bonus for combat kill
-                    this.formulaSystem.showFeedback('Treffer! Gegner eliminiert! +150 Punkte', true);
                     
-                    console.log(`Enemy killed with correct answer: ${this.formulaSystem.formulaInput.value}`);
+                    // Show detailed feedback
+                    const speedText = timeTaken < 5000 ? ' (Schnell!)' : '';
+                    const comboText = this.formulaSystem.combo >= 3 ? ` Combo x${this.formulaSystem.combo}!` : '';
+                    this.formulaSystem.showFeedback(`Treffer! +${earnedScore} Punkte${speedText}${comboText}`, true);
+                    
+                    console.log(`Enemy killed with score: ${earnedScore} (Difficulty: ${this.targetedEnemy.assignedFormula.difficulty}, Time: ${timeTaken}ms, Combo: ${this.formulaSystem.combo})`);
                 } else {
                     // Regular formula practice
+                    const earnedScore = this.formulaSystem.calculateScore(
+                        this.formulaSystem.currentFormula, 
+                        timeTaken, 
+                        false
+                    );
+                    
                     this.formulaSystem.correctAnswers++;
-                    this.formulaSystem.score += 100;
-                    this.formulaSystem.showFeedback('Richtig! +100 Punkte', true);
+                    this.formulaSystem.score += earnedScore;
+                    this.formulaSystem.incrementCombo();
+                    this.formulaSystem.showFeedback(`Richtig! +${earnedScore} Punkte`, true);
                 }
                 
                 this.formulaSystem.updateScoreDisplay();
@@ -1608,6 +1862,9 @@
             }
 
             handleWrongAnswer() {
+                // Break combo on wrong answer
+                this.formulaSystem.breakCombo('Falsche Antwort!');
+                
                 if (this.targetedEnemy) {
                     // Player takes damage in combat
                     this.formulaSystem.incorrectAnswers++;
@@ -1677,6 +1934,9 @@
                 this.formulaSystem.score = 0;
                 this.formulaSystem.correctAnswers = 0;
                 this.formulaSystem.incorrectAnswers = 0;
+                this.formulaSystem.combo = 0;
+                this.formulaSystem.maxCombo = 0;
+                this.formulaSystem.startComboTimer();
                 this.formulaSystem.updateScoreDisplay();
                 this.formulaSystem.generateFormula();
                 
@@ -1946,7 +2206,8 @@
                     playerDebug ? `Player Pos: ${playerDebug.position}` : 'Player: None',
                     `Player Health: ${this.playerHealth}/${this.playerMaxHealth}`,
                     `Combat Mode: ${this.combatMode ? 'Active' : 'Inactive'}`,
-                    formulaDebug ? `Score: ${formulaDebug.score} (${formulaDebug.correct}/${formulaDebug.incorrect})` : '',
+                    formulaDebug ? `Score: ${formulaDebug.score} | High: ${formulaDebug.highScore}` : '',
+                    formulaDebug ? `Combo: ${formulaDebug.combo}/${formulaDebug.maxCombo} (${formulaDebug.correct}/${formulaDebug.incorrect})` : '',
                     enemyDebug ? `Enemies: ${enemyDebug.enemyCount}, Next: ${enemyDebug.nextSpawn}s` : 'Enemies: None',
                     `Input: ${inputDebug}`
                 ];
