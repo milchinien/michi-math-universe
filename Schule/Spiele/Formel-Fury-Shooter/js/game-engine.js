@@ -34,6 +34,7 @@ class GameEngine {
        this.enemySpawner = null;
        this.currencySystem = null;
        this.waveSystem = null;
+       this.levelSystem = null;
        
        // Input state tracking
        this.spacePressed = false;
@@ -216,6 +217,9 @@ class GameEngine {
         // Create wave system
         this.waveSystem = new WaveSystem();
         this.setupWaveCallbacks();
+        
+        // Create level system
+        this.levelSystem = new LevelSystem();
         
         // Create enemy spawner
         this.enemySpawner = new EnemySpawner(this.formulaSystem);
@@ -559,6 +563,11 @@ class GameEngine {
         if (this.waveSystem) {
             this.waveSystem.update(deltaTime);
         }
+        
+        // Update level system
+        if (this.levelSystem) {
+            this.levelSystem.update(deltaTime);
+        }
        
        // Handle targeting system
        this.handleTargeting();
@@ -817,14 +826,36 @@ class GameEngine {
                 console.log(`💰 Day Mode - Coins awarded: ${coinsEarned} for ${this.targetedEnemy.typeName}`);
             }
             
+            // Calculate and award XP (reduced for day mode)
+            let xpEarned = 0;
+            if (this.levelSystem) {
+                const timeTaken = (15 - this.mcTimeLeft) * 1000; // Convert to milliseconds
+                xpEarned = this.levelSystem.calculateXpDrop(
+                    this.targetedEnemy, 
+                    this.formulaSystem.combo, 
+                    timeTaken
+                );
+                // Apply day mode reduction
+                xpEarned = Math.max(1, Math.round(xpEarned * 0.7));
+                
+                const leveledUp = this.levelSystem.addXp(xpEarned);
+                this.levelSystem.showXpDrop(
+                    this.targetedEnemy.x, 
+                    this.targetedEnemy.y, 
+                    xpEarned
+                );
+                console.log(`📈 Day Mode - XP awarded: ${xpEarned} for ${this.targetedEnemy.typeName}${leveledUp ? ' - LEVEL UP!' : ''}`);
+            }
+            
             // Gegner als tot markieren
             this.targetedEnemy.isDead = true;
             this.targetedEnemy.deathTime = Date.now();
             
-            // Show feedback with coins
+            // Show feedback with coins and XP
             const coinsText = coinsEarned > 0 ? ` +${coinsEarned} 💰` : '';
+            const xpText = xpEarned > 0 ? ` +${xpEarned} XP` : '';
             this.formulaSystem.showFeedback(
-                `Richtig! +${earnedScore} Punkte${coinsText} (Tag-Modus: ${this.targetedEnemy.typeName || this.targetedEnemy.type})`,
+                `Richtig! +${earnedScore} Punkte${coinsText}${xpText} (Tag-Modus: ${this.targetedEnemy.typeName || this.targetedEnemy.type})`,
                 true
             );
             
@@ -912,15 +943,33 @@ class GameEngine {
                 console.log(`💰 Coins awarded: ${coinsEarned} for ${this.targetedEnemy.typeName}`);
             }
             
+            // Calculate and award XP
+            let xpEarned = 0;
+            if (this.levelSystem) {
+                xpEarned = this.levelSystem.calculateXpDrop(
+                    this.targetedEnemy, 
+                    this.formulaSystem.combo, 
+                    timeTaken
+                );
+                const leveledUp = this.levelSystem.addXp(xpEarned);
+                this.levelSystem.showXpDrop(
+                    this.targetedEnemy.x, 
+                    this.targetedEnemy.y, 
+                    xpEarned
+                );
+                console.log(`📈 XP awarded: ${xpEarned} for ${this.targetedEnemy.typeName}${leveledUp ? ' - LEVEL UP!' : ''}`);
+            }
+            
             // Kill the enemy
             this.targetedEnemy.startDeathAnimation();
             
-            // Show detailed feedback with enemy type and coins
+            // Show detailed feedback with enemy type, coins and XP
             const speedText = timeTaken < 5000 ? ' (Schnell!)' : '';
             const comboText = this.formulaSystem.combo >= 3 ? ` Combo x${this.formulaSystem.combo}!` : '';
             const typeText = this.targetedEnemy.scoreMultiplier > 1 ? ` [${this.targetedEnemy.typeName}]` : '';
             const coinsText = coinsEarned > 0 ? ` +${coinsEarned} 💰` : '';
-            this.formulaSystem.showFeedback(`Treffer! +${earnedScore} Punkte${coinsText}${typeText}${speedText}${comboText}`, true);
+            const xpText = xpEarned > 0 ? ` +${xpEarned} XP` : '';
+            this.formulaSystem.showFeedback(`Treffer! +${earnedScore} Punkte${coinsText}${xpText}${typeText}${speedText}${comboText}`, true);
             
             console.log(`${this.targetedEnemy.typeName} eliminated! Score: ${earnedScore} (Base: ${Math.round(earnedScore/this.targetedEnemy.scoreMultiplier)}, Multiplier: ${this.targetedEnemy.scoreMultiplier}x, Difficulty: ${this.targetedEnemy.assignedFormula.difficulty.toFixed(1)}, Time: ${timeTaken}ms, Combo: ${this.formulaSystem.combo})`);
         } else {
@@ -1115,6 +1164,11 @@ class GameEngine {
         // Render currency system effects
         if (this.currencySystem) {
             this.currencySystem.render(this.ctx);
+        }
+        
+        // Render level system effects
+        if (this.levelSystem) {
+            this.levelSystem.render(this.ctx);
         }
         
         // Render game over screen

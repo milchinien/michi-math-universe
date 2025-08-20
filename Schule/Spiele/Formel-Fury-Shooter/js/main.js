@@ -26,6 +26,9 @@ window.addEventListener('load', () => {
         if (typeof WaveSystem === 'undefined') {
             throw new Error('WaveSystem class not loaded');
         }
+        if (typeof LevelSystem === 'undefined') {
+            throw new Error('LevelSystem class not loaded');
+        }
         if (typeof Player === 'undefined') {
             throw new Error('Player class not loaded');
         }

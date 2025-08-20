@@ -189,3 +189,65 @@ function startNextWave() {
         console.error('❌ WaveSystem not available');
     }
 }
+
+// Debug functions for level system
+function debugLevel() {
+    console.log('📈 Level System Debug:');
+    
+    if (!window.game) {
+        console.error('❌ Game object not found');
+        return;
+    }
+    
+    if (!window.game.levelSystem) {
+        console.error('❌ LevelSystem not found in game object');
+        return;
+    }
+    
+    const ls = window.game.levelSystem;
+    console.log('📈 Current level:', ls.getLevel());
+    console.log('⚡ Current XP:', ls.getXp());
+    console.log('🎯 XP to next level:', ls.getXpToNextLevel());
+    console.log('📊 Total XP earned:', ls.getTotalXpEarned());
+    console.log('🎮 Session XP earned:', ls.getSessionXpEarned());
+    console.log('📉 XP progression:', ls.calculateXpToNextLevel());
+    
+    return {
+        level: ls.getLevel(),
+        xp: ls.getXp(),
+        toNext: ls.getXpToNextLevel(),
+        progression: ls.calculateXpToNextLevel()
+    };
+}
+
+function testLevelUp() {
+    if (window.game && window.game.levelSystem) {
+        const result = window.game.levelSystem.testLevelSystem();
+        console.log('📈 Level system test completed:', result);
+        return result;
+    } else {
+        console.error('❌ LevelSystem not available');
+    }
+}
+
+function addTestXp(amount = 100) {
+    if (window.game && window.game.levelSystem) {
+        const oldLevel = window.game.levelSystem.getLevel();
+        const leveledUp = window.game.levelSystem.addXp(amount);
+        const newLevel = window.game.levelSystem.getLevel();
+        
+        console.log(`📈 Added ${amount} XP. Level: ${oldLevel} → ${newLevel} (Leveled up: ${leveledUp})`);
+        
+        // Test XP drop animation
+        window.game.levelSystem.showXpDrop(400, 300, amount);
+        
+        return {
+            oldLevel: oldLevel,
+            newLevel: newLevel,
+            leveledUp: leveledUp,
+            currentXp: window.game.levelSystem.getXp()
+        };
+    } else {
+        console.error('❌ LevelSystem not available');
+    }
+}
