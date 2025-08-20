@@ -30,9 +30,7 @@ class FormulaSystem {
         this.formulaDisplay = document.getElementById('formulaDisplay');
         this.formulaInput = document.getElementById('formulaInput');
         this.feedbackDisplay = document.getElementById('feedbackDisplay');
-        this.scoreValue = document.getElementById('scoreValue');
-        this.correctCount = document.getElementById('correctCount');
-        this.incorrectCount = document.getElementById('incorrectCount');
+        // Score displays removed - using high score display instead
         
         // Initialize high score
         this.highScore = this.loadHighScore();
@@ -734,9 +732,7 @@ class FormulaSystem {
     }
 
     updateScoreDisplay() {
-        this.scoreValue.textContent = this.score;
-        this.correctCount.textContent = this.correctAnswers;
-        this.incorrectCount.textContent = this.incorrectAnswers;
+        // Score display removed - only update high score display
         
         // Update combo display
         this.updateComboDisplay();
@@ -746,6 +742,9 @@ class FormulaSystem {
             this.highScore = this.score;
             this.saveHighScore();
         }
+        
+        // Update high score display which now includes current score
+        this.updateHighScoreDisplay();
     }
 
     updateComboDisplay() {
@@ -777,7 +776,8 @@ class FormulaSystem {
 
     updateHighScoreDisplay() {
         if (this.highScoreElement) {
-            this.highScoreElement.textContent = this.highScore;
+            // Show both current score and high score
+            this.highScoreElement.textContent = `Score: ${this.score} | High: ${this.highScore}`;
         }
     }
 

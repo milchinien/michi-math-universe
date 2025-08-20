@@ -224,25 +224,11 @@ body {
 }
 
 #gameInfo {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    color: #00ff00;
-    font-size: 14px;
-    text-align: right;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    z-index: 100;
+    display: none; /* Removed to reduce UI clutter during gameplay */
 }
 
 #scoreDisplay {
-    position: absolute;
-    top: 110px;
-    left: 10px;
-    color: #00ff00;
-    font-size: 16px;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    z-index: 100;
+    display: none; /* Removed to reduce UI clutter */
 }
 
 #comboDisplay {

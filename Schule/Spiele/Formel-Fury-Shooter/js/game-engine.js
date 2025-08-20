@@ -357,18 +357,18 @@ class GameEngine {
 
     showGameHUD() {
         document.getElementById('fpsCounter').style.display = 'block';
-        document.getElementById('scoreDisplay').style.display = 'block';
+        // scoreDisplay removed - redundant with highScoreDisplay
         document.getElementById('comboDisplay').style.display = 'block';
         document.getElementById('highScoreDisplay').style.display = 'block';
-        document.getElementById('gameInfo').style.display = 'block';
+        // gameInfo removed - not needed during gameplay
     }
 
     hideGameHUD() {
         document.getElementById('fpsCounter').style.display = 'none';
-        document.getElementById('scoreDisplay').style.display = 'none';
+        // scoreDisplay already hidden
         document.getElementById('comboDisplay').style.display = 'none';
         document.getElementById('highScoreDisplay').style.display = 'none';
-        document.getElementById('gameInfo').style.display = 'none';
+        // gameInfo already hidden
     }
 
     showMultipleChoice() {
@@ -1323,33 +1323,7 @@ class GameEngine {
     }
 
     renderDebugInfo() {
-        this.ctx.fillStyle = '#00ff00';
-        this.ctx.font = '12px Courier New';
-        
-        const playerDebug = this.player ? this.player.getDebugInfo() : null;
-        const inputDebug = this.inputHandler ? this.inputHandler.getDebugInfo() : 'None';
-        const formulaDebug = this.formulaSystem ? this.formulaSystem.getDebugInfo() : null;
-        const enemyDebug = this.enemySpawner ? this.enemySpawner.getDebugInfo() : null;
-        
-        const gameStatus = this.isGameOver ? 'Game Over' : this.isPaused ? 'Paused' : 'Running';
-        
-        const debugInfo = [
-            `Canvas: ${this.canvas.width}x${this.canvas.height}`,
-            `Engine Status: ${gameStatus}`,
-            `Phase: 4.2 - Modulare Struktur`,
-            playerDebug ? `Player Pos: ${playerDebug.position}` : 'Player: None',
-            `Player Health: ${this.playerHealth}/${this.playerMaxHealth}`,
-            `Combat Mode: ${this.combatMode ? 'Active' : 'Inactive'}`,
-            formulaDebug ? `Score: ${formulaDebug.score} | High: ${formulaDebug.highScore}` : '',
-            formulaDebug ? `Combo: ${formulaDebug.combo}/${formulaDebug.maxCombo} (${formulaDebug.correct}/${formulaDebug.incorrect})` : '',
-           enemyDebug ? `Enemies: ${enemyDebug.enemyCount}, Next: ${enemyDebug.nextSpawn}s` : 'Enemies: None',
-           `Input: ${inputDebug}`
-        ];
-        
-        debugInfo.forEach((info, index) => {
-            if (info) { // Only render non-empty strings
-                this.ctx.fillText(info, 10, this.canvas.height - 105 + (index * 15));
-            }
-        });
+        // Debug info removed for cleaner UI
+        // Can be re-enabled for development if needed
     }
 }
