@@ -73,6 +73,53 @@ body {
     }
 }
 
+#waveDisplay {
+    position: absolute;
+    top: 10px;
+    right: 200px;
+    color: #00ffff;
+    font-size: 16px;
+    font-weight: bold;
+    font-family: "Courier New", monospace;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #00ffff;
+    border-radius: 8px;
+    min-width: 150px;
+}
+
+.wave-header {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff80;
+}
+
+.wave-timer {
+    font-size: 20px;
+    margin: 5px 0;
+    font-weight: bold;
+}
+
+.wave-status {
+    font-size: 12px;
+    margin-top: 5px;
+    opacity: 0.8;
+}
+
+.wave-complete {
+    animation: waveCompleteFlash 1s ease-in-out;
+}
+
+@keyframes waveCompleteFlash {
+    0% { background: rgba(0, 0, 0, 0.8); }
+    50% { background: rgba(0, 255, 0, 0.3); }
+    100% { background: rgba(0, 0, 0, 0.8); }
+}
+
 #gameInfo {
     position: absolute;
     top: 10px;

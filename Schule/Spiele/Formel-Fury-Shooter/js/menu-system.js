@@ -146,3 +146,46 @@ function testCoinReward() {
     
     return coinsEarned;
 }
+
+// Debug functions for wave system
+function debugWaves() {
+    console.log('🌊 Wave System Debug:');
+    
+    if (!window.game) {
+        console.error('❌ Game object not found');
+        return;
+    }
+    
+    if (!window.game.waveSystem) {
+        console.error('❌ WaveSystem not found in game object');
+        return;
+    }
+    
+    const ws = window.game.waveSystem;
+    console.log('🌊 Current wave:', ws.getCurrentWave());
+    console.log('⏱️ Time left:', ws.getTimeLeft());
+    console.log('🚀 Is active:', ws.isActive());
+    console.log('💪 Wave bonus:', ws.getWaveBonus());
+    console.log('📊 Wave data:', ws.getWaveData());
+    
+    return ws.getWaveData();
+}
+
+function forceCompleteWave() {
+    if (window.game && window.game.waveSystem) {
+        window.game.waveSystem.forceCompleteWave();
+        console.log('🌊 Wave force completed!');
+    } else {
+        console.error('❌ WaveSystem not available');
+    }
+}
+
+function startNextWave() {
+    if (window.game && window.game.waveSystem) {
+        const waveData = window.game.waveSystem.startWave();
+        console.log('🌊 Next wave started:', waveData);
+        return waveData;
+    } else {
+        console.error('❌ WaveSystem not available');
+    }
+}

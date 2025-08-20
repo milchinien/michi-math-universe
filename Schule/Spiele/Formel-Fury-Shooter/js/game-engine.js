@@ -33,6 +33,7 @@ class GameEngine {
        this.formulaSystem = null;
        this.enemySpawner = null;
        this.currencySystem = null;
+       this.waveSystem = null;
        
        // Input state tracking
        this.spacePressed = false;
@@ -212,11 +213,58 @@ class GameEngine {
         // Create currency system
         this.currencySystem = new CurrencySystem();
         
+        // Create wave system
+        this.waveSystem = new WaveSystem();
+        this.setupWaveCallbacks();
+        
         // Create enemy spawner
         this.enemySpawner = new EnemySpawner(this.formulaSystem);
         
         // Initialize pause menu
         this.initializePauseMenu();
+    }
+    
+    setupWaveCallbacks() {
+        // Set up wave completion callback
+        this.waveSystem.setOnWaveComplete((wave, stats) => {
+            console.log(`🌊 Wave ${wave} completed! Opening shop menu...`);
+            this.handleWaveComplete(wave, stats);
+        });
+        
+        // Set up wave start callback
+        this.waveSystem.setOnWaveStart((wave, data) => {
+            console.log(`🌊 Wave ${wave} started! Enemies: ${data.enemiesPerWave}, Spawn rate: ${data.spawnRate}ms`);
+            this.handleWaveStart(wave, data);
+        });
+    }
+    
+    handleWaveComplete(wave, stats) {
+        // Show wave complete animation
+        if (this.waveSystem.waveDisplay) {
+            this.waveSystem.waveDisplay.classList.add('wave-complete');
+            setTimeout(() => {
+                this.waveSystem.waveDisplay.classList.remove('wave-complete');
+            }, 1000);
+        }
+        
+        // Automatically open pause menu (future shop menu)
+        setTimeout(() => {
+            this.showPauseMenu();
+            console.log('🛍️ Shop menu opened (currently pause menu)');
+        }, 1500);
+    }
+    
+    handleWaveStart(wave, data) {
+        // Update enemy spawner with wave data
+        if (this.enemySpawner) {
+            // Try to apply wave-specific spawn settings
+            // If the method doesn't exist, the spawner will use default settings
+            if (typeof this.enemySpawner.setWaveSettings === 'function') {
+                this.enemySpawner.setWaveSettings(data.spawnRate, data.enemiesPerWave);
+            } else {
+                console.log('ℹ️ EnemySpawner does not support wave settings yet');
+            }
+        }
     }
 
     initializePauseMenu() {
@@ -355,6 +403,13 @@ class GameEngine {
         this.updateGameModeInfo();
         this.resetGame();
         this.start();
+        
+        // Start first wave after a short delay
+        setTimeout(() => {
+            if (this.waveSystem) {
+                this.waveSystem.startWave();
+            }
+        }, 2000);
         
         console.log(`🎮 Starting game in ${mode.toUpperCase()} mode`);
         console.log(`🔧 Game mode set to: ${this.gameMode}`);
@@ -498,6 +553,11 @@ class GameEngine {
         // Update currency system
         if (this.currencySystem) {
             this.currencySystem.update(deltaTime);
+        }
+        
+        // Update wave system
+        if (this.waveSystem) {
+            this.waveSystem.update(deltaTime);
         }
        
        // Handle targeting system
@@ -1028,6 +1088,14 @@ class GameEngine {
     resumeGame() {
         this.isPaused = false;
         this.hidePauseMenu();
+        
+        // Start next wave if resuming from wave break
+        if (this.waveSystem && !this.waveSystem.isActive()) {
+            console.log('🌊 Starting next wave after shop break...');
+            setTimeout(() => {
+                this.waveSystem.startWave();
+            }, 1000);
+        }
     }
 
     render() {

@@ -23,6 +23,9 @@ window.addEventListener('load', () => {
         if (typeof CurrencySystem === 'undefined') {
             throw new Error('CurrencySystem class not loaded');
         }
+        if (typeof WaveSystem === 'undefined') {
+            throw new Error('WaveSystem class not loaded');
+        }
         if (typeof Player === 'undefined') {
             throw new Error('Player class not loaded');
         }
