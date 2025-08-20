@@ -129,6 +129,10 @@
                 🔄 FORTSCHRITT ZURÜCKSETZEN
             </button>
             
+            <button class="menu-btn" onclick="resetCurrency()" style="margin-top: 10px;">
+                💰 WÄHRUNG ZURÜCKSETZEN
+            </button>
+            
             <button class="menu-btn" onclick="closeSettings()" style="margin-top: 10px;">
                 ↩️ ZURÜCK
             </button>
@@ -299,6 +303,9 @@
    
    <!-- HUD Elements -->
    <div id="fpsCounter">FPS: 0</div>
+   <div id="currencyDisplay">
+       💰 <span id="coinValue">0</span> Algebra-Coins
+   </div>
    <div id="scoreDisplay">
        <div>Score: <span id="scoreValue">0</span></div>
        <div>Richtig: <span id="correctCount">0</span></div>
@@ -324,6 +331,7 @@
    <!-- JavaScript Module Imports -->
    <script src="js/formula-system.js"></script>
    <script src="js/enemy-system.js"></script>
+   <script src="js/currency-system.js"></script>
    <script src="js/player-input.js"></script>
    <script src="js/game-engine.js"></script>
    <script src="js/menu-system.js"></script>

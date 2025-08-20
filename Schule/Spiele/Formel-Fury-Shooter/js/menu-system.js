@@ -72,3 +72,77 @@ function resetProgress() {
         alert('✅ Fortschritt wurde zurückgesetzt!');
     }
 }
+
+function resetCurrency() {
+    if (confirm('Möchtest du wirklich alle deine Algebra-Coins zurücksetzen?\n\nDies löscht:\n- Alle gesammelten Coins\n- Gesamt-Coins-Statistik\n\nDiese Aktion kann nicht rückgängig gemacht werden!')) {
+        if (window.game && window.game.currencySystem) {
+            window.game.currencySystem.resetCoins();
+            alert('💰 Alle Algebra-Coins wurden zurückgesetzt!');
+        } else {
+            localStorage.removeItem('formelFuryCoins');
+            alert('💰 Währungsdaten wurden zurückgesetzt!');
+        }
+    }
+}
+
+// Global debug function for currency system
+function debugCurrency() {
+    console.log('🔍 Currency System Debug:');
+    
+    if (!window.game) {
+        console.error('❌ Game object not found');
+        return;
+    }
+    
+    if (!window.game.currencySystem) {
+        console.error('❌ CurrencySystem not found in game object');
+        return;
+    }
+    
+    const cs = window.game.currencySystem;
+    console.log('💰 Current coins:', cs.coins);
+    console.log('📊 Total coins earned:', cs.totalCoinsEarned);
+    console.log('🎮 Session coins earned:', cs.sessionCoinsEarned);
+    console.log('🖥️ UI Display element:', cs.currencyDisplay);
+    console.log('🔢 Coin value element:', cs.coinValueElement);
+    
+    // Test the system
+    return cs.testCurrencySystem();
+}
+
+// Test function to simulate enemy defeat and coin reward
+function testCoinReward() {
+    if (!window.game || !window.game.currencySystem) {
+        console.error('❌ Game or CurrencySystem not available');
+        return;
+    }
+    
+    console.log('🧪 Testing coin reward simulation...');
+    
+    // Create a mock enemy object
+    const mockEnemy = {
+        type: 'basic',
+        x: 400,
+        y: 300,
+        typeName: 'Test-Gegner',
+        assignedFormula: {
+            difficulty: 1.5
+        }
+    };
+    
+    const cs = window.game.currencySystem;
+    const oldCoins = cs.coins;
+    
+    // Test coin calculation
+    const coinsEarned = cs.calculateCoins(mockEnemy, 0, 3000);
+    console.log('💰 Coins would be earned:', coinsEarned);
+    
+    // Add the coins
+    cs.addCoins(coinsEarned);
+    console.log(`💰 Added ${coinsEarned} coins. Old: ${oldCoins}, New: ${cs.coins}`);
+    
+    // Test coin drop animation
+    cs.showCoinDrop(mockEnemy.x, mockEnemy.y, coinsEarned);
+    
+    return coinsEarned;
+}

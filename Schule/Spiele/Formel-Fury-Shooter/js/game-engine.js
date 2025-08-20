@@ -32,6 +32,7 @@ class GameEngine {
        this.inputHandler = null;
        this.formulaSystem = null;
        this.enemySpawner = null;
+       this.currencySystem = null;
        
        // Input state tracking
        this.spacePressed = false;
@@ -207,6 +208,9 @@ class GameEngine {
         // Create formula system with combat integration
         this.formulaSystem = new FormulaSystem();
         this.integrateFormulaSystemWithCombat();
+        
+        // Create currency system
+        this.currencySystem = new CurrencySystem();
         
         // Create enemy spawner
         this.enemySpawner = new EnemySpawner(this.formulaSystem);
@@ -490,6 +494,11 @@ class GameEngine {
                 this.formulaSystem.combo
             );
         }
+        
+        // Update currency system
+        if (this.currencySystem) {
+            this.currencySystem.update(deltaTime);
+        }
        
        // Handle targeting system
        this.handleTargeting();
@@ -727,13 +736,35 @@ class GameEngine {
             this.formulaSystem.combo++;
             this.formulaSystem.maxCombo = Math.max(this.formulaSystem.maxCombo, this.formulaSystem.combo);
             
+            // Calculate and award coins (reduced for day mode)
+            let coinsEarned = 0;
+            if (this.currencySystem) {
+                const timeTaken = (15 - this.mcTimeLeft) * 1000; // Convert to milliseconds
+                coinsEarned = this.currencySystem.calculateCoins(
+                    this.targetedEnemy, 
+                    this.formulaSystem.combo, 
+                    timeTaken
+                );
+                // Apply day mode reduction
+                coinsEarned = Math.max(1, Math.round(coinsEarned * 0.7));
+                
+                this.currencySystem.addCoins(coinsEarned);
+                this.currencySystem.showCoinDrop(
+                    this.targetedEnemy.x, 
+                    this.targetedEnemy.y, 
+                    coinsEarned
+                );
+                console.log(`💰 Day Mode - Coins awarded: ${coinsEarned} for ${this.targetedEnemy.typeName}`);
+            }
+            
             // Gegner als tot markieren
             this.targetedEnemy.isDead = true;
             this.targetedEnemy.deathTime = Date.now();
             
-            // Show feedback
+            // Show feedback with coins
+            const coinsText = coinsEarned > 0 ? ` +${coinsEarned} 💰` : '';
             this.formulaSystem.showFeedback(
-                `Richtig! +${earnedScore} Punkte (Tag-Modus: ${this.targetedEnemy.type})`,
+                `Richtig! +${earnedScore} Punkte${coinsText} (Tag-Modus: ${this.targetedEnemy.typeName || this.targetedEnemy.type})`,
                 true
             );
             
@@ -804,14 +835,32 @@ class GameEngine {
             this.formulaSystem.score += earnedScore;
             this.formulaSystem.incrementCombo();
             
+            // Calculate and award coins
+            let coinsEarned = 0;
+            if (this.currencySystem) {
+                coinsEarned = this.currencySystem.calculateCoins(
+                    this.targetedEnemy, 
+                    this.formulaSystem.combo, 
+                    timeTaken
+                );
+                this.currencySystem.addCoins(coinsEarned);
+                this.currencySystem.showCoinDrop(
+                    this.targetedEnemy.x, 
+                    this.targetedEnemy.y, 
+                    coinsEarned
+                );
+                console.log(`💰 Coins awarded: ${coinsEarned} for ${this.targetedEnemy.typeName}`);
+            }
+            
             // Kill the enemy
             this.targetedEnemy.startDeathAnimation();
             
-            // Show detailed feedback with enemy type
+            // Show detailed feedback with enemy type and coins
             const speedText = timeTaken < 5000 ? ' (Schnell!)' : '';
             const comboText = this.formulaSystem.combo >= 3 ? ` Combo x${this.formulaSystem.combo}!` : '';
             const typeText = this.targetedEnemy.scoreMultiplier > 1 ? ` [${this.targetedEnemy.typeName}]` : '';
-            this.formulaSystem.showFeedback(`Treffer! +${earnedScore} Punkte${typeText}${speedText}${comboText}`, true);
+            const coinsText = coinsEarned > 0 ? ` +${coinsEarned} 💰` : '';
+            this.formulaSystem.showFeedback(`Treffer! +${earnedScore} Punkte${coinsText}${typeText}${speedText}${comboText}`, true);
             
             console.log(`${this.targetedEnemy.typeName} eliminated! Score: ${earnedScore} (Base: ${Math.round(earnedScore/this.targetedEnemy.scoreMultiplier)}, Multiplier: ${this.targetedEnemy.scoreMultiplier}x, Difficulty: ${this.targetedEnemy.assignedFormula.difficulty.toFixed(1)}, Time: ${timeTaken}ms, Combo: ${this.formulaSystem.combo})`);
         } else {
@@ -994,6 +1043,11 @@ class GameEngine {
         
         // Render player health bar
         this.renderPlayerHealthBar();
+        
+        // Render currency system effects
+        if (this.currencySystem) {
+            this.currencySystem.render(this.ctx);
+        }
         
         // Render game over screen
         if (this.isGameOver) {

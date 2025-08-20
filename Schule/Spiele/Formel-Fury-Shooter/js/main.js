@@ -20,6 +20,9 @@ window.addEventListener('load', () => {
         if (typeof EnemySpawner === 'undefined') {
             throw new Error('EnemySpawner class not loaded');
         }
+        if (typeof CurrencySystem === 'undefined') {
+            throw new Error('CurrencySystem class not loaded');
+        }
         if (typeof Player === 'undefined') {
             throw new Error('Player class not loaded');
         }
@@ -38,6 +41,9 @@ window.addEventListener('load', () => {
         
         // Make game accessible globally for debugging and menu functions
         window.game = game;
+        
+        // Currency system is now ready and integrated
+        console.log('💰 CurrencySystem loaded and ready');
         
         console.log('🚀 Formel-Fury-Shooter ready to play!');
         console.log('🔧 Debug: All systems operational');
