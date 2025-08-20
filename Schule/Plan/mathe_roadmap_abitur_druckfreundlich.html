@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Roadmap Mathematik (10. Klasse → Abitur)</title>
+  <style>
+    :root{
+      --bg:#f8fafc;          /* slate-50 */
+      --card:#ffffff;        /* white */
+      --ink:#0f172a;         /* slate-900 */
+      --muted:#475569;       /* slate-600 */
+      --border:#e2e8f0;      /* slate-200 */
+      --accent:#2563eb;      /* blue-600 */
+      --accent-ink:#1e3a8a;  /* blue-900 */
+      --chip:#eff6ff;        /* blue-50 */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; padding:2rem; background:var(--bg); color:var(--ink);
+      font: 14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    .page{max-width:1000px; margin:0 auto}
+    header.pagehead{
+      margin-bottom:1.25rem; display:flex; gap:1rem; align-items:flex-end; flex-wrap:wrap;
+      border-bottom:1px solid var(--border); padding-bottom:0.75rem;
+    }
+    .title{font-size:1.6rem; font-weight:800; letter-spacing:0.2px}
+    .subtitle{color:var(--muted)}
+    .legend{display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem}
+    .chip{background:var(--chip); color:var(--accent-ink); border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:999px; font-size:10px}
+
+    .grid{display:grid; grid-template-columns:1fr; gap:0.9rem}
+    @media (min-width:900px){ .grid{grid-template-columns:1fr 1fr} }
+
+    .module{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:0.9rem; page-break-inside:avoid}
+    .module h2{font-size:1.05rem; margin:0 0 0.25rem 0}
+    .module header{display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem; border-bottom:1px dashed var(--border); padding-bottom:0.5rem; margin-bottom:0.6rem}
+    .module .goal{color:var(--muted); font-size:0.75rem}
+    .meta{display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap}
+    .meta .duration{font-size:0.6rem; color:var(--accent-ink); background:var(--chip); border:1px solid var(--border); padding:0.15rem 0.5rem; border-radius:999px}
+    .meta label{font-size:0.7rem}
+
+    .checklist h3, .notes h3{font-size:0.7rem; margin:0 0 0.4rem 0; color:var(--accent-ink)}
+    ul.tasks{list-style:none; margin:0; padding:0; display:grid; gap:0.25rem}
+    ul.tasks li{display:flex; gap:0.45rem; align-items:flex-start; padding:0.25rem 0; font-size:0.6rem}
+    ul.tasks input[type="checkbox"]{margin-top:0.15rem}
+
+    .notes .note-box{min-height:70px; border:1px dashed var(--border); border-radius:10px; background:repeating-linear-gradient(transparent, transparent 22px, #f1f5f9 23px);}
+
+    footer.pagefoot{margin-top:1rem; color:var(--muted); font-size:0.85rem}
+
+    /* Print styles */
+    @media print {
+      body{background:#fff; padding:0.5cm}
+      .page{max-width:auto}
+      .grid{grid-template-columns:1fr 1fr; gap:0.7rem} /* Sicherstellen: 2 Spalten beim Drucken */
+      .module{box-shadow:none}
+      a[href]:after{content:""}
+      .legend{gap:0.3rem}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="pagehead">
+      <div>
+        <div class="title">Roadmap Mathematik (10. Klasse → Abitur)</div>
+        <div class="subtitle">Modularer Lehrplan mit Akzeptanzkriterien (Definition of Done)</div>
+        <div class="legend">
+          <span class="chip">10. Klasse Fundament</span>
+          <span class="chip">Oberstufe: Analysis</span>
+          <span class="chip">Oberstufe: Lineare Algebra</span>
+          <span class="chip">Oberstufe: Stochastik</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="grid">
+      <!-- Etappe 1 -->
+      <section class="module">
+        <header>
+          <div>
+            <h2>Etappe 1 · Algebra & Termumformung</h2>
+            <div class="goal">Ziel: Sprache der Mathematik sicher beherrschen</div>
+          </div>
+          <div class="meta">
+            <label><input type="checkbox"/> Etappe erledigt</label>
+            <span class="duration">Empfohlen: 2–3 Wochen</span>
+          </div>
+        </header>
+        <div class="checklist">
+          <h3>Akzeptanzkriterien</h3>
+          <ul class="tasks">
+            <li><label><input type="checkbox"/> Kann Kommutativ-, Assoziativ- und Distributivgesetz korrekt anwenden</label></li>
+            <li><label><input type="checkbox"/> Beherrscht binomische Formeln (ausmultiplizieren ↔ faktorisieren)</label></li>
+            <li><label><input type="checkbox"/> Kann Terme faktorisieren (ausklammern, quadratische Terme zerlegen)</label></li>
+            <li><label><input type="checkbox"/> Vereinfacht und rechnet sicher mit Bruchtermen</label></li>
+            <li><label><input type="checkbox"/> Löst lineare Gleichungen und stellt sie aus Texten auf</label></li>
+          </ul>
+        </div>
+        <div class="notes">
+          <h3>Notizen</h3>
+          <div class="note-box"></div>
+        </div>
+      </section>
+
+      <!-- Etappe 2 -->
+      <section class="module">
+        <header>
+          <div>
+            <h2>Etappe 2 · Gleichungen & Ungleichungen</h2>
+            <div class="goal">Ziel: Sicherer Umgang mit algebraischen Strukturen</div>
+          </div>
+          <div class="meta">
+            <label><input type="checkbox"/> Etappe erledigt</label>
+            <span class="duration">Empfohlen: 2–3 Wochen</span>
+          </div>
+        </header>
+        <div class="checklist">
+          <h3>Akzeptanzkriterien</h3>
+          <ul class="tasks">
+            <li><label><input type="checkbox"/> Löst lineare Gleichungssysteme (2 Unbekannte) per Einsetzen/Addieren</label></li>
+            <li><label><input type="checkbox"/> Löst quadratische Gleichungen (Mitternachtsformel, pq-Formel, Faktorisierung)</label></li>
+            <li><label><input type="checkbox"/> Löst Betragsgleichungen und -ungleichungen</label></li>
+            <li><label><input type="checkbox"/> Übersetzt Sachaufgaben in Gleichungen und löst sie</label></li>
+          </ul>
+        </div>
+        <div class="notes">
+          <h3>Notizen</h3>
+          <div class="note-box"></div>
+        </div>
+      </section>
+
+      <!-- Etappe 3 -->
+      <section class="module">
+        <header>
+          <div>
+            <h2>Etappe 3 · Funktionen (Grundlagen)</h2>
+            <div class="goal">Ziel: Funktion als Zuordnung verstehen</div>
+          </div>
+          <div class="meta">
+            <label><input type="checkbox"/> Etappe erledigt</label>
+            <span class="duration">Empfohlen: 2–3 Wochen</span>
+          </div>
+        </header>
+        <div class="checklist">
+          <h3>Akzeptanzkriterien</h3>
+          <ul class="tasks">
+            <li><label><input type="checkbox"/> Skizziert Graphen linearer & quadratischer Funktionen</label></li>
+            <li><label><input type="checkbox"/> Bestimmt Nullstellen, Scheitelpunkt, Achsenabschnitte</label></li>
+            <li><label><input type="checkbox"/> Versteht Definitionsmenge, Wertemenge, Monotonie, Symmetrie</label></li>
+            <li><label><input type="checkbox"/> Erstellt einfache Funktionsgleichungen aus Texten</label></li>
+          </ul>
+        </div>
+        <div class="notes">
+          <h3>Notizen</h3>
+          <div class="note-box"></div>
+        </div>
+      </section>
+
+      <!-- Etappe 4 -->
+      <section class="module">
+        <header>
+          <div>
+            <h2>Etappe 4 · Geometrie & Trigonometrie</h2>
+            <div class="goal">Ziel: Algebra mit Raumvorstellung verbinden</div>
+          </div>
+          <div class="meta">
+            <label><input type="checkbox"/> Etappe erledigt</label>
+            <span class="duration">Empfohlen: 2–3 Wochen</span>
+          </div>
+        </header>
+        <div class="checklist">
+          <h3>Akzeptanzkriterien</h3>
+          <ul class="tasks">
+            <li><label><input type="checkbox"/> Beherrscht Satz des Pythagoras und Umkehrung</label></li>
+            <li><label><input type="checkbox"/> Rechnet Flächen & Volumina (Zylinder, Kegel, Kugel …)</label></li>
+            <li><label><input type="checkbox"/> Nutzt Sinus/Cosinus/Tangens im rechtwinkligen Dreieck</label></li>
+            <li><label><input type="checkbox"/> Bestimmt Längen und Winkel in Standardaufgaben</label></li>
+          </ul>
+        </div>
+        <div class="notes">
+          <h3>Notizen</h3>
+          <div class="note-box"></div>
+        </div>
+      </section>
+
+      <!-- Etappe 5 -->
+      <section class="module">
+        <header>
+          <div>
+            <h2>Etappe 5 · Stochastik (Grundlagen)</h2>
+            <div class="goal">Ziel: Zufall und Wahrscheinlichkeit einordnen</div>
+          </div>
+          <div class="meta">
+            <label><input type="checkbox"/> Etappe erledigt</label>
+            <span class="duration">Empfohlen: 2–3 Wochen</span>
+          </div>
+        </header>
+        <div class="checklist">
+          <h3>Akzeptanzkriterien</h3>
+          <ul class="tasks">
+            <li><label><input type="checkbox"/> Berechnet Laplace-Wahrscheinlichkeiten</label></li>
+            <li><label><input type="checkbox"/> Erstellt & liest Baumdiagramme (mit/ohne Zurücklegen)</label></li>
+            <li><label><input type="checkbox"/> Bestimmt Erwartungswert einfacher Zufallsversuche</label></li>
+            <li><label><input type="checkbox"/> Unterscheidet unabhängige vs. abhängige Ereignisse</label></li>
+          </ul>
+        </div>
+        <div class="notes">
+          <h3>Notizen</h3>
+          <div class="note-box"></div>
+        </div>
+      </section>
+
+      <!-- Etappe 6 -->
+      <section class="module">
+        <header>
+          <div>
+            <h2>Etappe 6 · Analysis – Einstieg</h2>
+            <div class="goal">Ziel: Ableiten & Integrieren als Werkzeuge verstehen</div>
+          </div>
+          <div class="meta">
+            <label><input type="checkbox"/> Etappe erledigt</label>
+            <span class="duration">Empfohlen: 4–6 Wochen</span>
+          </div>
+        </header>
+        <div class="checklist">
+          <h3>Akzeptanzkriterien</h3>
+          <ul class="tasks">
+            <li><label><input type="checkbox"/> Kennt Grundtypen: Polynome, Exponential-, Logarithmus-, trigonometrische Funktionen</label></li>
+            <li><label><input type="checkbox"/> Skizziert Grundgraphen & Transformationen (Verschieben, Strecken, Spiegeln)</label></li>
+            <li><label><input type="checkbox"/> Leitet ab (Potenz-, Summen-, Produkt-, Kettenregel) und wendet es an</label></li>
+            <li><label><input type="checkbox"/> Findet Nullstellen, Extrem- & Wendepunkte über Ableitungen</label></li>
+            <li><label><input type="checkbox"/> Berechnet einfache Integrale & Flächen unter Kurven</label></li>
+          </ul>
+        </div>
+        <div class="notes">
+          <h3>Notizen</h3>
+          <div class="note-box"></div>
+        </div>
+      </section>
+
+      <!-- Etappe 7 -->
+      <section class="module">
+        <header>
+          <div>
+            <h2>Etappe 7 · Lineare Algebra / Analytische Geometrie</h2>
+            <div class="goal">Ziel: Rechnen und Argumentieren im Raum</div>
+          </div>
+          <div class="meta">
+            <label><input type="checkbox"/> Etappe erledigt</label>
+            <span class="duration">Empfohlen: 4–5 Wochen</span>
+          </div>
+        </header>
+        <div class="checklist">
+          <h3>Akzeptanzkriterien</h3>
+          <ul class="tasks">
+            <li><label><input type="checkbox"/> Rechnet mit Vektoren (Addition, Skalarmultiplikation, Länge)</label></li>
+            <li><label><input type="checkbox"/> Nutzt Skalarprodukt (Winkel, Orthogonalität)</label></li>
+            <li><label><input type="checkbox"/> Stellt Geraden in Parameterform auf & interpretiert sie</label></li>
+            <li><label><input type="checkbox"/> Bestimmt Abstände & Schnittpunkte zwischen Geraden/Ebenen</label></li>
+            <li><label><input type="checkbox"/> Löst LGS mit 3 Unbekannten (ggf. mit Matrizen)</label></li>
+          </ul>
+        </div>
+        <div class="notes">
+          <h3>Notizen</h3>
+          <div class="note-box"></div>
+        </div>
+      </section>
+
+      <!-- Etappe 8 -->
+      <section class="module">
+        <header>
+          <div>
+            <h2>Etappe 8 · Stochastik (Oberstufe)</h2>
+            <div class="goal">Ziel: Verteilungen verstehen & anwenden</div>
+          </div>
+          <div class="meta">
+            <label><input type="checkbox"/> Etappe erledigt</label>
+            <span class="duration">Empfohlen: 3–4 Wochen</span>
+          </div>
+        </header>
+        <div class="checklist">
+          <h3>Akzeptanzkriterien</h3>
+          <ul class="tasks">
+            <li><label><input type="checkbox"/> Beherrscht Kombinatorik (Permutation, Kombination, Variation)</label></li>
+            <li><label><input type="checkbox"/> Rechnet mit der Binomialverteilung</label></li>
+            <li><label><input type="checkbox"/> Kennt Eigenschaften der Normalverteilung & Standardisierung</label></li>
+            <li><label><input type="checkbox"/> Berechnet Erwartungswert, Varianz, Standardabweichung</label></li>
+            <li><label><input type="checkbox"/> Führt einfache Hypothesentests durch & interpretiert sie</label></li>
+          </ul>
+        </div>
+        <div class="notes">
+          <h3>Notizen</h3>
+          <div class="note-box"></div>
+        </div>
+      </section>
+
+      <!-- Etappe 9 -->
+      <section class="module">
+        <header>
+          <div>
+            <h2>Etappe 9 · Abiturtraining</h2>
+            <div class="goal">Ziel: Prüfungsreife & Transfer sichern</div>
+          </div>
+          <div class="meta">
+            <label><input type="checkbox"/> Etappe erledigt</label>
+            <span class="duration">Empfohlen: 3–4 Wochen</span>
+          </div>
+        </header>
+        <div class="checklist">
+          <h3>Akzeptanzkriterien</h3>
+          <ul class="tasks">
+            <li><label><input type="checkbox"/> Bearbeitet Abituraufgaben verschiedener Bundesländer</label></li>
+            <li><label><input type="checkbox"/> Übersetzt Sachkontexte in Mathematik (Wachstum, Zufall, Geometrie)</label></li>
+            <li><label><input type="checkbox"/> Begründet & interpretiert Ergebnisse sauber</label></li>
+            <li><label><input type="checkbox"/> Arbeitet sicher unter Zeitvorgaben (Klausursimulationen)</label></li>
+          </ul>
+        </div>
+        <div class="notes">
+          <h3>Notizen</h3>
+          <div class="note-box"></div>
+        </div>
+      </section>
+
+    </section>
+
+    <footer class="pagefoot">
+      Tipp: Beim Drucken ggf. „Hintergrundgrafiken“ aktivieren. Felder mit Checkboxen können digital abgehakt oder analog markiert werden.
+    </footer>
+  </div>
+</body>
+</html>

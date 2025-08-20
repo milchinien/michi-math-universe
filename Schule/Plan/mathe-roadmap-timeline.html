@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematik Roadmap Timeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+        
+        .timeline-wrapper {
+            position: relative;
+            margin: 40px 0;
+        }
+        
+        .timeline-column {
+            position: relative;
+            width: 100%;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 40px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #bdc3c7;
+        }
+        
+        .phase-container {
+            position: relative;
+            margin-bottom: 20px;
+            padding-left: 70px;
+            opacity: 0;
+            animation: fadeInLeft 0.6s forwards;
+        }
+        
+        .phase-dot {
+            position: absolute;
+            left: 30px;
+            top: 20px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 2;
+        }
+        
+        .phase-box {
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .phase-box:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .phase-number {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(255,255,255,0.9);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .phase-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+            padding-right: 60px;
+        }
+        
+        .phase-info {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        .info-item {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .phase-dates {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            color: rgba(255,255,255,0.95);
+            font-size: 0.85rem;
+        }
+        
+        /* Farben für verschiedene Bereiche - dezenter */
+        .fundament { background: #8b7aa8; }
+        .fundament .phase-dot { background: #8b7aa8; }
+        
+        .analysis { background: #c77dab; }
+        .analysis .phase-dot { background: #c77dab; }
+        
+        .lineare-algebra { background: #5e9fb3; }
+        .lineare-algebra .phase-dot { background: #5e9fb3; }
+        
+        .stochastik { background: #6fa287; }
+        .stochastik .phase-dot { background: #6fa287; }
+        
+        .abitur { background: #d4a574; }
+        .abitur .phase-dot { background: #d4a574; }
+        
+        /* Höhen basierend auf Wochen */
+        .weeks-3 { min-height: 120px; }
+        .weeks-4 { min-height: 160px; }
+        .weeks-5 { min-height: 200px; }
+        .weeks-6 { min-height: 240px; }
+        
+        .summary {
+            margin-top: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .summary-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .legend {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .phase-container {
+                padding-left: 50px;
+            }
+            
+            .timeline-line {
+                left: 20px;
+            }
+            
+            .phase-dot {
+                left: 10px;
+                width: 18px;
+                height: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Mathematik Roadmap</h1>
+            <div class="subtitle">Von der 10. Klasse bis zum Abitur • 18.08.2025 - 08.04.2026</div>
+        </div>
+        
+        <div class="timeline-wrapper">
+            <div class="timeline-column">
+                <div class="timeline-line"></div>
+                
+                <div class="phase-container" style="animation-delay: 0.1s;">
+                    <div class="phase-dot"></div>
+                    <div class="phase-box fundament weeks-3">
+                        <span class="phase-number">1</span>
+                        <div class="phase-title">Algebra & Termumformung</div>
+                        <div class="phase-info">
+                            <span class="info-item">📚 10. Klasse Fundament</span>
+                            <span class="info-item">⏱️ 3 Wochen</span>
+                        </div>
+                        <div class="phase-dates">
+                            📅 18. August - 08. September 2025
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase-container" style="animation-delay: 0.2s;">
+                    <div class="phase-dot"></div>
+                    <div class="phase-box fundament weeks-3">
+                        <span class="phase-number">2</span>
+                        <div class="phase-title">Gleichungen & Ungleichungen</div>
+                        <div class="phase-info">
+                            <span class="info-item">📚 10. Klasse Fundament</span>
+                            <span class="info-item">⏱️ 3 Wochen</span>
+                        </div>
+                        <div class="phase-dates">
+                            📅 08. September - 29. September 2025
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase-container" style="animation-delay: 0.3s;">
+                    <div class="phase-dot"></div>
+                    <div class="phase-box fundament weeks-3">
+                        <span class="phase-number">3</span>
+                        <div class="phase-title">Funktionen (Grundlagen)</div>
+                        <div class="phase-info">
+                            <span class="info-item">📚 10. Klasse Fundament</span>
+                            <span class="info-item">⏱️ 3 Wochen</span>
+                        </div>
+                        <div class="phase-dates">
+                            📅 29. September - 20. Oktober 2025
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase-container" style="animation-delay: 0.4s;">
+                    <div class="phase-dot"></div>
+                    <div class="phase-box fundament weeks-3">
+                        <span class="phase-number">4</span>
+                        <div class="phase-title">Geometrie & Trigonometrie</div>
+                        <div class="phase-info">
+                            <span class="info-item">📚 10. Klasse Fundament</span>
+                            <span class="info-item">⏱️ 3 Wochen</span>
+                        </div>
+                        <div class="phase-dates">
+                            📅 20. Oktober - 10. November 2025
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase-container" style="animation-delay: 0.5s;">
+                    <div class="phase-dot"></div>
+                    <div class="phase-box stochastik weeks-3">
+                        <span class="phase-number">5</span>
+                        <div class="phase-title">Stochastik (Grundlagen)</div>
+                        <div class="phase-info">
+                            <span class="info-item">📊 Stochastik</span>
+                            <span class="info-item">⏱️ 3 Wochen</span>
+                        </div>
+                        <div class="phase-dates">
+                            📅 10. November - 01. Dezember 2025
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase-container" style="animation-delay: 0.6s;">
+                    <div class="phase-dot"></div>
+                    <div class="phase-box analysis weeks-6">
+                        <span class="phase-number">6</span>
+                        <div class="phase-title">Analysis - Einstieg</div>
+                        <div class="phase-info">
+                            <span class="info-item">📈 Analysis</span>
+                            <span class="info-item">⏱️ 6 Wochen</span>
+                        </div>
+                        <div class="phase-dates">
+                            📅 01. Dezember 2025 - 12. Januar 2026
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase-container" style="animation-delay: 0.7s;">
+                    <div class="phase-dot"></div>
+                    <div class="phase-box lineare-algebra weeks-5">
+                        <span class="phase-number">7</span>
+                        <div class="phase-title">Lineare Algebra / Analytische Geometrie</div>
+                        <div class="phase-info">
+                            <span class="info-item">📐 Lineare Algebra</span>
+                            <span class="info-item">⏱️ 5 Wochen</span>
+                        </div>
+                        <div class="phase-dates">
+                            📅 12. Januar - 16. Februar 2026
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase-container" style="animation-delay: 0.8s;">
+                    <div class="phase-dot"></div>
+                    <div class="phase-box stochastik weeks-4">
+                        <span class="phase-number">8</span>
+                        <div class="phase-title">Stochastik (Oberstufe)</div>
+                        <div class="phase-info">
+                            <span class="info-item">📊 Stochastik</span>
+                            <span class="info-item">⏱️ 4 Wochen</span>
+                        </div>
+                        <div class="phase-dates">
+                            📅 16. Februar - 16. März 2026
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="phase-container" style="animation-delay: 0.9s;">
+                    <div class="phase-dot"></div>
+                    <div class="phase-box abitur weeks-4">
+                        <span class="phase-number">9</span>
+                        <div class="phase-title">Abiturtraining</div>
+                        <div class="phase-info">
+                            <span class="info-item">🎯 Prüfungsvorbereitung</span>
+                            <span class="info-item">⏱️ 4 Wochen</span>
+                        </div>
+                        <div class="phase-dates">
+                            📅 16. März - 13. April 2026
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #8b7aa8;"></div>
+                <span>10. Klasse Fundament</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #c77dab;"></div>
+                <span>Analysis</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #5e9fb3;"></div>
+                <span>Lineare Algebra</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #6fa287;"></div>
+                <span>Stochastik</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #d4a574;"></div>
+                <span>Abiturtraining</span>
+            </div>
+        </div>
+        
+        <div class="summary">
+            <div class="summary-item">
+                <div class="summary-value">9</div>
+                <div class="summary-label">Lernphasen</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">34</div>
+                <div class="summary-label">Wochen gesamt</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">8</div>
+                <div class="summary-label">Monate</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-value">238</div>
+                <div class="summary-label">Tage (ca.)</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
