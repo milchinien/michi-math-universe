@@ -124,21 +124,28 @@ class LevelUpSystem {
     /**
      * Show the level up menu with 3 random upgrades
      * @param {number} coinsEarned - Coins earned this wave
+     * @param {number} currentLevelUp - Current level-up number (1-based)
+     * @param {number} totalLevelUps - Total number of level-ups in this wave
      */
-    showLevelUp(coinsEarned = 0) {
+    showLevelUp(coinsEarned = 0, currentLevelUp = 1, totalLevelUps = 1) {
         if (this.isActive) {
             // If menu is already active, queue this level-up for later
-            this.queueLevelUp(coinsEarned);
+            this.queueLevelUp(coinsEarned, currentLevelUp, totalLevelUps);
             return;
         }
         
         this.isActive = true;
         this.coinsEarned = coinsEarned;
+        this.currentLevelUp = currentLevelUp;
+        this.totalLevelUps = totalLevelUps;
         
         // Update coins display
         if (this.levelUpCoinsElement) {
             this.levelUpCoinsElement.textContent = coinsEarned;
         }
+        
+        // Update level-up counter display
+        this.updateLevelUpCounter();
         
         // ALWAYS generate new random upgrades (re-roll for each level-up)
         this.generateRandomUpgrades();
@@ -147,20 +154,26 @@ class LevelUpSystem {
         this.levelUpMenu.style.display = 'flex';
         this.levelUpContent.classList.add('level-up-enter');
         
-        console.log(`🔺 Level Up menu shown with ${coinsEarned} coins and upgrades:`, this.currentUpgrades.map(u => u.name));
+        console.log(`🔺 Level Up menu shown (${currentLevelUp}/${totalLevelUps}) with ${coinsEarned} coins and upgrades:`, this.currentUpgrades.map(u => u.name));
     }
     
     /**
      * Queue a level-up if menu is already active
      * @param {number} coinsEarned - Coins for the queued level-up
+     * @param {number} currentLevelUp - Current level-up number
+     * @param {number} totalLevelUps - Total level-ups
      */
-    queueLevelUp(coinsEarned) {
+    queueLevelUp(coinsEarned, currentLevelUp, totalLevelUps) {
         if (!this.levelUpQueue) {
             this.levelUpQueue = [];
         }
         
-        this.levelUpQueue.push(coinsEarned);
-        console.log(`🔺 Level-up queued (${this.levelUpQueue.length} in queue) with ${coinsEarned} coins`);
+        this.levelUpQueue.push({
+            coins: coinsEarned,
+            current: currentLevelUp,
+            total: totalLevelUps
+        });
+        console.log(`🔺 Level-up queued (${this.levelUpQueue.length} in queue) - ${currentLevelUp}/${totalLevelUps} with ${coinsEarned} coins`);
     }
     
     /**
@@ -171,13 +184,26 @@ class LevelUpSystem {
             return false;
         }
         
-        const nextCoins = this.levelUpQueue.shift();
-        console.log(`🔺 Processing next queued level-up with ${nextCoins} coins (${this.levelUpQueue.length} remaining)`);
+        const nextLevelUp = this.levelUpQueue.shift();
+        console.log(`🔺 Processing next queued level-up ${nextLevelUp.current}/${nextLevelUp.total} with ${nextLevelUp.coins} coins (${this.levelUpQueue.length} remaining)`);
         
         // Show next level-up menu IMMEDIATELY without delay
-        this.showLevelUp(nextCoins);
+        this.showLevelUp(nextLevelUp.coins, nextLevelUp.current, nextLevelUp.total);
         
         return true;
+    }
+    
+    /**
+     * Update the level-up counter display (e.g., "1 von 3")
+     */
+    updateLevelUpCounter() {
+        const pageInfoElement = document.getElementById('levelUpPageInfo');
+        if (pageInfoElement) {
+            pageInfoElement.textContent = `${this.currentLevelUp} von ${this.totalLevelUps}`;
+            console.log(`📊 Level-up counter updated: ${this.currentLevelUp} von ${this.totalLevelUps}`);
+        } else {
+            console.warn('⚠️ levelUpPageInfo element not found');
+        }
     }
     
     /**

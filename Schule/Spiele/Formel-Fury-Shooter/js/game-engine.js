@@ -303,15 +303,16 @@ class GameEngine {
     showMultipleLevelUps(count, wave) {
         for (let i = 0; i < count; i++) {
             const coinsEarned = Math.floor(wave * 25 + Math.random() * 50);
+            const currentLevelUp = i + 1;
             
             if (i === 0) {
                 // Show first level-up menu immediately
-                this.levelUpSystem.showLevelUp(coinsEarned);
-                console.log(`🔺 Level-up menu 1/${count} shown with ${coinsEarned} coins`);
+                this.levelUpSystem.showLevelUp(coinsEarned, currentLevelUp, count);
+                console.log(`🔺 Level-up menu ${currentLevelUp}/${count} shown with ${coinsEarned} coins`);
             } else {
                 // Queue additional level-ups
-                this.levelUpSystem.queueLevelUp(coinsEarned);
-                console.log(`🔺 Level-up menu ${i + 1}/${count} queued with ${coinsEarned} coins`);
+                this.levelUpSystem.queueLevelUp(coinsEarned, currentLevelUp, count);
+                console.log(`🔺 Level-up menu ${currentLevelUp}/${count} queued with ${coinsEarned} coins`);
             }
         }
     }
