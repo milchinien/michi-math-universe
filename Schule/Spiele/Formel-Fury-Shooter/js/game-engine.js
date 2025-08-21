@@ -264,22 +264,58 @@ class GameEngine {
             }, 1000);
         }
         
-        // Calculate coins earned this wave (simple example calculation)
-        const coinsEarned = Math.floor(wave * 25 + Math.random() * 50); // Example: 25-75 coins per wave
-        
-        // Show Level Up menu first, then shop menu
+        // Handle multiple level-ups that occurred during the wave
         setTimeout(() => {
-            if (this.levelUpSystem) {
-                this.levelUpSystem.showLevelUp(coinsEarned);
-                console.log(`🔺 Level Up menu shown with ${coinsEarned} coins earned`);
-            } else {
-                // Fallback to shop menu if Level Up system not available
-                this.showPauseMenu();
-                console.log('🛍️ Shop menu opened (Level Up system not available)');
-            }
+            this.handlePendingLevelUps(wave);
         }, 1500);
     }
     
+    /**
+     * Handle all pending level-ups that occurred during the wave
+     */
+    handlePendingLevelUps(wave) {
+        if (!this.levelSystem || !this.levelUpSystem) {
+            console.warn('⚠️ Level systems not available for pending level-ups');
+            this.showPauseMenu();
+            return;
+        }
+        
+        const pendingLevelUps = this.levelSystem.getPendingLevelUps();
+        
+        if (pendingLevelUps === 0) {
+            console.log('📊 No level-ups occurred during wave, showing shop menu');
+            this.showPauseMenu();
+            return;
+        }
+        
+        console.log(`🔺 Processing ${pendingLevelUps} level-ups from wave ${wave}`);
+        
+        // Clear the pending level-ups from level system
+        this.levelSystem.clearPendingLevelUps();
+        
+        // Show level-up menus sequentially
+        this.showMultipleLevelUps(pendingLevelUps, wave);
+    }
+    
+    /**
+     * Show multiple level-up menus sequentially
+     */
+    showMultipleLevelUps(count, wave) {
+        for (let i = 0; i < count; i++) {
+            const coinsEarned = Math.floor(wave * 25 + Math.random() * 50);
+            
+            if (i === 0) {
+                // Show first level-up menu immediately
+                this.levelUpSystem.showLevelUp(coinsEarned);
+                console.log(`🔺 Level-up menu 1/${count} shown with ${coinsEarned} coins`);
+            } else {
+                // Queue additional level-ups
+                this.levelUpSystem.queueLevelUp(coinsEarned);
+                console.log(`🔺 Level-up menu ${i + 1}/${count} queued with ${coinsEarned} coins`);
+            }
+        }
+    }
+
     handleWaveStart(wave, data) {
         // Update enemy spawner with wave data
         if (this.enemySpawner) {

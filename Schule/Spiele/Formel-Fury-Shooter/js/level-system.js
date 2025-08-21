@@ -275,7 +275,38 @@ class LevelSystem {
         // Calculate new XP requirements after level change
         this.calculateXpToNextLevel();
         
+        // Track level-ups for wave completion (don't show menu immediately)
+        this.trackLevelUpForWave();
+        
         return this.level;
+    }
+    
+    /**
+     * Track level-ups that occurred during the current wave
+     */
+    trackLevelUpForWave() {
+        if (!this.pendingLevelUps) {
+            this.pendingLevelUps = 0;
+        }
+        this.pendingLevelUps++;
+        console.log(`📊 Level-up tracked for wave completion (${this.pendingLevelUps} pending)`);
+    }
+    
+    /**
+     * Get number of pending level-ups for wave completion
+     */
+    getPendingLevelUps() {
+        return this.pendingLevelUps || 0;
+    }
+    
+    /**
+     * Clear pending level-ups (called after wave completion)
+     */
+    clearPendingLevelUps() {
+        const count = this.pendingLevelUps || 0;
+        this.pendingLevelUps = 0;
+        console.log(`🔄 Cleared ${count} pending level-ups`);
+        return count;
     }
     
     triggerLevelUpAnimation() {

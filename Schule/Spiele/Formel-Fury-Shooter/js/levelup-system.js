@@ -51,14 +51,47 @@ class LevelUpSystem {
                 icon: '💎❤️',
                 effect: null
             },
+            // HEILUNGSFORMEL Upgrades - HP Regeneration
+            {
+                id: 'heilungsformel_common',
+                name: 'HEILUNGSFORMEL',
+                description: '+0.05 HP/Sek Regeneration',
+                category: 'common',
+                icon: '💚',
+                effect: null
+            },
+            {
+                id: 'heilungsformel_rare',
+                name: 'HEILUNGSFORMEL',
+                description: '+0.15 HP/Sek Regeneration',
+                category: 'rare',
+                icon: '❤️‍🩹',
+                effect: null
+            },
+            {
+                id: 'heilungsformel_epic',
+                name: 'HEILUNGSFORMEL',
+                description: '+0.25 HP/Sek Regeneration',
+                category: 'epic',
+                icon: '✚',
+                effect: null
+            },
+            {
+                id: 'heilungsformel_legendary',
+                name: 'HEILUNGSFORMEL',
+                description: '+0.5 HP/Sek Regeneration',
+                category: 'legendary',
+                icon: '🟢✚',
+                effect: null
+            }
         ];
         
         // Category weights for random selection
         this.categoryWeights = {
-            'common': 0.5,     // 50% chance
-            'rare': 0.3,       // 30% chance  
-            'epic': 0.15,      // 15% chance
-            'legendary': 0.05  // 5% chance
+            'common': 0.65,    // 65% chance (increased from 50%)
+            'rare': 0.25,      // 25% chance (decreased from 30%)  
+            'epic': 0.08,      // 8% chance (decreased from 15%)
+            'legendary': 0.02  // 2% chance (decreased from 5%)
         };
         
         this.init();
@@ -93,7 +126,11 @@ class LevelUpSystem {
      * @param {number} coinsEarned - Coins earned this wave
      */
     showLevelUp(coinsEarned = 0) {
-        if (this.isActive) return;
+        if (this.isActive) {
+            // If menu is already active, queue this level-up for later
+            this.queueLevelUp(coinsEarned);
+            return;
+        }
         
         this.isActive = true;
         this.coinsEarned = coinsEarned;
@@ -103,7 +140,7 @@ class LevelUpSystem {
             this.levelUpCoinsElement.textContent = coinsEarned;
         }
         
-        // Generate 3 random upgrades
+        // ALWAYS generate new random upgrades (re-roll for each level-up)
         this.generateRandomUpgrades();
         
         // Show menu with animation
@@ -111,6 +148,36 @@ class LevelUpSystem {
         this.levelUpContent.classList.add('level-up-enter');
         
         console.log(`🔺 Level Up menu shown with ${coinsEarned} coins and upgrades:`, this.currentUpgrades.map(u => u.name));
+    }
+    
+    /**
+     * Queue a level-up if menu is already active
+     * @param {number} coinsEarned - Coins for the queued level-up
+     */
+    queueLevelUp(coinsEarned) {
+        if (!this.levelUpQueue) {
+            this.levelUpQueue = [];
+        }
+        
+        this.levelUpQueue.push(coinsEarned);
+        console.log(`🔺 Level-up queued (${this.levelUpQueue.length} in queue) with ${coinsEarned} coins`);
+    }
+    
+    /**
+     * Process the next queued level-up if any exist
+     */
+    processNextLevelUp() {
+        if (!this.levelUpQueue || this.levelUpQueue.length === 0) {
+            return false;
+        }
+        
+        const nextCoins = this.levelUpQueue.shift();
+        console.log(`🔺 Processing next queued level-up with ${nextCoins} coins (${this.levelUpQueue.length} remaining)`);
+        
+        // Show next level-up menu IMMEDIATELY without delay
+        this.showLevelUp(nextCoins);
+        
+        return true;
     }
     
     /**
@@ -231,16 +298,219 @@ class LevelUpSystem {
     }
     
     /**
-     * Apply the selected upgrade (placeholder implementation)
+     * Apply the selected upgrade
      * @param {Object} upgrade - The selected upgrade object
      */
     applyUpgrade(upgrade) {
-        // PLACEHOLDER: This will be filled when real upgrades are provided
         console.log(`🔺 Applying upgrade: ${upgrade.name}`);
-        console.log('⚠️ Upgrade effects not yet implemented - waiting for user-provided upgrades');
         
-        // Future implementation will call specific upgrade effects here
-        // Example: if (upgrade.effect) upgrade.effect();
+        // Upgrade-specific logic based on ID
+        switch(upgrade.id) {
+            case 'plus_hp_common':
+                this.applyHealthUpgrade(1);
+                break;
+            case 'plus_hp_rare':
+                this.applyHealthUpgrade(2);
+                break;
+            case 'plus_hp_epic':
+                this.applyHealthUpgrade(3);
+                break;
+            case 'plus_hp_legendary':
+                this.applyHealthUpgrade(5);
+                break;
+            
+            // HEILUNGSFORMEL upgrades - regeneration only
+            case 'heilungsformel_common':
+                this.applyRegeneration(0.05, 60); // 0.05 HP/sec for 60 seconds
+                break;
+            case 'heilungsformel_rare':
+                this.applyRegeneration(0.15, 60); // 0.15 HP/sec for 60 seconds (reduced from 0.25)
+                break;
+            case 'heilungsformel_epic':
+                this.applyRegeneration(0.25, 60); // 0.25 HP/sec for 60 seconds (reduced from 0.5)
+                break;
+            case 'heilungsformel_legendary':
+                this.applyFullHeal();
+                this.applyRegeneration(1, 15); // 1 HP/sec for 15 seconds (reduced from 2)
+                break;
+            
+            default:
+                console.warn(`⚠️ Unknown upgrade: ${upgrade.id}`);
+        }
+    }
+    
+    /**
+     * Apply health upgrade - increases max HP and current HP
+     * @param {number} healthIncrease - Amount to increase max HP by
+     */
+    applyHealthUpgrade(healthIncrease) {
+        if (window.game) {
+            const oldMaxHealth = window.game.playerMaxHealth;
+            const oldCurrentHealth = window.game.playerHealth;
+            
+            // Increase maximum health
+            window.game.playerMaxHealth += healthIncrease;
+            // Increase current health by the same amount
+            window.game.playerHealth += healthIncrease;
+            
+            console.log(`❤️ Health increased: ${oldCurrentHealth}/${oldMaxHealth} → ${window.game.playerHealth}/${window.game.playerMaxHealth}`);
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`+${healthIncrease} MAX HP!`, '#ff0000');
+        } else {
+            console.error('❌ Cannot apply health upgrade: window.game not available');
+        }
+    }
+    
+    /**
+     * Apply healing upgrade - heals current HP without increasing max HP
+     * @param {number} healAmount - Amount to heal
+     */
+    applyHealingUpgrade(healAmount) {
+        if (window.game) {
+            const oldHealth = window.game.playerHealth;
+            const maxHealth = window.game.playerMaxHealth;
+            
+            // Heal current health up to maximum
+            window.game.playerHealth = Math.min(window.game.playerHealth + healAmount, maxHealth);
+            const actualHeal = window.game.playerHealth - oldHealth;
+            
+            console.log(`💚 Healed: ${oldHealth}/${maxHealth} → ${window.game.playerHealth}/${maxHealth} (+${actualHeal})`);
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`+${actualHeal} HP!`, '#00ff00');
+        } else {
+            console.error('❌ Cannot apply healing upgrade: window.game not available');
+        }
+    }
+    
+    /**
+     * Apply full heal - restores HP to maximum
+     */
+    applyFullHeal() {
+        if (window.game) {
+            const oldHealth = window.game.playerHealth;
+            const maxHealth = window.game.playerMaxHealth;
+            
+            window.game.playerHealth = maxHealth;
+            const healAmount = maxHealth - oldHealth;
+            
+            console.log(`💚 Full heal: ${oldHealth}/${maxHealth} → ${window.game.playerHealth}/${maxHealth} (+${healAmount})`);
+            
+            // Show visual feedback
+            this.showUpgradeEffect('FULL HEAL!', '#00ff88');
+        } else {
+            console.error('❌ Cannot apply full heal: window.game not available');
+        }
+    }
+    
+    /**
+     * Apply regeneration effect - heals HP over time
+     * @param {number} regenRate - HP per second
+     * @param {number} duration - Duration in seconds
+     */
+    applyRegeneration(regenRate, duration) {
+        if (window.game) {
+            // Initialize regeneration system if it doesn't exist
+            if (!window.game.regenerationEffects) {
+                window.game.regenerationEffects = [];
+            }
+            
+            // Add new regeneration effect
+            const regenEffect = {
+                rate: regenRate,
+                duration: duration,
+                timeLeft: duration,
+                id: Date.now() + Math.random() // Unique ID
+            };
+            
+            window.game.regenerationEffects.push(regenEffect);
+            
+            console.log(`💚 Regeneration applied: ${regenRate} HP/sec for ${duration} seconds`);
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`+${regenRate} HP/sec (${duration}s)`, '#88ff88');
+            
+            // Start regeneration timer if not already running
+            this.startRegenerationSystem();
+        } else {
+            console.error('❌ Cannot apply regeneration: window.game not available');
+        }
+    }
+    
+    /**
+     * Start the regeneration system timer
+     */
+    startRegenerationSystem() {
+        // Prevent multiple timers
+        if (window.game.regenerationTimer) {
+            return;
+        }
+        
+        window.game.regenerationTimer = setInterval(() => {
+            if (!window.game.regenerationEffects || window.game.regenerationEffects.length === 0) {
+                clearInterval(window.game.regenerationTimer);
+                window.game.regenerationTimer = null;
+                return;
+            }
+            
+            // Process all active regeneration effects
+            for (let i = window.game.regenerationEffects.length - 1; i >= 0; i--) {
+                const effect = window.game.regenerationEffects[i];
+                
+                // Apply regeneration
+                const oldHealth = window.game.playerHealth;
+                const maxHealth = window.game.playerMaxHealth;
+                window.game.playerHealth = Math.min(window.game.playerHealth + effect.rate, maxHealth);
+                
+                // Decrease time left
+                effect.timeLeft -= 1;
+                
+                // Remove expired effects
+                if (effect.timeLeft <= 0) {
+                    window.game.regenerationEffects.splice(i, 1);
+                    console.log(`💚 Regeneration effect expired (${effect.rate} HP/sec)`);
+                }
+            }
+            
+            // Stop timer if no effects remain
+            if (window.game.regenerationEffects.length === 0) {
+                clearInterval(window.game.regenerationTimer);
+                window.game.regenerationTimer = null;
+            }
+        }, 1000); // Run every second
+    }
+    
+    /**
+     * Show visual upgrade effect feedback
+     * @param {string} message - Message to display
+     * @param {string} color - Color of the effect text
+     */
+    showUpgradeEffect(message, color = '#00ff00') {
+        // Create temporary feedback element
+        const feedback = document.createElement('div');
+        feedback.textContent = message;
+        feedback.style.position = 'fixed';
+        feedback.style.top = '50%';
+        feedback.style.left = '50%';
+        feedback.style.transform = 'translate(-50%, -50%)';
+        feedback.style.color = color;
+        feedback.style.fontSize = '36px';
+        feedback.style.fontWeight = 'bold';
+        feedback.style.fontFamily = 'Courier New, monospace';
+        feedback.style.textShadow = `0 0 20px ${color}`;
+        feedback.style.zIndex = '9999';
+        feedback.style.pointerEvents = 'none';
+        feedback.style.animation = 'upgradeEffectFloat 2s ease-out forwards';
+        
+        document.body.appendChild(feedback);
+        
+        // Remove after animation
+        setTimeout(() => {
+            if (feedback.parentNode) {
+                feedback.parentNode.removeChild(feedback);
+            }
+        }, 2000);
     }
     
     /**
@@ -252,6 +522,9 @@ class LevelUpSystem {
         this.levelUpContent.classList.remove('level-up-enter');
         this.currentUpgrades = [];
         console.log('🔺 Level Up menu hidden');
+        
+        // Process next queued level-up if any exist
+        this.processNextLevelUp();
     }
     
     /**
