@@ -1166,6 +1166,23 @@ body {
     /* Legendary */
 }
 
+/* Dynamic category styling - overrides position-based styling */
+.upgrade-category.common {
+    background: linear-gradient(90deg, #666666, #888888) !important;
+}
+
+.upgrade-category.rare {
+    background: linear-gradient(90deg, #0066ff, #4488ff) !important;
+}
+
+.upgrade-category.epic {
+    background: linear-gradient(90deg, #8b00ff, #da70d6) !important;
+}
+
+.upgrade-category.legendary {
+    background: linear-gradient(90deg, #ff6600, #ffaa00) !important;
+}
+
 #levelUpPageInfo {
     color: #00ff0080;
     font-family: 'Courier New', monospace;

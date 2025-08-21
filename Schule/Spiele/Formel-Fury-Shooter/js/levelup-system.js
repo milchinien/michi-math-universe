@@ -17,63 +17,48 @@ class LevelUpSystem {
         this.currentUpgrades = [];
         this.coinsEarned = 0;
         
-        // Upgrade pool - PLACEHOLDER UPGRADES for future implementation
+        // Upgrade pool - PLUS-HP UPGRADES implemented
         this.upgradePool = [
             {
-                id: 'placeholder_1',
-                name: 'Platzhalter 1',
-                description: 'Hier wird später ein echtes Upgrade stehen',
+                id: 'plus_hp_common',
+                name: 'PLUS-HP',
+                description: '+1 Maximales Leben',
                 category: 'common',
-                icon: '?',
-                effect: null // Will be filled by user-provided upgrades
+                icon: '❤️',
+                effect: null // Will be implemented in step 2
             },
             {
-                id: 'placeholder_2', 
-                name: 'Platzhalter 2',
-                description: 'Hier wird später ein echtes Upgrade stehen',
+                id: 'plus_hp_rare', 
+                name: 'PLUS-HP',
+                description: '+2 Maximales Leben',
                 category: 'rare',
-                icon: '?',
+                icon: '💖',
                 effect: null
             },
             {
-                id: 'placeholder_3',
-                name: 'Platzhalter 3', 
-                description: 'Hier wird später ein echtes Upgrade stehen',
+                id: 'plus_hp_epic',
+                name: 'PLUS-HP', 
+                description: '+3 Maximales Leben',
+                category: 'epic',
+                icon: '💝',
+                effect: null
+            },
+            {
+                id: 'plus_hp_legendary',
+                name: 'PLUS-HP',
+                description: '+5 Maximales Leben', 
                 category: 'legendary',
-                icon: '?',
+                icon: '💎❤️',
                 effect: null
             },
-            {
-                id: 'placeholder_4',
-                name: 'Platzhalter 4',
-                description: 'Hier wird später ein echtes Upgrade stehen', 
-                category: 'common',
-                icon: '?',
-                effect: null
-            },
-            {
-                id: 'placeholder_5',
-                name: 'Platzhalter 5',
-                description: 'Hier wird später ein echtes Upgrade stehen',
-                category: 'rare', 
-                icon: '?',
-                effect: null
-            },
-            {
-                id: 'placeholder_6',
-                name: 'Platzhalter 6',
-                description: 'Hier wird später ein echtes Upgrade stehen',
-                category: 'legendary',
-                icon: '?',
-                effect: null
-            }
         ];
         
         // Category weights for random selection
         this.categoryWeights = {
-            'common': 0.6,    // 60% chance
-            'rare': 0.3,      // 30% chance  
-            'legendary': 0.1  // 10% chance
+            'common': 0.5,     // 50% chance
+            'rare': 0.3,       // 30% chance  
+            'epic': 0.15,      // 15% chance
+            'legendary': 0.05  // 5% chance
         };
         
         this.init();
@@ -160,7 +145,9 @@ class LevelUpSystem {
         
         if (randomValue <= this.categoryWeights.legendary) {
             targetCategory = 'legendary';
-        } else if (randomValue <= this.categoryWeights.legendary + this.categoryWeights.rare) {
+        } else if (randomValue <= this.categoryWeights.legendary + this.categoryWeights.epic) {
+            targetCategory = 'epic';
+        } else if (randomValue <= this.categoryWeights.legendary + this.categoryWeights.epic + this.categoryWeights.rare) {
             targetCategory = 'rare';
         }
         
@@ -196,6 +183,17 @@ class LevelUpSystem {
                 const iconElement = elements.card?.querySelector('.upgrade-icon-placeholder');
                 if (iconElement) {
                     iconElement.textContent = upgrade.icon || '?';
+                }
+                
+                // Update category label - THIS WAS MISSING!
+                const categoryElement = elements.card?.querySelector('.upgrade-category');
+                if (categoryElement) {
+                    // Capitalize first letter
+                    const categoryName = upgrade.category.charAt(0).toUpperCase() + upgrade.category.slice(1);
+                    categoryElement.textContent = categoryName;
+                    
+                    // Add category class for dynamic styling
+                    categoryElement.className = `upgrade-category ${upgrade.category}`;
                 }
                 
                 console.log(`🔺 Updated upgrade slot ${i}: ${upgrade.name} (${upgrade.category})`);
