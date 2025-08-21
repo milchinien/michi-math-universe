@@ -36,6 +36,12 @@ function selectMultipleChoice(index) {
     }
 }
 
+function selectUpgrade(index) {
+    if (window.game && window.game.levelUpSystem && typeof window.game.levelUpSystem.selectUpgrade === 'function') {
+        window.game.levelUpSystem.selectUpgrade(index);
+    }
+}
+
 function showInstructions() {
     document.getElementById('instructionsMenu').style.display = 'flex';
 }
@@ -250,4 +256,158 @@ function addTestXp(amount = 100) {
     } else {
         console.error('❌ LevelSystem not available');
     }
+}
+
+// NEW: Display level requirements table
+function showLevelRequirements() {
+    if (!window.game || !window.game.levelSystem) {
+        console.error('❌ LevelSystem not available');
+        return;
+    }
+    
+    console.log('📊 LEVEL REQUIREMENTS TABLE:');
+    console.log('Level -> XP Required (Cumulative Total)');
+    
+    const ls = window.game.levelSystem;
+    let total = 0;
+    
+    for (let level = 2; level <= 25; level++) {
+        const xpForLevel = ls.getXpRequiredForLevel(level);
+        total += xpForLevel;
+        console.log(`${level-1} → ${level}: ${xpForLevel} XP (Total: ${total} XP)`);
+    }
+    
+    return { table: ls.levelXpTable, total: total };
+}
+
+// NEW: Test XP overflow handling
+function testXpOverflow() {
+    if (!window.game || !window.game.levelSystem) {
+        console.error('❌ LevelSystem not available');
+        return;
+    }
+    
+    console.log('🧪 Testing XP overflow handling...');
+    
+    const ls = window.game.levelSystem;
+    const startLevel = ls.getLevel();
+    const startXp = ls.getXp();
+    
+    console.log(`📊 Starting: Level ${startLevel}, XP ${startXp}`);
+    
+    // Add a huge amount of XP to test overflow
+    const hugeXp = 1000;
+    console.log(`💥 Adding ${hugeXp} XP at once...`);
+    
+    const leveledUp = ls.addXp(hugeXp);
+    
+    console.log(`📈 Result: Level ${ls.getLevel()}, XP ${ls.getXp()}`);
+    console.log(`📊 Leveled up: ${leveledUp}`);
+    console.log(`📊 XP to next level: ${ls.getXpToNextLevel()}`);
+    console.log(`📊 Current level progress: ${ls.calculateXpToNextLevel().current}/${ls.calculateXpToNextLevel().required}`);
+    
+    return {
+        startLevel: startLevel,
+        endLevel: ls.getLevel(),
+        levelsGained: ls.getLevel() - startLevel,
+        finalXp: ls.getXp(),
+        xpToNext: ls.getXpToNextLevel()
+    };
+}
+
+// Level Up System Debug Functions
+function debugLevelUp() {
+    console.log('🔺 Level Up System Debug:');
+    
+    if (!window.game) {
+        console.error('❌ Game object not found');
+        return;
+    }
+    
+    if (!window.game.levelUpSystem) {
+        console.error('❌ LevelUpSystem not found in game object');
+        return;
+    }
+    
+    const lus = window.game.levelUpSystem;
+    console.log('🔺 Is active:', lus.isActive);
+    console.log('🔺 Current upgrades:', lus.currentUpgrades);
+    console.log('🔺 Upgrade pool size:', lus.getUpgradePool().length);
+    console.log('🔺 Coins earned:', lus.coinsEarned);
+    
+    return {
+        isActive: lus.isActive,
+        upgradePoolSize: lus.getUpgradePool().length,
+        currentUpgrades: lus.currentUpgrades.length
+    };
+}
+
+function testLevelUpSystem() {
+    if (window.game && window.game.levelUpSystem) {
+        const result = window.game.levelUpSystem.testLevelUpSystem();
+        console.log('🔺 Level Up system test completed:', result);
+        return result;
+    } else {
+        console.error('❌ LevelUpSystem not available');
+    }
+}
+
+function showTestLevelUp(coins = 100) {
+    if (window.game && window.game.levelUpSystem) {
+        window.game.levelUpSystem.showLevelUp(coins);
+        console.log(`🔺 Test Level Up shown with ${coins} coins`);
+        return true;
+    } else {
+        console.error('❌ LevelUpSystem not available');
+        return false;
+    }
+}
+
+// NEW: Quick test function for new leveling system
+function testNewLeveling() {
+    if (!window.game || !window.game.levelSystem) {
+        console.error('❌ LevelSystem not available');
+        return;
+    }
+    
+    console.log('🚀 Testing accelerated leveling system...');
+    
+    const ls = window.game.levelSystem;
+    const startLevel = ls.getLevel();
+    const startXp = ls.getXp();
+    
+    console.log(`📊 Starting: Level ${startLevel}, XP ${startXp}`);
+    console.log(`📊 XP needed for next level: ${ls.getXpToNextLevel()}`);
+    
+    // Simulate defeating 3 different enemy types
+    const enemies = [
+        { type: 'polynom_zombie', name: 'Polynom-Zombie' },
+        { type: 'basic', name: 'Standard-Gegner' },
+        { type: 'elite_mob', name: 'Elite-Algebra-Bestie' }
+    ];
+    
+    enemies.forEach((enemy, index) => {
+        const mockEnemy = {
+            type: enemy.type,
+            assignedFormula: { difficulty: 1.5 }
+        };
+        
+        const xpEarned = ls.calculateXpDrop(mockEnemy, index * 2, 3000); // Increasing combo
+        const oldLevel = ls.getLevel();
+        const leveledUp = ls.addXp(xpEarned);
+        const newLevel = ls.getLevel();
+        
+        console.log(`💀 Defeated ${enemy.name}: +${xpEarned} XP | Level: ${oldLevel} → ${newLevel} ${leveledUp ? '⬆️ LEVEL UP!' : ''}`);
+        ls.showXpDrop(200 + index * 100, 200, xpEarned);
+    });
+    
+    console.log(`🎉 Final result: Level ${ls.getLevel()}, Total XP: ${ls.getXp()}`);
+    console.log(`📈 XP to next level: ${ls.getXpToNextLevel()}`);
+    
+    return {
+        startLevel: startLevel,
+        endLevel: ls.getLevel(),
+        totalXpGained: ls.getXp() - startXp,
+        xpToNext: ls.getXpToNextLevel()
+    };
 }

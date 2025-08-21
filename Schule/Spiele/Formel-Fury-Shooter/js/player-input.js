@@ -13,10 +13,12 @@ class Player {
         this.speed = 200; // pixels per second
         this.maxSpeed = 300;
         
-        // Movement state
+        // Movement state - ULTRA SMOOTH MOVEMENT
         this.velocity = { x: 0, y: 0 };
-        this.acceleration = 800; // pixels per second squared
-        this.friction = 0.85;
+        this.targetVelocity = { x: 0, y: 0 };
+        this.smoothFactor = 0.15; // interpolation factor (lower = smoother)
+        this.friction = 0.92; // higher friction for quicker stops
+        this.minVelocity = 0.01; // threshold to stop tiny movements
         
         // Visual properties
         this.color = '#00ff00';
@@ -25,53 +27,48 @@ class Player {
     }
 
     update(deltaTime, inputHandler, canvasWidth, canvasHeight) {
-        // Convert deltaTime from milliseconds to seconds
-        const dt = deltaTime / 1000;
+        // Cap deltaTime to prevent large jumps
+        const dt = Math.min(deltaTime / 1000, 1/30); // Max 30 FPS equivalent
         
-        // Handle input and apply acceleration
-        let targetVelX = 0;
-        let targetVelY = 0;
+        // Handle input to set target velocity
+        this.targetVelocity.x = 0;
+        this.targetVelocity.y = 0;
         
         if (inputHandler.isPressed('w') || inputHandler.isPressed('W')) {
-            targetVelY = -this.speed;
+            this.targetVelocity.y = -this.speed;
         }
         if (inputHandler.isPressed('s') || inputHandler.isPressed('S')) {
-            targetVelY = this.speed;
+            this.targetVelocity.y = this.speed;
         }
         if (inputHandler.isPressed('a') || inputHandler.isPressed('A')) {
-            targetVelX = -this.speed;
+            this.targetVelocity.x = -this.speed;
         }
         if (inputHandler.isPressed('d') || inputHandler.isPressed('D')) {
-            targetVelX = this.speed;
+            this.targetVelocity.x = this.speed;
         }
         
         // Diagonal movement compensation
-        if (targetVelX !== 0 && targetVelY !== 0) {
-            targetVelX *= 0.707; // sqrt(2)/2 for diagonal movement
-            targetVelY *= 0.707;
+        if (this.targetVelocity.x !== 0 && this.targetVelocity.y !== 0) {
+            this.targetVelocity.x *= 0.707; // sqrt(2)/2 for diagonal movement
+            this.targetVelocity.y *= 0.707;
         }
         
-        // Apply acceleration towards target velocity
-        const velDiffX = targetVelX - this.velocity.x;
-        const velDiffY = targetVelY - this.velocity.y;
-        
-        this.velocity.x += velDiffX * this.acceleration * dt;
-        this.velocity.y += velDiffY * this.acceleration * dt;
+        // Smooth interpolation to target velocity (frame-rate independent)
+        const smoothing = 1 - Math.pow(1 - this.smoothFactor, dt * 60); // 60 FPS reference
+        this.velocity.x += (this.targetVelocity.x - this.velocity.x) * smoothing;
+        this.velocity.y += (this.targetVelocity.y - this.velocity.y) * smoothing;
         
         // Apply friction when no input
-        if (targetVelX === 0 && targetVelY === 0) {
-            this.velocity.x *= this.friction;
-            this.velocity.y *= this.friction;
+        if (this.targetVelocity.x === 0 && this.targetVelocity.y === 0) {
+            this.velocity.x *= Math.pow(this.friction, dt * 60); // Frame-rate independent friction
+            this.velocity.y *= Math.pow(this.friction, dt * 60);
         }
         
-        // Limit max speed
-        const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
-        if (speed > this.maxSpeed) {
-            this.velocity.x = (this.velocity.x / speed) * this.maxSpeed;
-            this.velocity.y = (this.velocity.y / speed) * this.maxSpeed;
-        }
+        // Stop tiny movements that cause jitter
+        if (Math.abs(this.velocity.x) < this.minVelocity) this.velocity.x = 0;
+        if (Math.abs(this.velocity.y) < this.minVelocity) this.velocity.y = 0;
         
-        // Update position
+        // Update position with sub-pixel precision, then round for rendering
         this.x += this.velocity.x * dt;
         this.y += this.velocity.y * dt;
         
@@ -114,8 +111,8 @@ class Player {
         ctx.shadowColor = this.glowColor;
         ctx.shadowBlur = 15;
         
-        // Translate to player position
-        ctx.translate(this.x, this.y);
+        // Translate to player position (rounded for pixel-perfect rendering)
+        ctx.translate(Math.round(this.x), Math.round(this.y));
         
         // Rotate based on movement direction
         ctx.rotate(this.angle);

@@ -1002,6 +1002,198 @@ body {
 .standard { background-color: #ff3300; }
 
 /* =============================================================================
+   LEVEL UP SYSTEM
+   ============================================================================= */
+#levelUpMenu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2500;
+    backdrop-filter: blur(15px);
+}
+
+#levelUpContent {
+    background: linear-gradient(145deg, #001a00, #003300);
+    border: 4px solid #00ff00;
+    border-radius: 25px;
+    padding: 40px;
+    box-shadow: 
+        0 0 50px #00ff0080,
+        inset 0 0 40px #00ff0020;
+    text-align: center;
+    min-width: 800px;
+    max-width: 90vw;
+    position: relative;
+}
+
+#levelUpCoins {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: #ffd700;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 0 0 10px #ffd70080;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px 15px;
+    border-radius: 10px;
+    border: 2px solid #ffd700;
+}
+
+#levelUpTitle {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 64px;
+    font-weight: bold;
+    text-shadow: 0 0 30px #00ff00ff;
+    margin-bottom: 40px;
+    animation: levelUpTitlePulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes levelUpTitlePulse {
+    0% { 
+        text-shadow: 0 0 30px #00ff00ff;
+        transform: scale(1);
+    }
+    100% { 
+        text-shadow: 0 0 50px #00ff00ff, 0 0 80px #00ff0080;
+        transform: scale(1.05);
+    }
+}
+
+#levelUpUpgrades {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.upgrade-card {
+    background: linear-gradient(145deg, #002200, #004400);
+    border: 3px solid #00aa00;
+    border-radius: 20px;
+    padding: 25px;
+    width: 200px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.upgrade-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px #00ff0060;
+    border-color: #00ff00;
+}
+
+.upgrade-card:active {
+    transform: scale(0.98);
+}
+
+.upgrade-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #00ff00;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.upgrade-icon-placeholder {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 36px;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00ff0080;
+}
+
+.upgrade-name {
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 0 0 5px #00ff0080;
+}
+
+.upgrade-description {
+    color: #88ff88;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 15px;
+    min-height: 40px;
+}
+
+.upgrade-category {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    right: 10px;
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 5px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.upgrade-card:nth-child(1) .upgrade-category {
+    background: linear-gradient(90deg, #666666, #888888);
+    /* Common */
+}
+
+.upgrade-card:nth-child(2) .upgrade-category {
+    background: linear-gradient(90deg, #0066ff, #4488ff);
+    /* Rare */
+}
+
+.upgrade-card:nth-child(3) .upgrade-category {
+    background: linear-gradient(90deg, #ff6600, #ffaa00);
+    /* Legendary */
+}
+
+#levelUpPageInfo {
+    color: #00ff0080;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    margin-top: 20px;
+}
+
+/* Level Up entrance animation */
+.level-up-enter {
+    animation: levelUpEnter 1s ease-out forwards;
+}
+
+@keyframes levelUpEnter {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(50px);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1) translateY(0px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0px);
+    }
+}
+
+/* =============================================================================
    CHEAT MODE INDICATOR
    ============================================================================= */
 #cheatIndicator {

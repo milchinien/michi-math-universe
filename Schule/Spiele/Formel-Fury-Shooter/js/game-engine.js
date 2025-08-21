@@ -35,13 +35,14 @@ class GameEngine {
        this.currencySystem = null;
        this.waveSystem = null;
        this.levelSystem = null;
+       this.levelUpSystem = null;
        
        // Input state tracking
        this.spacePressed = false;
        
-       // Game state
-       this.playerHealth = 100;
-       this.playerMaxHealth = 100;
+       // Game state - NEW 5 HP SYSTEM
+       this.playerHealth = 5;
+       this.playerMaxHealth = 5;
        this.isGameOver = false;
        this.isPaused = false;
        
@@ -134,16 +135,16 @@ class GameEngine {
         
         if (this.cheatMode) {
             if (indicator) indicator.style.display = 'block';
-            this.playerMaxHealth = 999999;
-            this.playerHealth = 999999;
+            this.playerMaxHealth = 999;
+            this.playerHealth = 999;
             
             // Show visible confirmation
-            alert('🔧 CHEAT-MODUS AKTIVIERT!\n\n✅ Unendlich Leben (999,999 HP)\n✅ Kein Schaden\n✅ Alle Features testbar\n\nTastenkombination: Strg+Shift+Y');
+            alert('🔧 CHEAT-MODUS AKTIVIERT!\n\n✅ Unendlich Leben (999 HP)\n✅ Kein Schaden\n✅ Alle Features testbar\n\nTastenkombination: Strg+Shift+Y');
             console.log('🔧 CHEAT MODE ACTIVATED! (Ctrl+Shift+Y) Infinite health enabled.');
         } else {
             if (indicator) indicator.style.display = 'none';
-            this.playerMaxHealth = 100;
-            this.playerHealth = Math.min(this.playerHealth, 100);
+            this.playerMaxHealth = 5;
+            this.playerHealth = Math.min(this.playerHealth, 5);
             
             alert('🔧 CHEAT-MODUS DEAKTIVIERT!\n\n❌ Normale Gesundheit wiederhergestellt\n❌ Normaler Schwierigkeitsgrad');
             console.log('🔧 CHEAT MODE DEACTIVATED! Normal health restored.');
@@ -221,6 +222,9 @@ class GameEngine {
         // Create level system
         this.levelSystem = new LevelSystem();
         
+        // Create level up system
+        this.levelUpSystem = new LevelUpSystem();
+        
         // Create enemy spawner
         this.enemySpawner = new EnemySpawner(this.formulaSystem);
         
@@ -243,6 +247,15 @@ class GameEngine {
     }
     
     handleWaveComplete(wave, stats) {
+        // IMPORTANT: Clear all enemies immediately when wave ends
+        if (this.enemySpawner) {
+            this.enemySpawner.enemies = [];
+            console.log('🧹 All enemies cleared at wave end');
+        }
+        
+        // Exit combat mode to prevent issues
+        this.exitCombatMode();
+        
         // Show wave complete animation
         if (this.waveSystem.waveDisplay) {
             this.waveSystem.waveDisplay.classList.add('wave-complete');
@@ -251,10 +264,19 @@ class GameEngine {
             }, 1000);
         }
         
-        // Automatically open pause menu (future shop menu)
+        // Calculate coins earned this wave (simple example calculation)
+        const coinsEarned = Math.floor(wave * 25 + Math.random() * 50); // Example: 25-75 coins per wave
+        
+        // Show Level Up menu first, then shop menu
         setTimeout(() => {
-            this.showPauseMenu();
-            console.log('🛍️ Shop menu opened (currently pause menu)');
+            if (this.levelUpSystem) {
+                this.levelUpSystem.showLevelUp(coinsEarned);
+                console.log(`🔺 Level Up menu shown with ${coinsEarned} coins earned`);
+            } else {
+                // Fallback to shop menu if Level Up system not available
+                this.showPauseMenu();
+                console.log('🛍️ Shop menu opened (Level Up system not available)');
+            }
         }, 1500);
     }
     
@@ -307,7 +329,7 @@ class GameEngine {
         this.formulaSystem.skipFormula = () => {
             if (this.targetedEnemy) {
                 this.formulaSystem.showFeedback(`Übersprungen! Du nimmst Schaden!`, false);
-                this.dealDamageToPlayer(15);
+                this.dealDamageToPlayer(1); // Only 1 HP damage
             }
             this.exitCombatMode();
         };
@@ -442,7 +464,7 @@ class GameEngine {
         // Reset game state
         this.isGameOver = false;
         this.isPaused = false;
-        this.playerHealth = this.cheatMode ? 999999 : this.playerMaxHealth;
+        this.playerHealth = this.cheatMode ? 999 : this.playerMaxHealth;
         this.exitCombatMode();
         
         // Reset player position
@@ -569,11 +591,13 @@ class GameEngine {
             this.levelSystem.update(deltaTime);
         }
        
-       // Handle targeting system
-       this.handleTargeting();
+       // Handle targeting system (only if not paused)
+       if (!this.isPaused) {
+           this.handleTargeting();
+       }
        
-       // Check collisions (only if not in combat mode)
-       if (!this.combatMode) {
+       // Check collisions (only if not in combat mode and not paused)
+       if (!this.combatMode && !this.isPaused) {
            this.handleCollisions();
        }
        
@@ -870,7 +894,7 @@ class GameEngine {
         this.formulaSystem.combo = 0;
         
         if (!this.cheatMode) {
-            this.dealDamageToPlayer(15); // Reduced damage for day mode
+            this.dealDamageToPlayer(1); // Only 1 HP damage for day mode
         }
         
         this.formulaSystem.showFeedback('Falsch! Versuche es beim nächsten Gegner noch einmal.', false);
@@ -1003,7 +1027,7 @@ class GameEngine {
             // Player takes damage in combat
             this.formulaSystem.incorrectAnswers++;
             this.formulaSystem.score = Math.max(0, this.formulaSystem.score - 50);
-            this.dealDamageToPlayer(20);
+            this.dealDamageToPlayer(1); // Only 1 HP damage for wrong answers
             this.formulaSystem.showFeedback(`Falsch! Du nimmst Schaden! Richtig: ${this.formulaSystem.currentSolution[0]}`, false);
         } else {
             // Regular formula practice
@@ -1068,7 +1092,7 @@ class GameEngine {
         const collidingEnemy = this.enemySpawner.checkCollisions(this.player);
         if (collidingEnemy) {
             // Deal damage to player
-            this.dealDamageToPlayer(10);
+            this.dealDamageToPlayer(1); // Only 1 HP damage from collisions
             
             // Enemy takes minor damage from collision
             collidingEnemy.takeDamage(5);
@@ -1101,6 +1125,9 @@ class GameEngine {
     }
 
     showPauseMenu() {
+        // IMPORTANT: Actually pause the game
+        this.isPaused = true;
+        
         // Exit combat mode safely
         if (this.combatMode) {
             this.exitCombatMode();
@@ -1115,12 +1142,14 @@ class GameEngine {
         // Show pause menu
         this.pauseMenu.style.display = 'block';
         
-        console.log('Game paused');
+        console.log('Game paused - ALL systems stopped');
     }
 
     hidePauseMenu() {
+        // IMPORTANT: Actually unpause the game
+        this.isPaused = false;
         this.pauseMenu.style.display = 'none';
-        console.log('Game resumed');
+        console.log('Game resumed - ALL systems restarted');
     }
 
     updatePauseStats() {
@@ -1188,32 +1217,59 @@ class GameEngine {
     }
 
     renderPlayerHealthBar() {
-        if (this.playerHealth >= this.playerMaxHealth) return;
+        // Always show health bar
+        if (!this.player) return;
         
-        const barWidth = 200;
-        const barHeight = 8;
-        const barX = 10;
-        const barY = 120;
+        // Position health bar above player - LARGER SIZE for better visibility
+        const barWidth = 120;
+        const barHeight = 18;
+        const barX = this.player.x - barWidth / 2;
+        const barY = this.player.y - this.player.height / 2 - 25;
         
-        // Background
-        this.ctx.fillStyle = '#333';
-        this.ctx.fillRect(barX, barY, barWidth, barHeight);
+        this.ctx.save();
         
-        // Health
+        // Background with rounded corners (manual implementation)
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.drawRoundedRect(barX - 2, barY - 2, barWidth + 4, barHeight + 4, 8);
+        this.ctx.fill();
+        
+        // Health bar background
+        this.ctx.fillStyle = '#333333';
+        this.drawRoundedRect(barX, barY, barWidth, barHeight, 6);
+        this.ctx.fill();
+        
+        // Health bar fill
         const healthPercent = this.playerHealth / this.playerMaxHealth;
-        const healthColor = healthPercent > 0.6 ? '#00ff00' : healthPercent > 0.3 ? '#ffff00' : '#ff0000';
-        this.ctx.fillStyle = healthColor;
-        this.ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
+        const healthColor = healthPercent > 0.6 ? '#00ff00' : healthPercent > 0.3 ? '#ffaa00' : '#ff3300';
         
-        // Border
-        this.ctx.strokeStyle = '#fff';
+        if (healthPercent > 0) {
+            this.ctx.fillStyle = healthColor;
+            this.drawRoundedRect(barX, barY, barWidth * healthPercent, barHeight, 6);
+            this.ctx.fill();
+        }
+        
+        // Glow effect
+        this.ctx.shadowColor = healthColor;
+        this.ctx.shadowBlur = 8;
+        this.ctx.strokeStyle = healthColor;
         this.ctx.lineWidth = 1;
-        this.ctx.strokeRect(barX, barY, barWidth, barHeight);
+        this.drawRoundedRect(barX, barY, barWidth, barHeight, 6);
+        this.ctx.stroke();
         
-        // Text
-        this.ctx.fillStyle = '#00ff00';
-        this.ctx.font = '12px Courier New';
-        this.ctx.fillText(`Health: ${this.playerHealth}/${this.playerMaxHealth}`, barX, barY - 5);
+        // Health text (e.g., "3/5") - LARGER and more visible
+        this.ctx.shadowBlur = 0;
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = 'bold 14px Courier New';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.strokeStyle = '#000000';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeText(`${this.playerHealth}/${this.playerMaxHealth}`, 
+                           barX + barWidth / 2, barY + barHeight / 2);
+        this.ctx.fillText(`${this.playerHealth}/${this.playerMaxHealth}`, 
+                          barX + barWidth / 2, barY + barHeight / 2);
+        
+        this.ctx.restore();
     }
 
     renderGameOverScreen() {
@@ -1320,6 +1376,21 @@ class GameEngine {
         this.ctx.fillRect(this.canvas.width - 100, 0, 100, 100);
         this.ctx.fillRect(0, this.canvas.height - 100, 100, 100);
         this.ctx.fillRect(this.canvas.width - 100, this.canvas.height - 100, 100, 100);
+    }
+
+    drawRoundedRect(x, y, width, height, radius) {
+        // Helper function to draw rounded rectangles
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + radius, y);
+        this.ctx.lineTo(x + width - radius, y);
+        this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        this.ctx.lineTo(x + width, y + height - radius);
+        this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        this.ctx.lineTo(x + radius, y + height);
+        this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        this.ctx.lineTo(x, y + radius);
+        this.ctx.quadraticCurveTo(x, y, x + radius, y);
+        this.ctx.closePath();
     }
 
     renderDebugInfo() {

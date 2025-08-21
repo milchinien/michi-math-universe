@@ -13,12 +13,15 @@ class Enemy {
         // Set type-specific properties
         this.setTypeProperties();
         
-        // AI behavior
+        // AI behavior - SMOOTH MOVEMENT
         this.targetX = x;
         this.targetY = y;
         this.velocity = { x: 0, y: 0 };
+        this.targetVelocity = { x: 0, y: 0 };
+        this.smoothFactor = 0.12; // slightly slower smoothing than player
         this.lastDirectionUpdate = 0;
         this.directionUpdateInterval = this.baseDirectionInterval; // Use type-specific interval
+        this.minVelocity = 0.5; // threshold to stop tiny movements
         
         // Formula assignment based on type
         this.assignedFormula = this.generateTypeSpecificFormula(formulaSystem);
@@ -260,7 +263,7 @@ class Enemy {
         let targetVelX = 0;
         let targetVelY = 0;
         
-        if (distance > 5) { // Dead zone to prevent jittering
+        if (distance > 8) { // Larger dead zone to prevent jittering (was 5)
             targetVelX = (dx / distance) * this.speed;
             targetVelY = (dy / distance) * this.speed;
         }
@@ -272,6 +275,14 @@ class Enemy {
         this.velocity.x += velDiffX * this.acceleration * dt;
         this.velocity.y += velDiffY * this.acceleration * dt;
         
+        // Apply velocity damping to reduce jitter
+        this.velocity.x *= 0.96; // slight damping
+        this.velocity.y *= 0.96;
+        
+        // Stop tiny movements that cause jitter
+        if (Math.abs(this.velocity.x) < 0.5) this.velocity.x = 0;
+        if (Math.abs(this.velocity.y) < 0.5) this.velocity.y = 0;
+        
         // Limit max speed
         const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
         if (speed > this.maxSpeed) {
@@ -279,9 +290,9 @@ class Enemy {
             this.velocity.y = (this.velocity.y / speed) * this.maxSpeed;
         }
         
-        // Update position
-        this.x += this.velocity.x * dt;
-        this.y += this.velocity.y * dt;
+        // Update position and round to prevent sub-pixel jitter
+        this.x = Math.round(this.x + this.velocity.x * dt);
+        this.y = Math.round(this.y + this.velocity.y * dt);
         
         // Update angle for rotation
         if (Math.abs(this.velocity.x) > 1 || Math.abs(this.velocity.y) > 1) {

@@ -12,26 +12,29 @@ class LevelSystem {
         this.totalXpEarned = 0;
         this.sessionXpEarned = 0;
         
-        // XP calculation settings
-        this.baseXpRequired = 100; // XP needed for level 2
-        this.xpGrowthFactor = 1.5; // Exponential growth factor
+        // XP calculation settings - PROGRESSIVE PER-LEVEL REQUIREMENTS
         this.currentLevelXp = 0; // XP in current level
-        this.xpToNextLevel = this.baseXpRequired;
         
-        // XP drop values per enemy type
+        // Level-specific XP requirements table (must be created FIRST)
+        this.levelXpTable = this.generateLevelXpTable();
+        
+        // Now we can safely calculate XP requirements
+        this.xpToNextLevel = this.getXpRequiredForLevel(this.level + 1);
+        
+        // XP drop values per enemy type - INCREASED VALUES
         this.xpValues = {
-            'polynom_zombie': { min: 8, max: 15 },    // Easier enemy = less XP
-            'gleichungs_geist': { min: 12, max: 20 }, // Fast enemy = medium XP
-            'elite_mob': { min: 25, max: 40 },        // Elite enemy = high XP
-            'basic': { min: 10, max: 18 }             // Standard enemy = medium XP
+            'polynom_zombie': { min: 20, max: 35 },    // Easier enemy = decent XP (was 8-15)
+            'gleichungs_geist': { min: 30, max: 50 }, // Fast enemy = good XP (was 12-20)
+            'elite_mob': { min: 60, max: 100 },       // Elite enemy = high XP (was 25-40)
+            'basic': { min: 25, max: 45 }             // Standard enemy = good XP (was 10-18)
         };
         
-        // XP bonus multipliers
+        // XP bonus multipliers - IMPROVED REWARDS
         this.comboXpBonus = {
-            3: 1.2,   // +20% at 3x combo
-            5: 1.4,   // +40% at 5x combo
-            10: 1.6,  // +60% at 10x combo
-            15: 2.0   // +100% at 15x combo
+            3: 1.5,   // +50% at 3x combo (was +20%)
+            5: 2.0,   // +100% at 5x combo (was +40%)
+            10: 2.5,  // +150% at 10x combo (was +60%)
+            15: 3.0   // +200% at 15x combo (was +100%)
         };
         
         // UI Elements
@@ -100,21 +103,72 @@ class LevelSystem {
         console.log('✅ LevelSystem UI setup complete');
     }
     
-    calculateXpRequired(level) {
-        // Exponential XP growth: XP = base * (growth^(level-1))
-        return Math.floor(this.baseXpRequired * Math.pow(this.xpGrowthFactor, level - 1));
+    generateLevelXpTable() {
+        // Generate progressive XP requirements per level
+        const table = {};
+        
+        // Level 1->2: 50 XP
+        table[2] = 50;
+        // Level 2->3: 75 XP  
+        table[3] = 75;
+        
+        // Progressive scaling for higher levels
+        for (let level = 4; level <= 50; level++) {
+            if (level <= 10) {
+                // Levels 4-10: gradual increase
+                table[level] = Math.floor(75 + (level - 3) * 25); // 100, 125, 150, 175, 200, 225, 250
+            } else if (level <= 20) {
+                // Levels 11-20: moderate increase
+                table[level] = Math.floor(250 + (level - 10) * 50); // 300, 350, 400... up to 750
+            } else if (level <= 30) {
+                // Levels 21-30: larger jumps
+                table[level] = Math.floor(750 + (level - 20) * 150); // 900, 1050... up to 2250
+            } else {
+                // Levels 31+: exponential for end game
+                table[level] = Math.floor(2250 + (level - 30) * 250); // 2500, 2750... up to 7250 at level 50
+            }
+        }
+        
+        return table;
+    }
+    
+    getXpRequiredForLevel(level) {
+        // Returns XP needed to reach this level FROM the previous level
+        if (level <= 1) return 0;
+        
+        // Safety check: ensure table exists
+        if (!this.levelXpTable) {
+            console.warn('⚠️ levelXpTable not initialized, using fallback');
+            return level <= 2 ? 50 : level <= 3 ? 75 : 100;
+        }
+        
+        return this.levelXpTable[level] || 10000; // Default for very high levels
+    }
+    
+    getTotalXpForLevel(level) {
+        // Returns total cumulative XP needed to reach this level
+        let total = 0;
+        for (let l = 2; l <= level; l++) {
+            total += this.getXpRequiredForLevel(l);
+        }
+        return total;
     }
     
     calculateXpToNextLevel() {
-        const nextLevelXp = this.calculateXpRequired(this.level + 1);
-        const currentLevelStartXp = this.level > 1 ? this.calculateXpRequired(this.level) : 0;
+        const totalXpForCurrentLevel = this.getTotalXpForLevel(this.level);
+        const totalXpForNextLevel = this.getTotalXpForLevel(this.level + 1);
+        const xpRequiredForNextLevel = this.getXpRequiredForLevel(this.level + 1);
         
-        this.currentLevelXp = this.xp - currentLevelStartXp;
-        this.xpToNextLevel = nextLevelXp - this.xp;
+        this.currentLevelXp = this.xp - totalXpForCurrentLevel;
+        this.xpToNextLevel = totalXpForNextLevel - this.xp;
+        
+        // Fix: Ensure we always have valid values
+        if (this.currentLevelXp < 0) this.currentLevelXp = 0;
+        if (this.xpToNextLevel < 0) this.xpToNextLevel = 0;
         
         return {
             current: this.currentLevelXp,
-            required: nextLevelXp - currentLevelStartXp,
+            required: xpRequiredForNextLevel,
             toNext: this.xpToNextLevel
         };
     }
@@ -153,10 +207,10 @@ class LevelSystem {
         }
         console.log('🔥 Combo multiplier:', comboMultiplier);
         
-        // Speed bonus (faster answers = more XP)
+        // Speed bonus (faster answers = more XP) - INCREASED BONUS
         let speedMultiplier = 1.0;
         if (timeTaken < 5000) {
-            speedMultiplier = 1.0 + ((5000 - timeTaken) / 5000) * 0.3; // Up to 30% bonus
+            speedMultiplier = 1.0 + ((5000 - timeTaken) / 5000) * 0.6; // Up to 60% bonus (was 30%)
         }
         console.log('⚡ Speed multiplier:', speedMultiplier.toFixed(2));
         
@@ -184,26 +238,41 @@ class LevelSystem {
     }
     
     checkLevelUp() {
-        const nextLevelXp = this.calculateXpRequired(this.level + 1);
+        let levelsGained = 0;
         
-        if (this.xp >= nextLevelXp) {
-            this.levelUp();
-            return true;
+        // Keep checking for level ups until no more are possible
+        while (true) {
+            const totalXpForNextLevel = this.getTotalXpForLevel(this.level + 1);
+            
+            if (this.xp >= totalXpForNextLevel) {
+                this.levelUp();
+                levelsGained++;
+                
+                // Safety check to prevent infinite loops (max 10 levels at once)
+                if (levelsGained >= 10) {
+                    console.warn('⚠️ Too many level ups at once, stopping at 10');
+                    break;
+                }
+            } else {
+                break;
+            }
         }
-        return false;
+        
+        return levelsGained > 0;
     }
     
     levelUp() {
+        const oldLevel = this.level;
         this.level++;
         this.isLevelingUp = true;
         this.levelUpStartTime = Date.now();
         
-        console.log(`🎉 LEVEL UP! Now level ${this.level}`);
+        console.log(`🎉 LEVEL UP! ${oldLevel} → ${this.level}`);
         
         // Trigger level up animation
         this.triggerLevelUpAnimation();
         
-        // Calculate new XP requirements
+        // Calculate new XP requirements after level change
         this.calculateXpToNextLevel();
         
         return this.level;

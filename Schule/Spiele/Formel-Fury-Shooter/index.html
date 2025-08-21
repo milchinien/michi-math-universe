@@ -254,6 +254,48 @@
        <div id="mcTimer">Zeit: <span id="mcTimeLeft">15</span>s</div>
    </div>
 
+   <!-- Level Up Menu -->
+   <div id="levelUpMenu">
+       <div id="levelUpContent">
+           <div id="levelUpCoins">
+               💰 <span id="levelUpCoinsValue">0</span> Coins
+           </div>
+           
+           <div id="levelUpTitle">LEVEL UP!</div>
+           
+           <div id="levelUpUpgrades">
+               <div class="upgrade-card" onclick="selectUpgrade(0)">
+                   <div class="upgrade-icon">
+                       <div class="upgrade-icon-placeholder">?</div>
+                   </div>
+                   <div class="upgrade-name" id="upgrade0Name">Upgrade 1</div>
+                   <div class="upgrade-description" id="upgrade0Desc">Platzhalter Beschreibung</div>
+                   <div class="upgrade-category">Common</div>
+               </div>
+               
+               <div class="upgrade-card" onclick="selectUpgrade(1)">
+                   <div class="upgrade-icon">
+                       <div class="upgrade-icon-placeholder">?</div>
+                   </div>
+                   <div class="upgrade-name" id="upgrade1Name">Upgrade 2</div>
+                   <div class="upgrade-description" id="upgrade1Desc">Platzhalter Beschreibung</div>
+                   <div class="upgrade-category">Rare</div>
+               </div>
+               
+               <div class="upgrade-card" onclick="selectUpgrade(2)">
+                   <div class="upgrade-icon">
+                       <div class="upgrade-icon-placeholder">?</div>
+                   </div>
+                   <div class="upgrade-name" id="upgrade2Name">Upgrade 3</div>
+                   <div class="upgrade-description" id="upgrade2Desc">Platzhalter Beschreibung</div>
+                   <div class="upgrade-category">Legendary</div>
+               </div>
+           </div>
+           
+           <div id="levelUpPageInfo">1 von 3</div>
+       </div>
+   </div>
+
    <!-- Pause Menu -->
    <div id="pauseMenu">
        <div id="pauseContent">
@@ -334,6 +376,7 @@
    <script src="js/currency-system.js"></script>
    <script src="js/wave-system.js"></script>
    <script src="js/level-system.js"></script>
+   <script src="js/levelup-system.js"></script>
    <script src="js/player-input.js"></script>
    <script src="js/game-engine.js"></script>
    <script src="js/menu-system.js"></script>
