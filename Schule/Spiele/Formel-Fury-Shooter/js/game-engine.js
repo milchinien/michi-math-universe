@@ -403,15 +403,126 @@ class GameEngine {
     showMainMenu() {
         this.gameState = 'menu';
         this.isRunning = false;
-        document.getElementById('mainMenu').classList.remove('hidden');
-        this.hideGameModeSelection();
-        this.hideGameHUD();
-        this.hideMultipleChoice();
-        this.initializeMenuStats();
+        
+        // Show canvas for background animation but keep menu visible
+        this.canvas.style.display = 'block';
+        this.canvas.style.filter = 'blur(3px)';
+        this.canvas.style.zIndex = '1';
+        
+        const mainMenu = document.getElementById('mainMenu');
+        if (mainMenu) {
+            mainMenu.style.display = 'flex';
+            mainMenu.style.zIndex = '10';
+        }
+        
+        // Start background animation with enemies
+        this.startMenuBackgroundAnimation();
+        
+        console.log('📋 Main menu shown with animated background');
+    }
+
+    /**
+     * Start background animation for main menu
+     */
+    startMenuBackgroundAnimation() {
+        if (this.gameState !== 'menu') return;
+        
+        // Create simplified enemies for background animation
+        if (!this.backgroundEnemies) {
+            this.backgroundEnemies = [];
+            for (let i = 0; i < 8; i++) {
+                this.backgroundEnemies.push({
+                    x: Math.random() * this.canvas.width,
+                    y: Math.random() * this.canvas.height,
+                    vx: (Math.random() - 0.5) * 100,
+                    vy: (Math.random() - 0.5) * 100,
+                    size: 15 + Math.random() * 10,
+                    color: `hsl(${Math.random() * 60 + 300}, 70%, 50%)`
+                });
+            }
+        }
+        
+        this.isRunning = true;
+        this.menuAnimationLoop();
+    }
+
+    /**
+     * Animation loop for menu background
+     */
+    menuAnimationLoop(currentTime = 0) {
+        if (this.gameState !== 'menu' || !this.isRunning) return;
+        
+        const deltaTime = currentTime - this.lastTime;
+        this.lastTime = currentTime;
+        
+        // Update background enemies
+        this.updateBackgroundEnemies(deltaTime);
+        
+        // Clear and render
+        this.clearCanvas();
+        this.renderBackground();
+        this.renderBackgroundEnemies();
+        
+        requestAnimationFrame((time) => this.menuAnimationLoop(time));
+    }
+
+    /**
+     * Update background enemies movement
+     */
+    updateBackgroundEnemies(deltaTime) {
+        if (!this.backgroundEnemies) return;
+        
+        this.backgroundEnemies.forEach(enemy => {
+            enemy.x += enemy.vx * deltaTime / 1000;
+            enemy.y += enemy.vy * deltaTime / 1000;
+            
+            // Bounce off walls
+            if (enemy.x <= 0 || enemy.x >= this.canvas.width) {
+                enemy.vx *= -1;
+                enemy.x = Math.max(0, Math.min(this.canvas.width, enemy.x));
+            }
+            if (enemy.y <= 0 || enemy.y >= this.canvas.height) {
+                enemy.vy *= -1;
+                enemy.y = Math.max(0, Math.min(this.canvas.height, enemy.y));
+            }
+        });
+    }
+
+    /**
+     * Render background enemies for menu
+     */
+    renderBackgroundEnemies() {
+        if (!this.backgroundEnemies) return;
+        
+        this.backgroundEnemies.forEach(enemy => {
+            this.ctx.save();
+            this.ctx.globalAlpha = 0.6;
+            this.ctx.fillStyle = enemy.color;
+            this.ctx.shadowColor = enemy.color;
+            this.ctx.shadowBlur = 15;
+            
+            this.ctx.beginPath();
+            this.ctx.arc(enemy.x, enemy.y, enemy.size, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            this.ctx.restore();
+        });
     }
 
     hideMainMenu() {
-        document.getElementById('mainMenu').classList.add('hidden');
+        const mainMenu = document.getElementById('mainMenu');
+        if (mainMenu) {
+            mainMenu.style.display = 'none';
+        }
+        
+        // Reset canvas styling
+        this.canvas.style.filter = 'none';
+        this.canvas.style.zIndex = 'auto';
+        
+        // Clear background enemies
+        this.backgroundEnemies = null;
+        
+        console.log('📋 Main menu hidden');
     }
 
     showGameHUD() {
