@@ -413,6 +413,9 @@ class GameEngine {
             this.statsSystem.hide();
         }
         
+        // Add class to body to hide game UI elements
+        document.body.classList.add('main-menu-active');
+        
         // Show canvas for background animation but keep menu visible
         this.canvas.style.display = 'block';
         this.canvas.style.filter = 'blur(3px)';
@@ -519,6 +522,9 @@ class GameEngine {
     }
 
     hideMainMenu() {
+        // Remove class from body to show game UI elements
+        document.body.classList.remove('main-menu-active');
+        
         const mainMenu = document.getElementById('mainMenu');
         if (mainMenu) {
             mainMenu.style.display = 'none';

@@ -34,17 +34,24 @@ class Player {
         this.targetVelocity.x = 0;
         this.targetVelocity.y = 0;
         
+        // Get speed multiplier from upgrade system (default to 1.0 if not available)
+        const speedMultiplier = (window.game && window.game.playerInput && window.game.playerInput.speedMultiplier) 
+            ? window.game.playerInput.speedMultiplier 
+            : 1.0;
+        
+        const effectiveSpeed = this.speed * speedMultiplier;
+        
         if (inputHandler.isPressed('w') || inputHandler.isPressed('W')) {
-            this.targetVelocity.y = -this.speed;
+            this.targetVelocity.y = -effectiveSpeed;
         }
         if (inputHandler.isPressed('s') || inputHandler.isPressed('S')) {
-            this.targetVelocity.y = this.speed;
+            this.targetVelocity.y = effectiveSpeed;
         }
         if (inputHandler.isPressed('a') || inputHandler.isPressed('A')) {
-            this.targetVelocity.x = -this.speed;
+            this.targetVelocity.x = -effectiveSpeed;
         }
         if (inputHandler.isPressed('d') || inputHandler.isPressed('D')) {
-            this.targetVelocity.x = this.speed;
+            this.targetVelocity.x = effectiveSpeed;
         }
         
         // Diagonal movement compensation

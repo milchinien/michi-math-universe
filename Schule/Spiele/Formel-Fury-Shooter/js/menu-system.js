@@ -81,6 +81,15 @@ function populateUpgradesMenu() {
     const upgradePool = window.game.levelUpSystem.upgradePool;
     const upgradesGrid = document.getElementById('upgradesGrid');
     
+    // Update developer stats
+    const totalUpgrades = upgradePool.length;
+    const implementedUpgrades = upgradePool.filter(u => u.effect !== null && typeof u.effect === 'function').length;
+    const visualOnlyUpgrades = upgradePool.filter(u => u.effect === null).length;
+    
+    document.getElementById('totalUpgrades').textContent = totalUpgrades;
+    document.getElementById('implementedUpgrades').textContent = implementedUpgrades;
+    document.getElementById('visualOnlyUpgrades').textContent = visualOnlyUpgrades;
+    
     // Clear existing upgrades
     upgradesGrid.innerHTML = '';
     

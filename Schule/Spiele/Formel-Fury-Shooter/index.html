@@ -81,7 +81,7 @@
                 🏆 BESTENLISTE
             </button>
             <button class="menu-btn" onclick="showUpgrades()">
-                🔧 UPGRADES
+                ⬆️ UPGRADES
             </button>
         </div>
 
@@ -190,13 +190,28 @@
             </button>
         </div>
     </div>
-
+    
     <!-- Upgrades Menu -->
     <div id="upgradesMenu">
         <div id="upgradesContent">
             <button class="upgrades-back-btn" onclick="closeUpgrades()">↩️ ZURÜCK ZUM MENÜ</button>
             
             <div id="upgradesTitle">UPGRADES</div>
+            
+            <div class="upgrades-dev-info">
+                <div class="dev-stat">
+                    <span>Verfügbare Upgrades:</span>
+                    <span id="totalUpgrades">0</span>
+                </div>
+                <div class="dev-stat">
+                    <span>Implementierte Upgrades:</span>
+                    <span id="implementedUpgrades">0</span>
+                </div>
+                <div class="dev-stat">
+                    <span>Nur visuell:</span>
+                    <span id="visualOnlyUpgrades">0</span>
+                </div>
+            </div>
             
             <div class="upgrades-grid" id="upgradesGrid">
                 <!-- Upgrade icons werden hier dynamisch eingefügt -->
@@ -447,6 +462,37 @@
        <div>Formel-Fury-Shooter v1.1</div>
        <div>Phase 4.2: Modulare Struktur</div>
        <div id="gameModeInfo">Modus: NACHT | Controls: WASD + Maus + ESC</div>
+   </div>
+
+   <!-- Key Bindings Display -->
+   <div id="keyBindingsDisplay">
+       <div class="keybindings-header">🎮 STEUERUNG</div>
+       <div class="keybindings-content">
+           <div class="keybinding-row">
+               <span class="key-combo">WASD</span>
+               <span class="key-action">Bewegung</span>
+           </div>
+           <div class="keybinding-row">
+               <span class="key-combo">MAUS</span>
+               <span class="key-action">Zielen & Schießen</span>
+           </div>
+           <div class="keybinding-row">
+               <span class="key-combo">ESC</span>
+               <span class="key-action">Pause</span>
+           </div>
+           <div class="keybinding-row" id="quantumJumpBinding" style="display: none;">
+               <span class="key-combo">SPACE</span>
+               <span class="key-action">Quantensprung</span>
+           </div>
+           <div class="keybinding-row">
+               <span class="key-combo">ENTER</span>
+               <span class="key-action">Antwort bestätigen</span>
+           </div>
+           <div class="keybinding-row">
+               <span class="key-combo">TAB</span>
+               <span class="key-action">Formel überspringen</span>
+           </div>
+       </div>
    </div>
 
    <!-- JavaScript Module Imports -->

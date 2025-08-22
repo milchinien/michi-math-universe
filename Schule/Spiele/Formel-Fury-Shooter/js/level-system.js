@@ -72,24 +72,39 @@ class LevelSystem {
             this.levelDisplay = document.createElement('div');
             this.levelDisplay.id = 'levelDisplay';
             this.levelDisplay.innerHTML = `
-                <div class="level-header">LEVEL <span id="levelValue">1</span></div>
+                <div class="level-info-section">
+                    <div class="level-info-item">
+                        <span class="level-info-label">📈 Level:</span>
+                        <span class="level-info-value" id="levelValue">1</span>
+                    </div>
+                    <div class="level-info-item">
+                        <span class="level-info-label">🌊 Wave:</span>
+                        <span class="level-info-value" id="waveValue">1</span>
+                    </div>
+                    <div class="level-info-item">
+                        <span class="level-info-label">💰 Coins:</span>
+                        <span class="level-info-value" id="coinsValue">0</span>
+                    </div>
+                </div>
                 <div class="xp-bar-container" id="xpBarContainer">
                     <div class="xp-bar" id="xpBar"></div>
                     <div class="xp-text" id="xpValue">0 / 100</div>
                 </div>
+                <div class="level-info-section">
+                    <div class="level-info-item">
+                        <span class="level-info-label">🎯 Combo:</span>
+                        <span class="level-info-value" id="comboValue">0x</span>
+                    </div>
+                    <div class="level-info-item">
+                        <span class="level-info-label">🏆 Score:</span>
+                        <span class="level-info-value" id="scoreValue">0</span>
+                    </div>
+                    <div class="level-info-item">
+                        <span class="level-info-label">⚡ FPS:</span>
+                        <span class="level-info-value" id="fpsValue">60</span>
+                    </div>
+                </div>
             `;
-            
-            // Add CSS styles dynamically
-            this.levelDisplay.style.position = 'absolute';
-            this.levelDisplay.style.bottom = '20px';
-            this.levelDisplay.style.left = '10px';
-            this.levelDisplay.style.color = '#ff6600';
-            this.levelDisplay.style.fontSize = '14px';
-            this.levelDisplay.style.fontWeight = 'bold';
-            this.levelDisplay.style.fontFamily = '"Courier New", monospace';
-            this.levelDisplay.style.textShadow = '2px 2px 4px rgba(0, 0, 0, 0.8)';
-            this.levelDisplay.style.zIndex = '100';
-            this.levelDisplay.style.minWidth = '200px';
             
             document.body.appendChild(this.levelDisplay);
             console.log('✅ LevelDisplay created and added to DOM');

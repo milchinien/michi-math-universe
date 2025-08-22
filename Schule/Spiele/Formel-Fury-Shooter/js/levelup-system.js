@@ -132,7 +132,12 @@ class LevelUpSystem {
                 description: '+15% XP von Gegnern',
                 category: 'common',
                 icon: '📚',
-                effect: null
+                effect: (player, game) => {
+                    if (!game.playerStats) game.playerStats = {};
+                    if (!game.playerStats.xpMultiplier) game.playerStats.xpMultiplier = 1.0;
+                    game.playerStats.xpMultiplier += 0.15;
+                    console.log('📚 LERNKURVE (Common): XP Multiplier now', game.playerStats.xpMultiplier);
+                }
             },
             {
                 id: 'lernkurve_rare',
@@ -140,7 +145,12 @@ class LevelUpSystem {
                 description: '+25% XP von Gegnern',
                 category: 'rare',
                 icon: '📖',
-                effect: null
+                effect: (player, game) => {
+                    if (!game.playerStats) game.playerStats = {};
+                    if (!game.playerStats.xpMultiplier) game.playerStats.xpMultiplier = 1.0;
+                    game.playerStats.xpMultiplier += 0.25;
+                    console.log('📖 LERNKURVE (Rare): XP Multiplier now', game.playerStats.xpMultiplier);
+                }
             },
             {
                 id: 'lernkurve_epic',
@@ -148,7 +158,12 @@ class LevelUpSystem {
                 description: '+40% XP von Gegnern',
                 category: 'epic',
                 icon: '📘',
-                effect: null
+                effect: (player, game) => {
+                    if (!game.playerStats) game.playerStats = {};
+                    if (!game.playerStats.xpMultiplier) game.playerStats.xpMultiplier = 1.0;
+                    game.playerStats.xpMultiplier += 0.40;
+                    console.log('📘 LERNKURVE (Epic): XP Multiplier now', game.playerStats.xpMultiplier);
+                }
             },
             {
                 id: 'lernkurve_legendary',
@@ -156,8 +171,253 @@ class LevelUpSystem {
                 description: '+60% XP von Gegnern',
                 category: 'legendary',
                 icon: '📚✨',
+                effect: (player, game) => {
+                    if (!game.playerStats) game.playerStats = {};
+                    if (!game.playerStats.xpMultiplier) game.playerStats.xpMultiplier = 1.0;
+                    game.playerStats.xpMultiplier += 0.60;
+                    console.log('📚✨ LERNKURVE (Legendary): XP Multiplier now', game.playerStats.xpMultiplier);
+                }
+            },
+            // BLITZSCHRITT Upgrades - Speed Enhancement
+            {
+                id: 'blitzschritt_common',
+                name: 'BLITZSCHRITT',
+                description: '+10% Bewegungsgeschwindigkeit',
+                category: 'common',
+                icon: '⚡',
+                effect: function() {
+                    console.log('⚡ BLITZSCHRITT (Common): +10% Speed applied');
+                }
+            },
+            {
+                id: 'blitzschritt_rare',
+                name: 'BLITZSCHRITT',
+                description: '+18% Bewegungsgeschwindigkeit',
+                category: 'rare',
+                icon: '⚡',
+                effect: function() {
+                    console.log('⚡ BLITZSCHRITT (Rare): +18% Speed applied');
+                }
+            },
+            {
+                id: 'blitzschritt_epic',
+                name: 'BLITZSCHRITT',
+                description: '+28% Bewegungsgeschwindigkeit',
+                category: 'epic',
+                icon: '⚡',
+                effect: function() {
+                    console.log('⚡ BLITZSCHRITT (Epic): +28% Speed applied');
+                }
+            },
+            {
+                id: 'blitzschritt_legendary',
+                name: 'BLITZSCHRITT',
+                description: '+40% Bewegungsgeschwindigkeit',
+                category: 'legendary',
+                icon: '⚡',
+                effect: function() {
+                    console.log('⚡ BLITZSCHRITT (Legendary): +40% Speed applied');
+                }
+            },
+            // KOMBOFEUER Upgrades - Combo Timer and XP Bonuses
+            {
+                id: 'kombofeuer_common',
+                name: 'KOMBOFEUER',
+                description: '+2s Combo-Zeit, +5% XP ab 5x',
+                category: 'common',
+                icon: '🔥',
                 effect: null
-            }
+            },
+            {
+                id: 'kombofeuer_rare',
+                name: 'KOMBOFEUER',
+                description: '+4s Combo-Zeit, +10% XP ab 5x',
+                category: 'rare',
+                icon: '🔥',
+                effect: null
+            },
+            {
+                id: 'kombofeuer_epic',
+                name: 'KOMBOFEUER',
+                description: '+6s Combo-Zeit, +15% XP ab 5x',
+                category: 'epic',
+                icon: '🔥',
+                effect: null
+            },
+            {
+                id: 'kombofeuer_legendary',
+                name: 'KOMBOFEUER',
+                description: '+10s Combo-Zeit, +20% XP ab 5x',
+                category: 'legendary',
+                icon: '🔥',
+                effect: null
+            },
+            // MÜNZMAGNET Upgrades - Coin Collection and Bonuses
+            {
+                id: 'muenzmagnet_common',
+                name: 'MÜNZMAGNET',
+                description: '50px Radius, +10% Coins',
+                category: 'common',
+                icon: '🧲',
+                effect: null
+            },
+            {
+                id: 'muenzmagnet_rare',
+                name: 'MÜNZMAGNET',
+                description: '100px Radius, +20% Coins',
+                category: 'rare',
+                icon: '🧲',
+                effect: null
+            },
+            {
+                id: 'muenzmagnet_epic',
+                name: 'MÜNZMAGNET',
+                description: '150px Radius, +35% Coins',
+                category: 'epic',
+                icon: '🧲',
+                effect: null
+            },
+            {
+                id: 'muenzmagnet_legendary',
+                name: 'MÜNZMAGNET',
+                description: '200px Radius, +50% Coins',
+                category: 'legendary',
+                icon: '🧲',
+                effect: null
+            },
+            // ZEITDILATATION Upgrades - Enemy Slowdown
+            {
+                id: 'zeitdilatation_common',
+                name: 'ZEITDILATATION',
+                description: 'Gegner 5% langsamer',
+                category: 'common',
+                icon: '⏰',
+                effect: null
+            },
+            {
+                id: 'zeitdilatation_rare',
+                name: 'ZEITDILATATION',
+                description: 'Gegner 12% langsamer',
+                category: 'rare',
+                icon: '⏰',
+                effect: null
+            },
+            {
+                id: 'zeitdilatation_epic',
+                name: 'ZEITDILATATION',
+                description: 'Gegner 20% langsamer',
+                category: 'epic',
+                icon: '⏰',
+                effect: null
+            },
+            {
+                id: 'zeitdilatation_legendary',
+                name: 'ZEITDILATATION',
+                description: 'Gegner 35% langsamer',
+                category: 'legendary',
+                icon: '⏰',
+                effect: null
+            },
+            // SCHUTZSCHILD Upgrades - Regenerating Shield
+            {
+                id: 'schutzschild_common',
+                name: 'SCHUTZSCHILD',
+                description: '1 Schild, 8s Regeneration',
+                category: 'common',
+                icon: '🛡️',
+                effect: null
+            },
+            {
+                id: 'schutzschild_rare',
+                name: 'SCHUTZSCHILD',
+                description: '2 Schild, 6s Regeneration',
+                category: 'rare',
+                icon: '🛡️',
+                effect: null
+            },
+            {
+                id: 'schutzschild_epic',
+                name: 'SCHUTZSCHILD',
+                description: '3 Schild, 4s Regeneration',
+                category: 'epic',
+                icon: '🛡️',
+                effect: null
+            },
+            {
+                id: 'schutzschild_legendary',
+                name: 'SCHUTZSCHILD',
+                description: '5 Schild, 2s Regeneration',
+                category: 'legendary',
+                icon: '🛡️',
+                effect: null
+            },
+            // QUANTENSPRUNG Upgrades - Teleportation
+            {
+                id: 'quantensprung_common',
+                name: 'QUANTENSPRUNG',
+                description: '80px Teleport, 15s Cooldown',
+                category: 'common',
+                icon: '⚛️',
+                effect: null
+            },
+            {
+                id: 'quantensprung_rare',
+                name: 'QUANTENSPRUNG',
+                description: '120px Teleport, 12s Cooldown',
+                category: 'rare',
+                icon: '⚛️',
+                effect: null
+            },
+            {
+                id: 'quantensprung_epic',
+                name: 'QUANTENSPRUNG',
+                description: '160px Teleport, 8s Cooldown',
+                category: 'epic',
+                icon: '⚛️',
+                effect: null
+            },
+            {
+                id: 'quantensprung_legendary',
+                name: 'QUANTENSPRUNG',
+                description: '200px Teleport, 5s Cooldown',
+                category: 'legendary',
+                icon: '⚛️',
+                effect: null
+            },
+            
+            // GRAVITATIONSFELD upgrades - Aura that slows nearby enemies
+            {
+                id: 'gravitationsfeld_common',
+                name: 'GRAVITATIONSFELD',
+                description: 'Schwaches Gravitationsfeld',
+                category: 'common',
+                icon: '🌀',
+                effect: null
+            },
+            {
+                id: 'gravitationsfeld_rare',
+                name: 'GRAVITATIONSFELD',
+                description: 'Starkes Gravitationsfeld',
+                category: 'rare',
+                icon: '🌀',
+                effect: null
+            },
+            {
+                id: 'gravitationsfeld_epic',
+                name: 'GRAVITATIONSFELD',
+                description: 'Mächtiges Gravitationsfeld',
+                category: 'epic',
+                icon: '🌀',
+                effect: null
+            },
+            {
+                id: 'gravitationsfeld_legendary',
+                name: 'GRAVITATIONSFELD',
+                description: 'Schwarzes Loch der Verlangsamung',
+                category: 'legendary',
+                icon: '🌀',
+                effect: null
+            },
         ];
         
         // Category weights for random selection
@@ -451,6 +711,118 @@ class LevelUpSystem {
                 this.applyLuckUpgrade('legendary', 12);
                 break;
             
+            // LERNKURVE upgrades - XP multiplier
+            case 'lernkurve_common':
+                this.applyXpUpgrade(0.15); // +15% XP
+                break;
+            case 'lernkurve_rare':
+                this.applyXpUpgrade(0.25); // +25% XP
+                break;
+            case 'lernkurve_epic':
+                this.applyXpUpgrade(0.40); // +40% XP
+                break;
+            case 'lernkurve_legendary':
+                this.applyXpUpgrade(0.60); // +60% XP
+                break;
+            
+            // BLITZSCHRITT upgrades - Speed enhancement
+            case 'blitzschritt_common':
+                this.applySpeedUpgrade(0.10); // +10% Speed
+                break;
+            case 'blitzschritt_rare':
+                this.applySpeedUpgrade(0.18); // +18% Speed
+                break;
+            case 'blitzschritt_epic':
+                this.applySpeedUpgrade(0.28); // +28% Speed
+                break;
+            case 'blitzschritt_legendary':
+                this.applySpeedUpgrade(0.40); // +40% Speed
+                break;
+            
+            // ZEITDILATATION upgrades - Enemy slowdown
+            case 'zeitdilatation_common':
+                this.applyTimeDialationUpgrade(0.05); // 5% enemy slowdown
+                break;
+            case 'zeitdilatation_rare':
+                this.applyTimeDialationUpgrade(0.12); // 12% enemy slowdown
+                break;
+            case 'zeitdilatation_epic':
+                this.applyTimeDialationUpgrade(0.20); // 20% enemy slowdown
+                break;
+            case 'zeitdilatation_legendary':
+                this.applyTimeDialationUpgrade(0.35); // 35% enemy slowdown
+                break;
+            
+            // SCHUTZSCHILD upgrades - Regenerating shield
+            case 'schutzschild_common':
+                this.applyShieldUpgrade(1, 8); // 1 shield capacity, 8s regeneration
+                break;
+            case 'schutzschild_rare':
+                this.applyShieldUpgrade(2, 6); // 2 shield capacity, 6s regeneration
+                break;
+            case 'schutzschild_epic':
+                this.applyShieldUpgrade(3, 4); // 3 shield capacity, 4s regeneration
+                break;
+            case 'schutzschild_legendary':
+                this.applyShieldUpgrade(5, 2); // 5 shield capacity, 2s regeneration
+                break;
+            
+            // KOMBOFEUER upgrades - Combo timer extension and XP bonuses
+            case 'kombofeuer_common':
+                this.applyComboFireUpgrade(2, [{combo: 5, bonus: 0.05}]); // +2s timer, +5% XP at 5x combo
+                break;
+            case 'kombofeuer_rare':
+                this.applyComboFireUpgrade(4, [{combo: 5, bonus: 0.10}, {combo: 10, bonus: 0.15}]); // +4s timer, tiered bonuses
+                break;
+            case 'kombofeuer_epic':
+                this.applyComboFireUpgrade(6, [{combo: 5, bonus: 0.15}, {combo: 10, bonus: 0.25}, {combo: 15, bonus: 0.35}]); // +6s timer, tiered bonuses
+                break;
+            case 'kombofeuer_legendary':
+                this.applyComboFireUpgrade(10, [{combo: 5, bonus: 0.20}, {combo: 10, bonus: 0.35}, {combo: 15, bonus: 0.50}, {combo: 20, bonus: 0.75}]); // +10s timer, max bonuses
+                break;
+            
+            // MÜNZMAGNET upgrades - Auto coin collection and coin bonus
+            case 'muenzmagnet_common':
+                this.applyCoinMagnetUpgrade(50, 0.10); // 50px radius, +10% coins
+                break;
+            case 'muenzmagnet_rare':
+                this.applyCoinMagnetUpgrade(100, 0.20); // 100px radius, +20% coins
+                break;
+            case 'muenzmagnet_epic':
+                this.applyCoinMagnetUpgrade(150, 0.35); // 150px radius, +35% coins
+                break;
+            case 'muenzmagnet_legendary':
+                this.applyCoinMagnetUpgrade(200, 0.50); // 200px radius, +50% coins
+                break;
+            
+            // QUANTENSPRUNG upgrades - Teleportation ability
+            case 'quantensprung_common':
+                this.applyQuantumJumpUpgrade(8, 0.5); // 8s cooldown, 0.5s invulnerability
+                break;
+            case 'quantensprung_rare':
+                this.applyQuantumJumpUpgrade(6, 0.8); // 6s cooldown, 0.8s invulnerability
+                break;
+            case 'quantensprung_epic':
+                this.applyQuantumJumpUpgrade(4, 1.2); // 4s cooldown, 1.2s invulnerability
+                break;
+            case 'quantensprung_legendary':
+                this.applyQuantumJumpUpgrade(2, 2.0); // 2s cooldown, 2.0s invulnerability
+                break;
+            
+            // GRAVITATIONSFELD upgrades - Aura that slows nearby enemies
+            case 'gravitationsfeld_common':
+                this.applyGravitationalFieldUpgrade(80, 0.15); // 80px radius, 15% slowdown
+                break;
+            case 'gravitationsfeld_rare':
+                this.applyGravitationalFieldUpgrade(120, 0.25); // 120px radius, 25% slowdown
+                break;
+            case 'gravitationsfeld_epic':
+                this.applyGravitationalFieldUpgrade(160, 0.40); // 160px radius, 40% slowdown
+                break;
+            case 'gravitationsfeld_legendary':
+                this.applyGravitationalFieldUpgrade(220, 0.60); // 220px radius, 60% slowdown
+                break;
+            
             default:
                 console.warn(`⚠️ Unknown upgrade: ${upgrade.id}`);
         }
@@ -658,9 +1030,356 @@ class LevelUpSystem {
     }
     
     /**
-     * Show visual upgrade effect feedback
+     * Apply XP multiplier upgrade - increases XP gained from enemies
+     * @param {number} multiplierIncrease - Amount to increase XP multiplier by (e.g., 0.15 for +15%)
+     */
+    applyXpUpgrade(multiplierIncrease) {
+        if (window.game && window.game.levelSystem) {
+            // Initialize XP multiplier if it doesn't exist
+            if (!window.game.levelSystem.xpMultiplier) {
+                window.game.levelSystem.xpMultiplier = 1.0;
+            }
+            
+            const oldMultiplier = window.game.levelSystem.xpMultiplier;
+            window.game.levelSystem.xpMultiplier += multiplierIncrease;
+            const newMultiplier = window.game.levelSystem.xpMultiplier;
+            
+            const percentageIncrease = Math.round(multiplierIncrease * 100);
+            const totalPercentage = Math.round((newMultiplier - 1) * 100);
+            
+            console.log(`📚 XP Multiplier increased: ${oldMultiplier.toFixed(2)}x → ${newMultiplier.toFixed(2)}x (+${percentageIncrease}%)`);
+            console.log(`📈 Total XP bonus: +${totalPercentage}%`);
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`+${percentageIncrease}% XP!`, '#FFD700');
+        } else {
+            console.error('❌ Cannot apply XP upgrade: window.game.levelSystem not available');
+        }
+    }
+    
+    /**
+     * Apply speed multiplier upgrade - increases player movement speed
+     * @param {number} multiplierIncrease - Amount to increase speed multiplier by (e.g., 0.10 for +10%)
+     */
+    applySpeedUpgrade(multiplierIncrease) {
+        if (window.game && window.game.playerInput) {
+            // Initialize speed multiplier if it doesn't exist
+            if (!window.game.playerInput.speedMultiplier) {
+                window.game.playerInput.speedMultiplier = 1.0;
+            }
+            
+            // Apply the speed increase
+            const oldMultiplier = window.game.playerInput.speedMultiplier;
+            window.game.playerInput.speedMultiplier += multiplierIncrease;
+            
+            // Calculate percentage for display
+            const percentageIncrease = Math.round(multiplierIncrease * 100);
+            const totalPercentage = Math.round((window.game.playerInput.speedMultiplier - 1.0) * 100);
+            
+            console.log(`⚡ Speed increased: ${oldMultiplier.toFixed(2)}x → ${window.game.playerInput.speedMultiplier.toFixed(2)}x (+${percentageIncrease}%)`);
+            console.log(`⚡ Total speed bonus: +${totalPercentage}%`);
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`+${percentageIncrease}% SPEED!`, '#00BFFF');
+        } else {
+            console.error('❌ Cannot apply speed upgrade: window.game.playerInput not available');
+        }
+    }
+    
+    /**
+     * Apply time dilation upgrade - slows down all enemies
+     * @param {number} slowdownFactor - Factor by which to slow enemies (0.05 = 5% slower)
+     */
+    applyTimeDialationUpgrade(slowdownFactor) {
+        if (window.game) {
+            // Initialize enemy slowdown multiplier if it doesn't exist
+            if (!window.game.enemySlowdownMultiplier) {
+                window.game.enemySlowdownMultiplier = 1.0;
+            }
+            
+            const oldMultiplier = window.game.enemySlowdownMultiplier;
+            window.game.enemySlowdownMultiplier -= slowdownFactor; // Reduce speed (slower)
+            
+            // Ensure minimum speed (don't completely freeze enemies)
+            window.game.enemySlowdownMultiplier = Math.max(0.1, window.game.enemySlowdownMultiplier);
+            
+            const percentageSlowdown = Math.round(slowdownFactor * 100);
+            const totalSlowdown = Math.round((1 - window.game.enemySlowdownMultiplier) * 100);
+            
+            console.log(`⏰ Time Dilation applied: ${oldMultiplier.toFixed(2)}x → ${window.game.enemySlowdownMultiplier.toFixed(2)}x (-${percentageSlowdown}%)`);
+            console.log(`⏰ Total enemy slowdown: ${totalSlowdown}%`);
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`⏰ -${percentageSlowdown}% ENEMY SPEED!`, '#00BFFF');
+        } else {
+            console.error('❌ Cannot apply time dilation: window.game not available');
+        }
+    }
+    
+    /**
+     * Apply shield upgrade - adds regenerating energy shield
+     * @param {number} shieldCapacity - Amount of shield points to add
+     * @param {number} regenerationTime - Time in seconds to regenerate shield
+     */
+    applyShieldUpgrade(shieldCapacity, regenerationTime) {
+        if (window.game) {
+            // Initialize shield system if it doesn't exist
+            if (!window.game.playerShield) {
+                window.game.playerShield = 0;
+            }
+            if (!window.game.playerMaxShield) {
+                window.game.playerMaxShield = 0;
+            }
+            if (!window.game.shieldRegenTime) {
+                window.game.shieldRegenTime = 10; // Default 10 seconds
+            }
+            
+            const oldMaxShield = window.game.playerMaxShield;
+            const oldCurrentShield = window.game.playerShield;
+            
+            // Increase shield capacity
+            window.game.playerMaxShield += shieldCapacity;
+            window.game.playerShield += shieldCapacity; // Also add to current shield
+            
+            // Update regeneration time (average with existing)
+            if (oldMaxShield > 0) {
+                window.game.shieldRegenTime = (window.game.shieldRegenTime + regenerationTime) / 2;
+            } else {
+                window.game.shieldRegenTime = regenerationTime;
+            }
+            
+            console.log(`🛡️ Shield upgraded: ${oldCurrentShield}/${oldMaxShield} → ${window.game.playerShield}/${window.game.playerMaxShield}`);
+            console.log(`🛡️ Shield regeneration time: ${window.game.shieldRegenTime.toFixed(1)}s`);
+            
+            // Start shield regeneration system if not already running
+            this.startShieldRegenerationSystem();
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`🛡️ +${shieldCapacity} SHIELD!`, '#0080FF');
+        } else {
+            console.error('❌ Cannot apply shield upgrade: window.game not available');
+        }
+    }
+    
+    /**
+     * Start the shield regeneration system timer
+     */
+    startShieldRegenerationSystem() {
+        // Prevent multiple timers
+        if (window.game.shieldRegenTimer) {
+            return;
+        }
+        
+        window.game.shieldLastDamageTime = Date.now();
+        
+        window.game.shieldRegenTimer = setInterval(() => {
+            if (!window.game.playerShield || !window.game.playerMaxShield) {
+                clearInterval(window.game.shieldRegenTimer);
+                window.game.shieldRegenTimer = null;
+                return;
+            }
+            
+            // Only regenerate if shield is not at maximum and enough time has passed since last damage
+            const timeSinceLastDamage = (Date.now() - (window.game.shieldLastDamageTime || 0)) / 1000;
+            const regenTime = window.game.shieldRegenTime || 10;
+            
+            if (window.game.playerShield < window.game.playerMaxShield && timeSinceLastDamage >= regenTime) {
+                window.game.playerShield = window.game.playerMaxShield;
+                console.log(`🛡️ Shield regenerated to full: ${window.game.playerShield}/${window.game.playerMaxShield}`);
+            }
+        }, 1000); // Check every second
+    }
+    
+    /**
+     * Apply combo fire upgrade - extends combo timer and adds XP bonuses
+     * @param {number} timerExtension - Seconds to extend combo timer
+     * @param {Array} bonusTiers - Array of {combo, bonus} objects for XP bonuses
+     */
+    applyComboFireUpgrade(timerExtension, bonusTiers) {
+        if (window.game) {
+            // Initialize combo system properties
+            if (!window.game.comboTimerExtension) {
+                window.game.comboTimerExtension = 0;
+            }
+            if (!window.game.comboXpBonuses) {
+                window.game.comboXpBonuses = [];
+            }
+            
+            const oldExtension = window.game.comboTimerExtension;
+            window.game.comboTimerExtension += timerExtension;
+            
+            // Add XP bonus tiers
+            bonusTiers.forEach(tier => {
+                const existingTier = window.game.comboXpBonuses.find(b => b.combo === tier.combo);
+                if (existingTier) {
+                    existingTier.bonus += tier.bonus;
+                } else {
+                    window.game.comboXpBonuses.push({combo: tier.combo, bonus: tier.bonus});
+                }
+            });
+            
+            // Sort bonuses by combo requirement
+            window.game.comboXpBonuses.sort((a, b) => a.combo - b.combo);
+            
+            console.log(`🔥 Combo Fire applied: Timer +${timerExtension}s (total: ${window.game.comboTimerExtension}s)`);
+            console.log(`🔥 XP Bonuses:`, window.game.comboXpBonuses);
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`🔥 +${timerExtension}s COMBO TIME!`, '#FF4500');
+        } else {
+            console.error('❌ Cannot apply combo fire upgrade: window.game not available');
+        }
+    }
+    
+    /**
+     * Apply coin magnet upgrade - auto-collects coins and increases coin drops
+     * @param {number} magnetRadius - Radius in pixels for auto-collection
+     * @param {number} coinBonus - Multiplier for coin drops (0.10 = +10%)
+     */
+    applyCoinMagnetUpgrade(magnetRadius, coinBonus) {
+        if (window.game) {
+            // Initialize coin magnet properties
+            if (!window.game.coinMagnetRadius) {
+                window.game.coinMagnetRadius = 0;
+            }
+            if (!window.game.coinDropMultiplier) {
+                window.game.coinDropMultiplier = 1.0;
+            }
+            
+            const oldRadius = window.game.coinMagnetRadius;
+            const oldMultiplier = window.game.coinDropMultiplier;
+            
+            window.game.coinMagnetRadius += magnetRadius;
+            window.game.coinDropMultiplier += coinBonus;
+            
+            const percentageBonus = Math.round(coinBonus * 100);
+            const totalBonus = Math.round((window.game.coinDropMultiplier - 1) * 100);
+            
+            console.log(`🧲 Coin Magnet applied: Radius ${oldRadius}px → ${window.game.coinMagnetRadius}px`);
+            console.log(`🧲 Coin bonus: ${oldMultiplier.toFixed(2)}x → ${window.game.coinDropMultiplier.toFixed(2)}x (+${percentageBonus}%)`);
+            console.log(`🧲 Total coin bonus: +${totalBonus}%`);
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`🧲 +${percentageBonus}% COINS!`, '#FFD700');
+        } else {
+            console.error('❌ Cannot apply coin magnet upgrade: window.game not available');
+        }
+    }
+    
+    /**
+     * Apply quantum jump upgrade - enables teleportation with cooldown and invulnerability
+     * @param {number} cooldownTime - Cooldown in seconds between jumps
+     * @param {number} invulnerabilityTime - Invulnerability duration after jump
+     */
+    applyQuantumJumpUpgrade(cooldownTime, invulnerabilityTime) {
+        if (window.game) {
+            // Initialize quantum jump properties
+            if (!window.game.quantumJumpEnabled) {
+                window.game.quantumJumpEnabled = true;
+                window.game.quantumJumpLastUsed = 0;
+            }
+            if (!window.game.quantumJumpCooldown) {
+                window.game.quantumJumpCooldown = cooldownTime;
+            } else {
+                // Average cooldown times for stacking
+                window.game.quantumJumpCooldown = (window.game.quantumJumpCooldown + cooldownTime) / 2;
+            }
+            if (!window.game.quantumJumpInvulnerability) {
+                window.game.quantumJumpInvulnerability = invulnerabilityTime;
+            } else {
+                // Add invulnerability times for stacking
+                window.game.quantumJumpInvulnerability += invulnerabilityTime * 0.5; // Diminishing returns
+            }
+            
+            console.log(`⚡ Quantum Jump enabled: ${window.game.quantumJumpCooldown.toFixed(1)}s cooldown, ${window.game.quantumJumpInvulnerability.toFixed(1)}s invulnerability`);
+            
+            // Add key binding info to game and show in UI
+            if (!window.game.quantumJumpKeyBound) {
+                window.game.quantumJumpKeyBound = true;
+                console.log(`⚡ Press SPACE to teleport to mouse cursor!`);
+                
+                // Show Quantum Jump key binding in UI
+                const quantumJumpBinding = document.getElementById('quantumJumpBinding');
+                if (quantumJumpBinding) {
+                    quantumJumpBinding.style.display = 'flex';
+                }
+            }
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`⚡ QUANTUM JUMP!`, '#9400D3');
+        } else {
+            console.error('❌ Cannot apply quantum jump upgrade: window.game not available');
+        }
+    }
+    
+    /**
+     * Apply gravitational field upgrade - creates aura that slows nearby enemies
+     * @param {number} auraRadius - Radius in pixels for the gravitational field
+     * @param {number} slowdownFactor - Factor by which to slow enemies (0.15 = 15% slower)
+     */
+    applyGravitationalFieldUpgrade(auraRadius, slowdownFactor) {
+        if (window.game) {
+            // Initialize gravitational field properties
+            if (!window.game.gravitationalFieldRadius) {
+                window.game.gravitationalFieldRadius = 0;
+            }
+            if (!window.game.gravitationalFieldSlowdown) {
+                window.game.gravitationalFieldSlowdown = 0;
+            }
+            
+            const oldRadius = window.game.gravitationalFieldRadius;
+            const oldSlowdown = window.game.gravitationalFieldSlowdown;
+            
+            // Add to existing field (stacking)
+            window.game.gravitationalFieldRadius += auraRadius;
+            window.game.gravitationalFieldSlowdown += slowdownFactor;
+            
+            // Cap maximum slowdown at 90% to prevent complete freeze
+            window.game.gravitationalFieldSlowdown = Math.min(0.90, window.game.gravitationalFieldSlowdown);
+            
+            const percentageSlowdown = Math.round(slowdownFactor * 100);
+            const totalSlowdown = Math.round(window.game.gravitationalFieldSlowdown * 100);
+            
+            console.log(`🌀 Gravitational Field applied: Radius ${oldRadius}px → ${window.game.gravitationalFieldRadius}px`);
+            console.log(`🌀 Slowdown: ${Math.round(oldSlowdown * 100)}% → ${totalSlowdown}% (+${percentageSlowdown}%)`);
+            
+            // Start gravitational field system if not already running
+            this.startGravitationalFieldSystem();
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`🌀 +${percentageSlowdown}% AURA SLOWDOWN!`, '#4B0082');
+        } else {
+            console.error('❌ Cannot apply gravitational field upgrade: window.game not available');
+        }
+    }
+    
+    /**
+     * Start the gravitational field system that continuously affects nearby enemies
+     */
+    startGravitationalFieldSystem() {
+        // Prevent multiple timers
+        if (window.game.gravitationalFieldTimer) {
+            return;
+        }
+        
+        window.game.gravitationalFieldTimer = setInterval(() => {
+            if (!window.game.gravitationalFieldRadius || !window.game.gravitationalFieldSlowdown) {
+                clearInterval(window.game.gravitationalFieldTimer);
+                window.game.gravitationalFieldTimer = null;
+                return;
+            }
+            
+            // This system will be integrated with the enemy movement system
+            // For now, we just store the field properties for the game engine to use
+            console.log(`🌀 Gravitational field active: ${window.game.gravitationalFieldRadius}px radius, ${Math.round(window.game.gravitationalFieldSlowdown * 100)}% slowdown`);
+            
+        }, 5000); // Log status every 5 seconds for debugging
+    }
+    
+    /**
+     * Show visual feedback for upgrade effects
      * @param {string} message - Message to display
-     * @param {string} color - Color of the effect text
+     * @param {string} color - Color of the text
      */
     showUpgradeEffect(message, color = '#00ff00') {
         // Create temporary feedback element
