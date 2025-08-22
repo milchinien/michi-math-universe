@@ -80,6 +80,9 @@
             <button class="menu-btn" onclick="showHighScores()">
                 🏆 BESTENLISTE
             </button>
+            <button class="menu-btn" onclick="showUpgrades()">
+                🔧 UPGRADES
+            </button>
         </div>
 
         <div id="menuStats">
@@ -185,6 +188,33 @@
             <button class="menu-btn" onclick="closeSettings()" style="margin-top: 10px;">
                 ↩️ ZURÜCK
             </button>
+        </div>
+    </div>
+
+    <!-- Upgrades Menu -->
+    <div id="upgradesMenu">
+        <div id="upgradesContent">
+            <button class="upgrades-back-btn" onclick="closeUpgrades()">↩️ ZURÜCK ZUM MENÜ</button>
+            
+            <div id="upgradesTitle">UPGRADES</div>
+            
+            <div class="upgrades-grid" id="upgradesGrid">
+                <!-- Upgrade icons werden hier dynamisch eingefügt -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Upgrade Detail Modal -->
+    <div id="upgradeDetailModal">
+        <div id="upgradeDetailContent">
+            <button class="upgrade-detail-close" onclick="closeUpgradeDetail()">✖</button>
+            
+            <div class="upgrade-detail-icon" id="upgradeDetailIcon">📚</div>
+            <div id="upgradeDetailTitle">UPGRADE NAME</div>
+            
+            <div id="upgradeDetailRarities">
+                <!-- Rarity sections werden hier dynamisch eingefügt -->
+            </div>
         </div>
     </div>
 

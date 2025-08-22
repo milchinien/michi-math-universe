@@ -12,3 +12,14 @@ Bei der Seltenheit "Legendary" wird xxx erhöht.
 Das Upgrade soll als Titel "xxx" haben.
 
 Das Upgrade soll als Bild ein rotes Herz haben.
+
+
+---
+
+Erstelle aus dieser Vorlage ein gebalanced Upgrade zu folgenden Thema:(xxx)
+
+Achte darauf das das Upgrade nur das macht was der Name sagt und nichts anderes.
+
+das Upgrade soll nicht zu stark aber auch nicht zu schwach sein.
+
+man sollte mehrere käufe benötigen um die volle Effektivität des Upgrades zu erreichen.

@@ -59,6 +59,143 @@ function closeSettings() {
 }
 
 function showHighScores() {
+    // TODO: Implement high scores display
+    console.log('High Scores menu not yet implemented');
+}
+
+function showUpgrades() {
+    document.getElementById('upgradesMenu').style.display = 'flex';
+    populateUpgradesMenu();
+}
+
+function closeUpgrades() {
+    document.getElementById('upgradesMenu').style.display = 'none';
+}
+
+function populateUpgradesMenu() {
+    if (!window.game || !window.game.levelUpSystem) {
+        console.warn('Game or LevelUpSystem not available');
+        return;
+    }
+
+    const upgradePool = window.game.levelUpSystem.upgradePool;
+    const upgradesGrid = document.getElementById('upgradesGrid');
+    
+    // Clear existing upgrades
+    upgradesGrid.innerHTML = '';
+    
+    // Group upgrades by name
+    const upgradeGroups = {};
+    upgradePool.forEach(upgrade => {
+        if (!upgradeGroups[upgrade.name]) {
+            upgradeGroups[upgrade.name] = [];
+        }
+        upgradeGroups[upgrade.name].push(upgrade);
+    });
+    
+    // Create upgrade icon slots (only show common/first version)
+    Object.keys(upgradeGroups).forEach(upgradeName => {
+        const upgrades = upgradeGroups[upgradeName];
+        const commonUpgrade = upgrades.find(u => u.category === 'common') || upgrades[0];
+        
+        const upgradeSlot = document.createElement('div');
+        upgradeSlot.className = 'upgrade-icon-slot available';
+        upgradeSlot.onclick = () => showUpgradeDetail(upgradeName, upgrades);
+        
+        upgradeSlot.innerHTML = `
+            <div class="upgrade-icon-display">${commonUpgrade.icon}</div>
+        `;
+        
+        upgradesGrid.appendChild(upgradeSlot);
+    });
+    
+    // Add placeholder slots for future upgrades (question marks)
+    const placeholderCount = 8; // Add 8 placeholder slots
+    for (let i = 0; i < placeholderCount; i++) {
+        const placeholderSlot = document.createElement('div');
+        placeholderSlot.className = 'upgrade-icon-slot placeholder';
+        
+        placeholderSlot.innerHTML = `
+            <div class="upgrade-icon-display">?</div>
+        `;
+        
+        upgradesGrid.appendChild(placeholderSlot);
+    }
+}
+
+function showUpgradeDetail(upgradeName, upgrades) {
+    const modal = document.getElementById('upgradeDetailModal');
+    const title = document.getElementById('upgradeDetailTitle');
+    const icon = document.getElementById('upgradeDetailIcon');
+    const raritiesContainer = document.getElementById('upgradeDetailRarities');
+    
+    // Set title and icon
+    title.textContent = upgradeName;
+    const commonUpgrade = upgrades.find(u => u.category === 'common') || upgrades[0];
+    icon.textContent = commonUpgrade.icon;
+    
+    // Clear existing rarities
+    raritiesContainer.innerHTML = '';
+    
+    // Sort upgrades by rarity order
+    const rarityOrder = ['common', 'rare', 'epic', 'legendary'];
+    const sortedUpgrades = upgrades.sort((a, b) => 
+        rarityOrder.indexOf(a.category) - rarityOrder.indexOf(b.category)
+    );
+    
+    // Create rarity sections
+    sortedUpgrades.forEach(upgrade => {
+        const raritySection = document.createElement('div');
+        raritySection.className = `upgrade-rarity-section ${upgrade.category}`;
+        
+        raritySection.innerHTML = `
+            <div class="upgrade-rarity-title">${upgrade.category.toUpperCase()}</div>
+            <div class="upgrade-rarity-description">${upgrade.description}</div>
+        `;
+        
+        raritiesContainer.appendChild(raritySection);
+    });
+    
+    // Show modal
+    modal.style.display = 'flex';
+}
+
+function closeUpgradeDetail() {
+    document.getElementById('upgradeDetailModal').style.display = 'none';
+}
+
+let currentFilter = 'all';
+
+function filterUpgrades(category) {
+    currentFilter = category;
+    
+    // Update filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Filter upgrade cards
+    const upgradeCards = document.querySelectorAll('.upgrade-overview-card');
+    upgradeCards.forEach(card => {
+        const variants = card.querySelectorAll('.variant');
+        let shouldShow = false;
+        
+        if (category === 'all') {
+            shouldShow = true;
+        } else {
+            variants.forEach(variant => {
+                if (variant.classList.contains(category)) {
+                    shouldShow = true;
+                }
+            });
+        }
+        
+        card.style.display = shouldShow ? 'block' : 'none';
+    });
+}
+
+function showHighScores() {
     // For now, just show an alert with current high score
     const highScore = localStorage.getItem('formelFuryHighScore') || 0;
     alert(`🏆 Aktuelle Bestenliste:\n\nHöchste Punktzahl: ${highScore}\n\n(Erweiterte Bestenliste kommt in einem späteren Update!)`);

@@ -124,6 +124,39 @@ class LevelUpSystem {
                 category: 'legendary',
                 icon: '🍀',
                 effect: null
+            },
+            // LERNKURVE Upgrades - XP Bonus
+            {
+                id: 'lernkurve_common',
+                name: 'LERNKURVE',
+                description: '+15% XP von Gegnern',
+                category: 'common',
+                icon: '📚',
+                effect: null
+            },
+            {
+                id: 'lernkurve_rare',
+                name: 'LERNKURVE',
+                description: '+25% XP von Gegnern',
+                category: 'rare',
+                icon: '📖',
+                effect: null
+            },
+            {
+                id: 'lernkurve_epic',
+                name: 'LERNKURVE',
+                description: '+40% XP von Gegnern',
+                category: 'epic',
+                icon: '📘',
+                effect: null
+            },
+            {
+                id: 'lernkurve_legendary',
+                name: 'LERNKURVE',
+                description: '+60% XP von Gegnern',
+                category: 'legendary',
+                icon: '📚✨',
+                effect: null
             }
         ];
         
