@@ -9,6 +9,55 @@
 <body>
     <canvas id="gameCanvas"></canvas>
 
+    <!-- Player Stats Panel -->
+    <div id="playerStatsPanel">
+        <div class="stats-header">
+            <span class="stats-title">📊 SPIELER STATS</span>
+        </div>
+        <div class="stats-content">
+            <div class="stat-row">
+                <span class="stat-icon">❤️</span>
+                <span class="stat-label">HP:</span>
+                <span class="stat-value" id="statHP">3/3</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-icon">💚</span>
+                <span class="stat-label">HP-Reg:</span>
+                <span class="stat-value" id="statHPRegen">0.0/s</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-icon">🍀</span>
+                <span class="stat-label">Glück:</span>
+                <span class="stat-value" id="statLuck">0%</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-icon">⚡</span>
+                <span class="stat-label">Speed:</span>
+                <span class="stat-value" id="statSpeed">100%</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-icon">🎯</span>
+                <span class="stat-label">Combo:</span>
+                <span class="stat-value" id="statCombo">0x</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-icon">💰</span>
+                <span class="stat-label">Coins:</span>
+                <span class="stat-value" id="statCoins">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-icon">🌊</span>
+                <span class="stat-label">Wave:</span>
+                <span class="stat-value" id="statWave">1</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-icon">📈</span>
+                <span class="stat-label">Level:</span>
+                <span class="stat-value" id="statLevel">1</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Menu -->
     <div id="mainMenu">
         <div id="menuTitle">
@@ -380,6 +429,7 @@
    <script src="js/player-input.js"></script>
    <script src="js/game-engine.js"></script>
    <script src="js/menu-system.js"></script>
+   <script src="js/stats-system.js"></script>
    <script src="js/main.js"></script>
 </body>
 </html>

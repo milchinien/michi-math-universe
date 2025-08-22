@@ -17,6 +17,14 @@ class LevelUpSystem {
         this.currentUpgrades = [];
         this.coinsEarned = 0;
         
+        // Luck system - tracks accumulated luck bonuses
+        this.luckBonuses = {
+            common: 0,    // +2% per stack
+            rare: 0,      // +4% per stack  
+            epic: 0,      // +7% per stack
+            legendary: 0  // +12% per stack
+        };
+        
         // Upgrade pool - PLUS-HP UPGRADES implemented
         this.upgradePool = [
             {
@@ -82,6 +90,39 @@ class LevelUpSystem {
                 description: '+0.5 HP/Sek Regeneration',
                 category: 'legendary',
                 icon: '🟢✚',
+                effect: null
+            },
+            // GLÜCKS-FORMEL Upgrades - Luck Enhancement
+            {
+                id: 'gluecks_formel_common',
+                name: 'GLÜCKS-FORMEL',
+                description: '+2% Glück',
+                category: 'common',
+                icon: '🍀',
+                effect: null
+            },
+            {
+                id: 'gluecks_formel_rare',
+                name: 'GLÜCKS-FORMEL',
+                description: '+4% Glück',
+                category: 'rare',
+                icon: '🍀',
+                effect: null
+            },
+            {
+                id: 'gluecks_formel_epic',
+                name: 'GLÜCKS-FORMEL',
+                description: '+7% Glück',
+                category: 'epic',
+                icon: '🍀',
+                effect: null
+            },
+            {
+                id: 'gluecks_formel_legendary',
+                name: 'GLÜCKS-FORMEL',
+                description: '+12% Glück',
+                category: 'legendary',
+                icon: '🍀',
                 effect: null
             }
         ];
@@ -232,15 +273,18 @@ class LevelUpSystem {
      * Select a random upgrade based on category weights
      */
     selectRandomUpgrade() {
+        // Get modified category weights based on luck bonuses
+        const weights = this.getModifiedCategoryWeights();
+        
         // Filter upgrades by weighted random category selection
         const randomValue = Math.random();
         let targetCategory = 'common';
         
-        if (randomValue <= this.categoryWeights.legendary) {
+        if (randomValue <= weights.legendary) {
             targetCategory = 'legendary';
-        } else if (randomValue <= this.categoryWeights.legendary + this.categoryWeights.epic) {
+        } else if (randomValue <= weights.legendary + weights.epic) {
             targetCategory = 'epic';
-        } else if (randomValue <= this.categoryWeights.legendary + this.categoryWeights.epic + this.categoryWeights.rare) {
+        } else if (randomValue <= weights.legendary + weights.epic + weights.rare) {
             targetCategory = 'rare';
         }
         
@@ -358,6 +402,20 @@ class LevelUpSystem {
             case 'heilungsformel_legendary':
                 this.applyFullHeal();
                 this.applyRegeneration(1, 15); // 1 HP/sec for 15 seconds (reduced from 2)
+                break;
+            
+            // GLÜCKS-FORMEL upgrades - luck enhancement
+            case 'gluecks_formel_common':
+                this.applyLuckUpgrade('common', 2);
+                break;
+            case 'gluecks_formel_rare':
+                this.applyLuckUpgrade('rare', 4);
+                break;
+            case 'gluecks_formel_epic':
+                this.applyLuckUpgrade('epic', 7);
+                break;
+            case 'gluecks_formel_legendary':
+                this.applyLuckUpgrade('legendary', 12);
                 break;
             
             default:
@@ -505,6 +563,65 @@ class LevelUpSystem {
                 window.game.regenerationTimer = null;
             }
         }, 1000); // Run every second
+    }
+    
+    /**
+     * Apply luck upgrade - increases chances for better rarities
+     * @param {string} rarity - The rarity of the luck upgrade (common/rare/epic/legendary)
+     * @param {number} luckBonus - The luck percentage bonus to add
+     */
+    applyLuckUpgrade(rarity, luckBonus) {
+        // Increment the luck bonus for this rarity (max 15 stacks per rarity)
+        if (this.luckBonuses[rarity] < 15) {
+            this.luckBonuses[rarity]++;
+            
+            console.log(`🍀 Luck upgrade applied: ${rarity} (+${luckBonus}%) - Stack ${this.luckBonuses[rarity]}/15`);
+            console.log('🍀 Current luck bonuses:', this.luckBonuses);
+            
+            // Show visual feedback
+            this.showUpgradeEffect(`🍀 +${luckBonus}% Glück!`, '#00ff00');
+        } else {
+            console.log(`🍀 Max luck stacks reached for ${rarity} (15/15)`);
+            this.showUpgradeEffect(`🍀 Max Glück erreicht!`, '#ffff00');
+        }
+    }
+    
+    /**
+     * Calculate modified category weights based on luck bonuses
+     * @returns {Object} Modified category weights
+     */
+    getModifiedCategoryWeights() {
+        // Base weights
+        let weights = {
+            'common': 0.65,
+            'rare': 0.25,
+            'epic': 0.08,
+            'legendary': 0.02
+        };
+        
+        // Apply luck bonuses based on stacks
+        const commonBonus = this.luckBonuses.common * 0.02;  // 2% per stack
+        const rareBonus = this.luckBonuses.rare * 0.04;      // 4% per stack
+        const epicBonus = this.luckBonuses.epic * 0.07;      // 7% per stack
+        const legendaryBonus = this.luckBonuses.legendary * 0.12; // 12% per stack
+        
+        // Total bonus to redistribute
+        const totalBonus = commonBonus + rareBonus + epicBonus + legendaryBonus;
+        
+        // Redistribute weights (take from common, give to higher rarities)
+        weights.common = Math.max(0.1, weights.common - totalBonus * 0.6);
+        weights.rare = Math.min(0.5, weights.rare + (commonBonus * 0.75) + (rareBonus * 0.5));
+        weights.epic = Math.min(0.3, weights.epic + (commonBonus * 0.15) + (rareBonus * 0.35) + (epicBonus * 0.6));
+        weights.legendary = Math.min(0.25, weights.legendary + (commonBonus * 0.1) + (rareBonus * 0.15) + (epicBonus * 0.4) + (legendaryBonus * 0.8));
+        
+        // Normalize to ensure they sum to 1.0
+        const sum = weights.common + weights.rare + weights.epic + weights.legendary;
+        weights.common /= sum;
+        weights.rare /= sum;
+        weights.epic /= sum;
+        weights.legendary /= sum;
+        
+        return weights;
     }
     
     /**

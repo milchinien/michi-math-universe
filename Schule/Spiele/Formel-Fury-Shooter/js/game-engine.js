@@ -36,6 +36,7 @@ class GameEngine {
        this.waveSystem = null;
        this.levelSystem = null;
        this.levelUpSystem = null;
+       this.statsSystem = null;
        
        // Input state tracking
        this.spacePressed = false;
@@ -225,6 +226,9 @@ class GameEngine {
         // Create level up system
         this.levelUpSystem = new LevelUpSystem();
         
+        // Create stats system
+        this.statsSystem = new StatsSystem();
+        
         // Create enemy spawner
         this.enemySpawner = new EnemySpawner(this.formulaSystem);
         
@@ -404,6 +408,11 @@ class GameEngine {
         this.gameState = 'menu';
         this.isRunning = false;
         
+        // Hide stats panel when returning to menu
+        if (this.statsSystem) {
+            this.statsSystem.hide();
+        }
+        
         // Show canvas for background animation but keep menu visible
         this.canvas.style.display = 'block';
         this.canvas.style.filter = 'blur(3px)';
@@ -576,6 +585,12 @@ class GameEngine {
         this.showGameHUD();
         this.updateGameModeInfo();
         this.resetGame();
+        
+        // Show stats panel during gameplay
+        if (this.statsSystem) {
+            this.statsSystem.show();
+        }
+        
         this.start();
         
         // Start first wave after a short delay
