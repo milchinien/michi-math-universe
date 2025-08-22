@@ -5,40 +5,44 @@
  */
 
 class Enemy {
-    constructor(x, y, formulaSystem, type = 'basic') {
+    constructor(x, y, type = 'polynom_zombie') {
         this.x = x;
         this.y = y;
         this.type = type;
+        this.typeData = this.getTypeData(type);
+        this.width = this.typeData.width;
+        this.height = this.typeData.height;
+        this.color = this.typeData.color;
+        this.glowColor = this.typeData.glowColor;
+        this.shape = this.typeData.shape;
+        this.speed = this.typeData.speed;
+        this.health = this.typeData.health;
+        this.maxHealth = this.typeData.health;
+        this.damage = this.typeData.damage;
+        this.coinValue = this.typeData.coinValue;
+        this.xpValue = this.typeData.xpValue;
         
-        // Set type-specific properties
-        this.setTypeProperties();
-        
-        // AI behavior - SMOOTH MOVEMENT
-        this.targetX = x;
-        this.targetY = y;
-        this.velocity = { x: 0, y: 0 };
-        this.targetVelocity = { x: 0, y: 0 };
-        this.smoothFactor = 0.12; // slightly slower smoothing than player
-        this.lastDirectionUpdate = 0;
-        this.directionUpdateInterval = this.baseDirectionInterval; // Use type-specific interval
-        this.minVelocity = 0.5; // threshold to stop tiny movements
-        
-        // Formula assignment based on type
-        this.assignedFormula = this.generateTypeSpecificFormula(formulaSystem);
-        this.isTargeted = false; // When player is close enough to see formula
-        this.showTargetIndicator = false; // Show targeting reticle
-        
-        // Status effects
+        this.vx = 0;
+        this.vy = 0;
+        this.isTargeted = false;
         this.isDead = false;
-        this.deathTimer = 0;
-        this.deathDuration = 1000; // 1 second death animation
+        this.deathTime = 0;
+        this.formula = null;
+        this.lastPlayerDistance = Infinity;
+        this.isCore = false;
         
-        // Type-specific visual effects
-        this.pulsePhase = Math.random() * Math.PI * 2;
-        this.rotationSpeed = this.baseRotationSpeed;
+        // Animation properties for intelligent behavior
+        this.animationTime = Math.random() * Math.PI * 2;
+        this.thinkingPulse = 0;
+        this.antennaWave = 0;
+        this.eyeGlow = 0.5;
+        this.processingState = 'idle'; // idle, thinking, calculating, alert
+        this.lastStateChange = Date.now();
+        
+        this.generateFormula();
     }
 
-    setTypeProperties() {
+    getTypeData(type) {
         const types = {
             'polynom_zombie': {
                 name: 'Polynom-Zombie',
@@ -47,9 +51,12 @@ class Enemy {
                 speed: 60,
                 maxSpeed: 90,
                 health: 80,
+                damage: 10,
+                coinValue: 5,
+                xpValue: 10,
                 acceleration: 300,
-                color: '#00ff00',
-                glowColor: '#00ff0080',
+                color: '#8B4513',
+                glowColor: 'rgba(139, 69, 19, 0.5)',
                 shape: 'hexagon',
                 directionInterval: 150,
                 rotationSpeed: 0.02,
@@ -63,9 +70,12 @@ class Enemy {
                 speed: 120,
                 maxSpeed: 180,
                 health: 60,
+                damage: 15,
+                coinValue: 8,
+                xpValue: 15,
                 acceleration: 600,
-                color: '#00ffff',
-                glowColor: '#00ffff80',
+                color: '#A0522D',
+                glowColor: 'rgba(160, 82, 45, 0.5)',
                 shape: 'diamond',
                 directionInterval: 80,
                 rotationSpeed: 0.05,
@@ -79,9 +89,12 @@ class Enemy {
                 speed: 40,
                 maxSpeed: 70,
                 health: 150,
+                damage: 25,
+                coinValue: 15,
+                xpValue: 30,
                 acceleration: 200,
-                color: '#ff0080',
-                glowColor: '#ff008080',
+                color: '#654321',
+                glowColor: 'rgba(101, 67, 33, 0.5)',
                 shape: 'star',
                 directionInterval: 200,
                 rotationSpeed: 0.01,
@@ -95,9 +108,12 @@ class Enemy {
                 speed: 80,
                 maxSpeed: 120,
                 health: 100,
+                damage: 12,
+                coinValue: 6,
+                xpValue: 12,
                 acceleration: 400,
-                color: '#ff3300',
-                glowColor: '#ff330080',
+                color: '#CD853F',
+                glowColor: 'rgba(205, 133, 63, 0.5)',
                 shape: 'hexagon',
                 directionInterval: 100,
                 rotationSpeed: 0.03,
@@ -106,224 +122,132 @@ class Enemy {
             }
         };
 
-        const props = types[this.type] || types['basic'];
-        
-        // Apply properties
-        this.typeName = props.name;
-        this.width = props.width;
-        this.height = props.height;
-        this.speed = props.speed;
-        this.maxSpeed = props.maxSpeed;
-        this.health = props.health;
-        this.maxHealth = props.health;
-        this.acceleration = props.acceleration;
-        this.color = props.color;
-        this.glowColor = props.glowColor;
-        this.shape = props.shape;
-        this.baseDirectionInterval = props.directionInterval;
-        this.baseRotationSpeed = props.rotationSpeed;
-        this.scoreMultiplier = props.scoreMultiplier;
-        this.difficultyBias = props.difficultyBias;
-        this.angle = 0;
+        return types[type] || types['basic'];
     }
 
-    generateTypeSpecificFormula(formulaSystem) {
-        // Get available formula types for current progress
-        const availableTypes = formulaSystem.getAvailableFormulaTypes(['expansion_plus', 'expansion_minus', 'difference_squares', 'factorization_difference', 'factorization_square']);
+    generateFormula() {
+        // Generate a simple binomial formula compatible with the game's formula system
+        const a = Math.floor(Math.random() * 5) + 1; // 1-5
+        const b = Math.floor(Math.random() * 5) + 1; // 1-5
+        const variables = ['x', 'y', 'z', 'a', 'b', 'c'];
+        const variable = variables[Math.floor(Math.random() * variables.length)];
         
-        // Filter types based on enemy type preferences
-        let preferredTypes = [...availableTypes];
+        // Create binomial formula (a*variable + b)²
+        const text = `(${a}${variable} + ${b})²`;
         
+        // Calculate solutions
+        const expanded = `${a*a}${variable}² + ${2*a*b}${variable} + ${b*b}`;
+        const solutions = [
+            expanded,
+            expanded.replace('²', '^2'),
+            expanded.replace(/([a-z])²/g, ' $1² ').replace(/([a-z])/g, ' $1 ').replace(/\s+/g, ' ').trim(),
+            expanded.replace('²', '^2').replace(/([a-z])\^2/g, ' $1^2 ').replace(/([a-z])/g, ' $1 ').replace(/\s+/g, ' ').trim()
+        ];
+        
+        // Create assignedFormula object compatible with game engine
+        this.assignedFormula = {
+            type: 'binomial1',
+            typeName: 'Erste Binomische Formel',
+            text: text,
+            solutions: solutions,
+            difficulty: this.getDifficultyForType(),
+            variable: variable,
+            a: a,
+            b: b
+        };
+        
+        // Also set formula for backward compatibility
+        this.formula = this.assignedFormula;
+    }
+    
+    getDifficultyForType() {
         switch (this.type) {
-            case 'polynom_zombie':
-                // Prefers basic expansion formulas
-                preferredTypes = availableTypes.filter(type => 
-                    type === 'expansion_plus' || type === 'expansion_minus'
-                );
-                if (preferredTypes.length === 0) preferredTypes = [availableTypes[0]];
-                break;
-                
-            case 'gleichungs_geist':
-                // Prefers medium complexity
-                preferredTypes = availableTypes.filter(type => 
-                    type === 'expansion_minus' || type === 'difference_squares'
-                );
-                if (preferredTypes.length === 0) preferredTypes = availableTypes;
-                break;
-                
-            case 'elite_mob':
-                // Prefers advanced formulas
-                preferredTypes = availableTypes.filter(type => 
-                    type === 'factorization_difference' || type === 'factorization_square'
-                );
-                if (preferredTypes.length === 0) preferredTypes = availableTypes;
-                break;
-                
-            default:
-                // Standard distribution
-                break;
+            case 'polynom_zombie': return 1.0;
+            case 'gleichungs_geist': return 1.5;
+            case 'elite_mob': return 2.0;
+            default: return 1.2;
         }
-        
-        // Select random type from preferred
-        const selectedType = preferredTypes[Math.floor(Math.random() * preferredTypes.length)];
-        
-        // Generate formula with type-specific difficulty bias
-        const originalGenerateCoefficient = formulaSystem.generateCoefficient.bind(formulaSystem);
-        const originalGenerateConstant = formulaSystem.generateConstant.bind(formulaSystem);
-        
-        // Temporarily modify generation for this enemy
-        formulaSystem.generateCoefficient = () => {
-            let coeff = originalGenerateCoefficient();
-            if (this.difficultyBias < 0) {
-                coeff = Math.max(1, coeff - 1); // Easier
-            } else if (this.difficultyBias > 0) {
-                coeff = Math.min(7, coeff + Math.floor(this.difficultyBias * 2)); // Harder
-            }
-            return coeff;
-        };
-        
-        formulaSystem.generateConstant = () => {
-            let constant = originalGenerateConstant();
-            if (this.difficultyBias < 0) {
-                constant = Math.max(1, constant - 1); // Easier
-            } else if (this.difficultyBias > 0) {
-                constant = Math.min(10, constant + Math.floor(this.difficultyBias * 2)); // Harder
-            }
-            return constant;
-        };
-        
-        // Generate formula
-        const formula = formulaSystem.generateFormulaByType(selectedType);
-        
-        // Restore original methods
-        formulaSystem.generateCoefficient = originalGenerateCoefficient;
-        formulaSystem.generateConstant = originalGenerateConstant;
-        
-        // Adjust difficulty for this enemy type
-        formula.difficulty = Math.max(1, Math.min(5, formula.difficulty + this.difficultyBias));
-        
-        return formula;
     }
 
-    update(deltaTime, playerX, playerY, canvasWidth, canvasHeight) {
+    update(deltaTime, player) {
         if (this.isDead) {
-            this.updateDeathAnimation(deltaTime);
+            this.deathTime += deltaTime;
             return;
         }
         
-        const dt = deltaTime / 1000;
+        // Update animation timers
+        this.animationTime += deltaTime * 2;
+        this.thinkingPulse = Math.sin(this.animationTime * 0.8) * 0.3 + 0.7;
+        this.antennaWave = Math.sin(this.animationTime * 1.2) * 0.1;
+        this.eyeGlow = Math.sin(this.animationTime * 0.6) * 0.2 + 0.8;
         
-        // Update AI behavior
-        this.updateAI(playerX, playerY, deltaTime);
-        
-        // Update movement
-        this.updateMovement(dt);
-        
-        // Keep within canvas bounds
-        this.handleBoundaryCollision(canvasWidth, canvasHeight);
-        
-        // Update visual effects
-        this.pulsePhase += deltaTime * 0.003; // Slow pulsing
-        
-        // Check if player is close enough to see formula
-        const distanceToPlayer = Math.sqrt((this.x - playerX) ** 2 + (this.y - playerY) ** 2);
-        this.isTargeted = distanceToPlayer < 100; // Show formula when player is within 100px
-    }
-
-    updateAI(playerX, playerY, deltaTime) {
-        // Simple AI: Move towards player with some randomness
-        const currentTime = Date.now();
-        
-        if (currentTime - this.lastDirectionUpdate > this.directionUpdateInterval) {
-            // Calculate direction to player with some noise
-            const dx = playerX - this.x;
-            const dy = playerY - this.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            if (distance > 0) {
-                // Add some randomness to movement
-                const noise = 0.3;
-                const randomAngle = (Math.random() - 0.5) * noise;
-                const angle = Math.atan2(dy, dx) + randomAngle;
-                
-                this.targetX = this.x + Math.cos(angle) * this.speed;
-                this.targetY = this.y + Math.sin(angle) * this.speed;
-            }
-            
-            this.lastDirectionUpdate = currentTime;
-        }
-    }
-
-    updateMovement(dt) {
-        // Calculate desired velocity towards target
-        const dx = this.targetX - this.x;
-        const dy = this.targetY - this.y;
+        // Calculate distance to player
+        const dx = player.x - this.x;
+        const dy = player.y - this.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        let targetVelX = 0;
-        let targetVelY = 0;
+        // Update AI state based on distance and behavior
+        this.updateAIState(distance);
         
-        if (distance > 8) { // Larger dead zone to prevent jittering (was 5)
-            targetVelX = (dx / distance) * this.speed;
-            targetVelY = (dy / distance) * this.speed;
+        // Update targeting based on distance
+        this.isTargeted = distance < 150;
+        
+        // Move towards player with intelligent behavior
+        if (distance > 0) {
+            const speedMultiplier = this.getSpeedMultiplier();
+            const moveSpeed = this.speed * speedMultiplier * deltaTime * 0.001; // Convert deltaTime to seconds
+            this.vx = (dx / distance) * moveSpeed;
+            this.vy = (dy / distance) * moveSpeed;
+            
+            this.x += this.vx;
+            this.y += this.vy;
         }
         
-        // Apply acceleration towards target velocity
-        const velDiffX = targetVelX - this.velocity.x;
-        const velDiffY = targetVelY - this.velocity.y;
+        this.lastPlayerDistance = distance;
+    }
+
+    updateAIState(distance) {
+        // Update AI state based on distance and behavior
+        const currentTime = Date.now();
         
-        this.velocity.x += velDiffX * this.acceleration * dt;
-        this.velocity.y += velDiffY * this.acceleration * dt;
-        
-        // Apply velocity damping to reduce jitter
-        this.velocity.x *= 0.96; // slight damping
-        this.velocity.y *= 0.96;
-        
-        // Stop tiny movements that cause jitter
-        if (Math.abs(this.velocity.x) < 0.5) this.velocity.x = 0;
-        if (Math.abs(this.velocity.y) < 0.5) this.velocity.y = 0;
-        
-        // Limit max speed
-        const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
-        if (speed > this.maxSpeed) {
-            this.velocity.x = (this.velocity.x / speed) * this.maxSpeed;
-            this.velocity.y = (this.velocity.y / speed) * this.maxSpeed;
-        }
-        
-        // Update position and round to prevent sub-pixel jitter
-        this.x = Math.round(this.x + this.velocity.x * dt);
-        this.y = Math.round(this.y + this.velocity.y * dt);
-        
-        // Update angle for rotation
-        if (Math.abs(this.velocity.x) > 1 || Math.abs(this.velocity.y) > 1) {
-            this.angle = Math.atan2(this.velocity.y, this.velocity.x);
+        if (distance < 50) {
+            // Alert state
+            if (this.processingState !== 'alert') {
+                this.processingState = 'alert';
+                this.lastStateChange = currentTime;
+            }
+        } else if (distance < 100) {
+            // Calculating state
+            if (this.processingState !== 'calculating') {
+                this.processingState = 'calculating';
+                this.lastStateChange = currentTime;
+            }
+        } else if (distance < 150) {
+            // Thinking state
+            if (this.processingState !== 'thinking') {
+                this.processingState = 'thinking';
+                this.lastStateChange = currentTime;
+            }
+        } else {
+            // Idle state
+            if (this.processingState !== 'idle') {
+                this.processingState = 'idle';
+                this.lastStateChange = currentTime;
+            }
         }
     }
 
-    updateDeathAnimation(deltaTime) {
-        this.deathTimer += deltaTime;
-        if (this.deathTimer >= this.deathDuration) {
-            this.isDead = true; // Mark for removal
-        }
-    }
-
-    handleBoundaryCollision(canvasWidth, canvasHeight) {
-        // Bounce off walls
-        if (this.x < this.width / 2) {
-            this.x = this.width / 2;
-            this.velocity.x = Math.abs(this.velocity.x) * 0.5;
-        }
-        if (this.x > canvasWidth - this.width / 2) {
-            this.x = canvasWidth - this.width / 2;
-            this.velocity.x = -Math.abs(this.velocity.x) * 0.5;
-        }
-        if (this.y < this.height / 2) {
-            this.y = this.height / 2;
-            this.velocity.y = Math.abs(this.velocity.y) * 0.5;
-        }
-        if (this.y > canvasHeight - this.height / 2) {
-            this.y = canvasHeight - this.height / 2;
-            this.velocity.y = -Math.abs(this.velocity.y) * 0.5;
+    getSpeedMultiplier() {
+        // Calculate speed multiplier based on AI state
+        switch (this.processingState) {
+            case 'alert':
+                return 1.5;
+            case 'calculating':
+                return 1.2;
+            case 'thinking':
+                return 1.0;
+            default:
+                return 0.8;
         }
     }
 
@@ -331,20 +255,16 @@ class Enemy {
         this.health -= damage;
         if (this.health <= 0) {
             this.health = 0;
-            this.startDeathAnimation();
+            this.isDead = true;
         }
-    }
-
-    startDeathAnimation() {
-        this.isDead = true;
-        this.deathTimer = 0;
     }
 
     isCollidingWith(other) {
         const dx = this.x - other.x;
         const dy = this.y - other.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < (this.width + other.width) / 2;
+        const minDistance = (this.width + other.width) / 2;
+        return distance < minDistance;
     }
 
     render(ctx) {
@@ -398,62 +318,354 @@ class Enemy {
     }
 
     renderShape(ctx) {
-        ctx.beginPath();
+        // Draw sophisticated robot-like enemy based on type
+        this.renderRobotBody(ctx);
+        this.renderRobotDetails(ctx);
+    }
+
+    renderRobotBody(ctx) {
+        const bodySize = Math.min(this.width, this.height) * 0.4;
+        const headSize = bodySize * 0.6;
         
-        switch (this.shape) {
-            case 'hexagon':
-                for (let i = 0; i < 6; i++) {
-                    const angle = (i * Math.PI) / 3;
-                    const x = Math.cos(angle) * this.width / 2;
-                    const y = Math.sin(angle) * this.height / 2;
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
+        // Main body (circular/rounded)
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(0, 2, bodySize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Body outline for depth
+        ctx.strokeStyle = this.getDarkerColor(this.color);
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Head/face area
+        ctx.fillStyle = this.getLighterColor(this.color);
+        ctx.beginPath();
+        ctx.arc(0, -headSize * 0.5, headSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.strokeStyle = this.getDarkerColor(this.color);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+    }
+
+    renderRobotDetails(ctx) {
+        const size = Math.min(this.width, this.height);
+        const bodySize = size * 0.4;
+        const headSize = bodySize * 0.6;
+        
+        // Apply strength-based size variations
+        const strengthMultiplier = this.getStrengthMultiplier();
+        const adjustedBodySize = bodySize * strengthMultiplier;
+        const adjustedHeadSize = headSize * strengthMultiplier;
+        
+        // Antennas (different based on type)
+        this.renderAntennas(ctx, adjustedHeadSize);
+        
+        // Arms
+        this.renderArms(ctx, adjustedBodySize);
+        
+        // Face/Display (shows mathematical symbol)
+        this.renderFaceDisplay(ctx, adjustedHeadSize);
+        
+        // Body details (screws, panels, etc.)
+        this.renderBodyDetails(ctx, adjustedBodySize);
+        
+        // Type-specific enhancements
+        this.renderTypeSpecificDetails(ctx, size);
+        
+        // Intelligence indicators (thinking effects)
+        this.renderIntelligenceEffects(ctx, adjustedHeadSize);
+    }
+
+    renderAntennas(ctx, headSize) {
+        ctx.strokeStyle = this.getDarkerColor(this.color);
+        ctx.lineWidth = 2;
+        
+        // Apply subtle animation wave to antennas
+        const waveOffset = this.antennaWave;
+        
+        // Different antenna styles based on enemy type
+        switch (this.type) {
+            case 'polynom_zombie':
+                // Simple straight antennas with subtle movement
+                ctx.beginPath();
+                ctx.moveTo(-headSize * 0.3 + waveOffset, -headSize * 0.8);
+                ctx.lineTo(-headSize * 0.3 + waveOffset, -headSize * 1.3);
+                ctx.moveTo(headSize * 0.3 - waveOffset, -headSize * 0.8);
+                ctx.lineTo(headSize * 0.3 - waveOffset, -headSize * 1.3);
+                ctx.stroke();
+                
+                // Antenna tips with intelligence glow
+                const glowIntensity = this.processingState === 'thinking' ? this.thinkingPulse : 0.5;
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.glowColor;
+                ctx.shadowBlur = 5 * glowIntensity;
+                ctx.beginPath();
+                ctx.arc(-headSize * 0.3 + waveOffset, -headSize * 1.3, 2, 0, Math.PI * 2);
+                ctx.arc(headSize * 0.3 - waveOffset, -headSize * 1.3, 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
                 break;
                 
-            case 'diamond':
-                const halfW = this.width / 2;
-                const halfH = this.height / 2;
-                ctx.moveTo(halfW, 0);
-                ctx.lineTo(0, halfH);
-                ctx.lineTo(-halfW, 0);
-                ctx.lineTo(0, -halfH);
+            case 'gleichungs_geist':
+                // Curved antennas with enhanced movement
+                ctx.beginPath();
+                ctx.moveTo(-headSize * 0.2 + waveOffset * 0.5, -headSize * 0.7);
+                ctx.quadraticCurveTo(-headSize * 0.5 + waveOffset, -headSize * 1.2, -headSize * 0.1 + waveOffset * 0.3, -headSize * 1.4);
+                ctx.moveTo(headSize * 0.2 - waveOffset * 0.5, -headSize * 0.7);
+                ctx.quadraticCurveTo(headSize * 0.5 - waveOffset, -headSize * 1.2, headSize * 0.1 - waveOffset * 0.3, -headSize * 1.4);
+                ctx.stroke();
                 break;
                 
-            case 'star':
-                const outerRadius = this.width / 2;
-                const innerRadius = outerRadius * 0.5;
-                for (let i = 0; i < 10; i++) {
-                    const angle = (i * Math.PI) / 5;
-                    const radius = i % 2 === 0 ? outerRadius : innerRadius;
-                    const x = Math.cos(angle) * radius;
-                    const y = Math.sin(angle) * radius;
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
+            case 'elite_mob':
+                // Multiple complex antennas with sophisticated movement
+                const eliteWave = waveOffset * 0.7;
+                ctx.beginPath();
+                ctx.moveTo(-headSize * 0.4 + eliteWave, -headSize * 0.8);
+                ctx.lineTo(-headSize * 0.4 + eliteWave, -headSize * 1.5);
+                ctx.moveTo(0, -headSize * 0.9);
+                ctx.lineTo(0, -headSize * 1.6);
+                ctx.moveTo(headSize * 0.4 - eliteWave, -headSize * 0.8);
+                ctx.lineTo(headSize * 0.4 - eliteWave, -headSize * 1.5);
+                ctx.stroke();
+                
+                // Elite antenna decorations with enhanced glow
+                ctx.fillStyle = '#FFD700';
+                ctx.shadowColor = '#FFD700';
+                ctx.shadowBlur = 8 * this.thinkingPulse;
+                ctx.beginPath();
+                ctx.arc(-headSize * 0.4 + eliteWave, -headSize * 1.5, 3, 0, Math.PI * 2);
+                ctx.arc(0, -headSize * 1.6, 3, 0, Math.PI * 2);
+                ctx.arc(headSize * 0.4 - eliteWave, -headSize * 1.5, 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
                 break;
                 
-            default: // hexagon as fallback
-                for (let i = 0; i < 6; i++) {
-                    const angle = (i * Math.PI) / 3;
-                    const x = Math.cos(angle) * this.width / 2;
-                    const y = Math.sin(angle) * this.height / 2;
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
+            default:
+                // Basic antennas with minimal animation
+                ctx.beginPath();
+                ctx.moveTo(-headSize * 0.25 + waveOffset * 0.3, -headSize * 0.8);
+                ctx.lineTo(-headSize * 0.25 + waveOffset * 0.3, -headSize * 1.2);
+                ctx.moveTo(headSize * 0.25 - waveOffset * 0.3, -headSize * 0.8);
+                ctx.lineTo(headSize * 0.25 - waveOffset * 0.3, -headSize * 1.2);
+                ctx.stroke();
+                break;
+        }
+    }
+
+    renderArms(ctx, bodySize) {
+        ctx.strokeStyle = this.getDarkerColor(this.color);
+        ctx.lineWidth = 3;
+        
+        // Left arm
+        ctx.beginPath();
+        ctx.moveTo(-bodySize * 0.8, 0);
+        ctx.lineTo(-bodySize * 1.3, bodySize * 0.3);
+        ctx.stroke();
+        
+        // Right arm
+        ctx.beginPath();
+        ctx.moveTo(bodySize * 0.8, 0);
+        ctx.lineTo(bodySize * 1.3, bodySize * 0.3);
+        ctx.stroke();
+        
+        // Hands/Claws
+        ctx.fillStyle = this.getDarkerColor(this.color);
+        ctx.beginPath();
+        ctx.arc(-bodySize * 1.3, bodySize * 0.3, 4, 0, Math.PI * 2);
+        ctx.arc(bodySize * 1.3, bodySize * 0.3, 4, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    renderFaceDisplay(ctx, headSize) {
+        // Display screen area
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.arc(0, -headSize * 0.5, headSize * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Mathematical symbol based on type
+        ctx.fillStyle = this.getDisplayColor();
+        ctx.font = `bold ${headSize * 0.8}px Courier New`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        const symbol = this.getMathSymbol();
+        ctx.fillText(symbol, 0, -headSize * 0.5);
+        
+        // Display border
+        ctx.strokeStyle = this.getDarkerColor(this.color);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(0, -headSize * 0.5, headSize * 0.6, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    renderBodyDetails(ctx, bodySize) {
+        // Screws/bolts
+        ctx.fillStyle = this.getDarkerColor(this.color);
+        const screwPositions = [
+            [-bodySize * 0.6, -bodySize * 0.3],
+            [bodySize * 0.6, -bodySize * 0.3],
+            [-bodySize * 0.6, bodySize * 0.5],
+            [bodySize * 0.6, bodySize * 0.5]
+        ];
+        
+        screwPositions.forEach(([x, y]) => {
+            ctx.beginPath();
+            ctx.arc(x, y, 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Screw lines
+            ctx.strokeStyle = this.getDarkerColor(this.color);
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(x - 1.5, y);
+            ctx.lineTo(x + 1.5, y);
+            ctx.stroke();
+        });
+        
+        // Body panel lines
+        ctx.strokeStyle = this.getDarkerColor(this.color);
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(-bodySize * 0.8, 0);
+        ctx.lineTo(bodySize * 0.8, 0);
+        ctx.moveTo(0, -bodySize * 0.3);
+        ctx.lineTo(0, bodySize * 0.8);
+        ctx.stroke();
+    }
+
+    renderTypeSpecificDetails(ctx, size) {
+        switch (this.type) {
+            case 'elite_mob':
+                // Elite decorations
+                ctx.strokeStyle = '#FFD700';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(0, 2, size * 0.5, 0, Math.PI * 2);
+                ctx.stroke();
+                break;
+                
+            case 'gleichungs_geist':
+                // Energy field effect
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath();
+                ctx.arc(0, 0, size * 0.6, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                break;
+        }
+    }
+
+    getMathSymbol() {
+        switch (this.type) {
+            case 'polynom_zombie': return '+';
+            case 'gleichungs_geist': return '=';
+            case 'elite_mob': return '∑';
+            default: return '×';
+        }
+    }
+
+    getDisplayColor() {
+        switch (this.type) {
+            case 'polynom_zombie': return '#90EE90';
+            case 'gleichungs_geist': return '#87CEEB';
+            case 'elite_mob': return '#FFD700';
+            default: return '#FF6B6B';
+        }
+    }
+
+    getDarkerColor(color) {
+        // Convert hex to RGB and darken
+        const hex = color.replace('#', '');
+        const r = Math.max(0, parseInt(hex.substr(0, 2), 16) - 40);
+        const g = Math.max(0, parseInt(hex.substr(2, 2), 16) - 40);
+        const b = Math.max(0, parseInt(hex.substr(4, 2), 16) - 40);
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    getLighterColor(color) {
+        // Convert hex to RGB and lighten
+        const hex = color.replace('#', '');
+        const r = Math.min(255, parseInt(hex.substr(0, 2), 16) + 30);
+        const g = Math.min(255, parseInt(hex.substr(2, 2), 16) + 30);
+        const b = Math.min(255, parseInt(hex.substr(4, 2), 16) + 30);
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    getStrengthMultiplier() {
+        // Size multiplier based on enemy strength/health
+        switch (this.type) {
+            case 'elite_mob':
+                return 1.3; // Larger, more imposing
+            case 'gleichungs_geist':
+                return 1.1; // Slightly larger
+            case 'polynom_zombie':
+                return 0.9; // Smaller, basic enemy
+            default:
+                return 1.0;
+        }
+    }
+
+    renderIntelligenceEffects(ctx, headSize) {
+        // Render thinking/processing indicators
+        switch (this.processingState) {
+            case 'thinking':
+                // Pulsing thought bubble effect
+                ctx.strokeStyle = this.glowColor;
+                ctx.lineWidth = 1;
+                ctx.setLineDash([2, 2]);
+                ctx.globalAlpha = this.thinkingPulse * 0.6;
+                ctx.beginPath();
+                ctx.arc(-headSize * 0.8, -headSize * 1.2, 4 * this.thinkingPulse, 0, Math.PI * 2);
+                ctx.arc(-headSize * 0.6, -headSize * 1.4, 2 * this.thinkingPulse, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                ctx.globalAlpha = 1;
+                break;
+                
+            case 'calculating':
+                // Data stream effect
+                ctx.fillStyle = this.getDisplayColor();
+                ctx.globalAlpha = 0.7;
+                ctx.font = `${headSize * 0.3}px Courier New`;
+                ctx.textAlign = 'center';
+                const calcSymbols = ['0', '1', '+', '-', '×'];
+                for (let i = 0; i < 3; i++) {
+                    const symbol = calcSymbols[Math.floor((this.animationTime + i) * 2) % calcSymbols.length];
+                    const y = -headSize * 1.5 + (this.animationTime * 20 + i * 10) % 40;
+                    ctx.fillText(symbol, headSize * 0.8, y);
                 }
+                ctx.globalAlpha = 1;
+                break;
+                
+            case 'alert':
+                // Alert glow around head
+                ctx.strokeStyle = '#FF4444';
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = this.eyeGlow * 0.8;
+                ctx.beginPath();
+                ctx.arc(0, -headSize * 0.5, headSize * 0.8, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                break;
         }
         
-        ctx.closePath();
-        ctx.fill();
+        // Eye glow effect for all states
+        if (this.processingState !== 'idle') {
+            ctx.fillStyle = this.getDisplayColor();
+            ctx.shadowColor = this.getDisplayColor();
+            ctx.shadowBlur = 3 * this.eyeGlow;
+            ctx.beginPath();
+            ctx.arc(-headSize * 0.2, -headSize * 0.6, 1, 0, Math.PI * 2);
+            ctx.arc(headSize * 0.2, -headSize * 0.6, 1, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
     }
 
     renderCore(ctx) {
@@ -704,27 +916,28 @@ class EnemySpawner {
         return 'basic'; // Fallback
     }
 
-    update(deltaTime, playerX, playerY, canvasWidth, canvasHeight, playerScore = 0, combo = 0) {
+    update(deltaTime, player) {
         this.spawnTimer += deltaTime;
         
         // Dynamic spawn interval based on progress
         let currentSpawnInterval = this.spawnInterval;
+        const playerScore = player.score || 0;
         if (playerScore > 1000) currentSpawnInterval = 2500; // Faster spawning
         if (playerScore > 2000) currentSpawnInterval = 2000; // Even faster
         
         // Spawn new enemies
         if (this.spawnTimer >= currentSpawnInterval && this.enemies.length < this.maxEnemies) {
-            this.spawnEnemy(playerX, playerY, canvasWidth, canvasHeight, playerScore, combo);
+            this.spawnEnemy(player.x, player.y, 800, 600, playerScore, player.combo || 0);
             this.spawnTimer = 0;
         }
         
         // Update all enemies
         for (let i = this.enemies.length - 1; i >= 0; i--) {
             const enemy = this.enemies[i];
-            enemy.update(deltaTime, playerX, playerY, canvasWidth, canvasHeight);
+            enemy.update(deltaTime, player);
             
             // Remove dead enemies
-            if (enemy.shouldBeRemoved()) {
+            if (enemy.isDead && enemy.deathTime > 1000) {
                 this.enemies.splice(i, 1);
             }
         }
@@ -750,10 +963,10 @@ class EnemySpawner {
         const enemyType = this.getSpawnType(playerScore, combo);
         
         // Create new enemy with specific type
-        const enemy = new Enemy(spawnX, spawnY, this.formulaSystem, enemyType);
+        const enemy = new Enemy(spawnX, spawnY, enemyType);
         this.enemies.push(enemy);
         
-        console.log(`${enemy.typeName} spawned at (${Math.round(spawnX)}, ${Math.round(spawnY)}) with ${enemy.assignedFormula.typeName}: ${enemy.assignedFormula.text} (Difficulty: ${enemy.assignedFormula.difficulty.toFixed(1)})`);
+        console.log(`🤖 ${enemy.typeData.name} spawned at (${Math.round(spawnX)}, ${Math.round(spawnY)})`);
     }
 
     checkCollisions(player) {

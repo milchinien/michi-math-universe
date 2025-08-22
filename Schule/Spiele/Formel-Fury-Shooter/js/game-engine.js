@@ -723,25 +723,7 @@ class GameEngine {
         
         // Update player
         if (this.player && this.inputHandler) {
-            this.player.update(deltaTime, this.inputHandler, this.canvas.width, this.canvas.height);
-        }
-        
-        // Update enemies with player progress info
-        if (this.enemySpawner && this.player && this.formulaSystem) {
-            this.enemySpawner.update(
-                deltaTime, 
-                this.player.x, 
-                this.player.y, 
-                this.canvas.width, 
-                this.canvas.height,
-                this.formulaSystem.score,
-                this.formulaSystem.combo
-            );
-        }
-        
-        // Update currency system
-        if (this.currencySystem) {
-            this.currencySystem.update(deltaTime);
+            this.player.update(deltaTime, this.inputHandler);
         }
         
         // Update wave system
@@ -752,6 +734,14 @@ class GameEngine {
         // Update level system
         if (this.levelSystem) {
             this.levelSystem.update(deltaTime);
+        }
+        
+        // Update enemies with player progress info
+        if (this.enemySpawner && this.player && this.formulaSystem) {
+            // Add score and combo to player object for enemy spawner
+            this.player.score = this.formulaSystem.score;
+            this.player.combo = this.formulaSystem.combo;
+            this.enemySpawner.update(deltaTime, this.player);
         }
        
        // Handle targeting system (only if not paused)

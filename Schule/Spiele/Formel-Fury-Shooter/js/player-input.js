@@ -21,8 +21,8 @@ class Player {
         this.minVelocity = 0.01; // threshold to stop tiny movements
         
         // Visual properties
-        this.color = '#00ff00';
-        this.glowColor = '#00ff0080';
+        this.color = '#CD853F';
+        this.glowColor = 'rgba(205, 133, 63, 0.5)';
         this.angle = 0; // for rotation effect
     }
 
