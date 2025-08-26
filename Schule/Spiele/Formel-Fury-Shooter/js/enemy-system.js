@@ -126,35 +126,41 @@ class Enemy {
     }
 
     generateFormula() {
-        // Generate a simple binomial formula compatible with the game's formula system
-        const a = Math.floor(Math.random() * 5) + 1; // 1-5
-        const b = Math.floor(Math.random() * 5) + 1; // 1-5
-        const variables = ['x', 'y', 'z', 'a', 'b', 'c'];
-        const variable = variables[Math.floor(Math.random() * variables.length)];
-        
-        // Create binomial formula (a*variable + b)²
-        const text = `(${a}${variable} + ${b})²`;
-        
-        // Calculate solutions
-        const expanded = `${a*a}${variable}² + ${2*a*b}${variable} + ${b*b}`;
-        const solutions = [
-            expanded,
-            expanded.replace('²', '^2'),
-            expanded.replace(/([a-z])²/g, ' $1² ').replace(/([a-z])/g, ' $1 ').replace(/\s+/g, ' ').trim(),
-            expanded.replace('²', '^2').replace(/([a-z])\^2/g, ' $1^2 ').replace(/([a-z])/g, ' $1 ').replace(/\s+/g, ' ').trim()
-        ];
-        
-        // Create assignedFormula object compatible with game engine
-        this.assignedFormula = {
-            type: 'binomial1',
-            typeName: 'Erste Binomische Formel',
-            text: text,
-            solutions: solutions,
-            difficulty: this.getDifficultyForType(),
-            variable: variable,
-            a: a,
-            b: b
-        };
+        // Use the main formula system to generate varied formula types
+        if (window.game && window.game.formulaSystem) {
+            const formula = window.game.formulaSystem.generateFormula();
+            this.assignedFormula = {
+                type: formula.type,
+                typeName: formula.typeName,
+                text: formula.text,
+                solutions: formula.solutions,
+                difficulty: formula.difficulty,
+                variable: formula.variable,
+                a: formula.a,
+                b: formula.b
+            };
+        } else {
+            // Fallback to first binomial if formula system not available
+            const a = Math.floor(Math.random() * 5) + 1;
+            const b = Math.floor(Math.random() * 5) + 1;
+            const variables = ['x', 'y', 'z', 'a', 'b', 'c'];
+            const variable = variables[Math.floor(Math.random() * variables.length)];
+            
+            const text = `(${a}${variable} + ${b})²`;
+            const expanded = `${a*a}${variable}² + ${2*a*b}${variable} + ${b*b}`;
+            const solutions = [expanded];
+            
+            this.assignedFormula = {
+                type: 'expansion_plus',
+                typeName: 'Erste Binomische Formel',
+                text: text,
+                solutions: solutions,
+                difficulty: this.getDifficultyForType(),
+                variable: variable,
+                a: a,
+                b: b
+            };
+        }
         
         // Also set formula for backward compatibility
         this.formula = this.assignedFormula;
