@@ -100,14 +100,19 @@ class WaveSystem {
     
     calculateWaveProgression() {
         // Increase difficulty over time
-        const baseEnemies = 5;
-        const baseSpawnRate = 2000;
+        const baseEnemies = 3;
+        const baseSpawnRate = 3000;
         const baseBonusMultiplier = 1.0;
         
-        // Progressive scaling
-        this.enemiesPerWave = Math.floor(baseEnemies + (this.currentWave - 1) * 1.5);
-        this.enemySpawnRate = Math.max(500, baseSpawnRate - (this.currentWave - 1) * 100);
-        this.waveBonus = baseBonusMultiplier + (this.currentWave - 1) * 0.1;
+        // Progressive scaling - more aggressive difficulty increase
+        this.enemiesPerWave = Math.floor(baseEnemies + (this.currentWave - 1) * 2);
+        this.enemySpawnRate = Math.max(800, baseSpawnRate - (this.currentWave - 1) * 200);
+        this.waveBonus = baseBonusMultiplier + (this.currentWave - 1) * 0.15;
+        
+        // Update global game difficulty for formula system
+        if (window.game && window.game.formulaSystem) {
+            window.game.formulaSystem.currentWave = this.currentWave;
+        }
         
         console.log(`📈 Wave ${this.currentWave} progression:`, {
             enemies: this.enemiesPerWave,
@@ -122,8 +127,14 @@ class WaveSystem {
         // Update wave timer
         this.waveTimeLeft = Math.max(0, this.waveDuration - (Date.now() - this.waveStartTime));
         
+        // Debug logging for wave timer
+        if (this.waveTimeLeft > 0 && this.waveTimeLeft % 5000 < 100) { // Log every 5 seconds
+            console.log(`🌊 Wave ${this.currentWave} - Time left: ${Math.ceil(this.waveTimeLeft / 1000)}s`);
+        }
+        
         // Check if wave is complete
         if (this.waveTimeLeft <= 0) {
+            console.log(`🏁 Wave ${this.currentWave} timer expired, completing wave...`);
             this.completeWave();
         }
         
@@ -131,12 +142,14 @@ class WaveSystem {
     }
     
     completeWave() {
-        if (!this.isWaveActive) return;
+        if (!this.isWaveActive) {
+            console.log(`⚠️ Wave ${this.currentWave} already completed, skipping...`);
+            return;
+        }
         
+        console.log(`🏁 Wave ${this.currentWave} completing...`);
         this.isWaveActive = false;
         this.waveTimeLeft = 0;
-        
-        console.log(`🏁 Wave ${this.currentWave} completed!`);
         
         // Update status
         if (this.waveStatusElement) {
@@ -146,31 +159,38 @@ class WaveSystem {
         
         // Call callback if set
         if (this.onWaveComplete) {
+            console.log(`📞 Calling wave complete callback for wave ${this.currentWave}`);
             this.onWaveComplete(this.currentWave, this.getWaveStats());
+        } else {
+            console.log(`⚠️ No wave complete callback set!`);
         }
         
         this.updateDisplay();
+        console.log(`✅ Wave ${this.currentWave} completion process finished`);
     }
     
     updateDisplay() {
+        // Update HTML elements
+        const waveNumberElement = document.getElementById('waveNumber');
+        const waveTimerElement = document.getElementById('waveTimer');
+        
+        if (waveNumberElement) {
+            waveNumberElement.textContent = `Welle ${this.currentWave}`;
+        }
+        
+        if (waveTimerElement) {
+            const secondsLeft = Math.ceil(this.waveTimeLeft / 1000);
+            waveTimerElement.textContent = secondsLeft;
+        }
+        
+        // Legacy support
         if (this.waveCounterElement) {
             this.waveCounterElement.textContent = this.currentWave;
         }
         
         if (this.waveTimerElement) {
-            const seconds = Math.ceil(this.waveTimeLeft / 1000);
-            this.waveTimerElement.textContent = seconds;
-            
-            // Color coding for urgency
-            if (seconds <= 5 && this.isWaveActive) {
-                this.waveTimerElement.style.color = '#ff3300';
-                this.waveTimerElement.style.textShadow = '0 0 10px #ff3300';
-            } else if (seconds <= 10 && this.isWaveActive) {
-                this.waveTimerElement.style.color = '#ffaa00';
-            } else {
-                this.waveTimerElement.style.color = '#00ffff';
-                this.waveTimerElement.style.textShadow = '2px 2px 4px rgba(0, 0, 0, 0.8)';
-            }
+            const secondsLeft = Math.ceil(this.waveTimeLeft / 1000);
+            this.waveTimerElement.textContent = secondsLeft;
         }
         
         if (this.waveStatusElement) {
@@ -180,6 +200,9 @@ class WaveSystem {
             } else if (this.currentWave === 0) {
                 this.waveStatusElement.textContent = 'Bereit zum Start';
                 this.waveStatusElement.style.color = '#ffff00';
+            } else {
+                this.waveStatusElement.textContent = 'Pause';
+                this.waveStatusElement.style.color = '#00ff00';
             }
         }
     }

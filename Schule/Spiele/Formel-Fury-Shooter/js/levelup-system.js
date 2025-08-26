@@ -566,6 +566,27 @@ class LevelUpSystem {
      * Select a random upgrade based on category weights
      */
     selectRandomUpgrade() {
+        // Define preferred upgrades with higher probability
+        const preferredUpgrades = [
+            'gluecks_formel_common', 'gluecks_formel_rare', 'gluecks_formel_epic', 'gluecks_formel_legendary',
+            'heilungsformel_common', 'heilungsformel_rare', 'heilungsformel_epic', 'heilungsformel_legendary',
+            'plus_hp_common', 'plus_hp_rare', 'plus_hp_epic', 'plus_hp_legendary',
+            'lernkurve_common', 'lernkurve_rare', 'lernkurve_epic', 'lernkurve_legendary'
+        ];
+        
+        // 40% chance to select from preferred upgrades
+        if (Math.random() < 0.4) {
+            const availablePreferred = this.upgradePool.filter(upgrade => 
+                preferredUpgrades.includes(upgrade.id)
+            );
+            
+            if (availablePreferred.length > 0) {
+                const randomIndex = Math.floor(Math.random() * availablePreferred.length);
+                return availablePreferred[randomIndex];
+            }
+        }
+        
+        // Otherwise use normal weighted selection
         // Get modified category weights based on luck bonuses
         const weights = this.getModifiedCategoryWeights();
         

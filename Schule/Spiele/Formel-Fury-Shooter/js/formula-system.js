@@ -70,33 +70,26 @@ class FormulaSystem {
         const availableTypes = this.getAvailableFormulaTypes(formulaTypes);
         const selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
         
+        console.log(`🧮 Formula generation - Available types: ${availableTypes.length}, Selected: ${selectedType}`);
+        console.log(`🧮 Available formula types:`, availableTypes);
+        
         return this.generateFormulaByType(selectedType);
     }
 
     getAvailableFormulaTypes(allTypes) {
-        // Progressive unlock based on score/combo
-        const baseTypes = ['expansion_plus'];
-        
-        if (this.score >= 500 || this.maxCombo >= 3) {
-            baseTypes.push('expansion_minus');
-        }
-        
-        if (this.score >= 1000 || this.maxCombo >= 5) {
-            baseTypes.push('difference_squares');
-        }
-        
-        if (this.score >= 1500 || this.maxCombo >= 8) {
-            baseTypes.push('factorization_difference');
-        }
-        
-        if (this.score >= 2000 || this.maxCombo >= 10) {
-            baseTypes.push('factorization_square');
-        }
-        
-        return baseTypes;
+        // All formula types available from the start for better learning variety
+        return [
+            'expansion_plus',        // (a+b)² = a² + 2ab + b²
+            'expansion_minus',       // (a-b)² = a² - 2ab + b²
+            'difference_squares',    // (a+b)(a-b) = a² - b²
+            'factorization_difference', // a² - b² = (a+b)(a-b)
+            'factorization_square'   // a² + 2ab + b² = (a+b)²
+        ];
     }
 
     generateFormulaByType(type) {
+        console.log(`🧮 Generating formula of type: ${type}`);
+        
         switch (type) {
             case 'expansion_plus':
                 return this.generateExpansionPlus();
@@ -109,6 +102,7 @@ class FormulaSystem {
             case 'factorization_square':
                 return this.generateFactorizationSquare();
             default:
+                console.log(`⚠️ Unknown formula type: ${type}, defaulting to expansion_plus`);
                 return this.generateExpansionPlus();
         }
     }

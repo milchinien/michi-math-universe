@@ -89,24 +89,26 @@ class Player {
     }
 
     handleBoundaryCollision(canvasWidth, canvasHeight) {
-        // Left boundary
-        if (this.x < this.width / 2) {
-            this.x = this.width / 2;
+        const borderWidth = 10; // Visible border thickness
+        
+        // Left boundary with visible wall
+        if (this.x < this.width / 2 + borderWidth) {
+            this.x = this.width / 2 + borderWidth;
             this.velocity.x = 0;
         }
-        // Right boundary
-        if (this.x > canvasWidth - this.width / 2) {
-            this.x = canvasWidth - this.width / 2;
+        // Right boundary with visible wall
+        if (this.x > canvasWidth - this.width / 2 - borderWidth) {
+            this.x = canvasWidth - this.width / 2 - borderWidth;
             this.velocity.x = 0;
         }
-        // Top boundary
-        if (this.y < this.height / 2) {
-            this.y = this.height / 2;
+        // Top boundary with visible wall
+        if (this.y < this.height / 2 + borderWidth) {
+            this.y = this.height / 2 + borderWidth;
             this.velocity.y = 0;
         }
-        // Bottom boundary
-        if (this.y > canvasHeight - this.height / 2) {
-            this.y = canvasHeight - this.height / 2;
+        // Bottom boundary with visible wall
+        if (this.y > canvasHeight - this.height / 2 - borderWidth) {
+            this.y = canvasHeight - this.height / 2 - borderWidth;
             this.velocity.y = 0;
         }
     }

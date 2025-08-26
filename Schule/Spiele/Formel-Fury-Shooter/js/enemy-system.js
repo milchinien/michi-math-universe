@@ -854,6 +854,10 @@ class EnemySpawner {
         this.maxEnemies = 3; // Weniger Gegner gleichzeitig
         this.spawnDistance = 100; // Minimum distance from player to spawn
         
+        // Spawn markers system
+        this.spawnMarkers = []; // Array of spawn markers
+        this.markerDuration = 3000; // 3 seconds before spawn
+        
         // Spawn probability configuration
         this.spawnProbabilities = {
             polynom_zombie: 0.5,    // 50% base chance
@@ -925,9 +929,18 @@ class EnemySpawner {
         if (playerScore > 1000) currentSpawnInterval = 2500; // Faster spawning
         if (playerScore > 2000) currentSpawnInterval = 2000; // Even faster
         
-        // Spawn new enemies
-        if (this.spawnTimer >= currentSpawnInterval && this.enemies.length < this.maxEnemies) {
-            this.spawnEnemy(player.x, player.y, 800, 600, playerScore, player.combo || 0);
+        // Update spawn markers
+        this.updateSpawnMarkers(deltaTime);
+        
+        // Get wave data for enemy spawning
+        const waveData = window.game && window.game.waveSystem ? window.game.waveSystem.getWaveData() : null;
+        const maxEnemiesForWave = waveData ? waveData.enemiesPerWave : this.maxEnemies;
+        const waveSpawnRate = waveData ? waveData.spawnRate : currentSpawnInterval;
+        const isWaveActive = window.game && window.game.waveSystem ? window.game.waveSystem.isWaveActive : true;
+        
+        // Only spawn new enemies if wave is active
+        if (isWaveActive && this.spawnTimer >= waveSpawnRate && this.enemies.length < maxEnemiesForWave) {
+            this.scheduleEnemySpawn(player.x, player.y, 800, 600, playerScore, player.combo || 0);
             this.spawnTimer = 0;
         }
         
@@ -943,7 +956,7 @@ class EnemySpawner {
         }
     }
 
-    spawnEnemy(playerX, playerY, canvasWidth, canvasHeight, playerScore = 0, combo = 0) {
+    scheduleEnemySpawn(playerX, playerY, canvasWidth, canvasHeight, playerScore = 0, combo = 0) {
         let spawnX, spawnY;
         let attempts = 0;
         
@@ -962,11 +975,52 @@ class EnemySpawner {
         // Determine enemy type based on game progress
         const enemyType = this.getSpawnType(playerScore, combo);
         
-        // Create new enemy with specific type
-        const enemy = new Enemy(spawnX, spawnY, enemyType);
+        // Create spawn marker
+        const marker = {
+            x: spawnX,
+            y: spawnY,
+            enemyType: enemyType,
+            timeLeft: this.markerDuration,
+            createdTime: Date.now(),
+            playerScore: playerScore,
+            combo: combo
+        };
+        
+        this.spawnMarkers.push(marker);
+        console.log(`📍 Spawn marker placed for ${enemyType} at (${Math.round(spawnX)}, ${Math.round(spawnY)})`);
+    }
+
+    updateSpawnMarkers(deltaTime) {
+        for (let i = this.spawnMarkers.length - 1; i >= 0; i--) {
+            const marker = this.spawnMarkers[i];
+            marker.timeLeft -= deltaTime;
+            
+            // Spawn enemy when timer expires
+            if (marker.timeLeft <= 0) {
+                this.spawnEnemyFromMarker(marker);
+                this.spawnMarkers.splice(i, 1);
+            }
+        }
+    }
+
+    spawnEnemyFromMarker(marker) {
+        // Create new enemy with specific type at marker position
+        const enemy = new Enemy(marker.x, marker.y, marker.enemyType);
         this.enemies.push(enemy);
         
-        console.log(`🤖 ${enemy.typeData.name} spawned at (${Math.round(spawnX)}, ${Math.round(spawnY)})`);
+        console.log(`🤖 ${enemy.typeData.name} spawned at (${Math.round(marker.x)}, ${Math.round(marker.y)})`);
+    }
+
+    getEnemySize(enemyType) {
+        // Return base size for enemy type (used for marker scaling)
+        const typeData = {
+            'polynom_zombie': { width: 35, height: 35 },
+            'gleichungs_geist': { width: 40, height: 40 },
+            'elite_mob': { width: 50, height: 50 },
+            'basic': { width: 30, height: 30 }
+        };
+        
+        return typeData[enemyType] || typeData['basic'];
     }
 
     checkCollisions(player) {
@@ -979,9 +1033,79 @@ class EnemySpawner {
     }
 
     render(ctx) {
+        // Render spawn markers first (behind enemies)
+        this.renderSpawnMarkers(ctx);
+        
         for (const enemy of this.enemies) {
             enemy.render(ctx);
         }
+    }
+
+    renderSpawnMarkers(ctx) {
+        for (const marker of this.spawnMarkers) {
+            this.renderSpawnMarker(ctx, marker);
+        }
+    }
+
+    renderSpawnMarker(ctx, marker) {
+        ctx.save();
+        
+        // Calculate progress (0 to 1, where 1 is just created, 0 is about to spawn)
+        const progress = marker.timeLeft / this.markerDuration;
+        const enemySize = this.getEnemySize(marker.enemyType);
+        
+        // Scale marker based on enemy size
+        const baseSize = Math.max(enemySize.width, enemySize.height);
+        const markerSize = baseSize * 0.8; // Slightly smaller than enemy
+        
+        // Pulsing effect - faster as spawn time approaches
+        const pulseSpeed = 2 + (1 - progress) * 3; // Speed increases as time decreases
+        const pulseIntensity = 0.3 + (1 - progress) * 0.4; // Intensity increases
+        const pulse = Math.sin(Date.now() * 0.01 * pulseSpeed) * pulseIntensity + 0.7;
+        
+        // Red color with pulsing alpha
+        const alpha = progress * 0.8 * pulse;
+        ctx.globalAlpha = alpha;
+        
+        // Draw hand-drawn style "X" marker
+        ctx.strokeStyle = '#ff0000';
+        ctx.lineWidth = 3 + (1 - progress) * 2; // Thicker as spawn approaches
+        ctx.lineCap = 'round';
+        
+        // Add slight randomness to make it look hand-drawn
+        const jitter = 2;
+        const x1 = marker.x - markerSize/2 + (Math.sin(marker.createdTime * 0.001) * jitter);
+        const y1 = marker.y - markerSize/2 + (Math.cos(marker.createdTime * 0.001) * jitter);
+        const x2 = marker.x + markerSize/2 + (Math.sin(marker.createdTime * 0.001 + 1) * jitter);
+        const y2 = marker.y + markerSize/2 + (Math.cos(marker.createdTime * 0.001 + 1) * jitter);
+        const x3 = marker.x + markerSize/2 + (Math.sin(marker.createdTime * 0.001 + 2) * jitter);
+        const y3 = marker.y - markerSize/2 + (Math.cos(marker.createdTime * 0.001 + 2) * jitter);
+        const x4 = marker.x - markerSize/2 + (Math.sin(marker.createdTime * 0.001 + 3) * jitter);
+        const y4 = marker.y + markerSize/2 + (Math.cos(marker.createdTime * 0.001 + 3) * jitter);
+        
+        // Draw X with hand-drawn style
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.moveTo(x3, y3);
+        ctx.lineTo(x4, y4);
+        ctx.stroke();
+        
+        // Add glow effect
+        ctx.shadowColor = '#ff0000';
+        ctx.shadowBlur = 5 + (1 - progress) * 10;
+        ctx.stroke();
+        
+        // Draw countdown timer (optional, for debugging)
+        if (progress < 0.5) { // Only show when close to spawning
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#ff0000';
+            ctx.font = '12px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText(Math.ceil(marker.timeLeft / 1000), marker.x, marker.y + markerSize/2 + 15);
+        }
+        
+        ctx.restore();
     }
 
     getDebugInfo() {

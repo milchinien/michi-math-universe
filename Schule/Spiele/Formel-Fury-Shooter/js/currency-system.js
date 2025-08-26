@@ -345,6 +345,33 @@ class CurrencySystem {
         return this.sessionCoinsEarned;
     }
     
+    // Check for coin pickup collisions with player
+    checkCoinPickup(player) {
+        if (!player || !this.coinDrops) return;
+        
+        const pickupRadius = 30; // Pickup radius in pixels
+        
+        for (let i = this.coinDrops.length - 1; i >= 0; i--) {
+            const coin = this.coinDrops[i];
+            
+            // Calculate distance between player and coin
+            const dx = player.x - coin.x;
+            const dy = player.y - coin.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Check if player is close enough to pick up coin
+            if (distance <= pickupRadius) {
+                // Add coins to player's total
+                this.addCoins(coin.amount);
+                
+                // Remove the coin drop
+                this.coinDrops.splice(i, 1);
+                
+                console.log(`💰 Coin picked up! Amount: ${coin.amount}, Total: ${this.coins}`);
+            }
+        }
+    }
+
     // Debug function to test the currency system
     testCurrencySystem() {
         console.log('🧪 Testing CurrencySystem...');

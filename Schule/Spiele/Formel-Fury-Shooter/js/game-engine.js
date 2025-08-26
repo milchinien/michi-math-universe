@@ -38,6 +38,10 @@ class GameEngine {
        this.levelUpSystem = null;
        this.statsSystem = null;
        
+       // Background elements
+       this.grassPatches = [];
+       this.generateGrassPatches();
+       
        // Input state tracking
        this.spacePressed = false;
        
@@ -251,14 +255,14 @@ class GameEngine {
     }
     
     handleWaveComplete(wave, stats) {
-        // IMPORTANT: Clear all enemies immediately when wave ends
-        if (this.enemySpawner) {
-            this.enemySpawner.enemies = [];
-            console.log('🧹 All enemies cleared at wave end');
-        }
-        
         // Exit combat mode to prevent issues
         this.exitCombatMode();
+        
+        // Clear any remaining enemies immediately when wave ends
+        if (this.enemySpawner && this.enemySpawner.enemies.length > 0) {
+            console.log(`🧹 Clearing ${this.enemySpawner.enemies.length} remaining enemies at wave end`);
+            this.enemySpawner.enemies = [];
+        }
         
         // Show wave complete animation
         if (this.waveSystem.waveDisplay) {
@@ -268,6 +272,34 @@ class GameEngine {
             }, 1000);
         }
         
+        // Show level-up menu immediately
+        this.showLevelUpMenu(wave, stats);
+    }
+
+    waitForEnemiesCleared(callback) {
+        let waitTime = 0;
+        const maxWaitTime = 10000; // Maximum 10 seconds wait
+        
+        const checkEnemies = () => {
+            if (!this.enemySpawner || this.enemySpawner.enemies.length === 0) {
+                console.log('✅ All enemies cleared, showing level-up menu');
+                callback();
+            } else if (waitTime >= maxWaitTime) {
+                console.log('⏰ Max wait time reached, forcing level-up menu');
+                // Clear remaining enemies and proceed
+                this.enemySpawner.enemies = [];
+                callback();
+            } else {
+                console.log(`⏳ Waiting for ${this.enemySpawner.enemies.length} enemies to be cleared... (${waitTime/1000}s)`);
+                waitTime += 500;
+                setTimeout(checkEnemies, 500); // Check every 500ms
+            }
+        };
+        
+        checkEnemies();
+    }
+
+    showLevelUpMenu(wave, stats) {
         // Handle multiple level-ups that occurred during the wave
         setTimeout(() => {
             this.handlePendingLevelUps(wave);
@@ -749,6 +781,11 @@ class GameEngine {
             this.player.combo = this.formulaSystem.combo;
             this.enemySpawner.update(deltaTime, this.player);
         }
+        
+        // Update currency system (coin drops)
+        if (this.currencySystem) {
+            this.currencySystem.update(deltaTime);
+        }
        
        // Handle targeting system (only if not paused)
        if (!this.isPaused) {
@@ -856,39 +893,28 @@ class GameEngine {
         }
         
         const formula = this.targetedEnemy.assignedFormula;
-        const correctAnswer = formula.solutions[0]; // Use first solution
         
-        // Generate multiple choice options
-        const options = this.generateMultipleChoiceOptions(correctAnswer, formula.type);
-        const correctIndex = Math.floor(Math.random() * 4);
-        
-        // Shuffle options
-        const shuffledOptions = new Array(4);
-        shuffledOptions[correctIndex] = correctAnswer;
-        
-        // Fill remaining slots with wrong answers
-        let optionIndex = 0;
-        for (let i = 0; i < 4; i++) {
-            if (i !== correctIndex) {
-                shuffledOptions[i] = options[optionIndex] || `Falsche Antwort ${i}`;
-                optionIndex++;
-            }
-        }
+        // Generate formula type choice options for Tag-Modus
+        const options = this.generateFormulaTypeOptions(formula.type);
+        const correctIndex = this.getCorrectFormulaTypeIndex(formula.type);
         
         // Store correct answer index
         this.mcCorrectIndex = correctIndex;
-        this.mcOptions = shuffledOptions;
+        this.mcOptions = options;
         this.mcTimeLeft = 15; // 15 seconds for multiple choice
         
         // Update UI
         const mcQuestion = document.getElementById('mcQuestion');
         if (mcQuestion) {
-            mcQuestion.textContent = formula.text;
+            mcQuestion.innerHTML = `
+                <div style="font-size: 18px; margin-bottom: 10px;">Welche Formel-Art ist das?</div>
+                <div style="font-size: 24px; color: #00ff00;">${formula.text}</div>
+            `;
         }
         
         const answerButtons = document.querySelectorAll('.mc-answer');
         answerButtons.forEach((btn, index) => {
-            btn.textContent = `${String.fromCharCode(65 + index)}) ${shuffledOptions[index]}`;
+            btn.innerHTML = `${String.fromCharCode(65 + index)}) ${options[index]}`;
             btn.className = 'mc-answer';
             btn.disabled = false;
         });
@@ -897,36 +923,31 @@ class GameEngine {
         this.startMultipleChoiceTimer();
     }
 
-    generateMultipleChoiceOptions(correctAnswer, formulaType) {
-        const wrongAnswers = [];
-        
-        // Generate plausible wrong answers based on formula type
-        if (formulaType === 'binomial1' || formulaType === 'binomial2' || formulaType === 'binomial3') {
-            // For expanded forms, create variations
-            const variations = [
-                correctAnswer.replace(/\+/g, '-'),
-                correctAnswer.replace(/-/g, '+'),
-                correctAnswer.replace(/2([a-z])/g, '$1'),
-                correctAnswer.replace(/([a-z])²/g, '$1')
-            ];
-            wrongAnswers.push(...variations.filter(ans => ans !== correctAnswer && ans.length > 0).slice(0, 3));
-        } else {
-            // For factorizations, create variations
-            const variations = [
-                correctAnswer.replace(/\+/g, '-'),
-                correctAnswer.replace(/-/g, '+'),
-                correctAnswer.replace(/\(/g, '[').replace(/\)/g, ']'),
-                correctAnswer.includes(')(') ? '(' + correctAnswer.slice(1, -1).split(')(').reverse().join(')(') + ')' : correctAnswer
-            ];
-            wrongAnswers.push(...variations.filter(ans => ans !== correctAnswer && ans.length > 0).slice(0, 3));
+    generateFormulaTypeOptions(formulaType) {
+        // Always show the same 4 options in a fixed order
+        return [
+            '<div class="formula-type-option"><div class="formula-name">1. Binomische Formel</div><div class="formula-pattern">(a+b)² = a² + 2ab + b²</div></div>',
+            '<div class="formula-type-option"><div class="formula-name">2. Binomische Formel</div><div class="formula-pattern">(a-b)² = a² - 2ab + b²</div></div>',
+            '<div class="formula-type-option"><div class="formula-name">3. Binomische Formel</div><div class="formula-pattern">(a+b)(a-b) = a² - b²</div></div>',
+            '<div class="formula-type-option"><div class="formula-name">Faktorisierung</div><div class="formula-pattern">Umkehrung der Binomischen Formeln</div></div>'
+        ];
+    }
+    
+    getCorrectFormulaTypeIndex(formulaType) {
+        // Map formula types to the correct index (0-3)
+        switch (formulaType) {
+            case 'expansion_plus':
+                return 0; // 1. Binomische Formel
+            case 'expansion_minus':
+                return 1; // 2. Binomische Formel
+            case 'difference_squares':
+                return 2; // 3. Binomische Formel
+            case 'factorization_difference':
+            case 'factorization_square':
+                return 3; // Faktorisierung
+            default:
+                return 0; // Fallback to 1. Binomische Formel
         }
-        
-        // Fill up to 3 wrong answers if needed
-        while (wrongAnswers.length < 3) {
-            wrongAnswers.push(`Falsche Option ${wrongAnswers.length + 1}`);
-        }
-        
-        return wrongAnswers.slice(0, 3);
     }
 
     startMultipleChoiceTimer() {
@@ -1258,6 +1279,11 @@ class GameEngine {
             
             console.log(`Collision! Enemy health: ${collidingEnemy.health}`);
         }
+        
+        // Check coin pickup collisions
+        if (this.currencySystem && this.player) {
+            this.currencySystem.checkCoinPickup(this.player);
+        }
     }
 
     handleFormulaInput() {
@@ -1349,7 +1375,7 @@ class GameEngine {
         // Render player health bar
         this.renderPlayerHealthBar();
         
-        // Render currency system effects
+        // Render currency system effects (includes coin drops)
         if (this.currencySystem) {
             this.currencySystem.render(this.ctx);
         }
@@ -1506,35 +1532,101 @@ class GameEngine {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
+    generateGrassPatches() {
+        // Generate random grass patches on desert sand
+        this.grassPatches = [];
+        const numPatches = 35 + Math.floor(Math.random() * 15); // 35-50 patches (more grass)
+        
+        // Use fixed seed for consistent grass placement to prevent flickering
+        let seed = 12345;
+        const seededRandom = () => {
+            seed = (seed * 9301 + 49297) % 233280;
+            return seed / 233280;
+        };
+        
+        for (let i = 0; i < numPatches; i++) {
+            const patch = {
+                x: seededRandom() * this.canvas.width,
+                y: seededRandom() * this.canvas.height,
+                size: 6 + seededRandom() * 12, // 6-18 pixel radius (smaller but more patches)
+                opacity: 0.4 + seededRandom() * 0.3, // 0.4-0.7 opacity
+                grassType: Math.floor(seededRandom() * 3), // 3 different grass colors
+                points: 6 + Math.floor(seededRandom() * 4), // Fixed points per patch
+                angles: [] // Store fixed angles
+            };
+            
+            // Pre-calculate fixed angles for each patch to prevent movement
+            for (let j = 0; j < patch.points; j++) {
+                patch.angles.push({
+                    angle: (j / patch.points) * Math.PI * 2,
+                    radius: patch.size * (0.7 + seededRandom() * 0.6)
+                });
+            }
+            
+            this.grassPatches.push(patch);
+        }
+    }
+    
     renderBackground() {
-        // Create a subtle grid pattern for the dungeon feel
-        this.ctx.strokeStyle = '#222';
-        this.ctx.lineWidth = 1;
+        // Render map boundaries/walls
+        this.renderMapBoundaries();
         
-        const gridSize = 50;
-        
-        // Vertical lines
-        for (let x = 0; x < this.canvas.width; x += gridSize) {
+        // Render grass patches on desert sand background
+        this.grassPatches.forEach(patch => {
+            this.ctx.save();
+            this.ctx.globalAlpha = patch.opacity;
+            
+            // Different grass colors (darker to match beige background)
+            const grassColors = ['#6B7A3F', '#5A6B2F', '#7A8B4F'];
+            this.ctx.fillStyle = grassColors[patch.grassType];
+            
+            // Draw irregular grass patch using pre-calculated fixed points
             this.ctx.beginPath();
-            this.ctx.moveTo(x, 0);
-            this.ctx.lineTo(x, this.canvas.height);
-            this.ctx.stroke();
-        }
-        
-        // Horizontal lines
-        for (let y = 0; y < this.canvas.height; y += gridSize) {
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, y);
-            this.ctx.lineTo(this.canvas.width, y);
-            this.ctx.stroke();
-        }
+            
+            for (let i = 0; i < patch.angles.length; i++) {
+                const angleData = patch.angles[i];
+                const x = patch.x + Math.cos(angleData.angle) * angleData.radius;
+                const y = patch.y + Math.sin(angleData.angle) * angleData.radius;
+                
+                if (i === 0) {
+                    this.ctx.moveTo(x, y);
+                } else {
+                    this.ctx.lineTo(x, y);
+                }
+            }
+            
+            this.ctx.closePath();
+            this.ctx.fill();
+            
+            this.ctx.restore();
+        });
+    }
 
-        // Add some neon-style corner highlights
-        this.ctx.fillStyle = '#00ff0020';
-        this.ctx.fillRect(0, 0, 100, 100);
-        this.ctx.fillRect(this.canvas.width - 100, 0, 100, 100);
-        this.ctx.fillRect(0, this.canvas.height - 100, 100, 100);
-        this.ctx.fillRect(this.canvas.width - 100, this.canvas.height - 100, 100, 100);
+    renderMapBoundaries() {
+        const borderWidth = 10;
+        
+        this.ctx.save();
+        this.ctx.fillStyle = '#8B4513'; // Brown wall color
+        this.ctx.strokeStyle = '#654321'; // Darker brown border
+        this.ctx.lineWidth = 2;
+        
+        // Top wall
+        this.ctx.fillRect(0, 0, this.canvas.width, borderWidth);
+        this.ctx.strokeRect(0, 0, this.canvas.width, borderWidth);
+        
+        // Bottom wall
+        this.ctx.fillRect(0, this.canvas.height - borderWidth, this.canvas.width, borderWidth);
+        this.ctx.strokeRect(0, this.canvas.height - borderWidth, this.canvas.width, borderWidth);
+        
+        // Left wall
+        this.ctx.fillRect(0, 0, borderWidth, this.canvas.height);
+        this.ctx.strokeRect(0, 0, borderWidth, this.canvas.height);
+        
+        // Right wall
+        this.ctx.fillRect(this.canvas.width - borderWidth, 0, borderWidth, this.canvas.height);
+        this.ctx.strokeRect(this.canvas.width - borderWidth, 0, borderWidth, this.canvas.height);
+        
+        this.ctx.restore();
     }
 
     drawRoundedRect(x, y, width, height, radius) {
