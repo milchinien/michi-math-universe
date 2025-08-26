@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formel-Fury-Shooter</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/shop.css">
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
@@ -403,8 +404,8 @@
                🔄 Neustart
            </button>
            
-           <button class="pause-btn" onclick="game.togglePauseMenu()">
-               ⚙ Zurück zum Spiel
+           <button class="pause-btn" onclick="game.showMainMenu()">
+               🏠 Zurück ins Hauptmenü
            </button>
            
            <div id="pauseStats">
@@ -501,6 +502,96 @@
        </div>
    </div>
 
+   <!-- Shop Menu (Brotato-Style Layout) -->
+   <div id="shopMenu">
+       <div class="shop-container">
+           <!-- Shop Items Bereich (links oben) -->
+           <div class="shop-section">
+               <div class="shop-header">
+                   <h2 class="shop-title">🛒 SHOP</h2>
+                   <p class="shop-subtitle">Wähle deine Items weise!</p>
+               </div>
+               <div class="shop-items-grid">
+                   <div class="shop-item" id="shopItem0">
+                       <div class="shop-item-icon">❓</div>
+                       <div class="shop-item-name">Lade...</div>
+                       <div class="shop-item-description">Items werden geladen...</div>
+                       <div class="shop-item-rarity">-</div>
+                       <div class="shop-item-price">💰 0</div>
+                   </div>
+                   <div class="shop-item" id="shopItem1">
+                       <div class="shop-item-icon">❓</div>
+                       <div class="shop-item-name">Lade...</div>
+                       <div class="shop-item-description">Items werden geladen...</div>
+                       <div class="shop-item-rarity">-</div>
+                       <div class="shop-item-price">💰 0</div>
+                   </div>
+                   <div class="shop-item" id="shopItem2">
+                       <div class="shop-item-icon">❓</div>
+                       <div class="shop-item-name">Lade...</div>
+                       <div class="shop-item-description">Items werden geladen...</div>
+                       <div class="shop-item-rarity">-</div>
+                       <div class="shop-item-price">💰 0</div>
+                   </div>
+               </div>
+           </div>
+
+           <!-- Player Stats Bereich (rechts oben) -->
+           <div class="stats-section">
+               <div class="stats-header">
+                   <h3 class="stats-title">📊 STATS</h3>
+               </div>
+               <div class="stats-grid">
+                   <div class="stat-row">
+                       <span class="stat-icon">❤️</span>
+                       <span class="stat-label">Gesundheit:</span>
+                       <span class="stat-value" id="shopStatHP">100/100</span>
+                   </div>
+                   <div class="stat-row">
+                       <span class="stat-icon">🛡️</span>
+                       <span class="stat-label">Schild:</span>
+                       <span class="stat-value" id="shopStatShield">0</span>
+                   </div>
+                   <div class="stat-row">
+                       <span class="stat-icon">⚡</span>
+                       <span class="stat-label">Geschwindigkeit:</span>
+                       <span class="stat-value" id="shopStatSpeed">100%</span>
+                   </div>
+                   <div class="stat-row">
+                       <span class="stat-icon">💰</span>
+                       <span class="stat-label">Münzen:</span>
+                       <span class="stat-value" id="shopStatCoins">0</span>
+                   </div>
+               </div>
+           </div>
+
+           <!-- Inventar Bereich (links unten) -->
+           <div class="inventory-section">
+               <div class="inventory-header">
+                   <h3 class="inventory-title">🎒 INVENTAR</h3>
+                   <p class="inventory-info">Gesammelte Items</p>
+               </div>
+               <div class="inventory-grid" id="inventoryGrid">
+                   <!-- Inventory slots werden dynamisch generiert -->
+               </div>
+           </div>
+
+           <!-- Continue Bereich (rechts unten) -->
+           <div class="continue-section">
+               <button class="continue-button" onclick="game.shopSystem?.continueToNextWave()">
+                   <div class="continue-wave-info" id="shopWaveInfo">WELLE 1</div>
+                   ⚔️ WEITER KÄMPFEN
+               </button>
+               <button class="menu-button" onclick="game.shopSystem?.returnToMainMenu()">
+                   🏠 ZURÜCK INS HAUPTMENÜ
+               </button>
+           </div>
+       </div>
+       
+       <!-- Shop Feedback -->
+       <div id="shopFeedback" class="shop-feedback"></div>
+   </div>
+
    <!-- JavaScript Module Imports -->
    <script src="js/formula-system.js"></script>
    <script src="js/enemy-system.js"></script>
@@ -509,6 +600,7 @@
    <script src="js/level-system.js"></script>
    <script src="js/levelup-system.js"></script>
    <script src="js/player-input.js"></script>
+   <script src="js/shop-system.js"></script>
    <script src="js/game-engine.js"></script>
    <script src="js/menu-system.js"></script>
    <script src="js/stats-system.js"></script>

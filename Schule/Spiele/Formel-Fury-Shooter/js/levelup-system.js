@@ -671,11 +671,11 @@ class LevelUpSystem {
         // Hide level up menu
         this.hideLevelUp();
         
-        // Continue to shop menu (existing behavior)
-        if (window.game && typeof window.game.showPauseMenu === 'function') {
+        // Continue to shop menu after level-up
+        if (window.game && typeof window.game.showShopAfterLevelUp === 'function') {
             // Small delay before showing shop menu
             setTimeout(() => {
-                window.game.showPauseMenu();
+                window.game.showShopAfterLevelUp();
                 console.log('🛍️ Shop menu opened after upgrade selection');
             }, 500);
         }

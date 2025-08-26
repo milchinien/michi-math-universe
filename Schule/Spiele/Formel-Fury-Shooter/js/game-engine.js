@@ -37,6 +37,7 @@ class GameEngine {
        this.levelSystem = null;
        this.levelUpSystem = null;
        this.statsSystem = null;
+       this.shopSystem = null;
        
        // Background elements
        this.grassPatches = [];
@@ -233,6 +234,9 @@ class GameEngine {
         // Create stats system
         this.statsSystem = new StatsSystem();
         
+        // Create shop system
+        this.shopSystem = new ShopSystem(this);
+        
         // Create enemy spawner
         this.enemySpawner = new EnemySpawner(this.formulaSystem);
         
@@ -320,7 +324,7 @@ class GameEngine {
         
         if (pendingLevelUps === 0) {
             console.log('📊 No level-ups occurred during wave, showing shop menu');
-            this.showPauseMenu();
+            this.showShopAfterLevelUp();
             return;
         }
         
@@ -424,10 +428,18 @@ class GameEngine {
             this.resizeCanvas();
         });
 
-        // Escape key for pause
+        // Escape key for pause menu and exiting combat
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                this.togglePauseMenu();
+                if (this.combatMode) {
+                    // Exit combat mode when fighting enemies
+                    this.exitCombatMode();
+                    console.log('ESC pressed - Exited combat mode');
+                } else if (this.gameState === 'playing') {
+                    // Open pause menu during gameplay
+                    this.togglePauseMenu();
+                    console.log('ESC pressed - Toggled pause menu');
+                }
             }
         });
 
@@ -1309,7 +1321,7 @@ class GameEngine {
         }
     }
 
-    showPauseMenu() {
+    showShopAfterLevelUp() {
         // IMPORTANT: Actually pause the game
         this.isPaused = true;
         
@@ -1321,18 +1333,39 @@ class GameEngine {
         // Hide formula HUD to prevent cheating
         this.formulaSystem.hideFormulaHUD();
         
-        // Update pause menu stats
-        this.updatePauseStats();
+        // Show shop after level-up
+        if (this.shopSystem) {
+            this.shopSystem.openShop();
+        }
         
-        // Show pause menu
+        console.log('Game paused - Shop opened after level-up');
+    }
+
+    showPauseMenu() {
+        // Old pause menu - now only used as fallback
+        this.isPaused = true;
+        
+        if (this.combatMode) {
+            this.exitCombatMode();
+        }
+        
+        this.formulaSystem.hideFormulaHUD();
+        this.updatePauseStats();
         this.pauseMenu.style.display = 'block';
         
-        console.log('Game paused - ALL systems stopped');
+        console.log('Game paused - Old pause menu shown');
     }
 
     hidePauseMenu() {
         // IMPORTANT: Actually unpause the game
         this.isPaused = false;
+        
+        // Hide shop if it's open
+        if (this.shopSystem) {
+            this.shopSystem.closeShop();
+        }
+        
+        // Hide old pause menu as fallback
         this.pauseMenu.style.display = 'none';
         console.log('Game resumed - ALL systems restarted');
     }
