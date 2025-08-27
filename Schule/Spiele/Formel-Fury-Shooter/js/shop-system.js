@@ -20,96 +20,82 @@ class ShopSystem {
             legendary: { name: 'Legendär', color: '#ff8000', priceMultiplier: 6.0 }
         };
         
-        // Item Placeholders - stackable items zum Sammeln
+        // Functional Items Pool
         this.itemPool = [
-            {
-                id: 'red_crystal',
-                name: 'Roter Kristall',
-                description: 'Ein mysteriöser roter Kristall',
-                icon: '🔴',
-                rarity: 'common',
-                basePrice: 3,
-                stackable: true,
-                effect: { type: 'placeholder', value: 'red_crystal' }
-            },
-            {
-                id: 'blue_orb',
-                name: 'Blaue Kugel',
-                description: 'Eine leuchtende blaue Energiekugel',
-                icon: '🔵',
-                rarity: 'uncommon',
-                basePrice: 5,
-                stackable: true,
-                effect: { type: 'placeholder', value: 'blue_orb' }
-            },
-            {
-                id: 'golden_gear',
-                name: 'Goldenes Zahnrad',
-                description: 'Ein präzise gefertigtes goldenes Zahnrad',
-                icon: '⚙️',
-                rarity: 'rare',
-                basePrice: 8,
-                stackable: true,
-                effect: { type: 'placeholder', value: 'golden_gear' }
-            },
-            {
-                id: 'purple_gem',
-                name: 'Violetter Edelstein',
-                description: 'Ein seltener violetter Edelstein',
-                icon: '🟣',
-                rarity: 'epic',
-                basePrice: 12,
-                stackable: true,
-                effect: { type: 'placeholder', value: 'purple_gem' }
-            },
-            {
-                id: 'rainbow_shard',
-                name: 'Regenbogen-Splitter',
-                description: 'Ein legendärer schimmernder Splitter',
-                icon: '🌈',
-                rarity: 'legendary',
-                basePrice: 20,
-                stackable: true,
-                effect: { type: 'placeholder', value: 'rainbow_shard' }
-            },
-            {
-                id: 'silver_coin',
-                name: 'Silbermünze',
-                description: 'Eine alte Silbermünze mit Gravur',
-                icon: '🪙',
-                rarity: 'common',
-                basePrice: 2,
-                stackable: true,
-                effect: { type: 'placeholder', value: 'silver_coin' }
-            },
-            {
-                id: 'magic_scroll',
-                name: 'Magische Schriftrolle',
-                description: 'Eine Schriftrolle mit unbekannten Symbolen',
-                icon: '📜',
-                rarity: 'uncommon',
-                basePrice: 6,
-                stackable: true,
-                effect: { type: 'placeholder', value: 'magic_scroll' }
-            },
-            {
-                id: 'ancient_key',
-                name: 'Antiker Schlüssel',
-                description: 'Ein alter Schlüssel aus unbekanntem Metall',
-                icon: '🗝️',
-                rarity: 'rare',
-                basePrice: 10,
-                stackable: true,
-                effect: { type: 'placeholder', value: 'ancient_key' }
-            },
             {
                 id: 'trank_des_leipzigers_legendary',
                 name: 'TRANK DES LEIPZIGERS',
                 description: '+500% Münzen, +300% Speed, +500% Gegner',
                 icon: '🥤',
                 rarity: 'legendary',
-                basePrice: 800,
+                basePrice: 100,
                 stackable: false,
+                effect: null
+            },
+            {
+                id: 'geodreieck_common',
+                name: 'GEODREIECK',
+                description: '+30% Bewegungsgeschwindigkeit',
+                icon: '📐',
+                rarity: 'common',
+                basePrice: 15,
+                stackable: false,
+                category: 'movement',
+                effect: null
+            },
+            {
+                id: 'energieriegel_common',
+                name: 'ENERGIERIEGEL',
+                description: '+20% HP-Regeneration',
+                icon: '🍫',
+                rarity: 'common',
+                basePrice: 20,
+                stackable: false,
+                category: 'utility',
+                effect: null
+            },
+            {
+                id: 'stabiler_stift_uncommon',
+                name: 'STABILER STIFT',
+                description: 'Gegner 40% langsamer beim Lösen',
+                icon: '✏️',
+                rarity: 'uncommon',
+                basePrice: 35,
+                stackable: false,
+                category: 'math',
+                effect: null
+            },
+            {
+                id: 'taschenrechner_uncommon',
+                name: 'TASCHENRECHNER',
+                description: '+20% Zeit für Aufgaben',
+                icon: '🧮',
+                rarity: 'uncommon',
+                basePrice: 30,
+                stackable: false,
+                category: 'math',
+                effect: null
+            },
+            {
+                id: 'newtons_apfel_rare',
+                name: 'NEWTONS APFEL',
+                description: '+20% Chance: Angreifer stirbt',
+                icon: '🍎',
+                rarity: 'rare',
+                basePrice: 50,
+                stackable: false,
+                category: 'combat',
+                effect: null
+            },
+            {
+                id: 'zaubertrank_epic',
+                name: 'ZAUBERTRANK',
+                description: '-50% Gegnergeschwindigkeit',
+                icon: '🧪',
+                rarity: 'epic',
+                basePrice: 75,
+                stackable: false,
+                category: 'combat',
                 effect: null
             }
         ];
@@ -295,6 +281,24 @@ class ShopSystem {
             case 'trank_des_leipzigers_legendary':
                 this.applyTrankDesLeipzigers();
                 return;
+            case 'geodreieck_common':
+                this.applyGeodreiecksEffect();
+                return;
+            case 'energieriegel_common':
+                this.applyEnergieriegelEffect();
+                return;
+            case 'stabiler_stift_uncommon':
+                this.applyStabilerStiftEffect();
+                return;
+            case 'taschenrechner_uncommon':
+                this.applyTaschenrechnerEffect();
+                return;
+            case 'newtons_apfel_rare':
+                this.applyNewtonsApfelEffect();
+                return;
+            case 'zaubertrank_epic':
+                this.applyZaubertrankEffect();
+                return;
         }
         
         // Handle regular effect-based items
@@ -464,6 +468,160 @@ class ShopSystem {
         console.log('   💰 Coins: 6x Multiplier');
         console.log('   ⚡ Speed: 4x Geschwindigkeit');
         console.log('   👾 Enemies: 6x Spawn Rate');
+    }
+    
+    applyGeodreiecksEffect() {
+        console.log('📐 GEODREIECK aktiviert!');
+        
+        // +30% Bewegungsgeschwindigkeit
+        if (this.game.player) {
+            const currentSpeed = this.game.player.speed || this.game.player.baseSpeed || 200;
+            const speedIncrease = currentSpeed * 0.30; // 30% increase
+            this.game.player.speed = currentSpeed + speedIncrease;
+            this.game.player.maxSpeed = this.game.player.speed;
+            
+            console.log(`⚡ Speed erhöht um 30%: ${Math.round(currentSpeed)} → ${Math.round(this.game.player.speed)}`);
+        }
+        
+        // Visual Feedback
+        this.showItemEffect('📐 GEODREIECK AKTIVIERT!\n⚡ +30% BEWEGUNGSGESCHWINDIGKEIT', '#00ff00');
+        
+        console.log('📐 GEODREIECK EFFEKT: +30% Bewegungsgeschwindigkeit');
+    }
+    
+    applyEnergieriegelEffect() {
+        console.log('🍫 ENERGIERIEGEL aktiviert!');
+        
+        // +20% HP-Regeneration
+        if (this.game.player) {
+            // Initialize HP regeneration if not exists
+            if (!this.game.player.hpRegenRate) {
+                this.game.player.hpRegenRate = 0; // Base regen rate
+            }
+            
+            // Add 20% HP regeneration (0.2 HP per second)
+            this.game.player.hpRegenRate += 0.2;
+            
+            // Start HP regeneration if not already running
+            if (!this.game.player.hpRegenInterval) {
+                this.game.player.hpRegenInterval = setInterval(() => {
+                    if (this.game.player && this.game.player.health < this.game.player.maxHealth) {
+                        this.game.player.health = Math.min(
+                            this.game.player.maxHealth, 
+                            this.game.player.health + this.game.player.hpRegenRate
+                        );
+                    }
+                }, 1000); // Every second
+            }
+            
+            console.log(`💚 HP-Regeneration erhöht um 20%: ${this.game.player.hpRegenRate} HP/s`);
+        }
+        
+        // Visual Feedback
+        this.showItemEffect('🍫 ENERGIERIEGEL AKTIVIERT!\n💚 +20% HP-REGENERATION', '#00ff00');
+        
+        console.log('🍫 ENERGIERIEGEL EFFEKT: +20% HP-Regeneration');
+    }
+    
+    applyStabilerStiftEffect() {
+        console.log('✏️ STABILER STIFT aktiviert!');
+        
+        // Gegner 40% langsamer beim Lösen
+        if (this.game.formulaSystem) {
+            // Initialize enemy slowdown modifier if not exists
+            if (!this.game.formulaSystem.enemySlowdownModifier) {
+                this.game.formulaSystem.enemySlowdownModifier = 1.0;
+            }
+            
+            // Apply 40% slowdown (multiply by 0.6 = 60% speed = 40% slower)
+            this.game.formulaSystem.enemySlowdownModifier *= 0.6;
+            
+            console.log(`🐌 Gegner-Geschwindigkeit reduziert: ${Math.round((1 - this.game.formulaSystem.enemySlowdownModifier) * 100)}% langsamer`);
+        }
+        
+        // Visual Feedback
+        this.showItemEffect('✏️ STABILER STIFT AKTIVIERT!\n🐌 GEGNER 40% LANGSAMER', '#00ff00');
+        
+        console.log('✏️ STABILER STIFT EFFEKT: Gegner 40% langsamer beim Lösen');
+    }
+    
+    applyTaschenrechnerEffect() {
+        console.log('🧮 TASCHENRECHNER aktiviert!');
+        
+        // +20% Zeit für Aufgaben
+        if (this.game.formulaSystem) {
+            // Initialize time bonus if not exists
+            if (!this.game.formulaSystem.timeBonusMultiplier) {
+                this.game.formulaSystem.timeBonusMultiplier = 1.0;
+            }
+            
+            // Add 20% more time (multiply by 1.2)
+            this.game.formulaSystem.timeBonusMultiplier *= 1.2;
+            
+            console.log(`⏰ Formel-Zeit erhöht um 20%: ${Math.round(this.game.formulaSystem.timeBonusMultiplier * 100)}% der Basis-Zeit`);
+        }
+        
+        // Visual Feedback
+        this.showItemEffect('🧮 TASCHENRECHNER AKTIVIERT!\n⏰ +20% ZEIT FÜR AUFGABEN', '#00ff00');
+        
+        console.log('🧮 TASCHENRECHNER EFFEKT: +20% Zeit für Aufgaben');
+    }
+    
+    applyNewtonsApfelEffect() {
+        console.log('🍎 NEWTONS APFEL aktiviert!');
+        
+        // +20% Chance: Angreifer stirbt
+        if (this.game.player) {
+            // Initialize counter-attack chance if not exists
+            if (!this.game.player.counterAttackChance) {
+                this.game.player.counterAttackChance = 0;
+            }
+            
+            // Add 20% counter-attack chance
+            this.game.player.counterAttackChance += 0.2;
+            
+            console.log(`⚡ Gegen-Angriff Chance: ${Math.round(this.game.player.counterAttackChance * 100)}%`);
+        }
+        
+        // Visual Feedback
+        this.showItemEffect('🍎 NEWTONS APFEL AKTIVIERT!\n⚡ +20% CHANCE: ANGREIFER STIRBT', '#ff6600');
+        
+        console.log('🍎 NEWTONS APFEL EFFEKT: +20% Chance dass Angreifer stirbt');
+    }
+    
+    applyZaubertrankEffect() {
+        console.log('🧪 ZAUBERTRANK aktiviert!');
+        
+        // -50% Gegnergeschwindigkeit
+        if (this.game.enemySystem) {
+            // Initialize global enemy speed modifier if not exists
+            if (!this.game.enemySystem.globalSpeedModifier) {
+                this.game.enemySystem.globalSpeedModifier = 1.0;
+            }
+            
+            // Reduce enemy speed by 50% (multiply by 0.5)
+            this.game.enemySystem.globalSpeedModifier *= 0.5;
+            
+            console.log(`🐌 Globale Gegner-Geschwindigkeit: ${Math.round(this.game.enemySystem.globalSpeedModifier * 100)}%`);
+        }
+        
+        // Alternative: Apply to all existing enemies
+        if (this.game.enemies && Array.isArray(this.game.enemies)) {
+            this.game.enemies.forEach(enemy => {
+                if (enemy.speed) {
+                    enemy.speed *= 0.5;
+                }
+                if (enemy.maxSpeed) {
+                    enemy.maxSpeed *= 0.5;
+                }
+            });
+            console.log(`🐌 ${this.game.enemies.length} aktive Gegner verlangsamt`);
+        }
+        
+        // Visual Feedback
+        this.showItemEffect('🧪 ZAUBERTRANK AKTIVIERT!\n🐌 -50% GEGNERGESCHWINDIGKEIT', '#9966ff');
+        
+        console.log('🧪 ZAUBERTRANK EFFEKT: -50% Gegnergeschwindigkeit');
     }
     
     getModifiedShopWeights() {
