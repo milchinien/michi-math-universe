@@ -107,6 +107,12 @@ class ShopSystem {
         this.initializeShop();
     }
     
+    init() {
+        // Initialize method for compatibility with game engine
+        console.log('🛒 ShopSystem initialized');
+        return this;
+    }
+    
     initializeShop() {
         // Shop wird beim ersten Öffnen initialisiert
         this.generateShopItems();
@@ -190,15 +196,18 @@ class ShopSystem {
         const item = this.currentItems[shopSlot];
         if (!item) return false;
         
-        // Prüfen ob genug Münzen vorhanden
+        // Check for infinite shop purchases cheat
+        const hasInfiniteShop = this.game?.cheatFeatures?.infiniteShopPurchases;
+        
+        // Prüfen ob genug Münzen vorhanden (skip if cheat is active)
         const playerCoins = this.game?.currencySystem?.coins || 0;
-        if (playerCoins < item.finalPrice) {
+        if (!hasInfiniteShop && playerCoins < item.finalPrice) {
             this.showFeedback('Nicht genug Münzen!', 'error');
             return false;
         }
         
-        // Kauf durchführen
-        if (this.game?.currencySystem?.spendCoins) {
+        // Kauf durchführen (skip spending coins if cheat is active)
+        if (!hasInfiniteShop && this.game?.currencySystem?.spendCoins) {
             this.game.currencySystem.spendCoins(item.finalPrice);
         }
         

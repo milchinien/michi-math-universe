@@ -79,42 +79,44 @@ class GameEngine {
     }
 
     setupCheatCode() {
-        // Cheat code: Ctrl + Shift + Y (simple 3-key combination)
+        // Cheat code: Ctrl + CapsLock
         this.cheatKeys = {
             ctrl: false,
-            shift: false,
-            y: false
+            capslock: false
         };
         
-        console.log('🔧 Cheat code system initialized. Use Ctrl+Shift+Y to toggle.');
+        // Cheat mode features
+        this.cheatFeatures = {
+            infiniteHP: false,
+            infiniteHPRegen: false,
+            infiniteCoins: false,
+            showCorrectAnswers: false,
+            infiniteShopPurchases: false
+        };
+        
+        console.log('🔧 Cheat code system initialized. Use Ctrl+CapsLock to toggle cheat menu.');
 
         document.addEventListener('keydown', (e) => {
             // Track key states
             if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
                 this.cheatKeys.ctrl = true;
-                console.log('🔧 Ctrl pressed');
             }
-            if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-                this.cheatKeys.shift = true;
-                console.log('🔧 Shift pressed');
-            }
-            if (e.code === 'KeyY') {
-                this.cheatKeys.y = true;
-                console.log('🔧 Y pressed');
+            if (e.code === 'CapsLock') {
+                this.cheatKeys.capslock = true;
             }
 
             // Check if all keys are pressed
-            if (this.cheatKeys.ctrl && this.cheatKeys.shift && this.cheatKeys.y) {
+            if (this.cheatKeys.ctrl && this.cheatKeys.capslock) {
                 // Prevent event bubbling
                 e.preventDefault();
                 e.stopPropagation();
                 
-                this.toggleCheatMode();
+                this.showCheatMenu();
                 
                 // Reset keys to prevent rapid toggling
-                this.cheatKeys = { ctrl: false, shift: false, y: false };
+                this.cheatKeys = { ctrl: false, capslock: false };
                 
-                console.log('🔧 Cheat code detected: Ctrl+Shift+Y');
+                console.log('🔧 Cheat code detected: Ctrl+CapsLock');
             }
         });
 
@@ -123,15 +125,541 @@ class GameEngine {
             if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
                 this.cheatKeys.ctrl = false;
             }
-            if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-                this.cheatKeys.shift = false;
-            }
-            if (e.code === 'KeyY') {
-                this.cheatKeys.y = false;
+            if (e.code === 'CapsLock') {
+                this.cheatKeys.capslock = false;
             }
         });
     }
 
+    showCheatMenu() {
+        // Create cheat menu if it doesn't exist
+        if (!document.getElementById('cheatMenu')) {
+            this.createCheatMenu();
+        }
+        
+        const cheatMenu = document.getElementById('cheatMenu');
+        cheatMenu.style.display = 'block';
+        
+        // Pause game if playing
+        if (this.gameState === 'playing') {
+            this.pauseGame();
+        }
+        
+        console.log('🔧 Cheat menu opened');
+    }
+    
+    createCheatMenu() {
+        const cheatMenu = document.createElement('div');
+        cheatMenu.id = 'cheatMenu';
+        cheatMenu.innerHTML = `
+            <div class="cheat-overlay">
+                <div class="cheat-panel">
+                    <div class="cheat-header">
+                        <h2>🔧 CHEAT MENU</h2>
+                        <button class="cheat-close" onclick="window.gameEngine.hideCheatMenu()">✖</button>
+                    </div>
+                    
+                    <div class="cheat-content">
+                        <div class="cheat-section">
+                            <h3>💪 Gameplay Cheats</h3>
+                            <div class="cheat-options">
+                                <label class="cheat-option">
+                                    <input type="checkbox" id="cheatInfiniteHP" onchange="window.gameEngine.toggleCheat('infiniteHP', this.checked)">
+                                    <span>🩸 Unendlich HP</span>
+                                </label>
+                                <label class="cheat-option">
+                                    <input type="checkbox" id="cheatInfiniteHPRegen" onchange="window.gameEngine.toggleCheat('infiniteHPRegen', this.checked)">
+                                    <span>💚 Unendliche HP-Regeneration</span>
+                                </label>
+                                <label class="cheat-option">
+                                    <input type="checkbox" id="cheatInfiniteCoins" onchange="window.gameEngine.toggleCheat('infiniteCoins', this.checked)">
+                                    <span>💰 Unendlich Münzen</span>
+                                </label>
+                                <label class="cheat-option">
+                                    <input type="checkbox" id="cheatShowAnswers" onchange="window.gameEngine.toggleCheat('showCorrectAnswers', this.checked)">
+                                    <span>🎯 Richtige Antworten anzeigen</span>
+                                </label>
+                                <label class="cheat-option">
+                                    <input type="checkbox" id="cheatInfiniteShop" onchange="window.gameEngine.toggleCheat('infiniteShopPurchases', this.checked)">
+                                    <span>🛒 Unendliche Shop-Käufe</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="cheat-section">
+                            <h3>⬆️ Upgrade Manager</h3>
+                            <div class="cheat-upgrades">
+                                <button class="cheat-btn" onclick="window.gameEngine.openUpgradeCheatMenu()">
+                                    🎁 Alle Upgrades & Items
+                                </button>
+                                <button class="cheat-btn" onclick="window.gameEngine.resetAllUpgrades()">
+                                    🔄 Alle Upgrades zurücksetzen
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="cheat-section">
+                            <h3>🎮 Schnelle Aktionen</h3>
+                            <div class="cheat-actions">
+                                <button class="cheat-btn" onclick="window.gameEngine.addCoins(1000)">
+                                    +1000 💰 Münzen
+                                </button>
+                                <button class="cheat-btn" onclick="window.gameEngine.healPlayer()">
+                                    ❤️ Vollständig heilen
+                                </button>
+                                <button class="cheat-btn" onclick="window.gameEngine.skipToWave(10)">
+                                    🌊 Zu Welle 10 springen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(cheatMenu);
+        this.styleCheatMenu();
+    }
+    
+    styleCheatMenu() {
+        const style = document.createElement('style');
+        style.textContent = `
+            #cheatMenu {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 10000;
+            }
+            
+            .cheat-overlay {
+                background: rgba(0, 0, 0, 0.8);
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .cheat-panel {
+                background: linear-gradient(135deg, #1a1a2e, #16213e);
+                border: 2px solid #00ffff;
+                border-radius: 15px;
+                width: 600px;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            }
+            
+            .cheat-header {
+                background: linear-gradient(90deg, #00ffff, #ff00ff);
+                color: #000;
+                padding: 15px 20px;
+                border-radius: 13px 13px 0 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .cheat-header h2 {
+                margin: 0;
+                font-size: 24px;
+                font-weight: bold;
+            }
+            
+            .cheat-close {
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: #000;
+                font-size: 20px;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-weight: bold;
+            }
+            
+            .cheat-close:hover {
+                background: rgba(255, 255, 255, 0.4);
+            }
+            
+            .cheat-content {
+                padding: 20px;
+                color: #fff;
+            }
+            
+            .cheat-section {
+                margin-bottom: 25px;
+                padding: 15px;
+                background: rgba(0, 255, 255, 0.1);
+                border-radius: 10px;
+                border: 1px solid rgba(0, 255, 255, 0.3);
+            }
+            
+            .cheat-section h3 {
+                margin: 0 0 15px 0;
+                color: #00ffff;
+                font-size: 18px;
+            }
+            
+            .cheat-options {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .cheat-option {
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                padding: 8px;
+                border-radius: 5px;
+                transition: background 0.2s;
+            }
+            
+            .cheat-option:hover {
+                background: rgba(0, 255, 255, 0.1);
+            }
+            
+            .cheat-option input[type="checkbox"] {
+                margin-right: 10px;
+                transform: scale(1.2);
+                accent-color: #00ffff;
+            }
+            
+            .cheat-option span {
+                font-size: 16px;
+            }
+            
+            .cheat-upgrades, .cheat-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .cheat-btn {
+                background: linear-gradient(45deg, #ff00ff, #00ffff);
+                color: #000;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 14px;
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            
+            .cheat-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+            }
+            
+            .cheat-btn:active {
+                transform: translateY(0);
+            }
+        `;
+        
+        document.head.appendChild(style);
+    }
+    
+    hideCheatMenu() {
+        const cheatMenu = document.getElementById('cheatMenu');
+        if (cheatMenu) {
+            cheatMenu.style.display = 'none';
+        }
+        
+        // Resume game if it was paused by cheat menu
+        if (this.gameState === 'paused') {
+            this.resumeGame();
+        }
+        
+        console.log('🔧 Cheat menu closed');
+    }
+    
+    toggleCheat(cheatName, enabled) {
+        this.cheatFeatures[cheatName] = enabled;
+        
+        console.log(`🔧 Cheat ${cheatName}: ${enabled ? 'ENABLED' : 'DISABLED'}`);
+        
+        // Apply immediate effects
+        if (enabled) {
+            switch(cheatName) {
+                case 'infiniteHP':
+                    this.playerHealth = this.playerMaxHealth;
+                    break;
+                case 'infiniteCoins':
+                    if (this.currencySystem) {
+                        this.currencySystem.addCoins(999999);
+                    }
+                    break;
+            }
+        }
+        
+        // Update cheat indicator
+        this.updateCheatIndicator();
+    }
+    
+    updateCheatIndicator() {
+        const anyCheatActive = Object.values(this.cheatFeatures).some(cheat => cheat);
+        
+        let indicator = document.getElementById('cheatIndicator');
+        if (!indicator && anyCheatActive) {
+            indicator = document.createElement('div');
+            indicator.id = 'cheatIndicator';
+            indicator.innerHTML = '🔧 CHEAT MODE';
+            indicator.style.cssText = `
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                background: linear-gradient(45deg, #ff0000, #ff6600);
+                color: white;
+                padding: 5px 10px;
+                border-radius: 5px;
+                font-weight: bold;
+                z-index: 1000;
+                font-size: 14px;
+                box-shadow: 0 2px 10px rgba(255, 0, 0, 0.5);
+            `;
+            document.body.appendChild(indicator);
+        }
+        
+        if (indicator) {
+            indicator.style.display = anyCheatActive ? 'block' : 'none';
+        }
+    }
+    
+    // Quick action methods
+    addCoins(amount) {
+        if (this.currencySystem) {
+            this.currencySystem.addCoins(amount);
+            console.log(`🔧 Added ${amount} coins`);
+        }
+    }
+    
+    healPlayer() {
+        this.playerHealth = this.playerMaxHealth;
+        console.log('🔧 Player fully healed');
+    }
+    
+    skipToWave(waveNumber) {
+        if (this.waveSystem) {
+            this.waveSystem.currentWave = waveNumber - 1;
+            this.waveSystem.startWave();
+            console.log(`🔧 Skipped to wave ${waveNumber}`);
+        }
+    }
+    
+    openUpgradeCheatMenu() {
+        // Create upgrade selection menu
+        if (!document.getElementById('upgradeCheatMenu')) {
+            this.createUpgradeCheatMenu();
+        }
+        
+        const upgradeMenu = document.getElementById('upgradeCheatMenu');
+        upgradeMenu.style.display = 'block';
+        
+        // Ensure game stays paused when opening upgrade menu
+        if (this.gameState === 'playing') {
+            this.pauseGame();
+        }
+    }
+    
+    hideUpgradeCheatMenu() {
+        const upgradeMenu = document.getElementById('upgradeCheatMenu');
+        if (upgradeMenu) {
+            upgradeMenu.style.display = 'none';
+        }
+        
+        // Resume game if it was paused by cheat menu
+        if (this.gameState === 'paused') {
+            this.resumeGame();
+        }
+    }
+    
+    createUpgradeCheatMenu() {
+        const upgradeMenu = document.createElement('div');
+        upgradeMenu.id = 'upgradeCheatMenu';
+        upgradeMenu.innerHTML = `
+            <div class="cheat-overlay">
+                <div class="cheat-panel upgrade-panel">
+                    <div class="cheat-header">
+                        <h2>🎁 UPGRADE CHEAT MENU</h2>
+                        <button class="cheat-close" onclick="window.gameEngine.hideUpgradeCheatMenu()">✖</button>
+                    </div>
+                    
+                    <div class="cheat-content">
+                        <div class="upgrade-grid" id="upgradeCheatGrid">
+                            <!-- Upgrades will be populated here -->
+                        </div>
+                        
+                        <div class="cheat-section">
+                            <button class="cheat-btn" onclick="window.gameEngine.giveAllUpgrades()">
+                                🌟 Alle Upgrades geben
+                            </button>
+                            <button class="cheat-btn" onclick="window.gameEngine.maxAllUpgrades()">
+                                ⭐ Alle Upgrades maximieren
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(upgradeMenu);
+        this.populateUpgradeCheatMenu();
+        this.styleUpgradeCheatMenu();
+    }
+    
+    populateUpgradeCheatMenu() {
+        const grid = document.getElementById('upgradeCheatGrid');
+        if (!grid || !this.levelUpSystem) return;
+        
+        // Get all available upgrades
+        const upgrades = this.levelUpSystem.getAllUpgrades();
+        
+        grid.innerHTML = '';
+        upgrades.forEach(upgrade => {
+            const upgradeElement = document.createElement('div');
+            upgradeElement.className = 'upgrade-cheat-item';
+            upgradeElement.innerHTML = `
+                <div class="upgrade-icon">${upgrade.icon}</div>
+                <div class="upgrade-name">${upgrade.name}</div>
+                <div class="upgrade-level">Level: ${upgrade.currentLevel}/${upgrade.maxLevel}</div>
+                <button class="upgrade-cheat-btn" onclick="window.gameEngine.giveUpgrade('${upgrade.id}')">
+                    +1 Level
+                </button>
+            `;
+            grid.appendChild(upgradeElement);
+        });
+    }
+    
+    styleUpgradeCheatMenu() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .upgrade-panel {
+                width: 800px;
+                max-height: 90vh;
+            }
+            
+            .upgrade-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .upgrade-cheat-item {
+                background: rgba(0, 255, 255, 0.1);
+                border: 1px solid rgba(0, 255, 255, 0.3);
+                border-radius: 10px;
+                padding: 15px;
+                text-align: center;
+            }
+            
+            .upgrade-icon {
+                font-size: 24px;
+                margin-bottom: 8px;
+            }
+            
+            .upgrade-name {
+                font-weight: bold;
+                margin-bottom: 5px;
+                color: #00ffff;
+            }
+            
+            .upgrade-level {
+                font-size: 12px;
+                color: #ccc;
+                margin-bottom: 10px;
+            }
+            
+            .upgrade-cheat-btn {
+                background: linear-gradient(45deg, #00ff00, #00ffff);
+                color: #000;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            
+            .upgrade-cheat-btn:hover {
+                transform: scale(1.05);
+            }
+            
+            @keyframes cheat-pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        `;
+        
+        document.head.appendChild(style);
+    }
+    
+    giveUpgrade(upgradeId) {
+        if (this.levelUpSystem) {
+            this.levelUpSystem.forceUpgrade(upgradeId);
+            this.populateUpgradeCheatMenu(); // Refresh the display
+            console.log(`🔧 Gave upgrade: ${upgradeId}`);
+        }
+    }
+    
+    giveAllUpgrades() {
+        if (this.levelUpSystem) {
+            const upgrades = this.levelUpSystem.getAllUpgrades();
+            upgrades.forEach(upgrade => {
+                this.levelUpSystem.forceUpgrade(upgrade.id);
+            });
+            this.populateUpgradeCheatMenu();
+            console.log('🔧 Gave all upgrades');
+        }
+    }
+    
+    maxAllUpgrades() {
+        if (this.levelUpSystem) {
+            const upgrades = this.levelUpSystem.getAllUpgrades();
+            upgrades.forEach(upgrade => {
+                for (let i = upgrade.currentLevel; i < upgrade.maxLevel; i++) {
+                    this.levelUpSystem.forceUpgrade(upgrade.id);
+                }
+            });
+            this.populateUpgradeCheatMenu();
+            console.log('🔧 Maximized all upgrades');
+        }
+    }
+    
+    resetAllUpgrades() {
+        if (this.levelUpSystem) {
+            this.levelUpSystem.resetAllUpgrades();
+            console.log('🔧 Reset all upgrades');
+        }
+    }
+    
+    applyCheatEffects(deltaTime) {
+        if (!this.cheatFeatures) return;
+        
+        // Infinite HP
+        if (this.cheatFeatures.infiniteHP) {
+            this.playerHealth = this.playerMaxHealth;
+        }
+        
+        // Infinite HP Regeneration
+        if (this.cheatFeatures.infiniteHPRegen) {
+            this.playerHealth = Math.min(this.playerMaxHealth, this.playerHealth + (deltaTime * 0.1));
+        }
+        
+        // Infinite Coins
+        if (this.cheatFeatures.infiniteCoins && this.currencySystem) {
+            if (this.currencySystem.coins < 999999) {
+                this.currencySystem.addCoins(999999 - this.currencySystem.coins);
+            }
+        }
+    }
+    
     toggleCheatMode() {
         this.cheatMode = !this.cheatMode;
         const indicator = document.getElementById('cheatIndicator');
@@ -803,6 +1331,9 @@ class GameEngine {
         if (this.currencySystem) {
             this.currencySystem.update(deltaTime);
         }
+        
+        // Apply cheat effects
+        this.applyCheatEffects(deltaTime);
        
        // Handle targeting system (only if not paused)
        if (!this.isPaused) {
@@ -934,6 +1465,24 @@ class GameEngine {
             btn.innerHTML = `${String.fromCharCode(65 + index)}) ${options[index]}`;
             btn.className = 'mc-answer';
             btn.disabled = false;
+            
+            // Clear any previous cheat styling
+            btn.classList.remove('cheat-correct-answer');
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.style.boxShadow = '';
+            btn.style.animation = '';
+            
+            // Show correct answer cheat
+            if (this.cheatFeatures && this.cheatFeatures.showCorrectAnswers && index === correctIndex) {
+                btn.classList.add('cheat-correct-answer');
+                btn.style.cssText += `
+                    background: linear-gradient(45deg, #00ff00, #00ffaa) !important;
+                    color: #000 !important;
+                    box-shadow: 0 0 15px rgba(0, 255, 0, 0.6) !important;
+                    animation: cheat-pulse 1s infinite !important;
+                `;
+            }
         });
         
         this.showMultipleChoice();

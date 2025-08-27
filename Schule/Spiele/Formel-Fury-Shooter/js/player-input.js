@@ -89,27 +89,39 @@ class Player {
     }
 
     handleBoundaryCollision(canvasWidth, canvasHeight) {
-        const borderWidth = 10; // Visible border thickness
+        const voidWallThickness = 30; // Ominous void wall thickness
+        const damageZone = 50; // Zone where player takes damage from void
         
-        // Left boundary with visible wall
-        if (this.x < this.width / 2 + borderWidth) {
-            this.x = this.width / 2 + borderWidth;
+        // Left boundary with ominous void wall
+        if (this.x < this.width / 2 + voidWallThickness) {
+            this.x = this.width / 2 + voidWallThickness;
             this.velocity.x = 0;
+            this.triggerVoidDamage('left');
         }
-        // Right boundary with visible wall
-        if (this.x > canvasWidth - this.width / 2 - borderWidth) {
-            this.x = canvasWidth - this.width / 2 - borderWidth;
+        // Right boundary with ominous void wall
+        if (this.x > canvasWidth - this.width / 2 - voidWallThickness) {
+            this.x = canvasWidth - this.width / 2 - voidWallThickness;
             this.velocity.x = 0;
+            this.triggerVoidDamage('right');
         }
-        // Top boundary with visible wall
-        if (this.y < this.height / 2 + borderWidth) {
-            this.y = this.height / 2 + borderWidth;
+        // Top boundary with ominous void wall
+        if (this.y < this.height / 2 + voidWallThickness) {
+            this.y = this.height / 2 + voidWallThickness;
             this.velocity.y = 0;
+            this.triggerVoidDamage('top');
         }
-        // Bottom boundary with visible wall
-        if (this.y > canvasHeight - this.height / 2 - borderWidth) {
-            this.y = canvasHeight - this.height / 2 - borderWidth;
+        // Bottom boundary with ominous void wall
+        if (this.y > canvasHeight - this.height / 2 - voidWallThickness) {
+            this.y = canvasHeight - this.height / 2 - voidWallThickness;
             this.velocity.y = 0;
+            this.triggerVoidDamage('bottom');
+        }
+    }
+    
+    triggerVoidDamage(direction) {
+        // Trigger void damage effect - this will be handled by the game engine
+        if (window.game && window.game.handleVoidContact) {
+            window.game.handleVoidContact(direction);
         }
     }
 
@@ -152,13 +164,88 @@ class Player {
         
         ctx.restore();
     }
+    
+    // Static method to render void walls
+    static renderVoidWalls(ctx, canvasWidth, canvasHeight) {
+        const voidWallThickness = 30;
+        const time = Date.now() * 0.003; // For animation
+        
+        ctx.save();
+        
+        // Create ominous void gradient
+        const voidGradient = ctx.createLinearGradient(0, 0, voidWallThickness, 0);
+        voidGradient.addColorStop(0, `rgba(75, 0, 130, ${0.9 + Math.sin(time) * 0.1})`);
+        voidGradient.addColorStop(0.5, `rgba(25, 0, 51, ${0.7 + Math.sin(time * 1.5) * 0.2})`);
+        voidGradient.addColorStop(1, `rgba(0, 0, 0, ${0.3 + Math.sin(time * 2) * 0.2})`);
+        
+        // Left void wall
+        ctx.fillStyle = voidGradient;
+        ctx.fillRect(0, 0, voidWallThickness, canvasHeight);
+        
+        // Right void wall
+        const rightGradient = ctx.createLinearGradient(canvasWidth - voidWallThickness, 0, canvasWidth, 0);
+        rightGradient.addColorStop(0, `rgba(0, 0, 0, ${0.3 + Math.sin(time * 2) * 0.2})`);
+        rightGradient.addColorStop(0.5, `rgba(25, 0, 51, ${0.7 + Math.sin(time * 1.5) * 0.2})`);
+        rightGradient.addColorStop(1, `rgba(75, 0, 130, ${0.9 + Math.sin(time) * 0.1})`);
+        ctx.fillStyle = rightGradient;
+        ctx.fillRect(canvasWidth - voidWallThickness, 0, voidWallThickness, canvasHeight);
+        
+        // Top void wall
+        const topGradient = ctx.createLinearGradient(0, 0, 0, voidWallThickness);
+        topGradient.addColorStop(0, `rgba(75, 0, 130, ${0.9 + Math.sin(time) * 0.1})`);
+        topGradient.addColorStop(0.5, `rgba(25, 0, 51, ${0.7 + Math.sin(time * 1.5) * 0.2})`);
+        topGradient.addColorStop(1, `rgba(0, 0, 0, ${0.3 + Math.sin(time * 2) * 0.2})`);
+        ctx.fillStyle = topGradient;
+        ctx.fillRect(0, 0, canvasWidth, voidWallThickness);
+        
+        // Bottom void wall
+        const bottomGradient = ctx.createLinearGradient(0, canvasHeight - voidWallThickness, 0, canvasHeight);
+        bottomGradient.addColorStop(0, `rgba(0, 0, 0, ${0.3 + Math.sin(time * 2) * 0.2})`);
+        bottomGradient.addColorStop(0.5, `rgba(25, 0, 51, ${0.7 + Math.sin(time * 1.5) * 0.2})`);
+        bottomGradient.addColorStop(1, `rgba(75, 0, 130, ${0.9 + Math.sin(time) * 0.1})`);
+        ctx.fillStyle = bottomGradient;
+        ctx.fillRect(0, canvasHeight - voidWallThickness, canvasWidth, voidWallThickness);
+        
+        // Add void particles/effects
+        ctx.globalAlpha = 0.6;
+        for (let i = 0; i < 20; i++) {
+            const x = Math.random() * canvasWidth;
+            const y = Math.random() * canvasHeight;
+            const size = 1 + Math.random() * 3;
+            const alpha = Math.sin(time + i) * 0.5 + 0.5;
+            
+            // Only draw particles near void walls
+            const nearWall = x < voidWallThickness * 2 || x > canvasWidth - voidWallThickness * 2 ||
+                           y < voidWallThickness * 2 || y > canvasHeight - voidWallThickness * 2;
+            
+            if (nearWall) {
+                ctx.fillStyle = `rgba(138, 43, 226, ${alpha * 0.8})`;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        ctx.restore();
+    }
 
     getDebugInfo() {
         return {
             position: `(${Math.round(this.x)}, ${Math.round(this.y)})`,
             velocity: `(${Math.round(this.velocity.x)}, ${Math.round(this.velocity.y)})`,
-            speed: Math.round(Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2))
+            speed: Math.round(Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2)),
+            nearVoid: this.isNearVoid()
         };
+    }
+    
+    isNearVoid() {
+        const voidWallThickness = 30;
+        const warningDistance = 60;
+        
+        return this.x < voidWallThickness + warningDistance ||
+               this.x > (window.innerWidth - voidWallThickness - warningDistance) ||
+               this.y < voidWallThickness + warningDistance ||
+               this.y > (window.innerHeight - voidWallThickness - warningDistance);
     }
 }
 

@@ -51,6 +51,12 @@ class ArenaSystem {
         this.initializeArena();
     }
     
+    init() {
+        // Initialize method for compatibility with game engine
+        console.log('🏟️ ArenaSystem initialized');
+        return this;
+    }
+    
     initializeArena() {
         // Create initial grass patches (will be destroyed over time)
         this.grassPatches = [];
