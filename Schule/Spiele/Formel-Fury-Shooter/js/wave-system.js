@@ -95,6 +95,11 @@ class WaveSystem {
             this.onWaveStart(this.currentWave, this.getWaveData());
         }
         
+        // Trigger arena deterioration
+        if (window.gameEngine && window.gameEngine.arenaSystem) {
+            window.gameEngine.arenaSystem.onWaveStart(this.currentWave);
+        }
+        
         return this.getWaveData();
     }
     

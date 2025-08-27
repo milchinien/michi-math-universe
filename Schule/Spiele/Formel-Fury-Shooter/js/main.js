@@ -35,6 +35,9 @@ window.addEventListener('load', () => {
         if (typeof InputHandler === 'undefined') {
             throw new Error('InputHandler class not loaded');
         }
+        if (typeof ArenaSystem === 'undefined') {
+            throw new Error('ArenaSystem class not loaded');
+        }
         if (typeof GameEngine === 'undefined') {
             throw new Error('GameEngine class not loaded');
         }
@@ -47,6 +50,7 @@ window.addEventListener('load', () => {
         
         // Make game accessible globally for debugging and menu functions
         window.game = game;
+        window.gameEngine = game;
         
         // Currency system is now ready and integrated
         console.log('💰 CurrencySystem loaded and ready');

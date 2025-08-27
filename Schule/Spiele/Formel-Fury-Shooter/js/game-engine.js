@@ -38,10 +38,7 @@ class GameEngine {
        this.levelUpSystem = null;
        this.statsSystem = null;
        this.shopSystem = null;
-       
-       // Background elements
-       this.grassPatches = [];
-       this.generateGrassPatches();
+       this.arenaSystem = null;
        
        // Input state tracking
        this.spacePressed = false;
@@ -233,6 +230,9 @@ class GameEngine {
         
         // Create stats system
         this.statsSystem = new StatsSystem();
+        
+        // Create arena system
+        this.arenaSystem = new ArenaSystem(this);
         
         // Create shop system
         this.shopSystem = new ShopSystem(this);
@@ -516,7 +516,9 @@ class GameEngine {
         
         // Clear and render
         this.clearCanvas();
-        this.renderBackground();
+        
+        // Render simple background for menu
+        this.renderMenuBackground();
         this.renderBackgroundEnemies();
         
         requestAnimationFrame((time) => this.menuAnimationLoop(time));
@@ -728,8 +730,11 @@ class GameEngine {
         // Clear canvas
         this.clearCanvas();
 
-        // Render background
-        this.renderBackground();
+        // Update and render arena system
+        if (this.arenaSystem) {
+            this.arenaSystem.update(deltaTime);
+            this.arenaSystem.render();
+        }
 
         // Render game objects
         this.render();
@@ -1565,101 +1570,38 @@ class GameEngine {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    generateGrassPatches() {
-        // Generate random grass patches on desert sand
-        this.grassPatches = [];
-        const numPatches = 35 + Math.floor(Math.random() * 15); // 35-50 patches (more grass)
-        
-        // Use fixed seed for consistent grass placement to prevent flickering
-        let seed = 12345;
-        const seededRandom = () => {
-            seed = (seed * 9301 + 49297) % 233280;
-            return seed / 233280;
-        };
-        
-        for (let i = 0; i < numPatches; i++) {
-            const patch = {
-                x: seededRandom() * this.canvas.width,
-                y: seededRandom() * this.canvas.height,
-                size: 6 + seededRandom() * 12, // 6-18 pixel radius (smaller but more patches)
-                opacity: 0.4 + seededRandom() * 0.3, // 0.4-0.7 opacity
-                grassType: Math.floor(seededRandom() * 3), // 3 different grass colors
-                points: 6 + Math.floor(seededRandom() * 4), // Fixed points per patch
-                angles: [] // Store fixed angles
-            };
-            
-            // Pre-calculate fixed angles for each patch to prevent movement
-            for (let j = 0; j < patch.points; j++) {
-                patch.angles.push({
-                    angle: (j / patch.points) * Math.PI * 2,
-                    radius: patch.size * (0.7 + seededRandom() * 0.6)
-                });
-            }
-            
-            this.grassPatches.push(patch);
-        }
-    }
+    // Old generateGrassPatches method removed - now handled by ArenaSystem
     
-    renderBackground() {
-        // Render map boundaries/walls
-        this.renderMapBoundaries();
-        
-        // Render grass patches on desert sand background
-        this.grassPatches.forEach(patch => {
-            this.ctx.save();
-            this.ctx.globalAlpha = patch.opacity;
-            
-            // Different grass colors (darker to match beige background)
-            const grassColors = ['#6B7A3F', '#5A6B2F', '#7A8B4F'];
-            this.ctx.fillStyle = grassColors[patch.grassType];
-            
-            // Draw irregular grass patch using pre-calculated fixed points
-            this.ctx.beginPath();
-            
-            for (let i = 0; i < patch.angles.length; i++) {
-                const angleData = patch.angles[i];
-                const x = patch.x + Math.cos(angleData.angle) * angleData.radius;
-                const y = patch.y + Math.sin(angleData.angle) * angleData.radius;
-                
-                if (i === 0) {
-                    this.ctx.moveTo(x, y);
-                } else {
-                    this.ctx.lineTo(x, y);
-                }
-            }
-            
-            this.ctx.closePath();
-            this.ctx.fill();
-            
-            this.ctx.restore();
-        });
-    }
+    // Old renderBackground method removed - now handled by ArenaSystem
 
-    renderMapBoundaries() {
-        const borderWidth = 10;
+    // Old renderMapBoundaries method removed - now handled by ArenaSystem
+    
+    renderMenuBackground() {
+        // Simple desert sand background for menu
+        this.ctx.fillStyle = '#C2B280';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
+        // Add some texture
         this.ctx.save();
-        this.ctx.fillStyle = '#8B4513'; // Brown wall color
-        this.ctx.strokeStyle = '#654321'; // Darker brown border
-        this.ctx.lineWidth = 2;
-        
-        // Top wall
-        this.ctx.fillRect(0, 0, this.canvas.width, borderWidth);
-        this.ctx.strokeRect(0, 0, this.canvas.width, borderWidth);
-        
-        // Bottom wall
-        this.ctx.fillRect(0, this.canvas.height - borderWidth, this.canvas.width, borderWidth);
-        this.ctx.strokeRect(0, this.canvas.height - borderWidth, this.canvas.width, borderWidth);
-        
-        // Left wall
-        this.ctx.fillRect(0, 0, borderWidth, this.canvas.height);
-        this.ctx.strokeRect(0, 0, borderWidth, this.canvas.height);
-        
-        // Right wall
-        this.ctx.fillRect(this.canvas.width - borderWidth, 0, borderWidth, this.canvas.height);
-        this.ctx.strokeRect(this.canvas.width - borderWidth, 0, borderWidth, this.canvas.height);
-        
+        this.ctx.globalAlpha = 0.1;
+        for (let i = 0; i < 50; i++) {
+            this.ctx.fillStyle = Math.random() < 0.5 ? '#8B7355' : '#A0916B';
+            this.ctx.fillRect(
+                Math.random() * this.canvas.width,
+                Math.random() * this.canvas.height,
+                2 + Math.random() * 3,
+                2 + Math.random() * 3
+            );
+        }
         this.ctx.restore();
+        
+        // Simple borders
+        const borderWidth = 10;
+        this.ctx.fillStyle = '#8B4513';
+        this.ctx.fillRect(0, 0, this.canvas.width, borderWidth);
+        this.ctx.fillRect(0, this.canvas.height - borderWidth, this.canvas.width, borderWidth);
+        this.ctx.fillRect(0, 0, borderWidth, this.canvas.height);
+        this.ctx.fillRect(this.canvas.width - borderWidth, 0, borderWidth, this.canvas.height);
     }
 
     drawRoundedRect(x, y, width, height, radius) {
