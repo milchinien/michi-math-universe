@@ -422,10 +422,10 @@ class LevelUpSystem {
         
         // Category weights for random selection
         this.categoryWeights = {
-            'common': 0.65,    // 65% chance (increased from 50%)
-            'rare': 0.25,      // 25% chance (decreased from 30%)  
-            'epic': 0.08,      // 8% chance (decreased from 15%)
-            'legendary': 0.02  // 2% chance (decreased from 5%)
+            'common': 0.70,    // 70% chance 
+            'rare': 0.24,      // 24% chance  
+            'epic': 0.055,     // 5.5% chance
+            'legendary': 0.005 // 0.5% chance - much rarer at start!
         };
         
         this.init();
@@ -1017,28 +1017,28 @@ class LevelUpSystem {
      * @returns {Object} Modified category weights
      */
     getModifiedCategoryWeights() {
-        // Base weights
+        // Base weights - updated to match categoryWeights
         let weights = {
-            'common': 0.65,
-            'rare': 0.25,
-            'epic': 0.08,
-            'legendary': 0.02
+            'common': 0.70,
+            'rare': 0.24,
+            'epic': 0.055,
+            'legendary': 0.005
         };
         
-        // Apply luck bonuses based on stacks
-        const commonBonus = this.luckBonuses.common * 0.02;  // 2% per stack
-        const rareBonus = this.luckBonuses.rare * 0.04;      // 4% per stack
-        const epicBonus = this.luckBonuses.epic * 0.07;      // 7% per stack
-        const legendaryBonus = this.luckBonuses.legendary * 0.12; // 12% per stack
+        // Apply luck bonuses based on stacks - INCREASED IMPACT!
+        const commonBonus = this.luckBonuses.common * 0.035;  // 3.5% per stack (was 2%)
+        const rareBonus = this.luckBonuses.rare * 0.065;      // 6.5% per stack (was 4%)
+        const epicBonus = this.luckBonuses.epic * 0.11;       // 11% per stack (was 7%)
+        const legendaryBonus = this.luckBonuses.legendary * 0.18; // 18% per stack (was 12%)
         
         // Total bonus to redistribute
         const totalBonus = commonBonus + rareBonus + epicBonus + legendaryBonus;
         
-        // Redistribute weights (take from common, give to higher rarities)
-        weights.common = Math.max(0.1, weights.common - totalBonus * 0.6);
-        weights.rare = Math.min(0.5, weights.rare + (commonBonus * 0.75) + (rareBonus * 0.5));
-        weights.epic = Math.min(0.3, weights.epic + (commonBonus * 0.15) + (rareBonus * 0.35) + (epicBonus * 0.6));
-        weights.legendary = Math.min(0.25, weights.legendary + (commonBonus * 0.1) + (rareBonus * 0.15) + (epicBonus * 0.4) + (legendaryBonus * 0.8));
+        // Redistribute weights MORE AGGRESSIVELY (take from common, give to higher rarities)
+        weights.common = Math.max(0.05, weights.common - totalBonus * 0.8); // More aggressive reduction
+        weights.rare = Math.min(0.55, weights.rare + (commonBonus * 0.9) + (rareBonus * 0.6)); // Higher caps
+        weights.epic = Math.min(0.35, weights.epic + (commonBonus * 0.25) + (rareBonus * 0.5) + (epicBonus * 0.75)); // Better distribution
+        weights.legendary = Math.min(0.30, weights.legendary + (commonBonus * 0.15) + (rareBonus * 0.25) + (epicBonus * 0.6) + (legendaryBonus * 0.9)); // Much stronger legendary boost
         
         // Normalize to ensure they sum to 1.0
         const sum = weights.common + weights.rare + weights.epic + weights.legendary;

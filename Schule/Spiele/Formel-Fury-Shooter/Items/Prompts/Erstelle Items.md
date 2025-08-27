@@ -178,4 +178,3 @@ TEST-KOMMANDOS:
 **WICHTIG:** Dies ist nur SCHRITT 1 von 2. Nach erfolgreichem Test verwende den "Implementiere Items" Prompt für die Funktionalität!
 
 **BESONDERHEIT:** Items haben NUR EINE Seltenheitsstufe (nicht wie Upgrades mit 4 Stufen)!
-

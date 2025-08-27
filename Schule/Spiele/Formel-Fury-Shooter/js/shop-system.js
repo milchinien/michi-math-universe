@@ -101,6 +101,16 @@ class ShopSystem {
                 basePrice: 10,
                 stackable: true,
                 effect: { type: 'placeholder', value: 'ancient_key' }
+            },
+            {
+                id: 'trank_des_leipzigers_legendary',
+                name: 'TRANK DES LEIPZIGERS',
+                description: '+500% Münzen, +300% Speed, +500% Gegner',
+                icon: '🥤',
+                rarity: 'legendary',
+                basePrice: 800,
+                stackable: false,
+                effect: null
             }
         ];
         
@@ -126,9 +136,28 @@ class ShopSystem {
         this.updateShopDisplay();
         this.showShopUI();
         
-        // Spiel pausieren
+        // Exit combat mode to prevent timeout damage
+        if (this.game && this.game.combatMode) {
+            this.game.exitCombatMode();
+        }
+        
+        // Clear formula system timers to prevent timeout issues
+        if (this.game && this.game.formulaSystem) {
+            if (this.game.formulaSystem.nextFormulaTimeout) {
+                clearTimeout(this.game.formulaSystem.nextFormulaTimeout);
+                this.game.formulaSystem.nextFormulaTimeout = null;
+            }
+            this.game.formulaSystem.hideFormulaHUD();
+        }
+        
+        // Spiel pausieren UND Gegner cleanup
         if (this.game && this.game.pauseGame) {
             this.game.pauseGame();
+        }
+        
+        // Clear all enemies to prevent invisible damage
+        if (this.game && this.game.enemySpawner) {
+            this.clearAllEnemies();
         }
     }
     
@@ -137,6 +166,16 @@ class ShopSystem {
         
         this.isOpen = false;
         this.hideShopUI();
+        
+        // Clear any remaining enemies before resuming
+        if (this.game && this.game.enemySpawner) {
+            this.clearAllEnemies();
+        }
+        
+        // Reset damage immunity to prevent immediate collision damage
+        if (this.game) {
+            this.game.lastDamageTime = Date.now();
+        }
         
         // Spiel fortsetzen - aber nicht automatisch
         // Das Game-Engine übernimmt die Kontrolle
@@ -160,14 +199,8 @@ class ShopSystem {
     }
     
     getRandomItem() {
-        // Gewichtete Zufallsauswahl basierend auf Seltenheit
-        const weights = {
-            common: 50,
-            uncommon: 30,
-            rare: 15,
-            epic: 4,
-            legendary: 1
-        };
+        // Get modified weights based on luck bonuses from level-up system
+        const weights = this.getModifiedShopWeights();
         
         const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
         let random = Math.random() * totalWeight;
@@ -255,7 +288,17 @@ class ShopSystem {
     }
     
     applyItemEffect(item) {
-        if (!item.effect || !this.game) return;
+        if (!this.game) return;
+        
+        // Handle items by ID for special items like Trank des Leipzigers
+        switch (item.id) {
+            case 'trank_des_leipzigers_legendary':
+                this.applyTrankDesLeipzigers();
+                return;
+        }
+        
+        // Handle regular effect-based items
+        if (!item.effect) return;
         
         const { type, value } = item.effect;
         
@@ -382,6 +425,143 @@ class ShopSystem {
         }
     }
     
+    applyTrankDesLeipzigers() {
+        console.log('🥤 TRANK DES LEIPZIGERS aktiviert!');
+        
+        // +500% Münzen (6x Multiplier)
+        if (this.game.currencySystem) {
+            this.game.currencySystem.coinMultiplier = (this.game.currencySystem.coinMultiplier || 1) * 6;
+            console.log('💰 Coin-Multiplier:', this.game.currencySystem.coinMultiplier);
+        }
+        
+        // +300% Bewegungsgeschwindigkeit (4x Speed)
+        if (this.game.player) {
+            const oldSpeed = this.game.player.speed || this.game.player.baseSpeed || 200;
+            this.game.player.speed = oldSpeed * 4;
+            this.game.player.maxSpeed = this.game.player.speed;
+            console.log('⚡ Player Speed:', this.game.player.speed);
+        }
+        
+        // +500% Gegner (6x Enemy Spawn Rate)
+        if (this.game.enemySpawner) {
+            // Reduce spawn interval to increase spawn rate
+            this.game.enemySpawner.baseSpawnInterval = (this.game.enemySpawner.baseSpawnInterval || 2000) / 6;
+            this.game.enemySpawner.spawnInterval = this.game.enemySpawner.baseSpawnInterval;
+            console.log('👾 Enemy Spawn Interval:', this.game.enemySpawner.spawnInterval);
+        }
+        
+        // Alternative: Wave System Enemy Count
+        if (this.game.waveSystem) {
+            this.game.waveSystem.enemyMultiplier = (this.game.waveSystem.enemyMultiplier || 1) * 6;
+            console.log('🌊 Wave Enemy Multiplier:', this.game.waveSystem.enemyMultiplier);
+        }
+        
+        // Visual Feedback
+        this.showItemEffect('🥤 TRANK DES LEIPZIGERS AKTIVIERT!\n💰 +500% COINS | ⚡ +300% SPEED | 👾 +500% ENEMIES', '#ff8000');
+        
+        // Console summary
+        console.log('🥤 TRANK DES LEIPZIGERS EFFEKTE:');
+        console.log('   💰 Coins: 6x Multiplier');
+        console.log('   ⚡ Speed: 4x Geschwindigkeit');
+        console.log('   👾 Enemies: 6x Spawn Rate');
+    }
+    
+    getModifiedShopWeights() {
+        // Base shop weights (different from level-up weights)
+        let weights = {
+            common: 50,
+            uncommon: 30,
+            rare: 15,
+            epic: 4,
+            legendary: 1
+        };
+        
+        // Get luck bonuses from level-up system
+        const levelUpSystem = this.game?.levelUpSystem;
+        if (!levelUpSystem || !levelUpSystem.luckBonuses) {
+            return weights;
+        }
+        
+        const luckBonuses = levelUpSystem.luckBonuses;
+        
+        // Apply luck bonuses - same formula as level-up but adapted for shop
+        const commonBonus = luckBonuses.common * 1.5;    // 1.5 per stack (less than level-up)
+        const rareBonus = luckBonuses.rare * 2.5;        // 2.5 per stack
+        const epicBonus = luckBonuses.epic * 4.0;        // 4.0 per stack  
+        const legendaryBonus = luckBonuses.legendary * 6.0; // 6.0 per stack
+        
+        // Total bonus to redistribute
+        const totalBonus = commonBonus + rareBonus + epicBonus + legendaryBonus;
+        
+        // Redistribute weights (take from common, give to higher rarities)
+        weights.common = Math.max(5, weights.common - totalBonus * 0.7);
+        weights.uncommon = Math.min(45, weights.uncommon + (commonBonus * 0.6) + (rareBonus * 0.3));
+        weights.rare = Math.min(35, weights.rare + (commonBonus * 0.2) + (rareBonus * 0.5) + (epicBonus * 0.4));
+        weights.epic = Math.min(25, weights.epic + (commonBonus * 0.1) + (rareBonus * 0.15) + (epicBonus * 0.5) + (legendaryBonus * 0.3));
+        weights.legendary = Math.min(20, weights.legendary + (commonBonus * 0.1) + (rareBonus * 0.05) + (epicBonus * 0.1) + (legendaryBonus * 0.7));
+        
+        // Normalize to ensure they sum to 100
+        const sum = Object.values(weights).reduce((a, b) => a + b, 0);
+        Object.keys(weights).forEach(key => {
+            weights[key] = (weights[key] / sum) * 100;
+        });
+        
+        // Log luck influence for debugging
+        if (totalBonus > 0) {
+            console.log('🍀 Shop Luck Influence:', {
+                totalLuckBonus: totalBonus.toFixed(1),
+                weights: Object.fromEntries(Object.entries(weights).map(([k, v]) => [k, v.toFixed(1) + '%'])),
+                luckStacks: luckBonuses
+            });
+        }
+        
+        return weights;
+    }
+    
+    showItemEffect(message, color = '#00ff00') {
+        // Create temporary feedback element
+        const feedback = document.createElement('div');
+        feedback.innerHTML = message.replace(/\\n/g, '<br>');
+        feedback.style.position = 'fixed';
+        feedback.style.top = '40%';
+        feedback.style.left = '50%';
+        feedback.style.transform = 'translate(-50%, -50%)';
+        feedback.style.color = color;
+        feedback.style.fontSize = '24px';
+        feedback.style.fontWeight = 'bold';
+        feedback.style.fontFamily = 'Courier New';
+        feedback.style.textShadow = `0 0 15px ${color}`;
+        feedback.style.zIndex = '9999';
+        feedback.style.pointerEvents = 'none';
+        feedback.style.textAlign = 'center';
+        feedback.style.background = 'rgba(0,0,0,0.8)';
+        feedback.style.padding = '20px';
+        feedback.style.borderRadius = '10px';
+        feedback.style.border = `2px solid ${color}`;
+        
+        document.body.appendChild(feedback);
+        
+        // Animate and remove
+        let opacity = 1;
+        const fadeOut = setInterval(() => {
+            opacity -= 0.05;
+            feedback.style.opacity = opacity;
+            if (opacity <= 0) {
+                clearInterval(fadeOut);
+                if (feedback.parentNode) {
+                    feedback.parentNode.removeChild(feedback);
+                }
+            }
+        }, 100);
+        
+        // Remove after 4 seconds
+        setTimeout(() => {
+            if (feedback.parentNode) {
+                feedback.parentNode.removeChild(feedback);
+            }
+        }, 4000);
+    }
+    
     showFeedback(message, type) {
         const feedback = document.getElementById('shopFeedback');
         if (feedback) {
@@ -395,13 +575,23 @@ class ShopSystem {
         }
     }
     
-    continueToNextWave() {
+    continueAfterShop() {
         this.closeShop();
+        
+        // Additional enemy cleanup before resume
+        if (this.game && this.game.enemySpawner) {
+            this.clearAllEnemies();
+        }
         
         // Game-Engine übernimmt die Kontrolle für das Fortsetzen
         if (this.game?.resumeGame) {
             this.game.resumeGame();
         }
+    }
+    
+    // Alias für den HTML-Button
+    continueToNextWave() {
+        this.continueAfterShop();
     }
     
     returnToMainMenu() {
@@ -430,6 +620,32 @@ class ShopSystem {
     clearInventory() {
         this.playerInventory = [];
         this.updatePlayerInventory();
+    }
+    
+    clearAllEnemies() {
+        if (!this.game || !this.game.enemySpawner) return;
+        
+        const enemyCount = this.game.enemySpawner.enemies ? this.game.enemySpawner.enemies.length : 0;
+        
+        if (enemyCount > 0) {
+            console.log(`🧹 Clearing ${enemyCount} enemies before shop interaction`);
+            
+            // Clear enemy array
+            this.game.enemySpawner.enemies = [];
+            
+            // Reset spawn timer to prevent immediate spawning
+            this.game.enemySpawner.spawnTimer = 0;
+            
+            // Exit combat mode if active
+            if (this.game.combatMode) {
+                this.game.exitCombatMode();
+            }
+            
+            // Clear targeted enemy
+            if (this.game.targetedEnemy) {
+                this.game.targetedEnemy = null;
+            }
+        }
     }
     
     refreshShop() {

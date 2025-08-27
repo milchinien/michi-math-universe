@@ -1,0 +1,52 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Purple gradient for left side -->
+    <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6B46C1;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A855F7;stop-opacity:1" />
+    </linearGradient>
+    <!-- Silver gradient for right side -->
+    <linearGradient id="silverGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#E5E7EB;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F3F4F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D1D5DB;stop-opacity:1" />
+    </linearGradient>
+    <!-- Top/bottom silver -->
+    <radialGradient id="topSilver" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#F9FAFB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D1D5DB;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Can body - purple left half -->
+  <path d="M 18 20 Q 18 12 26 12 L 32 12 L 32 56 L 26 56 Q 18 56 18 48 Z" fill="url(#purpleGradient)"/>
+  
+  <!-- Can body - silver right half -->
+  <path d="M 32 12 L 38 12 Q 46 12 46 20 L 46 48 Q 46 56 38 56 L 32 56 Z" fill="url(#silverGradient)"/>
+  
+  <!-- Can top -->
+  <ellipse cx="32" cy="12" rx="14" ry="3" fill="url(#topSilver)" stroke="#9CA3AF" stroke-width="0.5"/>
+  
+  <!-- Can bottom -->
+  <ellipse cx="32" cy="56" rx="14" ry="3" fill="url(#topSilver)" stroke="#9CA3AF" stroke-width="0.5"/>
+  
+  <!-- RED text -->
+  <text x="32" y="26" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="8" font-weight="900" fill="#DC2626" stroke="#FFFFFF" stroke-width="0.3">RED</text>
+  
+  <!-- BALLS text -->
+  <text x="32" y="42" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="7" font-weight="900" fill="#DC2626" stroke="#FFFFFF" stroke-width="0.3">BALLS</text>
+  
+  <!-- Two circular elements representing the "balls" -->
+  <circle cx="28" cy="34" r="3" fill="#FCD34D" stroke="#F59E0B" stroke-width="0.5"/>
+  <circle cx="36" cy="34" r="3" fill="#FCD34D" stroke="#F59E0B" stroke-width="0.5"/>
+  
+  <!-- Highlight on purple side -->
+  <ellipse cx="25" cy="25" rx="4" ry="15" fill="#FFFFFF" opacity="0.3"/>
+  
+  <!-- Highlight on silver side -->
+  <ellipse cx="39" cy="25" rx="4" ry="15" fill="#FFFFFF" opacity="0.4"/>
+  
+  <!-- Pull tab -->
+  <ellipse cx="32" cy="10" rx="2" ry="1.5" fill="#E5E7EB" stroke="#9CA3AF" stroke-width="0.3"/>
+</svg>

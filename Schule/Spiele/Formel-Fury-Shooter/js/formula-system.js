@@ -45,6 +45,9 @@ class FormulaSystem {
         this.generateFormula();
         this.startComboTimer();
         this.updateHighScoreDisplay();
+        
+        // Initialize timeout tracking
+        this.nextFormulaTimeout = null;
     }
 
     setupEventListeners() {
@@ -698,10 +701,16 @@ class FormulaSystem {
         this.updateScoreDisplay();
         this.formulaInput.value = '';
         
+        // Clear any existing timeout to prevent race conditions
+        if (this.nextFormulaTimeout) {
+            clearTimeout(this.nextFormulaTimeout);
+        }
+        
         // Generate new formula after a delay
-        setTimeout(() => {
+        this.nextFormulaTimeout = setTimeout(() => {
             this.generateFormula();
             this.showFormulaHUD();
+            this.nextFormulaTimeout = null;
         }, 2000);
     }
 
@@ -709,9 +718,15 @@ class FormulaSystem {
         this.showFeedback(`Übersprungen! Lösung war: ${this.currentSolution[0]}`, false);
         this.formulaInput.value = '';
         
-        setTimeout(() => {
+        // Clear any existing timeout to prevent race conditions
+        if (this.nextFormulaTimeout) {
+            clearTimeout(this.nextFormulaTimeout);
+        }
+        
+        this.nextFormulaTimeout = setTimeout(() => {
             this.generateFormula();
             this.showFormulaHUD();
+            this.nextFormulaTimeout = null;
         }, 1500);
     }
 
@@ -786,17 +801,19 @@ class FormulaSystem {
     }
 
     showFormulaHUD() {
+        // Clear any pending timeout when manually showing HUD
+        if (this.nextFormulaTimeout) {
+            clearTimeout(this.nextFormulaTimeout);
+            this.nextFormulaTimeout = null;
+        }
+        
         // Enhanced display with formula type
         const displayText = `${this.currentFormula.typeName}: ${this.currentFormula.text}`;
         this.formulaDisplay.innerHTML = `
-            <div style="font-size: 14px; color: #00ff0080; margin-bottom: 5px;">
-                ${this.currentFormula.typeName}
-            </div>
-            <div style="font-size: 24px;">
-                ${this.currentFormula.text}
-            </div>
-            <div style="font-size: 12px; color: #ffff0080; margin-top: 5px;">
-                Schwierigkeit: ${'⭐'.repeat(Math.floor(this.currentFormula.difficulty))}
+            <div class="formula-type">${this.currentFormula.typeName}</div>
+            <div class="formula-text">${this.currentFormula.text}</div>
+            <div class="formula-hint">
+                <small>Löse die binomische Formel!</small>
             </div>
         `;
         this.formulaHUD.style.display = 'block';
