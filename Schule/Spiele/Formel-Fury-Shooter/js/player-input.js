@@ -24,6 +24,27 @@ class Player {
         this.color = '#CD853F';
         this.glowColor = 'rgba(205, 133, 63, 0.5)';
         this.angle = 0; // for rotation effect
+        
+        // Visual effect properties for upgrades
+        this.healingParticles = [];
+        this.luckSparkles = [];
+        this.speedTrails = [];
+        this.comboFireEffects = [];
+        this.magneticFieldRadius = 0;
+        this.shieldLayers = [];
+        this.timeDistortionEffect = 0;
+        this.gravitationalAura = { radius: 0, intensity: 0 };
+        this.quantumGlow = 0;
+        
+        // Effect timers
+        this.effectTimers = {
+            healing: 0,
+            luck: 0,
+            speed: 0,
+            combo: 0,
+            shield: 0,
+            quantum: 0
+        };
     }
 
     update(deltaTime, inputHandler, canvasWidth, canvasHeight) {
@@ -86,6 +107,9 @@ class Player {
         if (Math.abs(this.velocity.x) > 1 || Math.abs(this.velocity.y) > 1) {
             this.angle = Math.atan2(this.velocity.y, this.velocity.x);
         }
+        
+        // Update visual effects
+        this.updateVisualEffects(dt);
     }
 
     handleBoundaryCollision(canvasWidth, canvasHeight) {
@@ -162,7 +186,413 @@ class Player {
         ctx.lineTo(this.width / 2 + 5, 0);
         ctx.stroke();
         
+        // Render all visual upgrade effects
+        this.renderUpgradeEffects(ctx);
+        
         ctx.restore();
+    }
+    
+    updateVisualEffects(deltaTime) {
+        const time = Date.now() * 0.001;
+        
+        // Update effect timers
+        for (let key in this.effectTimers) {
+            this.effectTimers[key] += deltaTime;
+        }
+        
+        // Update healing particles
+        this.updateHealingParticles(deltaTime);
+        
+        // Update luck sparkles
+        this.updateLuckSparkles(deltaTime, time);
+        
+        // Update speed trails
+        this.updateSpeedTrails(deltaTime);
+        
+        // Update combo fire effects
+        this.updateComboFireEffects(deltaTime, time);
+        
+        // Update quantum glow
+        this.quantumGlow = Math.sin(time * 3) * 0.3 + 0.7;
+        
+        // Update time distortion effect
+        this.timeDistortionEffect = Math.sin(time * 2) * 0.5 + 0.5;
+    }
+    
+    updateHealingParticles(deltaTime) {
+        // Add new healing particles if player has healing regeneration
+        const hasHealing = window.game && window.game.playerStats && window.game.playerStats.hpRegenRate > 0;
+        if (hasHealing && Math.random() < 0.3) {
+            this.healingParticles.push({
+                x: (Math.random() - 0.5) * 40,
+                y: (Math.random() - 0.5) * 40,
+                life: 1.0,
+                size: 2 + Math.random() * 3,
+                speed: 20 + Math.random() * 30
+            });
+        }
+        
+        // Update existing particles
+        this.healingParticles = this.healingParticles.filter(particle => {
+            particle.life -= deltaTime * 0.8;
+            particle.y -= particle.speed * deltaTime;
+            particle.x += Math.sin(particle.life * 10) * 10 * deltaTime;
+            return particle.life > 0;
+        });
+    }
+    
+    updateLuckSparkles(deltaTime, time) {
+        // Add new luck sparkles if player has luck bonuses
+        const hasLuck = window.game && window.game.levelUpSystem && 
+                       (window.game.levelUpSystem.luckBonuses.common > 0 ||
+                        window.game.levelUpSystem.luckBonuses.rare > 0 ||
+                        window.game.levelUpSystem.luckBonuses.epic > 0 ||
+                        window.game.levelUpSystem.luckBonuses.legendary > 0);
+        
+        if (hasLuck && Math.random() < 0.4) {
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 15 + Math.random() * 25;
+            this.luckSparkles.push({
+                x: Math.cos(angle) * radius,
+                y: Math.sin(angle) * radius,
+                life: 1.0,
+                size: 1 + Math.random() * 2,
+                twinkle: Math.random() * Math.PI * 2
+            });
+        }
+        
+        // Update existing sparkles
+        this.luckSparkles = this.luckSparkles.filter(sparkle => {
+            sparkle.life -= deltaTime * 0.6;
+            sparkle.twinkle += deltaTime * 8;
+            return sparkle.life > 0;
+        });
+    }
+    
+    updateSpeedTrails(deltaTime) {
+        // Add speed trails when moving fast
+        const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+        const hasSpeedBonus = window.game && window.game.playerInput && window.game.playerInput.speedMultiplier > 1.0;
+        
+        if ((speed > 100 || hasSpeedBonus) && Math.random() < 0.8) {
+            this.speedTrails.push({
+                x: -this.velocity.x * 0.1 + (Math.random() - 0.5) * 10,
+                y: -this.velocity.y * 0.1 + (Math.random() - 0.5) * 10,
+                life: 0.5,
+                size: 3 + Math.random() * 4,
+                alpha: 0.8
+            });
+        }
+        
+        // Update existing trails
+        this.speedTrails = this.speedTrails.filter(trail => {
+            trail.life -= deltaTime * 2;
+            trail.alpha = trail.life;
+            return trail.life > 0;
+        });
+    }
+    
+    updateComboFireEffects(deltaTime, time) {
+        // Add combo fire effects if player has combo bonuses
+        const hasCombo = window.game && window.game.formulaSystem && window.game.formulaSystem.combo > 0;
+        
+        if (hasCombo && Math.random() < 0.5) {
+            const angle = Math.random() * Math.PI * 2;
+            const radius = 8 + Math.random() * 12;
+            this.comboFireEffects.push({
+                x: Math.cos(angle) * radius,
+                y: Math.sin(angle) * radius,
+                life: 0.8,
+                size: 2 + Math.random() * 3,
+                flame: Math.random() * Math.PI * 2
+            });
+        }
+        
+        // Update existing fire effects
+        this.comboFireEffects = this.comboFireEffects.filter(fire => {
+            fire.life -= deltaTime * 1.5;
+            fire.flame += deltaTime * 12;
+            fire.y -= 30 * deltaTime; // Rise upward
+            return fire.life > 0;
+        });
+    }
+    
+    renderUpgradeEffects(ctx) {
+        // Render gravitational aura
+        this.renderGravitationalAura(ctx);
+        
+        // Render magnetic field
+        this.renderMagneticField(ctx);
+        
+        // Render shield layers
+        this.renderShieldLayers(ctx);
+        
+        // Render time distortion effect
+        this.renderTimeDistortionEffect(ctx);
+        
+        // Render healing particles
+        this.renderHealingParticles(ctx);
+        
+        // Render luck sparkles
+        this.renderLuckSparkles(ctx);
+        
+        // Render speed trails
+        this.renderSpeedTrails(ctx);
+        
+        // Render combo fire effects
+        this.renderComboFireEffects(ctx);
+        
+        // Render quantum glow
+        this.renderQuantumGlow(ctx);
+    }
+    
+    renderGravitationalAura(ctx) {
+        const radius = window.game && window.game.gravitationalFieldRadius ? window.game.gravitationalFieldRadius : 0;
+        if (radius <= 0) return;
+        
+        ctx.save();
+        ctx.globalAlpha = 0.3;
+        
+        // Create pulsing gravitational field
+        const time = Date.now() * 0.002;
+        const pulseRadius = radius * (0.8 + Math.sin(time) * 0.2);
+        
+        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, pulseRadius);
+        gradient.addColorStop(0, 'rgba(75, 0, 130, 0.4)');
+        gradient.addColorStop(0.7, 'rgba(138, 43, 226, 0.2)');
+        gradient.addColorStop(1, 'rgba(75, 0, 130, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, pulseRadius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Add swirling effect
+        ctx.strokeStyle = 'rgba(138, 43, 226, 0.6)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 8; i++) {
+            const angle = (time + i * Math.PI / 4) % (Math.PI * 2);
+            const x1 = Math.cos(angle) * pulseRadius * 0.3;
+            const y1 = Math.sin(angle) * pulseRadius * 0.3;
+            const x2 = Math.cos(angle) * pulseRadius * 0.8;
+            const y2 = Math.sin(angle) * pulseRadius * 0.8;
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
+    }
+    
+    renderMagneticField(ctx) {
+        if (this.magneticFieldRadius <= 0) return;
+        
+        ctx.save();
+        ctx.globalAlpha = 0.4;
+        
+        // Magnetic field visualization
+        const time = Date.now() * 0.003;
+        ctx.strokeStyle = 'rgba(255, 215, 0, 0.6)';
+        ctx.lineWidth = 2;
+        
+        // Draw magnetic field lines
+        for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * Math.PI * 2 + time;
+            const radius = this.magneticFieldRadius * (0.7 + Math.sin(time + i) * 0.3);
+            
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, angle, angle + Math.PI / 6);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
+    }
+    
+    renderShieldLayers(ctx) {
+        if (this.shieldLayers.length === 0) return;
+        
+        ctx.save();
+        
+        this.shieldLayers.forEach((shield, index) => {
+            const time = Date.now() * 0.004;
+            const radius = 25 + index * 8;
+            const alpha = 0.3 + Math.sin(time + index) * 0.2;
+            
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = `rgba(0, 191, 255, ${alpha})`;
+            ctx.lineWidth = 3;
+            
+            // Hexagonal shield pattern
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2 + time;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.closePath();
+            ctx.stroke();
+        });
+        
+        ctx.restore();
+    }
+    
+    renderTimeDistortionEffect(ctx) {
+        if (this.timeDistortionEffect <= 0) return;
+        
+        ctx.save();
+        ctx.globalAlpha = this.timeDistortionEffect * 0.3;
+        
+        // Time ripple effect
+        const time = Date.now() * 0.005;
+        for (let i = 1; i <= 3; i++) {
+            const radius = i * 20 + Math.sin(time + i) * 5;
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 / i})`;
+            ctx.lineWidth = 2 / i;
+            
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        
+        ctx.restore();
+    }
+    
+    renderHealingParticles(ctx) {
+        if (this.healingParticles.length === 0) return;
+        
+        ctx.save();
+        
+        this.healingParticles.forEach(particle => {
+            ctx.globalAlpha = particle.life;
+            ctx.fillStyle = 'rgba(0, 255, 127, 0.8)';
+            
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Add cross symbol for healing
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.lineWidth = 1;
+            const crossSize = particle.size * 0.6;
+            ctx.beginPath();
+            ctx.moveTo(particle.x - crossSize, particle.y);
+            ctx.lineTo(particle.x + crossSize, particle.y);
+            ctx.moveTo(particle.x, particle.y - crossSize);
+            ctx.lineTo(particle.x, particle.y + crossSize);
+            ctx.stroke();
+        });
+        
+        ctx.restore();
+    }
+    
+    renderLuckSparkles(ctx) {
+        if (this.luckSparkles.length === 0) return;
+        
+        ctx.save();
+        
+        this.luckSparkles.forEach(sparkle => {
+            const twinkleAlpha = Math.sin(sparkle.twinkle) * 0.5 + 0.5;
+            ctx.globalAlpha = sparkle.life * twinkleAlpha;
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
+            
+            // Four-pointed star
+            ctx.save();
+            ctx.translate(sparkle.x, sparkle.y);
+            ctx.rotate(sparkle.twinkle);
+            
+            ctx.beginPath();
+            ctx.moveTo(0, -sparkle.size);
+            ctx.lineTo(sparkle.size * 0.3, 0);
+            ctx.lineTo(sparkle.size, 0);
+            ctx.lineTo(sparkle.size * 0.3, 0);
+            ctx.lineTo(0, sparkle.size);
+            ctx.lineTo(-sparkle.size * 0.3, 0);
+            ctx.lineTo(-sparkle.size, 0);
+            ctx.lineTo(-sparkle.size * 0.3, 0);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.restore();
+        });
+        
+        ctx.restore();
+    }
+    
+    renderSpeedTrails(ctx) {
+        if (this.speedTrails.length === 0) return;
+        
+        ctx.save();
+        
+        this.speedTrails.forEach(trail => {
+            ctx.globalAlpha = trail.alpha * 0.6;
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.8)';
+            
+            ctx.beginPath();
+            ctx.arc(trail.x, trail.y, trail.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        ctx.restore();
+    }
+    
+    renderComboFireEffects(ctx) {
+        if (this.comboFireEffects.length === 0) return;
+        
+        ctx.save();
+        
+        this.comboFireEffects.forEach(fire => {
+            ctx.globalAlpha = fire.life;
+            
+            // Flame colors
+            const flameIntensity = Math.sin(fire.flame) * 0.5 + 0.5;
+            const red = 255;
+            const green = Math.floor(100 + flameIntensity * 155);
+            const blue = 0;
+            
+            ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, 0.8)`;
+            
+            ctx.beginPath();
+            ctx.arc(fire.x, fire.y, fire.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        ctx.restore();
+    }
+    
+    renderQuantumGlow(ctx) {
+        if (this.quantumGlow <= 0) return;
+        
+        ctx.save();
+        ctx.globalAlpha = this.quantumGlow * 0.4;
+        
+        // Quantum particle effect
+        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 30);
+        gradient.addColorStop(0, 'rgba(0, 255, 255, 0.6)');
+        gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(0, 0, 30, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.restore();
+    }
+    
+    // Methods to trigger visual effects for upgrades
+    addShieldLayer() {
+        this.shieldLayers.push({ active: true });
+    }
+    
+    removeShieldLayer() {
+        this.shieldLayers.pop();
+    }
+    
+    setMagneticFieldRadius(radius) {
+        this.magneticFieldRadius = radius;
     }
     
     // Static method to render void walls

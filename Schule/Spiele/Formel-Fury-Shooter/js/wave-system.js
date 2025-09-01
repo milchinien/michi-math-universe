@@ -83,7 +83,14 @@ class WaveSystem {
         this.waveStartTime = Date.now();
         this.waveTimeLeft = this.waveDuration;
         
-        // Calculate wave progression
+        // Check if this is a boss wave
+        if (this.isBossWave(this.currentWave)) {
+            console.log(`🐉 Boss wave ${this.currentWave} detected!`);
+            this.announceBossWave();
+            return this.getWaveData();
+        }
+        
+        // Calculate wave progression for normal waves
         this.calculateWaveProgression();
         
         this.updateDisplay();
@@ -259,6 +266,94 @@ class WaveSystem {
         this.onWaveStart = callback;
     }
     
+    // Boss wave methods
+    isBossWave(waveNumber) {
+        return waveNumber % 5 === 0; // Every 5th wave is a boss wave
+    }
+    
+    announceBossWave() {
+        console.log(`🐉 Announcing boss wave ${this.currentWave}`);
+        
+        // Show boss warning
+        this.showBossWarning("⚠️ BOSS INCOMING ⚠️", 10);
+        
+        // Change arena lighting/music if available
+        this.dimArenaLights();
+        this.playBossMusic();
+        
+        // Start countdown timer
+        setTimeout(() => {
+            this.spawnBoss();
+        }, 10000); // 10 second countdown
+    }
+    
+    showBossWarning(message, duration) {
+        if (window.game && window.game.gameEngine) {
+            window.game.gameEngine.showMessage(message, duration * 1000);
+        }
+        
+        // Update wave status
+        if (this.waveStatusElement) {
+            this.waveStatusElement.textContent = message;
+            this.waveStatusElement.style.color = '#FF4444';
+            this.waveStatusElement.style.fontSize = '18px';
+            this.waveStatusElement.style.animation = 'blink 1s infinite';
+        }
+    }
+    
+    dimArenaLights() {
+        // Trigger arena lighting change if available
+        if (window.game && window.game.arenaSystem) {
+            window.game.arenaSystem.setBossMode(true);
+        }
+    }
+    
+    playBossMusic() {
+        // Trigger boss music if audio system available
+        console.log('🎵 Boss music would play here');
+    }
+    
+    spawnBoss() {
+        console.log(`🐉 Spawning boss for wave ${this.currentWave}`);
+        
+        // Spawn boss through enemy system
+        if (window.game && window.game.enemySpawner) {
+            const boss = window.game.enemySpawner.spawnBoss(this.currentWave);
+            
+            // Update wave status
+            if (this.waveStatusElement) {
+                this.waveStatusElement.textContent = `BOSS KAMPF: ${boss.name}`;
+                this.waveStatusElement.style.color = '#FF8888';
+                this.waveStatusElement.style.fontSize = '16px';
+                this.waveStatusElement.style.animation = 'none';
+            }
+        }
+    }
+    
+    onBossDefeated() {
+        console.log(`🏆 Boss defeated in wave ${this.currentWave}`);
+        
+        // Reset arena to normal
+        if (window.game && window.game.arenaSystem) {
+            window.game.arenaSystem.setBossMode(false);
+        }
+        
+        // Complete the boss wave
+        this.completeWave();
+        
+        // Show victory message
+        if (window.game && window.game.gameEngine) {
+            window.game.gameEngine.showMessage(`🏆 BOSS WELLE ${this.currentWave} ABGESCHLOSSEN! 🏆`, 3000);
+        }
+    }
+    
+    startNextWave() {
+        // Public method to start the next wave (useful for testing)
+        if (!this.isWaveActive) {
+            this.startWave();
+        }
+    }
+
     // Debug functions
     forceCompleteWave() {
         if (this.isWaveActive) {

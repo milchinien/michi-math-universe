@@ -1680,6 +1680,17 @@ class GameEngine {
         const currentTime = Date.now();
         const timeTaken = this.combatMode ? currentTime - this.combatStartTime : 5000;
         
+        // Check if this is a boss fight
+        if (this.targetedEnemy && this.targetedEnemy instanceof Boss) {
+            // Handle boss formula correct
+            const bossHandled = this.formulaSystem.onBossFormulaCorrect();
+            if (bossHandled) {
+                // Boss system handled the logic, exit combat mode
+                this.exitCombatMode();
+                return;
+            }
+        }
+        
         if (this.targetedEnemy) {
             // Calculate base score
             let earnedScore = this.formulaSystem.calculateScore(
@@ -2171,5 +2182,57 @@ class GameEngine {
     renderDebugInfo() {
         // Debug info removed for cleaner UI
         // Can be re-enabled for development if needed
+    }
+
+    showMessage(text, duration = 3000) {
+        // Create or update message display
+        let messageDisplay = document.getElementById('gameMessage');
+        if (!messageDisplay) {
+            messageDisplay = document.createElement('div');
+            messageDisplay.id = 'gameMessage';
+            messageDisplay.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.9);
+                color: #ffffff;
+                font-family: 'Courier New', monospace;
+                font-size: 24px;
+                font-weight: bold;
+                padding: 20px 40px;
+                border-radius: 15px;
+                border: 3px solid #ffff00;
+                text-align: center;
+                z-index: 2000;
+                box-shadow: 0 0 30px rgba(255, 255, 0, 0.5);
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+                animation: messagePopIn 0.5s ease-out;
+            `;
+            document.body.appendChild(messageDisplay);
+            
+            // Add CSS animation if not already added
+            if (!document.getElementById('messageAnimationStyle')) {
+                const style = document.createElement('style');
+                style.id = 'messageAnimationStyle';
+                style.textContent = `
+                    @keyframes messagePopIn {
+                        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+                        100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        messageDisplay.textContent = text;
+        messageDisplay.style.display = 'block';
+        
+        // Auto-hide after duration
+        setTimeout(() => {
+            if (messageDisplay) {
+                messageDisplay.style.display = 'none';
+            }
+        }, duration);
     }
 }

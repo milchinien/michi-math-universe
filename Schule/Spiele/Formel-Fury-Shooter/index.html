@@ -6,9 +6,107 @@
     <title>Formel-Fury-Shooter</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/shop.css">
+    <link rel="stylesheet" href="styles/class-selection.css">
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <!-- Class Selection Menu (shown first) -->
+    <div id="classSelectionMenu" class="class-selection-container">
+        <div class="class-selection-header">
+            <h1 class="main-title">📚 MICHIS MATHEMATIK AKADEMIE</h1>
+            <p class="subtitle">Wähle deine Klassenstufe</p>
+        </div>
+        
+        <div class="class-grid">
+            <div class="class-card" data-class="7">
+                <div class="class-number">7</div>
+                <div class="class-title">Klasse 7</div>
+                <div class="class-description">Algebraische Grundlagen</div>
+                <div class="class-topics">
+                    <span class="topic">Termumformungen</span>
+                    <span class="topic">Lineare Gleichungen</span>
+                    <span class="topic">Prozent- & Zinsrechnung</span>
+                </div>
+            </div>
+            
+            <div class="class-card" data-class="8">
+                <div class="class-number">8</div>
+                <div class="class-title">Klasse 8</div>
+                <div class="class-description">Funktionen & Potenzen</div>
+                <div class="class-topics">
+                    <span class="topic">Lineare Funktionen</span>
+                    <span class="topic">Potenzen & Wurzeln</span>
+                    <span class="topic">Gleichungssysteme</span>
+                </div>
+            </div>
+            
+            <div class="class-card active" data-class="9">
+                <div class="class-number">9</div>
+                <div class="class-title">Klasse 9</div>
+                <div class="class-description">Binomische Formeln & Parabeln</div>
+                <div class="class-topics">
+                    <span class="topic">Binomische Formeln</span>
+                    <span class="topic">Quadratische Funktionen</span>
+                    <span class="topic">Parabeln & Scheitelpunkt</span>
+                </div>
+                <div class="available-badge">VERFÜGBAR</div>
+            </div>
+            
+            <div class="class-card disabled" data-class="10">
+                <div class="class-number">10</div>
+                <div class="class-title">Klasse 10</div>
+                <div class="class-description">Exponential- & Trigonometrie</div>
+                <div class="class-topics">
+                    <span class="topic">Exponentialfunktionen</span>
+                    <span class="topic">Logarithmusfunktionen</span>
+                    <span class="topic">Trigonometrische Funktionen</span>
+                </div>
+                <div class="coming-soon-badge">BALD VERFÜGBAR</div>
+            </div>
+            
+            <div class="class-card disabled" data-class="11">
+                <div class="class-number">11</div>
+                <div class="class-title">Klasse 11</div>
+                <div class="class-description">Analysis & Vektorrechnung</div>
+                <div class="class-topics">
+                    <span class="topic">Differentialrechnung</span>
+                    <span class="topic">Vektoren im Raum</span>
+                    <span class="topic">Geraden & Ebenen</span>
+                </div>
+                <div class="coming-soon-badge">BALD VERFÜGBAR</div>
+            </div>
+            
+            <div class="class-card disabled" data-class="12">
+                <div class="class-number">12</div>
+                <div class="class-title">Klasse 12</div>
+                <div class="class-description">Integralrechnung & Stochastik</div>
+                <div class="class-topics">
+                    <span class="topic">Integralrechnung</span>
+                    <span class="topic">Wahrscheinlichkeitsrechnung</span>
+                    <span class="topic">Hypothesentests</span>
+                </div>
+                <div class="coming-soon-badge">BALD VERFÜGBAR</div>
+            </div>
+        </div>
+        
+        <div class="class-selection-footer">
+            <button id="startGameBtn" class="start-game-btn" disabled>
+                🎮 SPIEL STARTEN
+            </button>
+            <p class="footer-text">Wähle eine verfügbare Klasse zum Spielen</p>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas" style="display: none;"></canvas>
+
+    <!-- Boss Health Bar -->
+    <div id="bossHealthBar" class="boss-health-container" style="display: none;">
+        <div class="boss-name" id="bossName">BOSS NAME</div>
+        <div class="boss-health-bar">
+            <div class="boss-health-fill" id="bossHealthFill"></div>
+            <div class="boss-health-text" id="bossHealthText">300/300</div>
+        </div>
+        <div class="boss-stage-indicator" id="bossStageIndicator">Stage 1/3</div>
+    </div>
 
     <!-- Player Stats Panel -->
     <div id="playerStatsPanel">
@@ -605,6 +703,7 @@
    <script src="js/game-engine.js"></script>
    <script src="js/menu-system.js"></script>
    <script src="js/stats-system.js"></script>
+   <script src="js/class-selection.js"></script>
    <script src="js/main.js"></script>
 </body>
 </html>

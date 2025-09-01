@@ -4,7 +4,7 @@
  * Phase 4.2: Modulare Struktur
  */
 
-// Initialize game when page loads
+// Initialize game modules when page loads (but don't start the game yet)
 window.addEventListener('load', () => {
     console.log('🎮 Formel-Fury-Shooter initializing...');
     console.log('📁 Loading modular structure...');
@@ -43,7 +43,23 @@ window.addEventListener('load', () => {
         }
         
         console.log('✅ All modules loaded successfully');
+        console.log('📚 Class selection menu is now active');
+        console.log('🔧 Game engine ready to initialize after class selection');
         
+        // Don't start the game immediately - wait for class selection
+        // The game will be initialized by the ClassSelectionSystem
+        
+    } catch (error) {
+        console.error('❌ Failed to initialize game modules:', error);
+        alert('Fehler beim Laden des Spiels!\n\n' + error.message + '\n\nBitte überprüfe, ob alle Dateien korrekt geladen wurden.');
+    }
+});
+
+// Function to initialize the actual game (called by ClassSelectionSystem)
+window.initializeFormelFuryShooter = function() {
+    console.log('🚀 Starting Formel-Fury-Shooter...');
+    
+    try {
         // Initialize the game engine
         const game = new GameEngine();
         console.log('✅ Game engine started successfully!');
@@ -58,8 +74,11 @@ window.addEventListener('load', () => {
         console.log('🚀 Formel-Fury-Shooter ready to play!');
         console.log('🔧 Debug: All systems operational');
         
+        return game;
+        
     } catch (error) {
-        console.error('❌ Failed to initialize game:', error);
-        alert('Fehler beim Laden des Spiels!\n\n' + error.message + '\n\nBitte überprüfe, ob alle Dateien korrekt geladen wurden.');
+        console.error('❌ Failed to start game:', error);
+        alert('Fehler beim Starten des Spiels!\n\n' + error.message);
+        return null;
     }
-});
+};

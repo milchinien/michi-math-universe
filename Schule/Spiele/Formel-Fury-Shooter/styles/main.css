@@ -2041,3 +2041,88 @@ body:has(#mainMenu:not([style*="display: none"])) #gameInfo {
 #highScoreDisplay {
     display: none !important;
 }
+
+/* =============================================================================
+   BOSS SYSTEM STYLES
+   ============================================================================= */
+
+/* Boss Health Bar */
+.boss-health-container {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 3px solid #ff4444;
+    border-radius: 15px;
+    padding: 15px;
+    z-index: 1000;
+    font-family: 'Courier New', monospace;
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+    animation: bossHealthPulse 2s infinite;
+}
+
+.boss-name {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ff4444;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 2px;
+}
+
+.boss-health-bar {
+    position: relative;
+    width: 100%;
+    height: 30px;
+    background: #333;
+    border: 2px solid #666;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.boss-health-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ff4444, #ff8888);
+    border-radius: 13px;
+    transition: width 0.5s ease-out;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.boss-health-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 1001;
+}
+
+.boss-stage-indicator {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffff00;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    letter-spacing: 1px;
+}
+
+/* Boss Health Bar Animation */
+@keyframes bossHealthPulse {
+    0% { box-shadow: 0 0 20px rgba(255, 68, 68, 0.5); }
+    50% { box-shadow: 0 0 30px rgba(255, 68, 68, 0.8); }
+    100% { box-shadow: 0 0 20px rgba(255, 68, 68, 0.5); }
+}
+
+/* Blinking animation for boss warnings */
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}

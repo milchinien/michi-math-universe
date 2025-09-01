@@ -48,6 +48,12 @@ class FormulaSystem {
         
         // Initialize timeout tracking
         this.nextFormulaTimeout = null;
+        
+        // Boss system integration
+        this.currentWave = 1;
+        this.currentBossStage = 0;
+        this.totalBossStages = 0;
+        this.isBossMode = false;
     }
 
     setupEventListeners() {
@@ -832,6 +838,92 @@ class FormulaSystem {
         }
     }
 
+    // Boss system methods
+    generateFormulaWithDifficulty(targetDifficulty) {
+        // Generate formula with specific difficulty for boss stages
+        let attempts = 0;
+        let formula = null;
+        
+        while (attempts < 10) {
+            formula = this.generateFormula();
+            if (Math.abs(formula.difficulty - targetDifficulty) < 0.5) {
+                break;
+            }
+            attempts++;
+        }
+        
+        console.log(`🐉 Boss formula generated (difficulty ${formula.difficulty.toFixed(1)}): ${formula.text}`);
+        return formula;
+    }
+    
+    setBossMode(isActive, currentStage = 0, totalStages = 0) {
+        this.isBossMode = isActive;
+        this.currentBossStage = currentStage;
+        this.totalBossStages = totalStages;
+        
+        if (isActive) {
+            console.log(`🐉 Boss mode activated: Stage ${currentStage}/${totalStages}`);
+        } else {
+            console.log(`🐉 Boss mode deactivated`);
+        }
+    }
+    
+    advanceBossStage() {
+        if (this.isBossMode && this.currentBossStage < this.totalBossStages) {
+            this.currentBossStage++;
+            console.log(`🐉 Boss stage advanced: ${this.currentBossStage}/${this.totalBossStages}`);
+            return true;
+        }
+        return false;
+    }
+    
+    onBossFormulaCorrect() {
+        // Handle correct boss formula answer
+        if (this.isBossMode && window.game && window.game.enemySpawner && window.game.enemySpawner.currentBoss) {
+            const boss = window.game.enemySpawner.currentBoss;
+            
+            // Boss takes damage and advances stage
+            const defeated = boss.takeDamage(100);
+            
+            if (!defeated) {
+                // Boss advances to next stage
+                const hasNextStage = boss.nextStage();
+                if (hasNextStage) {
+                    // Update formula system with new boss formula
+                    this.currentFormula = boss.assignedFormula;
+                    this.updateFormulaDisplay();
+                } else {
+                    // Boss defeated
+                    if (window.game.enemySpawner) {
+                        window.game.enemySpawner.onBossDefeated();
+                    }
+                    this.setBossMode(false);
+                }
+            } else {
+                // Boss defeated
+                if (window.game.enemySpawner) {
+                    window.game.enemySpawner.onBossDefeated();
+                }
+                this.setBossMode(false);
+            }
+            
+            return true;
+        }
+        return false;
+    }
+    
+    updateFormulaDisplay() {
+        if (this.formulaDisplay && this.currentFormula) {
+            this.formulaDisplay.innerHTML = `
+                <div class="formula-type">${this.currentFormula.typeName}</div>
+                <div class="formula-text">${this.currentFormula.text}</div>
+                <div class="formula-hint">
+                    <small>${this.isBossMode ? `Boss Stage ${this.currentBossStage}/${this.totalBossStages}` : 'Löse die binomische Formel!'}</small>
+                </div>
+            `;
+        }
+    }
+
     getDebugInfo() {
         return {
             currentFormula: this.currentFormula ? this.currentFormula.text : 'None',
@@ -840,7 +932,9 @@ class FormulaSystem {
             combo: this.combo,
             maxCombo: this.maxCombo,
             correct: this.correctAnswers,
-            incorrect: this.incorrectAnswers
+            incorrect: this.incorrectAnswers,
+            bossMode: this.isBossMode,
+            bossStage: `${this.currentBossStage}/${this.totalBossStages}`
         };
     }
 }

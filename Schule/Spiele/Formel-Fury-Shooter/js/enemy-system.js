@@ -1127,4 +1127,459 @@ class EnemySpawner {
             enemies: this.enemies.map(e => e.getDebugInfo())
         };
     }
+
+    // Boss system methods
+    spawnBoss(waveNumber) {
+        console.log(`🐉 Spawning boss for wave ${waveNumber}`);
+        
+        // Clear existing enemies
+        this.enemies = [];
+        
+        // Get canvas center
+        const canvas = document.getElementById('gameCanvas');
+        const centerX = canvas.width / 2 - 60; // Offset for boss size
+        const centerY = canvas.height / 2 - 60;
+        
+        // Create boss
+        const boss = new Boss(centerX, centerY, waveNumber);
+        this.currentBoss = boss;
+        this.enemies.push(boss);
+        
+        // Show boss health bar
+        this.showBossHealthBar(boss);
+        
+        console.log(`🐉 Boss spawned: ${boss.name} with ${boss.health} HP`);
+        return boss;
+    }
+
+    showBossHealthBar(boss) {
+        const bossHealthBar = document.getElementById('bossHealthBar');
+        const bossName = document.getElementById('bossName');
+        const bossHealthText = document.getElementById('bossHealthText');
+        const bossStageIndicator = document.getElementById('bossStageIndicator');
+        
+        if (bossHealthBar) {
+            bossHealthBar.style.display = 'block';
+        }
+        
+        if (bossName) {
+            bossName.textContent = boss.name;
+        }
+        
+        if (bossHealthText) {
+            bossHealthText.textContent = `${boss.health}/${boss.maxHealth}`;
+        }
+        
+        if (bossStageIndicator) {
+            bossStageIndicator.textContent = `Stage ${boss.currentStage}/${boss.formulaStages}`;
+        }
+    }
+
+    hideBossHealthBar() {
+        const bossHealthBar = document.getElementById('bossHealthBar');
+        if (bossHealthBar) {
+            bossHealthBar.style.display = 'none';
+        }
+    }
+
+    onBossDefeated() {
+        if (!this.currentBoss) return;
+        
+        const boss = this.currentBoss;
+        console.log(`🏆 Boss defeated: ${boss.name}`);
+        
+        // Award enhanced rewards
+        if (window.game) {
+            if (window.game.currencySystem) {
+                window.game.currencySystem.addCoins(boss.coinValue);
+            }
+            if (window.game.levelSystem) {
+                window.game.levelSystem.addXP(boss.xpValue);
+            }
+            if (window.game.levelUpSystem) {
+                window.game.levelUpSystem.guaranteeRareUpgrade();
+            }
+        }
+        
+        // Show victory message
+        if (window.game && window.game.gameEngine) {
+            window.game.gameEngine.showMessage(`🏆 ${boss.name} BESIEGT! 🏆`, 3000);
+        }
+        
+        // Hide boss health bar
+        this.hideBossHealthBar();
+        
+        // Clear boss reference
+        this.currentBoss = null;
+        
+        // Trigger wave completion
+        if (window.game && window.game.waveSystem) {
+            window.game.waveSystem.onBossDefeated();
+        }
+    }
+}
+
+/**
+ * BOSS CLASS - Multi-stage formula challenges with special abilities
+ */
+class Boss extends Enemy {
+    constructor(x, y, waveNumber) {
+        const bossType = Boss.getBossTypeForWave(waveNumber);
+        super(x, y, 'boss');
+        
+        // Boss-specific properties
+        this.bossData = bossType;
+        this.name = bossType.name;
+        this.icon = bossType.icon;
+        this.width = bossType.size.width;
+        this.height = bossType.size.height;
+        this.color = bossType.color;
+        this.glowColor = bossType.glowColor;
+        this.health = bossType.health;
+        this.maxHealth = bossType.health;
+        this.coinValue = bossType.coinReward;
+        this.xpValue = bossType.xpReward;
+        
+        // Multi-stage system
+        this.formulaStages = bossType.formulaStages;
+        this.currentStage = 1;
+        this.formulaTypes = bossType.formulaTypes;
+        this.specialAbility = bossType.specialAbility;
+        this.stageFormulas = [];
+        
+        // Special ability states
+        this.isShielded = false;
+        this.shieldEndTime = 0;
+        this.renderShield = false;
+        this.isTeleporting = false;
+        this.teleportStartTime = 0;
+        
+        // Visual effects
+        this.pulseIntensity = 1.0;
+        this.glowRadius = 30;
+        this.lastSpecialAbilityTime = 0;
+        
+        this.initializeFormulaStages();
+        console.log(`🐉 Boss spawned: ${this.name} (${this.formulaStages} stages)`);
+    }
+    
+    static getBossTypeForWave(waveNumber) {
+        const bossTypes = {
+            'ALGEBRA-TITAN': {
+                name: 'ALGEBRA-TITAN',
+                icon: '🤖',
+                health: 300,
+                size: { width: 80, height: 80 },
+                color: '#FF4444',
+                glowColor: '#FF8888',
+                formulaStages: 3,
+                formulaTypes: ['binomial_basic'],
+                specialAbility: 'shield_phase',
+                coinReward: 150,
+                xpReward: 100
+            },
+            'POLYNOM-KAISER': {
+                name: 'POLYNOM-KAISER',
+                icon: '👑',
+                health: 500,
+                size: { width: 100, height: 100 },
+                color: '#4444FF',
+                glowColor: '#8888FF',
+                formulaStages: 4,
+                formulaTypes: ['binomial_advanced', 'factoring'],
+                specialAbility: 'teleport_phase',
+                coinReward: 300,
+                xpReward: 200
+            },
+            'GLEICHUNGS-OVERLORD': {
+                name: 'GLEICHUNGS-OVERLORD',
+                icon: '💀',
+                health: 800,
+                size: { width: 120, height: 120 },
+                color: '#8844FF',
+                glowColor: '#BB88FF',
+                formulaStages: 5,
+                formulaTypes: ['binomial_expert', 'nested_formulas'],
+                specialAbility: 'minion_summon',
+                coinReward: 500,
+                xpReward: 350
+            }
+        };
+        
+        // Determine boss type based on wave number
+        if (waveNumber >= 15) {
+            return bossTypes['GLEICHUNGS-OVERLORD'];
+        } else if (waveNumber >= 10) {
+            return bossTypes['POLYNOM-KAISER'];
+        } else {
+            return bossTypes['ALGEBRA-TITAN'];
+        }
+    }
+    
+    initializeFormulaStages() {
+        this.stageFormulas = [];
+        
+        // Generate formulas for each stage
+        for (let stage = 1; stage <= this.formulaStages; stage++) {
+            const formula = this.generateBossFormula(stage);
+            this.stageFormulas.push(formula);
+        }
+        
+        // Set current formula to first stage
+        this.assignedFormula = this.stageFormulas[0];
+        this.formula = this.assignedFormula;
+    }
+    
+    generateBossFormula(stage) {
+        // Boss formulas are more complex than regular enemies
+        if (window.game && window.game.formulaSystem) {
+            const difficulty = 1.5 + (stage * 0.3); // Increasing difficulty per stage
+            const formula = window.game.formulaSystem.generateFormulaWithDifficulty(difficulty);
+            return formula;
+        } else {
+            // Fallback boss formula generation
+            const a = Math.floor(Math.random() * 8) + 2; // 2-9
+            const b = Math.floor(Math.random() * 8) + 2; // 2-9
+            const variables = ['x', 'y', 'z'];
+            const variable = variables[Math.floor(Math.random() * variables.length)];
+            
+            const text = `(${a}${variable} + ${b})²`;
+            const expanded = `${a*a}${variable}² + ${2*a*b}${variable} + ${b*b}`;
+            
+            return {
+                type: 'expansion_plus',
+                typeName: 'Boss Binomische Formel',
+                text: text,
+                solutions: [expanded],
+                difficulty: 2.0 + stage * 0.5,
+                variable: variable,
+                a: a,
+                b: b
+            };
+        }
+    }
+    
+    takeDamage(amount) {
+        if (this.isShielded) {
+            this.showMessage("🛡️ SCHILD BLOCKIERT ANGRIFF! 🛡️", 1500);
+            return false;
+        }
+        
+        // Boss takes fixed damage per stage completion
+        const stageHealth = this.maxHealth / this.formulaStages;
+        this.health -= stageHealth;
+        
+        console.log(`🐉 Boss took damage: ${Math.round(stageHealth)} (${Math.round(this.health)}/${this.maxHealth})`);
+        
+        if (this.health <= 0) {
+            this.health = 0;
+            this.isDead = true;
+            return true;
+        }
+        
+        return false;
+    }
+    
+    nextStage() {
+        if (this.currentStage < this.formulaStages) {
+            this.currentStage++;
+            
+            // Update formula to next stage
+            this.assignedFormula = this.stageFormulas[this.currentStage - 1];
+            this.formula = this.assignedFormula;
+            
+            console.log(`🐉 Boss advanced to stage ${this.currentStage}/${this.formulaStages}`);
+            
+            // Execute special ability between stages
+            this.executeSpecialAbility();
+            
+            // Update UI
+            this.updateBossUI();
+            
+            return true;
+        }
+        return false;
+    }
+    
+    executeSpecialAbility() {
+        const currentTime = Date.now();
+        if (currentTime - this.lastSpecialAbilityTime < 2000) return; // Cooldown
+        
+        this.lastSpecialAbilityTime = currentTime;
+        
+        switch(this.specialAbility) {
+            case 'shield_phase':
+                this.activateShield(3000);
+                break;
+            case 'teleport_phase':
+                this.teleportBoss();
+                break;
+            case 'minion_summon':
+                this.spawnMinions(2);
+                break;
+        }
+    }
+    
+    activateShield(duration) {
+        this.isShielded = true;
+        this.shieldEndTime = Date.now() + duration;
+        this.renderShield = true;
+        
+        this.showMessage("🛡️ BOSS AKTIVIERT SCHILD! 🛡️", 2000);
+        
+        setTimeout(() => {
+            this.isShielded = false;
+            this.renderShield = false;
+        }, duration);
+    }
+    
+    teleportBoss() {
+        this.isTeleporting = true;
+        this.teleportStartTime = Date.now();
+        
+        // Teleport effect duration
+        setTimeout(() => {
+            // Get canvas bounds
+            const canvas = document.getElementById('gameCanvas');
+            const margin = this.width;
+            
+            // New random position within bounds
+            this.x = margin + Math.random() * (canvas.width - 2 * margin);
+            this.y = margin + Math.random() * (canvas.height - 2 * margin);
+            
+            this.isTeleporting = false;
+            this.showMessage("💫 BOSS TELEPORTIERT! 💫", 1500);
+        }, 1000);
+    }
+    
+    spawnMinions(count) {
+        this.showMessage("👹 BOSS BESCHWÖRT VERSTÄRKUNG! 👹", 2000);
+        
+        if (window.game && window.game.enemySpawner) {
+            for (let i = 0; i < count; i++) {
+                const angle = (i / count) * Math.PI * 2;
+                const distance = 100;
+                const minionX = this.x + Math.cos(angle) * distance;
+                const minionY = this.y + Math.sin(angle) * distance;
+                
+                const minion = new Enemy(minionX, minionY, 'polynom_zombie');
+                minion.health = 50; // Weaker minions
+                minion.maxHealth = 50;
+                window.game.enemySpawner.enemies.push(minion);
+            }
+        }
+    }
+    
+    showMessage(text, duration) {
+        if (window.game && window.game.gameEngine) {
+            window.game.gameEngine.showMessage(text, duration);
+        }
+    }
+    
+    updateBossUI() {
+        // Update boss health bar
+        const healthBar = document.getElementById('bossHealthFill');
+        const healthText = document.getElementById('bossHealthText');
+        const stageIndicator = document.getElementById('bossStageIndicator');
+        
+        if (healthBar) {
+            const healthPercent = (this.health / this.maxHealth) * 100;
+            healthBar.style.width = `${healthPercent}%`;
+        }
+        
+        if (healthText) {
+            healthText.textContent = `${Math.round(this.health)}/${this.maxHealth}`;
+        }
+        
+        if (stageIndicator) {
+            stageIndicator.textContent = `Stage ${this.currentStage}/${this.formulaStages}`;
+        }
+    }
+    
+    update(deltaTime, player) {
+        super.update(deltaTime, player);
+        
+        // Update special ability states
+        if (this.isShielded && Date.now() > this.shieldEndTime) {
+            this.isShielded = false;
+            this.renderShield = false;
+        }
+        
+        // Update visual effects
+        this.pulseIntensity = 0.8 + Math.sin(Date.now() * 0.003) * 0.2;
+        this.glowRadius = 25 + Math.sin(Date.now() * 0.005) * 10;
+        
+        // Update boss UI
+        this.updateBossUI();
+    }
+    
+    render(ctx) {
+        if (this.isDead) {
+            this.renderDeathAnimation(ctx);
+            return;
+        }
+        
+        ctx.save();
+        
+        // Teleport effect
+        if (this.isTeleporting) {
+            const teleportProgress = (Date.now() - this.teleportStartTime) / 1000;
+            ctx.globalAlpha = Math.abs(Math.sin(teleportProgress * Math.PI * 4)) * 0.5 + 0.3;
+        }
+        
+        // Boss glow effect
+        ctx.shadowColor = this.glowColor;
+        ctx.shadowBlur = this.glowRadius * this.pulseIntensity;
+        
+        // Shield effect
+        if (this.renderShield) {
+            ctx.strokeStyle = '#00FFFF';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(this.x + this.width/2, this.y + this.height/2, this.width/2 + 10, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        
+        // Boss body
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        
+        // Boss icon (larger)
+        ctx.font = `${this.width * 0.6}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(this.icon, this.x + this.width/2, this.y + this.height/2 + this.width * 0.2);
+        
+        // Stage indicator above boss
+        ctx.font = '14px Courier New';
+        ctx.fillStyle = '#FFFF00';
+        ctx.fillText(`${this.currentStage}/${this.formulaStages}`, this.x + this.width/2, this.y - 10);
+        
+        ctx.restore();
+    }
+    
+    renderDeathAnimation(ctx) {
+        const deathDuration = 2000; // 2 seconds
+        const progress = Math.min(this.deathTime / deathDuration, 1);
+        
+        ctx.save();
+        
+        // Explosion effect
+        const explosionRadius = progress * 100;
+        const alpha = 1 - progress;
+        
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = '#FF4444';
+        ctx.beginPath();
+        ctx.arc(this.x + this.width/2, this.y + this.height/2, explosionRadius, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Boss icon fading
+        ctx.font = `${this.width * 0.6}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(this.icon, this.x + this.width/2, this.y + this.height/2 + this.width * 0.2);
+        
+        ctx.restore();
+    }
 }

@@ -867,6 +867,20 @@ class LevelUpSystem {
             
             // Show visual feedback
             this.showUpgradeEffect(`+${healthIncrease} MAX HP!`, '#ff0000');
+            
+            // Trigger healing particle effect
+            if (window.game && window.game.player) {
+                // Add temporary healing particles
+                for (let i = 0; i < 5; i++) {
+                    window.game.player.healingParticles.push({
+                        x: (Math.random() - 0.5) * 60,
+                        y: (Math.random() - 0.5) * 60,
+                        life: 1.5,
+                        size: 3 + Math.random() * 4,
+                        speed: 15 + Math.random() * 25
+                    });
+                }
+            }
         } else {
             console.error('❌ Cannot apply health upgrade: window.game not available');
         }
@@ -889,6 +903,20 @@ class LevelUpSystem {
             
             // Show visual feedback
             this.showUpgradeEffect(`+${actualHeal} HP!`, '#00ff00');
+            
+            // Trigger healing particle effect
+            if (window.game && window.game.player) {
+                // Add healing particles
+                for (let i = 0; i < actualHeal * 2; i++) {
+                    window.game.player.healingParticles.push({
+                        x: (Math.random() - 0.5) * 50,
+                        y: (Math.random() - 0.5) * 50,
+                        life: 1.2,
+                        size: 2 + Math.random() * 3,
+                        speed: 20 + Math.random() * 30
+                    });
+                }
+            }
         } else {
             console.error('❌ Cannot apply healing upgrade: window.game not available');
         }
@@ -1006,6 +1034,22 @@ class LevelUpSystem {
             
             // Show visual feedback
             this.showUpgradeEffect(`🍀 +${luckBonus}% Glück!`, '#00ff00');
+            
+            // Trigger luck sparkle effect
+            if (window.game && window.game.player) {
+                // Add luck sparkles
+                for (let i = 0; i < 8; i++) {
+                    const angle = (i / 8) * Math.PI * 2;
+                    const radius = 20 + Math.random() * 30;
+                    window.game.player.luckSparkles.push({
+                        x: Math.cos(angle) * radius,
+                        y: Math.sin(angle) * radius,
+                        life: 2.0,
+                        size: 2 + Math.random() * 3,
+                        twinkle: Math.random() * Math.PI * 2
+                    });
+                }
+            }
         } else {
             console.log(`🍀 Max luck stacks reached for ${rarity} (15/15)`);
             this.showUpgradeEffect(`🍀 Max Glück erreicht!`, '#ffff00');
@@ -1102,6 +1146,20 @@ class LevelUpSystem {
             
             // Show visual feedback
             this.showUpgradeEffect(`+${percentageIncrease}% SPEED!`, '#00BFFF');
+            
+            // Trigger speed trail effect
+            if (window.game && window.game.player) {
+                // Add immediate speed trails
+                for (let i = 0; i < 6; i++) {
+                    window.game.player.speedTrails.push({
+                        x: (Math.random() - 0.5) * 30,
+                        y: (Math.random() - 0.5) * 30,
+                        life: 1.0,
+                        size: 4 + Math.random() * 3,
+                        alpha: 0.8
+                    });
+                }
+            }
         } else {
             console.error('❌ Cannot apply speed upgrade: window.game.playerInput not available');
         }
@@ -1132,6 +1190,11 @@ class LevelUpSystem {
             
             // Show visual feedback
             this.showUpgradeEffect(`⏰ -${percentageSlowdown}% ENEMY SPEED!`, '#00BFFF');
+            
+            // Trigger time distortion effect
+            if (window.game && window.game.player) {
+                window.game.player.timeDistortionEffect = 1.0;
+            }
         } else {
             console.error('❌ Cannot apply time dilation: window.game not available');
         }
@@ -1177,6 +1240,11 @@ class LevelUpSystem {
             
             // Show visual feedback
             this.showUpgradeEffect(`🛡️ +${shieldCapacity} SHIELD!`, '#0080FF');
+            
+            // Trigger shield visual effect
+            if (window.game && window.game.player) {
+                window.game.player.addShieldLayer();
+            }
         } else {
             console.error('❌ Cannot apply shield upgrade: window.game not available');
         }
@@ -1247,6 +1315,22 @@ class LevelUpSystem {
             
             // Show visual feedback
             this.showUpgradeEffect(`🔥 +${timerExtension}s COMBO TIME!`, '#FF4500');
+            
+            // Trigger combo fire effect
+            if (window.game && window.game.player) {
+                // Add combo fire particles
+                for (let i = 0; i < 10; i++) {
+                    const angle = (i / 10) * Math.PI * 2;
+                    const radius = 10 + Math.random() * 15;
+                    window.game.player.comboFireEffects.push({
+                        x: Math.cos(angle) * radius,
+                        y: Math.sin(angle) * radius,
+                        life: 1.5,
+                        size: 3 + Math.random() * 4,
+                        flame: Math.random() * Math.PI * 2
+                    });
+                }
+            }
         } else {
             console.error('❌ Cannot apply combo fire upgrade: window.game not available');
         }
@@ -1282,6 +1366,11 @@ class LevelUpSystem {
             
             // Show visual feedback
             this.showUpgradeEffect(`🧲 +${percentageBonus}% COINS!`, '#FFD700');
+            
+            // Trigger magnetic field visual effect
+            if (window.game && window.game.player) {
+                window.game.player.setMagneticFieldRadius(window.game.coinMagnetRadius);
+            }
         } else {
             console.error('❌ Cannot apply coin magnet upgrade: window.game not available');
         }
@@ -1328,6 +1417,11 @@ class LevelUpSystem {
             
             // Show visual feedback
             this.showUpgradeEffect(`⚡ QUANTUM JUMP!`, '#9400D3');
+            
+            // Trigger quantum glow effect
+            if (window.game && window.game.player) {
+                window.game.player.quantumGlow = 1.0;
+            }
         } else {
             console.error('❌ Cannot apply quantum jump upgrade: window.game not available');
         }
@@ -1369,6 +1463,12 @@ class LevelUpSystem {
             
             // Show visual feedback
             this.showUpgradeEffect(`🌀 +${percentageSlowdown}% AURA SLOWDOWN!`, '#4B0082');
+            
+            // Trigger gravitational aura visual effect
+            if (window.game && window.game.player) {
+                window.game.player.gravitationalAura.radius = window.game.gravitationalFieldRadius;
+                window.game.player.gravitationalAura.intensity = window.game.gravitationalFieldSlowdown;
+            }
         } else {
             console.error('❌ Cannot apply gravitational field upgrade: window.game not available');
         }
