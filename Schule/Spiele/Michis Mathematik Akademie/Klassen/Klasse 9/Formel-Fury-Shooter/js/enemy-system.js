@@ -938,11 +938,24 @@ class EnemySpawner {
         // Update spawn markers
         this.updateSpawnMarkers(deltaTime);
         
-        // Get wave data for enemy spawning
-        const waveData = window.game && window.game.waveSystem ? window.game.waveSystem.getWaveData() : null;
-        const maxEnemiesForWave = waveData ? waveData.enemiesPerWave : this.maxEnemies;
-        const waveSpawnRate = waveData ? waveData.spawnRate : currentSpawnInterval;
-        const isWaveActive = window.game && window.game.waveSystem ? window.game.waveSystem.isWaveActive : true;
+        // Get wave data for enemy spawning - improved integration
+        let waveData = null;
+        let maxEnemiesForWave = this.maxEnemies;
+        let waveSpawnRate = currentSpawnInterval;
+        let isWaveActive = true;
+        
+        try {
+            if (window.game && window.game.waveSystem) {
+                waveData = window.game.waveSystem.getWaveData();
+                if (waveData) {
+                    maxEnemiesForWave = waveData.enemiesPerWave || this.maxEnemies;
+                    waveSpawnRate = waveData.spawnRate || currentSpawnInterval;
+                }
+                isWaveActive = window.game.waveSystem.isWaveActive !== false;
+            }
+        } catch (e) {
+            console.warn('⚠️ EnemySpawner: Wave system integration error, using defaults:', e);
+        }
         
         // Only spawn new enemies if wave is active
         if (isWaveActive && this.spawnTimer >= waveSpawnRate && this.enemies.length < maxEnemiesForWave) {

@@ -47,8 +47,11 @@ class Player {
         };
     }
 
-    update(deltaTime, inputHandler, canvasWidth, canvasHeight) {
-        // Cap deltaTime to prevent large jumps
+    update(deltaTime, inputHandler, canvasWidth = 800, canvasHeight = 600) {
+        // Cap deltaTime to prevent large jumps and handle invalid values
+        if (!deltaTime || deltaTime <= 0 || deltaTime > 100) {
+            deltaTime = 16; // Default to 60 FPS (16ms)
+        }
         const dt = Math.min(deltaTime / 1000, 1/30); // Max 30 FPS equivalent
         
         // Handle input to set target velocity
@@ -60,7 +63,17 @@ class Player {
             ? window.game.playerInput.speedMultiplier 
             : 1.0;
         
-        const effectiveSpeed = this.speed * speedMultiplier;
+        // Get movement penalty from floating input system when typing (safe check)
+        let floatingInputPenalty = 1.0;
+        try {
+            if (window.game && window.game.floatingInputSystem && typeof window.game.floatingInputSystem.getMovementPenalty === 'function') {
+                floatingInputPenalty = window.game.floatingInputSystem.getMovementPenalty();
+            }
+        } catch (e) {
+            floatingInputPenalty = 1.0;
+        }
+        
+        const effectiveSpeed = this.speed * speedMultiplier * floatingInputPenalty;
         
         if (inputHandler.isPressed('w') || inputHandler.isPressed('W')) {
             this.targetVelocity.y = -effectiveSpeed;
@@ -220,17 +233,7 @@ class Player {
     }
     
     updateHealingParticles(deltaTime) {
-        // Add new healing particles if player has healing regeneration
-        const hasHealing = window.game && window.game.playerStats && window.game.playerStats.hpRegenRate > 0;
-        if (hasHealing && Math.random() < 0.3) {
-            this.healingParticles.push({
-                x: (Math.random() - 0.5) * 40,
-                y: (Math.random() - 0.5) * 40,
-                life: 1.0,
-                size: 2 + Math.random() * 3,
-                speed: 20 + Math.random() * 30
-            });
-        }
+        // Healing particles disabled as requested
         
         // Update existing particles
         this.healingParticles = this.healingParticles.filter(particle => {
@@ -242,24 +245,7 @@ class Player {
     }
     
     updateLuckSparkles(deltaTime, time) {
-        // Add new luck sparkles if player has luck bonuses
-        const hasLuck = window.game && window.game.levelUpSystem && 
-                       (window.game.levelUpSystem.luckBonuses.common > 0 ||
-                        window.game.levelUpSystem.luckBonuses.rare > 0 ||
-                        window.game.levelUpSystem.luckBonuses.epic > 0 ||
-                        window.game.levelUpSystem.luckBonuses.legendary > 0);
-        
-        if (hasLuck && Math.random() < 0.4) {
-            const angle = Math.random() * Math.PI * 2;
-            const radius = 15 + Math.random() * 25;
-            this.luckSparkles.push({
-                x: Math.cos(angle) * radius,
-                y: Math.sin(angle) * radius,
-                life: 1.0,
-                size: 1 + Math.random() * 2,
-                twinkle: Math.random() * Math.PI * 2
-            });
-        }
+        // Luck sparkles disabled as requested
         
         // Update existing sparkles
         this.luckSparkles = this.luckSparkles.filter(sparkle => {
@@ -274,15 +260,9 @@ class Player {
         const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
         const hasSpeedBonus = window.game && window.game.playerInput && window.game.playerInput.speedMultiplier > 1.0;
         
-        if ((speed > 100 || hasSpeedBonus) && Math.random() < 0.8) {
-            this.speedTrails.push({
-                x: -this.velocity.x * 0.1 + (Math.random() - 0.5) * 10,
-                y: -this.velocity.y * 0.1 + (Math.random() - 0.5) * 10,
-                life: 0.5,
-                size: 3 + Math.random() * 4,
-                alpha: 0.8
-            });
-        }
+        // Particle trails removed as requested
+        
+        // Speed trail effects disabled as requested
         
         // Update existing trails
         this.speedTrails = this.speedTrails.filter(trail => {
@@ -293,20 +273,7 @@ class Player {
     }
     
     updateComboFireEffects(deltaTime, time) {
-        // Add combo fire effects if player has combo bonuses
-        const hasCombo = window.game && window.game.formulaSystem && window.game.formulaSystem.combo > 0;
-        
-        if (hasCombo && Math.random() < 0.5) {
-            const angle = Math.random() * Math.PI * 2;
-            const radius = 8 + Math.random() * 12;
-            this.comboFireEffects.push({
-                x: Math.cos(angle) * radius,
-                y: Math.sin(angle) * radius,
-                life: 0.8,
-                size: 2 + Math.random() * 3,
-                flame: Math.random() * Math.PI * 2
-            });
-        }
+        // Combo fire effects disabled as requested
         
         // Update existing fire effects
         this.comboFireEffects = this.comboFireEffects.filter(fire => {
@@ -564,22 +531,7 @@ class Player {
     }
     
     renderQuantumGlow(ctx) {
-        if (this.quantumGlow <= 0) return;
-        
-        ctx.save();
-        ctx.globalAlpha = this.quantumGlow * 0.4;
-        
-        // Quantum particle effect
-        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 30);
-        gradient.addColorStop(0, 'rgba(0, 255, 255, 0.6)');
-        gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
-        
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(0, 0, 30, 0, Math.PI * 2);
-        ctx.fill();
-        
-        ctx.restore();
+        // Quantum glow disabled as requested
     }
     
     // Methods to trigger visual effects for upgrades

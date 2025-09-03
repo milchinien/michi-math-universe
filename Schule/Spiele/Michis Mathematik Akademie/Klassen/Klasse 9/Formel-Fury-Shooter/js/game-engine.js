@@ -39,6 +39,7 @@ class GameEngine {
        this.statsSystem = null;
        this.shopSystem = null;
        this.arenaSystem = null;
+       this.particleSystem = null;
        
        // Input state tracking
        this.spacePressed = false;
@@ -762,6 +763,42 @@ class GameEngine {
         // Create arena system
         this.arenaSystem = new ArenaSystem(this);
         
+        // Create particle system
+        this.particleSystem = new ParticleSystem(this.canvas, this.ctx);
+        
+        // Create screen effects system
+        this.screenEffects = new ScreenEffects(this.canvas, this.ctx);
+        
+        // Create audio manager system
+        this.audioManager = new AudioManager();
+        
+        // Create dash system
+        this.dashSystem = new DashSystem(
+            this.player, 
+            this.canvas, 
+            this.particleSystem, 
+            this.audioManager, 
+            this.screenEffects
+        );
+        
+        // Create floating input system
+        this.floatingInputSystem = new FloatingInputSystem(
+            this.player,
+            this.canvas,
+            this.formulaSystem,
+            this.audioManager,
+            this.screenEffects
+        );
+        
+        // Create momentum system
+        this.momentumSystem = new MomentumSystem(
+            this.player,
+            this.canvas,
+            this.particleSystem,
+            this.audioManager,
+            this.screenEffects
+        );
+        
         // Create shop system
         this.shopSystem = new ShopSystem(this);
         
@@ -794,6 +831,16 @@ class GameEngine {
         if (this.enemySpawner && this.enemySpawner.enemies.length > 0) {
             console.log(`🧹 Clearing ${this.enemySpawner.enemies.length} remaining enemies at wave end`);
             this.enemySpawner.enemies = [];
+        }
+        
+        // Trigger screen effects for wave completion
+        if (this.screenEffects) {
+            this.screenEffects.onWaveComplete();
+        }
+        
+        // Trigger audio effects for wave completion
+        if (this.audioManager) {
+            this.audioManager.onWaveComplete();
         }
         
         // Show wave complete animation
@@ -1200,6 +1247,13 @@ class GameEngine {
 
     start() {
         this.isRunning = true;
+        
+        // Start ambient audio when game starts
+        if (this.audioManager) {
+            this.audioManager.startAmbientAudio();
+            this.audioManager.preloadSounds();
+        }
+        
         this.gameLoop();
     }
 
@@ -1240,6 +1294,11 @@ class GameEngine {
 
     stop() {
         this.isRunning = false;
+        
+        // Stop all audio when game stops
+        if (this.audioManager) {
+            this.audioManager.stopAllAudio();
+        }
     }
 
     gameLoop(currentTime = 0) {
@@ -1281,9 +1340,7 @@ class GameEngine {
             this.fps = Math.round((this.frameCount * 1000) / (currentTime - this.lastFpsUpdate));
             this.frameCount = 0;
             this.lastFpsUpdate = currentTime;
-            
-            // Update FPS display
-            this.fpsCounter.textContent = `FPS: ${this.fps}`;
+            this.renderDebugInfo();
         }
     }
 
@@ -1306,7 +1363,7 @@ class GameEngine {
         
         // Update player
         if (this.player && this.inputHandler) {
-            this.player.update(deltaTime, this.inputHandler);
+            this.player.update(deltaTime, this.inputHandler, this.canvas.width, this.canvas.height);
         }
         
         // Update wave system
@@ -1332,6 +1389,31 @@ class GameEngine {
             this.currencySystem.update(deltaTime);
         }
         
+        // Update particle system
+        if (this.particleSystem) {
+            this.particleSystem.update(deltaTime);
+        }
+        
+        // Update screen effects system
+        if (this.screenEffects) {
+            this.screenEffects.update(deltaTime);
+        }
+        
+        // Update dash system
+        if (this.dashSystem) {
+            this.dashSystem.update(deltaTime, this.inputHandler);
+        }
+        
+        // Update floating input system
+        if (this.floatingInputSystem) {
+            this.floatingInputSystem.update(deltaTime);
+        }
+        
+        // Update momentum system
+        if (this.momentumSystem) {
+            this.momentumSystem.update(deltaTime);
+        }
+        
         // Apply cheat effects
         this.applyCheatEffects(deltaTime);
        
@@ -1340,8 +1422,9 @@ class GameEngine {
            this.handleTargeting();
        }
        
-       // Check collisions (only if not in combat mode and not paused)
-       if (!this.combatMode && !this.isPaused) {
+       // Check collisions (only if not in combat mode, not paused, and no dash I-frames)
+       const hasIFrames = this.dashSystem && this.dashSystem.hasIFrames();
+       if (!this.combatMode && !this.isPaused && !hasIFrames) {
            this.handleCollisions();
        }
        
@@ -1426,6 +1509,11 @@ class GameEngine {
         // Use the enemy's assigned formula
         this.formulaSystem.currentFormula = enemy.assignedFormula;
         this.formulaSystem.currentSolution = enemy.assignedFormula.solutions;
+        
+        // Show floating input system for night mode
+        if (this.floatingInputSystem && this.gameMode === 'night') {
+            this.floatingInputSystem.show();
+        }
         
         // Show appropriate UI based on game mode
         if (this.gameMode === 'day') {
@@ -1617,6 +1705,33 @@ class GameEngine {
                 console.log(`📈 Day Mode - XP awarded: ${xpEarned} for ${this.targetedEnemy.typeName}${leveledUp ? ' - LEVEL UP!' : ''}`);
             }
             
+            // Create immediate explosion and formula particles for correct multiple choice answer
+            if (this.particleSystem) {
+                // Store enemy position before it's removed
+                const enemyX = this.targetedEnemy.x;
+                const enemyY = this.targetedEnemy.y;
+                
+                // Create explosion effects immediately
+                this.particleSystem.createExplosion(
+                    enemyX, 
+                    enemyY, 
+                    1.5, 
+                    { r: 255, g: 100, b: 0 }
+                );
+                this.particleSystem.createShockwave(
+                    enemyX, 
+                    enemyY, 
+                    80, 
+                    { r: 255, g: 200, b: 0 }
+                );
+                this.particleSystem.createFormulaSymbols(
+                    enemyX, 
+                    enemyY, 
+                    1.2, 
+                    'binomial'
+                );
+            }
+            
             // Gegner als tot markieren
             this.targetedEnemy.isDead = true;
             this.targetedEnemy.deathTime = Date.now();
@@ -1665,6 +1780,11 @@ class GameEngine {
         this.formulaSystem.hideFormulaHUD();
         this.hideMultipleChoice();
         
+        // Hide floating input system
+        if (this.floatingInputSystem) {
+            this.floatingInputSystem.hide();
+        }
+        
         if (this.mcTimer) {
             clearInterval(this.mcTimer);
             this.mcTimer = null;
@@ -1698,6 +1818,10 @@ class GameEngine {
                 timeTaken, 
                 true
             );
+            
+            // Apply momentum damage multiplier
+            const momentumMultiplier = this.momentumSystem ? this.momentumSystem.getDamageMultiplier() : 1.0;
+            earnedScore = Math.round(earnedScore * momentumMultiplier);
             
             // Apply enemy type multiplier
             earnedScore = Math.round(earnedScore * this.targetedEnemy.scoreMultiplier);
@@ -1744,6 +1868,24 @@ class GameEngine {
             // Kill the enemy
             this.targetedEnemy.startDeathAnimation();
             
+            // Trigger screen effects for enemy death
+            if (this.screenEffects) {
+                this.screenEffects.onEnemyDeath();
+                // Add combo effects for high combos
+                if (this.formulaSystem.combo >= 3) {
+                    this.screenEffects.onComboIncrease(this.formulaSystem.combo);
+                }
+            }
+            
+            // Trigger audio effects for correct answer and enemy death
+            if (this.audioManager) {
+                this.audioManager.onCorrectAnswer(this.formulaSystem.combo);
+                this.audioManager.onEnemyDeath({ x: this.targetedEnemy.x, y: this.targetedEnemy.y });
+                if (this.formulaSystem.combo >= 3) {
+                    this.audioManager.onComboIncrease(this.formulaSystem.combo);
+                }
+            }
+            
             // Show detailed feedback with enemy type, coins and XP
             const speedText = timeTaken < 5000 ? ' (Schnell!)' : '';
             const comboText = this.formulaSystem.combo >= 3 ? ` Combo x${this.formulaSystem.combo}!` : '';
@@ -1765,6 +1907,43 @@ class GameEngine {
             this.formulaSystem.score += earnedScore;
             this.formulaSystem.incrementCombo();
             this.formulaSystem.showFeedback(`Richtig! +${earnedScore} Punkte`, true);
+            
+            // Trigger screen effects for correct answer
+            if (this.screenEffects) {
+                this.screenEffects.onCorrectAnswer();
+            }
+            
+            // Trigger audio effects for correct answer
+            if (this.audioManager) {
+                this.audioManager.onCorrectAnswer(this.formulaSystem.combo);
+            }
+        }
+        
+        // Create immediate explosion and formula particles for correct answer
+        if (this.targetedEnemy && this.particleSystem) {
+            // Store enemy position before it's removed
+            const enemyX = this.targetedEnemy.x;
+            const enemyY = this.targetedEnemy.y;
+            
+            // Create explosion effects immediately
+            this.particleSystem.createExplosion(
+                enemyX, 
+                enemyY, 
+                1.5, 
+                { r: 255, g: 100, b: 0 }
+            );
+            this.particleSystem.createShockwave(
+                enemyX, 
+                enemyY, 
+                80, 
+                { r: 255, g: 200, b: 0 }
+            );
+            this.particleSystem.createFormulaSymbols(
+                enemyX, 
+                enemyY, 
+                1.2, 
+                'binomial'
+            );
         }
         
         this.formulaSystem.updateScoreDisplay();
@@ -1773,7 +1952,7 @@ class GameEngine {
         // Generate new formula after delay
         setTimeout(() => {
             this.formulaSystem.generateFormula();
-        }, 1500);
+        }, 500);
     }
 
     handleWrongAnswer() {
@@ -1786,6 +1965,17 @@ class GameEngine {
             this.formulaSystem.score = Math.max(0, this.formulaSystem.score - 50);
             this.dealDamageToPlayer(1); // Only 1 HP damage for wrong answers
             this.formulaSystem.showFeedback(`Falsch! Du nimmst Schaden! Richtig: ${this.formulaSystem.currentSolution[0]}`, false);
+            
+            // Trigger screen effects for wrong answer
+            if (this.screenEffects) {
+                this.screenEffects.onWrongAnswer();
+            }
+            
+            // Trigger audio effects for wrong answer
+            if (this.audioManager) {
+                this.audioManager.onWrongAnswer();
+                this.audioManager.onComboBreak();
+            }
         } else {
             // Regular formula practice
             this.formulaSystem.incorrectAnswers++;
@@ -1805,6 +1995,16 @@ class GameEngine {
     dealDamageToPlayer(damage) {
         if (this.cheatMode) return; // No damage in cheat mode
         
+        // Create damage sparks at player position
+        if (this.player && this.particleSystem) {
+            this.particleSystem.createSparks(
+                this.player.x,
+                this.player.y,
+                8,
+                { r: 255, g: 50, b: 50 }
+            );
+        }
+        
         const currentTime = Date.now();
         if (currentTime - this.lastDamageTime < this.damageImmuneTime) {
             return; // Player is immune
@@ -1813,6 +2013,19 @@ class GameEngine {
         this.playerHealth -= damage;
         this.playerHealth = Math.max(0, this.playerHealth);
         this.lastDamageTime = currentTime;
+        
+        // Trigger screen effects for low health
+        if (this.screenEffects) {
+            const healthPercent = this.playerHealth / this.playerMaxHealth;
+            this.screenEffects.onLowHealth(healthPercent);
+        }
+        
+        // Trigger audio effects for damage and low health
+        if (this.audioManager) {
+            this.audioManager.onPlayerDamage();
+            const healthPercent = this.playerHealth / this.playerMaxHealth;
+            this.audioManager.onLowHealth(healthPercent);
+        }
         
         console.log(`Player took ${damage} damage. Health: ${this.playerHealth}/${this.playerMaxHealth}`);
         
@@ -1960,6 +2173,11 @@ class GameEngine {
     }
 
     render() {
+        // Apply screen effects (shake, pulse, etc.)
+        if (this.screenEffects) {
+            this.screenEffects.applyEffects();
+        }
+        
         // Render enemies first (behind player)
         if (this.enemySpawner) {
             this.enemySpawner.render(this.ctx);
@@ -1983,6 +2201,21 @@ class GameEngine {
             this.levelSystem.render(this.ctx);
         }
         
+        // Render particle system (after game objects, before UI)
+        if (this.particleSystem) {
+            this.particleSystem.render();
+        }
+        
+        // Render dash system effects
+        if (this.dashSystem) {
+            this.dashSystem.render(this.ctx);
+        }
+        
+        // Render momentum system effects
+        if (this.momentumSystem) {
+            this.momentumSystem.render(this.ctx);
+        }
+        
         // Render game over screen
         if (this.isGameOver) {
             this.renderGameOverScreen();
@@ -1996,6 +2229,11 @@ class GameEngine {
         // Render pause indicator on canvas
         if (this.isPaused && !this.isGameOver) {
             this.renderPauseIndicator();
+        }
+        
+        // Restore screen effects and render flash overlays
+        if (this.screenEffects) {
+            this.screenEffects.restoreEffects();
         }
     }
 
@@ -2180,8 +2418,17 @@ class GameEngine {
     }
 
     renderDebugInfo() {
-        // Debug info removed for cleaner UI
-        // Can be re-enabled for development if needed
+        if (!this.fpsCounter) return;
+        
+        let debugText = `FPS: ${this.fps}`;
+        
+        // Add particle system stats
+        if (this.particleSystem) {
+            const stats = this.particleSystem.getStats();
+            debugText += ` | Particles: ${stats.activeParticles}/${this.particleSystem.maxParticles} (${stats.poolUtilization})`;
+        }
+        
+        this.fpsCounter.textContent = debugText;
     }
 
     showMessage(text, duration = 3000) {

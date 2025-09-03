@@ -63,6 +63,19 @@ class FormulaSystem {
                 this.submitAnswer();
             }
         });
+        
+        // Add micro-shake and audio feedback on formula input
+        this.formulaInput.addEventListener('input', (e) => {
+            // Trigger micro-shake screen effect when typing
+            if (window.gameEngine && window.gameEngine.screenEffects) {
+                window.gameEngine.screenEffects.onFormulaInput();
+            }
+            
+            // Trigger keypress audio feedback
+            if (window.gameEngine && window.gameEngine.audioManager) {
+                window.gameEngine.audioManager.onFormulaKeyPress();
+            }
+        });
     }
 
     generateFormula() {
