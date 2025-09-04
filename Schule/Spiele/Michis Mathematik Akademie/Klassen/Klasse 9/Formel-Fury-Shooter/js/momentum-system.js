@@ -7,7 +7,7 @@ class MomentumSystem {
     constructor(player, canvas, particleSystem, audioManager, screenEffects) {
         this.player = player;
         this.canvas = canvas;
-        this.particleSystem = particleSystem;
+        // Particle system removed
         this.audioManager = audioManager;
         this.screenEffects = screenEffects;
         
@@ -383,10 +383,7 @@ class MomentumSystem {
         // Update motion blur
         this.motionBlur = Math.max(0, speedRatio - 0.7) * 3; // Only at very high speeds
         
-        // Create momentum particles
-        if (momentumRatio > 0.5 && this.particleSystem) {
-            this.createMomentumParticles();
-        }
+        // Momentum particles removed
     }
     
     updateSpeedLines(speedRatio) {
@@ -430,22 +427,7 @@ class MomentumSystem {
         }
     }
     
-    createMomentumParticles() {
-        if (Math.random() < 0.3 && this.particleSystem && typeof this.particleSystem.createSparks === 'function') {
-            const color = {
-                r: this.momentumAura.color[0],
-                g: this.momentumAura.color[1],
-                b: this.momentumAura.color[2]
-            };
-            
-            this.particleSystem.createSparks(
-                this.player.x + (Math.random() - 0.5) * 30,
-                this.player.y + (Math.random() - 0.5) * 30,
-                1, // count
-                color
-            );
-        }
-    }
+    // Momentum particles system removed
     
     updateAudioEffects(deltaTime) {
         if (!this.audioManager) return;

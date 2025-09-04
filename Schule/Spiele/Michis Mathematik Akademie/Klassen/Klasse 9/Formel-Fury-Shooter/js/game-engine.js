@@ -1705,32 +1705,7 @@ class GameEngine {
                 console.log(`📈 Day Mode - XP awarded: ${xpEarned} for ${this.targetedEnemy.typeName}${leveledUp ? ' - LEVEL UP!' : ''}`);
             }
             
-            // Create immediate explosion and formula particles for correct multiple choice answer
-            if (this.particleSystem) {
-                // Store enemy position before it's removed
-                const enemyX = this.targetedEnemy.x;
-                const enemyY = this.targetedEnemy.y;
-                
-                // Create explosion effects immediately
-                this.particleSystem.createExplosion(
-                    enemyX, 
-                    enemyY, 
-                    1.5, 
-                    { r: 255, g: 100, b: 0 }
-                );
-                this.particleSystem.createShockwave(
-                    enemyX, 
-                    enemyY, 
-                    80, 
-                    { r: 255, g: 200, b: 0 }
-                );
-                this.particleSystem.createFormulaSymbols(
-                    enemyX, 
-                    enemyY, 
-                    1.2, 
-                    'binomial'
-                );
-            }
+            // Particle effects removed
             
             // Gegner als tot markieren
             this.targetedEnemy.isDead = true;
@@ -1865,6 +1840,8 @@ class GameEngine {
                 console.log(`📈 XP awarded: ${xpEarned} for ${this.targetedEnemy.typeName}${leveledUp ? ' - LEVEL UP!' : ''}`);
             }
             
+            // Particle effects removed
+            
             // Kill the enemy
             this.targetedEnemy.startDeathAnimation();
             
@@ -1919,32 +1896,7 @@ class GameEngine {
             }
         }
         
-        // Create immediate explosion and formula particles for correct answer
-        if (this.targetedEnemy && this.particleSystem) {
-            // Store enemy position before it's removed
-            const enemyX = this.targetedEnemy.x;
-            const enemyY = this.targetedEnemy.y;
-            
-            // Create explosion effects immediately
-            this.particleSystem.createExplosion(
-                enemyX, 
-                enemyY, 
-                1.5, 
-                { r: 255, g: 100, b: 0 }
-            );
-            this.particleSystem.createShockwave(
-                enemyX, 
-                enemyY, 
-                80, 
-                { r: 255, g: 200, b: 0 }
-            );
-            this.particleSystem.createFormulaSymbols(
-                enemyX, 
-                enemyY, 
-                1.2, 
-                'binomial'
-            );
-        }
+        // Particle effects removed
         
         this.formulaSystem.updateScoreDisplay();
         this.exitCombatMode();
@@ -1995,15 +1947,7 @@ class GameEngine {
     dealDamageToPlayer(damage) {
         if (this.cheatMode) return; // No damage in cheat mode
         
-        // Create damage sparks at player position
-        if (this.player && this.particleSystem) {
-            this.particleSystem.createSparks(
-                this.player.x,
-                this.player.y,
-                8,
-                { r: 255, g: 50, b: 50 }
-            );
-        }
+        // Damage particle effects removed
         
         const currentTime = Date.now();
         if (currentTime - this.lastDamageTime < this.damageImmuneTime) {
