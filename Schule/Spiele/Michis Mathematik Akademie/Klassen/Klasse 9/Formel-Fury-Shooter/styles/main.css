@@ -239,7 +239,7 @@ body {
     padding: 10px 20px;
     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(5px);
-    display: flex;
+    display: none; /* Hide the bottom bar completely */
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
@@ -923,7 +923,7 @@ body {
 #gameModeTitle {
     color: #FFD700;
     font-family: 'Courier New', monospace;
-    font-size: 36px;
+    font-size: 48px;
     font-weight: bold;
     text-shadow: 0 0 30px #CD853F, 2px 2px 4px rgba(0, 0, 0, 0.8);
     margin-bottom: 40px;

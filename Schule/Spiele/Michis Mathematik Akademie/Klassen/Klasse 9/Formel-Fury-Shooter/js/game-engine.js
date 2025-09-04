@@ -790,14 +790,7 @@ class GameEngine {
             this.screenEffects
         );
         
-        // Create momentum system
-        this.momentumSystem = new MomentumSystem(
-            this.player,
-            this.canvas,
-            this.particleSystem,
-            this.audioManager,
-            this.screenEffects
-        );
+        // Momentum system removed
         
         // Create shop system
         this.shopSystem = new ShopSystem(this);
@@ -1409,10 +1402,7 @@ class GameEngine {
             this.floatingInputSystem.update(deltaTime);
         }
         
-        // Update momentum system
-        if (this.momentumSystem) {
-            this.momentumSystem.update(deltaTime);
-        }
+        // Momentum system removed
         
         // Apply cheat effects
         this.applyCheatEffects(deltaTime);
@@ -1794,9 +1784,7 @@ class GameEngine {
                 true
             );
             
-            // Apply momentum damage multiplier
-            const momentumMultiplier = this.momentumSystem ? this.momentumSystem.getDamageMultiplier() : 1.0;
-            earnedScore = Math.round(earnedScore * momentumMultiplier);
+            // Momentum system removed
             
             // Apply enemy type multiplier
             earnedScore = Math.round(earnedScore * this.targetedEnemy.scoreMultiplier);
@@ -2155,10 +2143,7 @@ class GameEngine {
         //     this.dashSystem.render(this.ctx);
         // }
         
-        // Render momentum system effects
-        if (this.momentumSystem) {
-            this.momentumSystem.render(this.ctx);
-        }
+        // Momentum system removed
         
         // Render game over screen
         if (this.isGameOver) {

@@ -517,25 +517,26 @@ class ArenaSystem {
         // Render base arena floor
         this.renderBaseFloor();
         
-        // Render void areas (infinite depth)
-        this.renderVoidAreas();
+        // Only render deterioration effects after wave 5
+        if (this.currentWave >= this.deteriorationStartWave) {
+            // Render void areas (infinite depth)
+            this.renderVoidAreas();
+            
+            // Render digital underworld (visible through collapse zones)
+            this.renderDigitalUnderworld();
+            
+            // Render earthquake cracks
+            this.renderEarthquakeCracks();
+            
+            // Render collapse zones
+            this.renderCollapseZones();
+            
+            // Render falling debris
+            this.renderFallingDebris();
+        }
         
-        // Render digital underworld (visible through collapse zones)
-        this.renderDigitalUnderworld();
-        
-        // Render remaining grass patches
+        // Always render grass patches and boundaries
         this.renderGrassPatches();
-        
-        // Render earthquake cracks
-        this.renderEarthquakeCracks();
-        
-        // Render collapse zones
-        this.renderCollapseZones();
-        
-        // Render falling debris
-        this.renderFallingDebris();
-        
-        // Render map boundaries
         this.renderMapBoundaries();
     }
     

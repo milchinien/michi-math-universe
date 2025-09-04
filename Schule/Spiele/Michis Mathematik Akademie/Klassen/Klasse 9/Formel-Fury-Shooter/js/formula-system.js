@@ -79,27 +79,80 @@ class FormulaSystem {
     }
 
     generateFormula() {
-        // Select formula type based on difficulty progression
-        const formulaTypes = [
-            'expansion_plus',    // (a+b)² = a² + 2ab + b²
-            'expansion_minus',   // (a-b)² = a² - 2ab + b²
-            'difference_squares', // (a+b)(a-b) = a² - b²
-            'factorization_difference', // a² - b² = (a+b)(a-b)
-            'factorization_square' // a² + 2ab + b² = (a+b)²
-        ];
+        // Get selected math topics from the math topics system
+        const selectedTopics = this.getSelectedMathTopics();
+        const availableTypes = this.getFormulaTypesFromTopics(selectedTopics);
         
-        // Progressive difficulty: start with simple, add complexity over time
-        const availableTypes = this.getAvailableFormulaTypes(formulaTypes);
+        if (availableTypes.length === 0) {
+            // Fallback to binomial formulas if no topics selected
+            console.warn('⚠️ No formula types available, falling back to binomial formulas');
+            const fallbackTypes = this.getBinomialFormulaTypes();
+            const selectedType = fallbackTypes[Math.floor(Math.random() * fallbackTypes.length)];
+            return this.generateFormulaByType(selectedType);
+        }
+        
         const selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
         
-        console.log(`🧮 Formula generation - Available types: ${availableTypes.length}, Selected: ${selectedType}`);
-        console.log(`🧮 Available formula types:`, availableTypes);
+        console.log(`🧮 Formula generation - Selected topics: ${selectedTopics.map(t => t.name).join(', ')}`);
+        console.log(`🧮 Available types: ${availableTypes.length}, Selected: ${selectedType}`);
         
         return this.generateFormulaByType(selectedType);
     }
 
-    getAvailableFormulaTypes(allTypes) {
-        // All formula types available from the start for better learning variety
+    getSelectedMathTopics() {
+        // Get selected topics from the math topics system
+        if (window.mathTopicsSystem) {
+            return window.mathTopicsSystem.getCurrentFormulaTypes();
+        }
+        
+        // Fallback to binomial formulas if system not available
+        return [{
+            id: 'binomial-formulas',
+            name: 'Binomische Formeln',
+            category: 'algebra',
+            difficulty: 1
+        }];
+    }
+    
+    getFormulaTypesFromTopics(selectedTopics) {
+        const availableTypes = [];
+        
+        for (const topic of selectedTopics) {
+            switch (topic.id) {
+                case 'binomial-formulas':
+                    availableTypes.push(...this.getBinomialFormulaTypes());
+                    break;
+                case 'quadratic-equations':
+                    availableTypes.push(...this.getQuadraticEquationTypes());
+                    break;
+                case 'polynomial-division':
+                    availableTypes.push(...this.getPolynomialDivisionTypes());
+                    break;
+                case 'linear-functions':
+                    availableTypes.push(...this.getLinearFunctionTypes());
+                    break;
+                case 'quadratic-functions':
+                    availableTypes.push(...this.getQuadraticFunctionTypes());
+                    break;
+                case 'exponential-functions':
+                    availableTypes.push(...this.getExponentialFunctionTypes());
+                    break;
+                case 'prime-factorization':
+                    availableTypes.push(...this.getPrimeFactorizationTypes());
+                    break;
+                case 'gcd-lcm':
+                    availableTypes.push(...this.getGcdLcmTypes());
+                    break;
+                default:
+                    console.warn(`⚠️ Unknown topic: ${topic.id}`);
+                    break;
+            }
+        }
+        
+        return availableTypes;
+    }
+    
+    getBinomialFormulaTypes() {
         return [
             'expansion_plus',        // (a+b)² = a² + 2ab + b²
             'expansion_minus',       // (a-b)² = a² - 2ab + b²
@@ -107,6 +160,47 @@ class FormulaSystem {
             'factorization_difference', // a² - b² = (a+b)(a-b)
             'factorization_square'   // a² + 2ab + b² = (a+b)²
         ];
+    }
+    
+    // Placeholder methods for future formula types
+    getQuadraticEquationTypes() {
+        // TODO: Implement quadratic equation formula types
+        return [];
+    }
+    
+    getPolynomialDivisionTypes() {
+        // TODO: Implement polynomial division formula types
+        return [];
+    }
+    
+    getLinearFunctionTypes() {
+        // TODO: Implement linear function formula types
+        return [];
+    }
+    
+    getQuadraticFunctionTypes() {
+        // TODO: Implement quadratic function formula types
+        return [];
+    }
+    
+    getExponentialFunctionTypes() {
+        // TODO: Implement exponential function formula types
+        return [];
+    }
+    
+    getPrimeFactorizationTypes() {
+        // TODO: Implement prime factorization formula types
+        return [];
+    }
+    
+    getGcdLcmTypes() {
+        // TODO: Implement GCD/LCM formula types
+        return [];
+    }
+
+    getAvailableFormulaTypes(allTypes) {
+        // Legacy method - now using topic-based selection
+        return this.getBinomialFormulaTypes();
     }
 
     generateFormulaByType(type) {
