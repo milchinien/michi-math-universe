@@ -772,14 +772,14 @@ class GameEngine {
         // Create audio manager system
         this.audioManager = new AudioManager();
         
-        // Create dash system
-        this.dashSystem = new DashSystem(
-            this.player, 
-            this.canvas, 
-            this.particleSystem, 
-            this.audioManager, 
-            this.screenEffects
-        );
+        // Dash system removed for optimization
+        // this.dashSystem = new DashSystem(
+        //     this.player, 
+        //     this.canvas, 
+        //     this.particleSystem, 
+        //     this.screenEffects, 
+        //     this.audioManager
+        // );
         
         // Create floating input system
         this.floatingInputSystem = new FloatingInputSystem(
@@ -1399,10 +1399,10 @@ class GameEngine {
             this.screenEffects.update(deltaTime);
         }
         
-        // Update dash system
-        if (this.dashSystem) {
-            this.dashSystem.update(deltaTime, this.inputHandler);
-        }
+        // Dash system removed for optimization
+        // if (this.dashSystem) {
+        //     this.dashSystem.update(deltaTime, this.inputHandler);
+        // }
         
         // Update floating input system
         if (this.floatingInputSystem) {
@@ -1422,9 +1422,9 @@ class GameEngine {
            this.handleTargeting();
        }
        
-       // Check collisions (only if not in combat mode, not paused, and no dash I-frames)
-       const hasIFrames = this.dashSystem && this.dashSystem.hasIFrames();
-       if (!this.combatMode && !this.isPaused && !hasIFrames) {
+       // Check collisions (only if not in combat mode and not paused)
+       // Dash I-frames removed with dash system
+       if (!this.combatMode && !this.isPaused) {
            this.handleCollisions();
        }
        
@@ -2206,10 +2206,10 @@ class GameEngine {
             this.particleSystem.render();
         }
         
-        // Render dash system effects
-        if (this.dashSystem) {
-            this.dashSystem.render(this.ctx);
-        }
+        // Dash system rendering removed for optimization
+        // if (this.dashSystem) {
+        //     this.dashSystem.render(this.ctx);
+        // }
         
         // Render momentum system effects
         if (this.momentumSystem) {

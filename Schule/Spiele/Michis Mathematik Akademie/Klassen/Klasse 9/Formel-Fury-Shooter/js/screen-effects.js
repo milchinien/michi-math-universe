@@ -47,14 +47,14 @@ class ScreenEffects {
             type: 'stress' // stress, speed, impact
         };
         
-        // Performance settings
+        // Performance settings - MINIMAL EFFECTS
         this.settings = {
-            shakeEnabled: true,
-            flashEnabled: true,
-            pulseEnabled: true,
-            aberrationEnabled: true,
-            intensityMultiplier: 1.0,
-            mobileReduction: this.isMobile() ? 0.5 : 1.0
+            shakeEnabled: false, // Disabled for minimal effects
+            flashEnabled: true, // Keep only flashes
+            pulseEnabled: false, // Disabled for minimal effects
+            aberrationEnabled: false, // Disabled
+            intensityMultiplier: 0.3, // Very low intensity
+            mobileReduction: 0.1 // Minimal on mobile
         };
         
         // Original canvas transform for restoration
@@ -139,11 +139,11 @@ class ScreenEffects {
         if (!this.settings.flashEnabled) return;
         
         const flashTypes = {
-            damage: { color: 'rgba(255, 50, 50, 0.6)', duration: 200, fadeSpeed: 0.08 },
-            success: { color: 'rgba(50, 255, 50, 0.5)', duration: 150, fadeSpeed: 0.1 },
-            critical: { color: 'rgba(255, 255, 255, 0.8)', duration: 100, fadeSpeed: 0.15 },
-            combo: { color: 'rgba(255, 200, 0, 0.6)', duration: 120, fadeSpeed: 0.12 },
-            victory: { color: 'rgba(255, 215, 0, 0.7)', duration: 300, fadeSpeed: 0.05 }
+            damage: { color: 'rgba(255, 50, 50, 0.3)', duration: 100, fadeSpeed: 0.15 },
+            success: { color: 'rgba(50, 255, 50, 0.3)', duration: 100, fadeSpeed: 0.15 },
+            critical: { color: 'rgba(255, 255, 255, 0.4)', duration: 80, fadeSpeed: 0.2 },
+            combo: { color: 'rgba(255, 200, 0, 0.3)', duration: 80, fadeSpeed: 0.2 },
+            victory: { color: 'rgba(255, 215, 0, 0.4)', duration: 150, fadeSpeed: 0.1 }
         };
         
         const params = { ...flashTypes[type], ...customParams };
@@ -277,57 +277,69 @@ class ScreenEffects {
         this.renderFlash();
     }
     
-    // === EVENT INTEGRATION HELPERS ===
+    // === EVENT INTEGRATION HELPERS - OPTIMIZED ===
     
     onFormulaInput() {
-        this.triggerShake('micro');
+        // Disabled for optimization
     }
     
     onCorrectAnswer() {
-        this.triggerFlash('success');
-        this.triggerShake('medium');
+        // Disabled for optimization
     }
     
     onWrongAnswer() {
-        this.triggerFlash('damage');
-        this.triggerShake('heavy');
+        // Disabled for optimization
     }
     
     onEnemyDeath() {
+        // Minimal enemy death effect - only flash
         this.triggerFlash('critical');
-        this.triggerShake('explosion');
+        // Shake disabled for minimal effects
     }
     
     onComboIncrease(comboCount) {
-        if (comboCount > 5) {
-            this.triggerFlash('combo');
-            this.triggerPulse('combo', Math.min(comboCount / 10, 2.0));
-        }
+        // Disabled for optimization
     }
     
     onLowHealth(healthPercent) {
-        if (healthPercent < 0.3) {
-            this.triggerPulse('heartbeat', (1 - healthPercent) * 2);
-        } else {
-            this.stopPulse();
-        }
+        // Disabled for optimization
     }
     
     onCriticalHit() {
-        this.triggerFlash('critical');
-        this.triggerShake('heavy');
-        this.triggerAberration('impact', 2.0, 150);
+        // Disabled for optimization
     }
     
     onWaveComplete() {
+        // Minimal wave complete effect - only yellow flash
         this.triggerFlash('victory');
-        this.triggerPulse('victory', 1.5);
-        this.triggerShake('medium');
+        // Pulse and shake disabled for minimal effects
     }
     
     onBossAttack() {
-        this.triggerShake('earthquake');
-        this.triggerAberration('stress', 1.5, 300);
+        // Disabled for optimization
+    }
+    
+    // === ITEM/UPGRADE EFFECTS - THESE MUST REMAIN ===
+    
+    onItemPurchase() {
+        // Minimal item purchase effect - only flash
+        this.triggerFlash('success');
+        // Shake disabled for minimal effects
+    }
+    
+    onUpgradeAcquired(upgradeRarity) {
+        // Minimal upgrade effects - only flash based on rarity
+        switch(upgradeRarity) {
+            case 'legendary':
+                this.triggerFlash('victory');
+                break;
+            case 'epic':
+                this.triggerFlash('combo');
+                break;
+            default:
+                this.triggerFlash('success');
+        }
+        // All shakes disabled for minimal effects
     }
     
     // === SETTINGS ===

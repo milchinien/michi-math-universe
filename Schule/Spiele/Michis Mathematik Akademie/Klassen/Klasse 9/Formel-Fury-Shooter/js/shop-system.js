@@ -236,6 +236,11 @@ class ShopSystem {
         // Item-Effekt anwenden
         this.applyItemEffect(item);
         
+        // Trigger screen effects for item purchase
+        if (this.game?.gameEngine?.screenEffects) {
+            this.game.gameEngine.screenEffects.onItemPurchase();
+        }
+        
         // Item aus Shop entfernen
         this.currentItems[shopSlot] = null;
         

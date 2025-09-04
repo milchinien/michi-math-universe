@@ -668,6 +668,11 @@ class LevelUpSystem {
         // Apply upgrade effect (placeholder for now - will be implemented when real upgrades are added)
         this.applyUpgrade(selectedUpgrade);
         
+        // Trigger screen effects for upgrade acquisition
+        if (this.game?.gameEngine?.screenEffects) {
+            this.game.gameEngine.screenEffects.onUpgradeAcquired(selectedUpgrade.rarity);
+        }
+        
         // Hide level up menu
         this.hideLevelUp();
         

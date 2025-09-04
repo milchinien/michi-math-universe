@@ -82,8 +82,8 @@ class StatsSystem {
     updateStats() {
         if (!window.game) return;
         
-        // Update HP
-        this.stats.hp.current = window.game.playerHealth || 3;
+        // Update HP with proper rounding
+        this.stats.hp.current = Math.round((window.game.playerHealth || 3) * 100) / 100;
         this.stats.hp.max = window.game.playerMaxHealth || 3;
         
         // Update HP Regeneration
@@ -132,12 +132,12 @@ class StatsSystem {
         if (!luckBonuses) return 0;
         
         let totalLuck = 0;
-        totalLuck += luckBonuses.common * 2;      // 2% per common stack
-        totalLuck += luckBonuses.rare * 4;       // 4% per rare stack
-        totalLuck += luckBonuses.epic * 7;       // 7% per epic stack
-        totalLuck += luckBonuses.legendary * 12; // 12% per legendary stack
+        totalLuck += (luckBonuses.common || 0) * 3.5;  // Updated values from memory
+        totalLuck += (luckBonuses.rare || 0) * 6.5;
+        totalLuck += (luckBonuses.epic || 0) * 11;
+        totalLuck += (luckBonuses.legendary || 0) * 18;
         
-        return totalLuck;
+        return Math.round(totalLuck);
     }
     
     /**
@@ -146,10 +146,12 @@ class StatsSystem {
     calculateSpeed() {
         if (!window.game.player) return 100;
         
-        const baseSpeed = 5; // Assuming base speed is 5
+        const baseSpeed = 200; // Actual base speed from player-input.js
         const currentSpeed = window.game.player.speed || baseSpeed;
         
-        return Math.round((currentSpeed / baseSpeed) * 100);
+        // Cap the speed display at reasonable values (max 1000%)
+        const speedPercent = Math.round((currentSpeed / baseSpeed) * 100);
+        return Math.min(speedPercent, 1000);
     }
     
     /**
@@ -158,9 +160,11 @@ class StatsSystem {
     updateDisplay() {
         if (!this.isVisible) return;
         
-        // Update HP
+        // Update HP with clean display
         if (this.statElements.hp) {
-            this.statElements.hp.textContent = `${this.stats.hp.current}/${this.stats.hp.max}`;
+            const currentHP = Math.floor(this.stats.hp.current * 10) / 10; // Round to 1 decimal
+            const maxHP = this.stats.hp.max;
+            this.statElements.hp.textContent = `${currentHP}/${maxHP}`;
         }
         
         // Update HP Regeneration

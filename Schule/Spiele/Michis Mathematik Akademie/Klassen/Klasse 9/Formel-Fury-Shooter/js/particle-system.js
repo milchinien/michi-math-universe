@@ -8,8 +8,8 @@ class ParticleSystem {
         this.canvas = canvas;
         this.ctx = ctx;
         
-        // Performance settings
-        this.maxParticles = 2000;
+        // Performance settings - MINIMAL
+        this.maxParticles = 100; // Drastically reduced for minimal effects
         this.activeParticles = [];
         this.particlePool = [];
         
@@ -101,164 +101,58 @@ class ParticleSystem {
         particle.active = true;
     }
     
-    // Create explosion particles
+    // Create explosion particles - MINIMAL VERSION
     createExplosion(x, y, intensity = 1, color = null) {
-        const particleCount = Math.floor(20 * intensity);
+        const particleCount = Math.floor(5 * intensity); // Reduced from 20 to 5
         const baseColor = color || { r: 255, g: 100, b: 0 };
         
         for (let i = 0; i < particleCount; i++) {
             const particle = this.getParticle();
             if (!particle) break;
             
-            const angle = (Math.PI * 2 * i) / particleCount + Math.random() * 0.5;
-            const speed = (2 + Math.random() * 6) * intensity;
+            const angle = (Math.PI * 2 * i) / particleCount;
+            const speed = (1 + Math.random() * 2) * intensity; // Reduced speed
             
             particle.x = x;
             particle.y = y;
             particle.vx = Math.cos(angle) * speed;
             particle.vy = Math.sin(angle) * speed;
-            particle.life = 1.0;
-            particle.maxLife = 1.0;
-            particle.size = (3 + Math.random() * 8) * intensity;
+            particle.life = 0.5; // Shorter life
+            particle.maxLife = 0.5;
+            particle.size = (2 + Math.random() * 3) * intensity; // Smaller size
             particle.maxSize = particle.size;
-            particle.color = {
-                r: baseColor.r + Math.random() * 50 - 25,
-                g: baseColor.g + Math.random() * 50 - 25,
-                b: baseColor.b + Math.random() * 50 - 25,
-                a: 1
-            };
+            particle.color = { ...baseColor, a: 1 };
             particle.type = this.PARTICLE_TYPES.EXPLOSION;
             particle.gravity = 0.1;
             particle.drag = 0.98;
-            particle.rotationSpeed = (Math.random() - 0.5) * 0.3;
+            particle.rotationSpeed = 0; // No rotation
             
             this.activeParticles.push(particle);
         }
     }
     
-    // Create formula symbol particles
+    // Create formula symbol particles - DISABLED FOR MINIMAL EFFECTS
     createFormulaSymbols(x, y, intensity = 1, formulaType = 'binomial') {
-        const particleCount = Math.floor(8 * intensity);
-        let symbolColor;
-        
-        // Color based on formula type
-        switch (formulaType) {
-            case 'binomial':
-                symbolColor = { r: 0, g: 255, b: 150 };
-                break;
-            case 'quadratic':
-                symbolColor = { r: 255, g: 200, b: 0 };
-                break;
-            case 'linear':
-                symbolColor = { r: 100, g: 150, b: 255 };
-                break;
-            default:
-                symbolColor = { r: 255, g: 255, b: 255 };
-        }
-        
-        for (let i = 0; i < particleCount; i++) {
-            const particle = this.getParticle();
-            if (!particle) break;
-            
-            const angle = Math.random() * Math.PI * 2;
-            const speed = 1 + Math.random() * 3;
-            
-            particle.x = x + (Math.random() - 0.5) * 20;
-            particle.y = y + (Math.random() - 0.5) * 20;
-            particle.vx = Math.cos(angle) * speed;
-            particle.vy = Math.sin(angle) * speed - 1; // Float upward
-            particle.life = 1.0;
-            particle.maxLife = 1.0;
-            particle.size = 16 + Math.random() * 8;
-            particle.maxSize = particle.size;
-            particle.color = { ...symbolColor, a: 1 };
-            particle.type = this.PARTICLE_TYPES.FORMULA_SYMBOL;
-            particle.symbol = this.mathSymbols[Math.floor(Math.random() * this.mathSymbols.length)];
-            particle.gravity = -0.05; // Float upward
-            particle.drag = 0.99;
-            particle.rotationSpeed = (Math.random() - 0.5) * 0.1;
-            particle.pulseSpeed = 0.1;
-            particle.pulseAmplitude = 0.3;
-            
-            this.activeParticles.push(particle);
-        }
+        // Completely disabled for minimal effects
+        return;
     }
     
-    // Create energy trail particles
+    // Create energy trail particles - DISABLED FOR OPTIMIZATION
     createTrail(x, y, vx, vy, intensity = 1, color = null) {
-        const particle = this.getParticle();
-        if (!particle) return;
-        
-        const trailColor = color || { r: 0, g: 200, b: 255 };
-        
-        particle.x = x + (Math.random() - 0.5) * 10;
-        particle.y = y + (Math.random() - 0.5) * 10;
-        particle.vx = vx * 0.3 + (Math.random() - 0.5) * 2;
-        particle.vy = vy * 0.3 + (Math.random() - 0.5) * 2;
-        particle.life = 0.8;
-        particle.maxLife = 0.8;
-        particle.size = (2 + Math.random() * 4) * intensity;
-        particle.maxSize = particle.size;
-        particle.color = { ...trailColor, a: 0.8 };
-        particle.type = this.PARTICLE_TYPES.TRAIL;
-        particle.gravity = 0;
-        particle.drag = 0.95;
-        particle.rotationSpeed = 0;
-        
-        this.activeParticles.push(particle);
+        // Disabled for performance optimization
+        return;
     }
     
-    // Create spark particles
+    // Create spark particles - DISABLED FOR OPTIMIZATION
     createSparks(x, y, count = 5, color = null) {
-        const sparkColor = color || { r: 255, g: 255, b: 100 };
-        
-        for (let i = 0; i < count; i++) {
-            const particle = this.getParticle();
-            if (!particle) break;
-            
-            const angle = Math.random() * Math.PI * 2;
-            const speed = 2 + Math.random() * 4;
-            
-            particle.x = x;
-            particle.y = y;
-            particle.vx = Math.cos(angle) * speed;
-            particle.vy = Math.sin(angle) * speed;
-            particle.life = 0.5;
-            particle.maxLife = 0.5;
-            particle.size = 1 + Math.random() * 3;
-            particle.maxSize = particle.size;
-            particle.color = { ...sparkColor, a: 1 };
-            particle.type = this.PARTICLE_TYPES.SPARK;
-            particle.gravity = 0.2;
-            particle.drag = 0.98;
-            particle.rotationSpeed = 0;
-            
-            this.activeParticles.push(particle);
-        }
+        // Disabled for performance optimization
+        return;
     }
     
-    // Create shockwave effect
+    // Create shockwave effect - DISABLED FOR OPTIMIZATION
     createShockwave(x, y, maxRadius = 100, color = null) {
-        const particle = this.getParticle();
-        if (!particle) return;
-        
-        const waveColor = color || { r: 255, g: 255, b: 255 };
-        
-        particle.x = x;
-        particle.y = y;
-        particle.vx = 0;
-        particle.vy = 0;
-        particle.life = 1.0;
-        particle.maxLife = 1.0;
-        particle.size = 0;
-        particle.maxSize = maxRadius;
-        particle.color = { ...waveColor, a: 0.6 };
-        particle.type = this.PARTICLE_TYPES.SHOCKWAVE;
-        particle.gravity = 0;
-        particle.drag = 1;
-        particle.rotationSpeed = 0;
-        
-        this.activeParticles.push(particle);
+        // Disabled for performance optimization
+        return;
     }
     
     // Update all particles
