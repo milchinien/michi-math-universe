@@ -274,22 +274,6 @@ const notificationStyles = `
     }
 }
 
-.class-card.selected {
-    border-color: #2196F3 !important;
-    background: linear-gradient(145deg, #2a4a6a, #1e3a5a) !important;
-    box-shadow: 0 0 25px rgba(33, 150, 243, 0.4) !important;
-}
-
-.class-card.selected .class-number {
-    color: #2196F3 !important;
-    text-shadow: 0 0 15px rgba(33, 150, 243, 0.5) !important;
-}
-
-.class-card.selected .topic {
-    background: rgba(33, 150, 243, 0.2) !important;
-    border-color: rgba(33, 150, 243, 0.4) !important;
-    color: #64B5F6 !important;
-}
 `;
 
 // Add notification styles to the page
