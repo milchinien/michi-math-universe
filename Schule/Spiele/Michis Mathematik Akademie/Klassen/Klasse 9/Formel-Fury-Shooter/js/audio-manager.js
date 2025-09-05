@@ -80,6 +80,16 @@ class AudioManager {
         soundTypes.forEach(type => {
             this.audioPool.set(type, []);
         });
+        
+        // Add boss-specific sound pools
+        const bossSounds = [
+            'boss_spawn', 'boss_attack', 'boss_damage', 'boss_victory',
+            'boss_warning', 'boss_defeat', 'boss_formula_correct', 'boss_formula_wrong'
+        ];
+        
+        bossSounds.forEach(type => {
+            this.audioPool.set(type, []);
+        });
     }
     
     // === CORE AUDIO PLAYBACK ===
@@ -97,6 +107,12 @@ class AudioManager {
         } = options;
         
         let layer = options.layer || 'action';
+        
+        // Validate layer exists
+        if (!this.layers[layer]) {
+            console.warn(`🔊 Unknown audio layer: ${layer}, falling back to 'action'`);
+            layer = 'action';
+        }
         
         // Generate audio using Web Audio API (since we don't have actual audio files)
         const audioNode = this.createSyntheticAudio(soundId, {
@@ -523,6 +539,96 @@ class AudioManager {
                 audioNode.oscillator.stop();
             }
         });
+    }
+    
+    // === BOSS AUDIO INTEGRATION ===
+    
+    onBossSpawn(boss) {
+        console.log(`🔊 Boss spawn audio for ${boss.name}`);
+        this.playSound('boss_spawn', {
+            volume: 0.8,
+            layer: 'action',
+            pitch: 0.7 + (boss.level * 0.1) // Deeper pitch for higher level bosses
+        });
+        
+        // Start boss ambient music
+        this.startBossMusic(boss.level);
+    }
+    
+    onBossAttack(attackType) {
+        console.log(`🔊 Boss attack audio: ${attackType}`);
+        this.playSound('boss_attack', {
+            volume: 0.7,
+            layer: 'action',
+            pitch: this.getBossAttackPitch(attackType)
+        });
+    }
+    
+    onBossFormulaCorrect(boss) {
+        console.log('🔊 Boss formula correct audio');
+        this.playSound('boss_formula_correct', {
+            volume: 0.6,
+            layer: 'feedback',
+            pitch: 1.2
+        });
+    }
+    
+    onBossFormulaWrong(boss) {
+        console.log('🔊 Boss formula wrong audio');
+        this.playSound('boss_formula_wrong', {
+            volume: 0.7,
+            layer: 'feedback',
+            pitch: 0.8
+        });
+    }
+    
+    onBossDamage(boss) {
+        console.log('🔊 Boss damage audio');
+        this.playSound('boss_damage', {
+            volume: 0.8,
+            layer: 'action',
+            pitch: 0.9
+        });
+    }
+    
+    onBossDefeat(boss) {
+        console.log(`🔊 Boss defeat audio for ${boss.name}`);
+        this.playSound('boss_defeat', {
+            volume: 1.0,
+            layer: 'feedback',
+            pitch: 0.6
+        });
+        
+        // Stop boss music
+        this.stopBossMusic();
+    }
+    
+    onBossVictory() {
+        console.log('🔊 Boss victory audio');
+        this.playSound('boss_victory', {
+            volume: 0.9,
+            layer: 'feedback',
+            pitch: 1.3
+        });
+    }
+    
+    startBossMusic(bossLevel) {
+        // Placeholder for boss music - would play different tracks based on level
+        console.log(`🎵 Starting boss music for level ${bossLevel}`);
+    }
+    
+    stopBossMusic() {
+        console.log('🎵 Stopping boss music');
+    }
+    
+    getBossAttackPitch(attackType) {
+        const pitchMap = {
+            'algebra_waves': 1.1,
+            'number_rain': 0.9,
+            'formula_storm': 1.3,
+            'variable_chaos': 0.7
+        };
+        return pitchMap[attackType] || 1.0;
     }
 }
 

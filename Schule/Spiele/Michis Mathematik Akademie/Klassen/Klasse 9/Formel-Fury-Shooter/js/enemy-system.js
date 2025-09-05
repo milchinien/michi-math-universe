@@ -1154,7 +1154,7 @@ class EnemySpawner {
         const centerY = canvas.height / 2 - 60;
         
         // Create boss
-        const boss = new Boss(centerX, centerY, waveNumber);
+        const boss = new LegacyBoss(centerX, centerY, waveNumber);
         this.currentBoss = boss;
         this.enemies.push(boss);
         
@@ -1233,11 +1233,12 @@ class EnemySpawner {
 }
 
 /**
- * BOSS CLASS - Multi-stage formula challenges with special abilities
+ * LEGACY BOSS CLASS - Multi-stage formula challenges with special abilities
+ * Note: Replaced by new Boss System, keeping for compatibility
  */
-class Boss extends Enemy {
+class LegacyBoss extends Enemy {
     constructor(x, y, waveNumber) {
-        const bossType = Boss.getBossTypeForWave(waveNumber);
+        const bossType = LegacyBoss.getBossTypeForWave(waveNumber);
         super(x, y, 'boss');
         
         // Boss-specific properties

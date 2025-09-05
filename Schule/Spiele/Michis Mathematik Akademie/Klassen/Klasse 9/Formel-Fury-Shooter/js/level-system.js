@@ -66,56 +66,34 @@ class LevelSystem {
     setupUI() {
         console.log('🔧 LevelSystem: Setting up UI...');
         
-        // Create level display if it doesn't exist
-        this.levelDisplay = document.getElementById('levelDisplay');
-        if (!this.levelDisplay) {
-            this.levelDisplay = document.createElement('div');
-            this.levelDisplay.id = 'levelDisplay';
-            this.levelDisplay.innerHTML = `
-                <div class="level-info-section">
-                    <div class="level-info-item">
-                        <span class="level-info-label">📈 Level:</span>
-                        <span class="level-info-value" id="levelValue">1</span>
-                    </div>
-                    <div class="level-info-item">
-                        <span class="level-info-label">🌊 Wave:</span>
-                        <span class="level-info-value" id="waveValue">1</span>
-                    </div>
-                    <div class="level-info-item">
-                        <span class="level-info-label">💰 Coins:</span>
-                        <span class="level-info-value" id="coinsValue">0</span>
-                    </div>
-                </div>
-                <div class="xp-bar-container" id="xpBarContainer">
-                    <div class="xp-bar" id="xpBar"></div>
-                    <div class="xp-text" id="xpValue">0 / 100</div>
-                </div>
-                <div class="level-info-section">
-                    <div class="level-info-item">
-                        <span class="level-info-label">🎯 Combo:</span>
-                        <span class="level-info-value" id="comboValue">0x</span>
-                    </div>
-                    <div class="level-info-item">
-                        <span class="level-info-label">🏆 Score:</span>
-                        <span class="level-info-value" id="scoreValue">0</span>
-                    </div>
-                    <div class="level-info-item">
-                        <span class="level-info-label">⚡ FPS:</span>
-                        <span class="level-info-value" id="fpsValue">60</span>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(this.levelDisplay);
-            console.log('✅ LevelDisplay created and added to DOM');
+        // Remove old level display if it exists
+        const oldLevelDisplay = document.getElementById('levelDisplay');
+        if (oldLevelDisplay) {
+            oldLevelDisplay.remove();
         }
         
-        this.levelValueElement = document.getElementById('levelValue');
-        this.xpValueElement = document.getElementById('xpValue');
-        this.xpBarContainer = document.getElementById('xpBarContainer');
-        this.xpBar = document.getElementById('xpBar');
+        // Create new brown XP bar at bottom of screen
+        this.xpBarContainer = document.createElement('div');
+        this.xpBarContainer.id = 'xpBarContainer';
+        this.xpBarContainer.className = 'brown-xp-bar-container';
+        this.xpBarContainer.style.display = 'none'; // Hidden by default
         
-        console.log('✅ LevelSystem UI setup complete');
+        this.xpBar = document.createElement('div');
+        this.xpBar.id = 'xpBar';
+        this.xpBar.className = 'brown-xp-bar';
+        
+        this.xpValueElement = document.createElement('div');
+        this.xpValueElement.id = 'xpValue';
+        this.xpValueElement.className = 'brown-xp-text';
+        this.xpValueElement.textContent = '0 / 100';
+        
+        // Assemble the XP bar
+        this.xpBarContainer.appendChild(this.xpBar);
+        this.xpBarContainer.appendChild(this.xpValueElement);
+        
+        document.body.appendChild(this.xpBarContainer);
+        
+        console.log('✅ Brown XP bar created and added to DOM');
     }
     
     generateLevelXpTable() {
@@ -325,18 +303,18 @@ class LevelSystem {
     }
     
     triggerLevelUpAnimation() {
-        if (!this.levelDisplay) return;
+        if (!this.xpBarContainer) return;
         
-        // Add level up animation class
-        this.levelDisplay.classList.add('level-up-animation');
+        // Add level up animation class to the brown XP bar
+        this.xpBarContainer.classList.add('level-up-animation');
         
         // Create floating level up text
         this.showLevelUpEffect();
         
         // Remove animation class after animation completes
         setTimeout(() => {
-            if (this.levelDisplay) {
-                this.levelDisplay.classList.remove('level-up-animation');
+            if (this.xpBarContainer) {
+                this.xpBarContainer.classList.remove('level-up-animation');
                 this.isLevelingUp = false;
             }
         }, this.levelUpDuration);
@@ -474,28 +452,15 @@ class LevelSystem {
     }
     
     updateDisplay() {
-        if (this.levelValueElement) {
-            this.levelValueElement.textContent = this.level;
-        }
-        
         const xpData = this.calculateXpToNextLevel();
         
         if (this.xpValueElement) {
-            this.xpValueElement.textContent = `${xpData.current} / ${xpData.required}`;
+            this.xpValueElement.textContent = `Level ${this.level} - ${xpData.current} / ${xpData.required} XP`;
         }
         
         if (this.xpBar) {
             const percentage = (xpData.current / xpData.required) * 100;
             this.xpBar.style.width = `${Math.min(100, percentage)}%`;
-            
-            // Color coding based on progress
-            if (percentage >= 80) {
-                this.xpBar.style.background = 'linear-gradient(90deg, #ffaa00, #ffff00)';
-            } else if (percentage >= 50) {
-                this.xpBar.style.background = 'linear-gradient(90deg, #0088ff, #00ffff)';
-            } else {
-                this.xpBar.style.background = 'linear-gradient(90deg, #004488, #0088ff)';
-            }
         }
     }
     
@@ -522,6 +487,21 @@ class LevelSystem {
     
     getXpToNextLevel() {
         return this.calculateXpToNextLevel().toNext;
+    }
+    
+    // Show/Hide XP bar methods
+    showXpBar() {
+        if (this.xpBarContainer) {
+            this.xpBarContainer.style.display = 'block';
+            console.log('🎮 XP bar shown for gameplay');
+        }
+    }
+    
+    hideXpBar() {
+        if (this.xpBarContainer) {
+            this.xpBarContainer.style.display = 'none';
+            console.log('📱 XP bar hidden for menu');
+        }
     }
     
     // Debug function

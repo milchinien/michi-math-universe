@@ -79,12 +79,35 @@ class FormulaSystem {
     }
 
     generateFormula() {
+        // Check if we're in boss mode first - Updated for new Boss System
+        if (window.gameEngine && window.gameEngine.waveSystem && window.gameEngine.waveSystem.bossManager) {
+            const bossManager = window.gameEngine.waveSystem.bossManager;
+            
+            if (bossManager.isBossActive()) {
+                const boss = bossManager.currentBoss;
+                const formulaSystem = boss.formulaSystem;
+                
+                // Get formula from boss system
+                if (formulaSystem.currentFormula) {
+                    return formulaSystem.currentFormula;
+                } else {
+                    // Generate new formula through boss system
+                    formulaSystem.generateNextFormula();
+                    return formulaSystem.currentFormula || this.generateBinomialFormula();
+                }
+            }
+        }
+        
+        // Fallback to old boss mode check
+        if (this.isBossMode) {
+            return this.generateBossFormula();
+        }
+        
         // Get selected math topics from the math topics system
         const selectedTopics = this.getSelectedMathTopics();
         const availableTypes = this.getFormulaTypesFromTopics(selectedTopics);
         
         if (availableTypes.length === 0) {
-            // Fallback to binomial formulas if no topics selected
             console.warn('⚠️ No formula types available, falling back to binomial formulas');
             const fallbackTypes = this.getBinomialFormulaTypes();
             const selectedType = fallbackTypes[Math.floor(Math.random() * fallbackTypes.length)];
@@ -182,7 +205,7 @@ class FormulaSystem {
         // TODO: Implement quadratic function formula types
         return [];
     }
-    
+
     getExponentialFunctionTypes() {
         // TODO: Implement exponential function formula types
         return [];
@@ -985,7 +1008,42 @@ class FormulaSystem {
     }
     
     onBossFormulaCorrect() {
-        // Handle correct boss formula answer
+        // Handle correct boss formula answer - Updated for new Boss System
+        if (window.gameEngine && window.gameEngine.waveSystem && window.gameEngine.waveSystem.bossManager) {
+            const bossManager = window.gameEngine.waveSystem.bossManager;
+            
+            if (bossManager.isBossActive()) {
+                const boss = bossManager.currentBoss;
+                const formulaSystem = boss.formulaSystem;
+                
+                // Let the boss formula system handle the validation
+                const result = formulaSystem.validateAnswer(this.currentFormula, this.lastPlayerAnswer);
+                
+                if (result.isCorrect) {
+                    // Update boss progress
+                    boss.formulasSolved++;
+                    
+                    // Check if boss is defeated
+                    if (boss.formulasSolved >= boss.formulasRequired) {
+                        boss.defeat();
+                        return true;
+                    }
+                    
+                    // Generate next formula for boss
+                    formulaSystem.generateNextFormula();
+                    
+                    // Update formula display with boss formula
+                    if (formulaSystem.currentFormula) {
+                        this.currentFormula = formulaSystem.currentFormula;
+                        this.updateFormulaDisplay();
+                    }
+                }
+                
+                return true;
+            }
+        }
+        
+        // Fallback to old system if new boss system not available
         if (this.isBossMode && window.game && window.game.enemySpawner && window.game.enemySpawner.currentBoss) {
             const boss = window.game.enemySpawner.currentBoss;
             

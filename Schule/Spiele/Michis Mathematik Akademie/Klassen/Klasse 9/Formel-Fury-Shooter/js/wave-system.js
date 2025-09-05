@@ -28,6 +28,25 @@ class WaveSystem {
         this.onWaveComplete = null;
         this.onWaveStart = null;
         
+        // Boss System Integration - with fallback
+        if (typeof BossManager !== 'undefined') {
+            this.bossManager = new BossManager();
+        } else {
+            console.warn('⚠️ BossManager not available, creating minimal fallback');
+            this.bossManager = {
+                shouldSpawnBoss: () => false,
+                spawnBoss: () => null,
+                getCurrentBoss: () => null,
+                isBossActive: () => false,
+                currentBoss: null,
+                update: () => {},
+                onBossDefeated: null
+            };
+        }
+        
+        // Connect boss defeat callback
+        this.bossManager.onBossDefeated = () => this.onBossDefeated();
+        
         this.init();
     }
     
@@ -83,10 +102,10 @@ class WaveSystem {
         this.waveStartTime = Date.now();
         this.waveTimeLeft = this.waveDuration;
         
-        // Check if this is a boss wave
-        if (this.isBossWave(this.currentWave)) {
-            console.log(`🐉 Boss wave ${this.currentWave} detected!`);
-            this.announceBossWave();
+        // Check if this is a boss wave (every 10th wave)
+        if (this.bossManager.shouldSpawnBoss(this.currentWave)) {
+            console.log(`👹 Boss wave ${this.currentWave} detected!`);
+            this.startBossWave();
             return this.getWaveData();
         }
         
@@ -108,6 +127,43 @@ class WaveSystem {
         }
         
         return this.getWaveData();
+    }
+    
+    startBossWave() {
+        console.log(`🔥 Boss-Welle ${this.currentWave} startet!`);
+        
+        // Clear all normal enemies
+        this.clearAllEnemies();
+        
+        // Spawn boss
+        const boss = this.bossManager.spawnBoss(this.currentWave);
+        
+        // Show boss UI
+        this.showBossUI(boss);
+        
+        // Update UI for boss wave
+        if (this.waveStatusElement) {
+            this.waveStatusElement.textContent = `BOSS KAMPF - ${boss.name}`;
+            this.waveStatusElement.style.color = '#ff6b6b';
+            this.waveStatusElement.style.fontSize = '18px';
+        }
+        
+        // Audio system integration
+        if (window.gameEngine && window.gameEngine.audioManager) {
+            window.gameEngine.audioManager.playSound('boss_spawn', 'action');
+        }
+        
+        // No timer for boss waves - they end when boss is defeated
+        this.waveTimeLeft = Infinity;
+        
+        this.updateDisplay();
+    }
+    
+    clearAllEnemies() {
+        if (window.gameEngine && window.gameEngine.enemySpawner) {
+            window.gameEngine.enemySpawner.enemies = [];
+            console.log('🧹 All normal enemies cleared for boss wave');
+        }
     }
     
     calculateWaveProgression() {
@@ -136,7 +192,14 @@ class WaveSystem {
     update(deltaTime) {
         if (!this.isWaveActive) return;
         
-        // Update wave timer
+        // Update boss system if active
+        if (this.bossManager.isBossActive()) {
+            this.bossManager.update(deltaTime);
+            this.updateDisplay();
+            return; // Skip normal wave timer for boss waves
+        }
+        
+        // Update wave timer for normal waves
         this.waveTimeLeft = Math.max(0, this.waveDuration - (Date.now() - this.waveStartTime));
         
         // Debug logging for wave timer
@@ -266,9 +329,9 @@ class WaveSystem {
         this.onWaveStart = callback;
     }
     
-    // Boss wave methods
+    // Boss wave methods - Updated to match Boss System documentation
     isBossWave(waveNumber) {
-        return waveNumber % 5 === 0; // Every 5th wave is a boss wave
+        return waveNumber % 10 === 0; // Every 10th wave is a boss wave (as per Boss System spec)
     }
     
     announceBossWave() {
@@ -334,16 +397,127 @@ class WaveSystem {
         console.log(`🏆 Boss defeated in wave ${this.currentWave}`);
         
         // Reset arena to normal
-        if (window.game && window.game.arenaSystem) {
-            window.game.arenaSystem.setBossMode(false);
+        if (window.gameEngine && window.gameEngine.arenaSystem) {
+            window.gameEngine.arenaSystem.setBossMode(false);
+        }
+        
+        // Audio system integration
+        if (window.gameEngine && window.gameEngine.audioManager) {
+            window.gameEngine.audioManager.playSound('boss_victory', 'feedback');
         }
         
         // Complete the boss wave
         this.completeWave();
         
         // Show victory message
-        if (window.game && window.game.gameEngine) {
-            window.game.gameEngine.showMessage(`🏆 BOSS WELLE ${this.currentWave} ABGESCHLOSSEN! 🏆`, 3000);
+        console.log(`🏆 BOSS WELLE ${this.currentWave} ABGESCHLOSSEN! 🏆`);
+        
+        // Update UI back to normal
+        if (this.waveStatusElement) {
+            this.waveStatusElement.textContent = 'Boss besiegt!';
+            this.waveStatusElement.style.color = '#00ff00';
+            this.waveStatusElement.style.fontSize = '16px';
+        }
+        
+        // Hide boss UI elements
+        this.hideBossUI();
+    }
+    
+    // Render method for boss system
+    render(context) {
+        if (this.bossManager.isBossActive()) {
+            this.bossManager.render(context);
+        }
+    }
+    
+    // UI Management for Boss Waves
+    showBossUI(boss) {
+        // Show boss health bar
+        let bossUI = document.getElementById('bossUI');
+        if (!bossUI) {
+            bossUI = this.createBossUI();
+        }
+        
+        bossUI.style.display = 'block';
+        
+        // Update boss info
+        document.getElementById('bossName').textContent = boss.name;
+        document.getElementById('bossLevel').textContent = `Level ${boss.level}`;
+        document.getElementById('bossProgress').textContent = `${boss.formulasSolved}/${boss.formulasRequired} Formeln gelöst`;
+        
+        // Show warning element
+        let warningElement = document.getElementById('bossWarning');
+        if (!warningElement) {
+            warningElement = document.createElement('div');
+            warningElement.id = 'bossWarning';
+            warningElement.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(255, 68, 68, 0.9);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                font-size: 24px;
+                font-weight: bold;
+                z-index: 1000;
+                display: none;
+                text-align: center;
+                border: 3px solid #ff0000;
+            `;
+            document.body.appendChild(warningElement);
+        }
+    }
+    
+    createBossUI() {
+        const bossUI = document.createElement('div');
+        bossUI.id = 'bossUI';
+        bossUI.innerHTML = `
+            <div class="boss-info-container">
+                <div class="boss-header">
+                    <h2 id="bossName">Boss Name</h2>
+                    <span id="bossLevel" class="boss-level">Level 1</span>
+                </div>
+                <div class="boss-health-container">
+                    <div class="boss-health-bar">
+                        <div id="bossHealthFill" class="boss-health-fill"></div>
+                    </div>
+                    <div id="bossProgress" class="boss-progress">0/5 Formeln gelöst</div>
+                </div>
+            </div>
+        `;
+        
+        // Add CSS styles
+        bossUI.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ff6b6b;
+            z-index: 100;
+            display: none;
+            min-width: 300px;
+            text-align: center;
+        `;
+        
+        document.body.appendChild(bossUI);
+        return bossUI;
+    }
+    
+    hideBossUI() {
+        const bossUI = document.getElementById('bossUI');
+        if (bossUI) {
+            bossUI.style.display = 'none';
+        }
+        
+        const warningElement = document.getElementById('bossWarning');
+        if (warningElement) {
+            warningElement.style.display = 'none';
         }
     }
     

@@ -1020,6 +1020,11 @@ class GameEngine {
         this.gameState = 'menu';
         this.isRunning = false;
         
+        // Hide XP bar when returning to menu
+        if (this.levelSystem) {
+            this.levelSystem.hideXpBar();
+        }
+        
         // Hide stats panel when returning to menu
         if (this.statsSystem) {
             this.statsSystem.hide();
@@ -1203,6 +1208,11 @@ class GameEngine {
         this.hideGameModeSelection();
         this.hideMainMenu();
         this.showGameHUD();
+        
+        // Show XP bar when starting game
+        if (this.levelSystem) {
+            this.levelSystem.showXpBar();
+        }
         this.updateGameModeInfo();
         this.resetGame();
         
@@ -1359,7 +1369,7 @@ class GameEngine {
             this.player.update(deltaTime, this.inputHandler, this.canvas.width, this.canvas.height);
         }
         
-        // Update wave system
+        // Update wave system (includes boss system)
         if (this.waveSystem) {
             this.waveSystem.update(deltaTime);
         }
@@ -1369,8 +1379,8 @@ class GameEngine {
             this.levelSystem.update(deltaTime);
         }
         
-        // Update enemies with player progress info
-        if (this.enemySpawner && this.player && this.formulaSystem) {
+        // Update enemies with player progress info (skip during boss waves)
+        if (this.enemySpawner && !this.waveSystem.bossManager.isBossActive()) {
             // Add score and combo to player object for enemy spawner
             this.player.score = this.formulaSystem.score;
             this.player.combo = this.formulaSystem.combo;
@@ -1765,8 +1775,8 @@ class GameEngine {
         const currentTime = Date.now();
         const timeTaken = this.combatMode ? currentTime - this.combatStartTime : 5000;
         
-        // Check if this is a boss fight
-        if (this.targetedEnemy && this.targetedEnemy instanceof Boss) {
+        // Check if this is a boss fight (new boss system or legacy boss)
+        if (this.targetedEnemy && (this.targetedEnemy instanceof Boss || this.targetedEnemy instanceof LegacyBoss)) {
             // Handle boss formula correct
             const bossHandled = this.formulaSystem.onBossFormulaCorrect();
             if (bossHandled) {
@@ -2113,6 +2123,11 @@ class GameEngine {
         // Render enemies first (behind player)
         if (this.enemySpawner) {
             this.enemySpawner.render(this.ctx);
+        }
+        
+        // Render boss system (if active)
+        if (this.waveSystem) {
+            this.waveSystem.render(this.ctx);
         }
         
         // Render player

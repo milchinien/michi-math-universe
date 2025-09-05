@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles/shop.css">
     <link rel="stylesheet" href="styles/class-selection.css">
     <link rel="stylesheet" href="styles/math-topics.css">
+    <link rel="stylesheet" href="styles/boss.css">
 </head>
 <body>
     <!-- Class Selection Menu (shown first) -->
@@ -98,6 +99,27 @@
     </div>
 
     <canvas id="gameCanvas" style="display: none;"></canvas>
+
+    <!-- Boss UI Elements -->
+    <div id="bossUI" class="boss-interface" style="display: none;">
+        <div class="boss-health-container">
+            <div class="boss-info">
+                <h3 id="bossName" class="boss-name">Boss Name</h3>
+                <span id="bossLevel" class="boss-level">Level 1</span>
+            </div>
+            <div class="boss-health-bar">
+                <div id="bossHealthFill" class="boss-health-fill"></div>
+                <div id="bossHealthText" class="boss-health-text">100%</div>
+            </div>
+            <div id="bossProgress" class="boss-progress">0/5 Formeln gelöst</div>
+            <div id="bossStateIndicator" class="boss-stage-indicator">Spawning...</div>
+        </div>
+    </div>
+    
+    <!-- Boss Warning Overlay -->
+    <div id="bossWarning" class="boss-warning" style="display: none;">
+        ⚠️ BOSS ANGRIFF INCOMING! ⚠️
+    </div>
 
     <!-- Boss Health Bar -->
     <div id="bossHealthBar" class="boss-health-container" style="display: none;">
@@ -797,6 +819,7 @@
    <script src="js/formula-system.js"></script>
    <script src="js/enemy-system.js"></script>
    <script src="js/currency-system.js"></script>
+   <script src="js/boss-system.js"></script>
    <script src="js/wave-system.js"></script>
    <script src="js/level-system.js"></script>
    <script src="js/levelup-system.js"></script>
