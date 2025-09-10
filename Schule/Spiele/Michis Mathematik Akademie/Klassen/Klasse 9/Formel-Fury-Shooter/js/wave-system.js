@@ -29,10 +29,11 @@ class WaveSystem {
         this.onWaveStart = null;
         
         // Boss System Integration - with fallback
-        if (typeof BossManager !== 'undefined') {
+        try {
             this.bossManager = new BossManager();
-        } else {
-            console.warn('⚠️ BossManager not available, creating minimal fallback');
+            console.log('✅ BossManager successfully initialized');
+        } catch (error) {
+            console.warn('⚠️ BossManager not available, creating minimal fallback:', error);
             this.bossManager = {
                 shouldSpawnBoss: () => false,
                 spawnBoss: () => null,
