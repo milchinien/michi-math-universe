@@ -185,10 +185,13 @@ class FormulaSystem {
         ];
     }
     
-    // Placeholder methods for future formula types
     getQuadraticEquationTypes() {
-        // TODO: Implement quadratic equation formula types
-        return [];
+        return [
+            'quadratic_factorizable',
+            'quadratic_pq_formula',
+            'quadratic_abc_formula',
+            'quadratic_no_solution'
+        ];
     }
     
     getPolynomialDivisionTypes() {
@@ -240,6 +243,14 @@ class FormulaSystem {
                 return this.generateFactorizationDifference();
             case 'factorization_square':
                 return this.generateFactorizationSquare();
+            case 'quadratic_factorizable':
+                return this.generateQuadraticFactorizable();
+            case 'quadratic_pq_formula':
+                return this.generateQuadraticPQFormula();
+            case 'quadratic_abc_formula':
+                return this.generateQuadraticABCFormula();
+            case 'quadratic_no_solution':
+                return this.generateQuadraticNoSolution();
             default:
                 console.log(`⚠️ Unknown formula type: ${type}, defaulting to expansion_plus`);
                 return this.generateExpansionPlus();
@@ -722,6 +733,12 @@ class FormulaSystem {
                 return this.validateFactorizationDifference(normalizedInput);
             case 'factorization_square':
                 return this.validateFactorizationSquare(normalizedInput);
+            case 'quadratic_factorizable':
+            case 'quadratic_pq_formula':
+            case 'quadratic_abc_formula':
+                return this.validateQuadraticSolutions(normalizedInput);
+            case 'quadratic_no_solution':
+                return this.validateQuadraticNoSolution(normalizedInput);
             default:
                 return this.validateExpansion(normalizedInput);
         }
@@ -1101,5 +1118,281 @@ class FormulaSystem {
             bossMode: this.isBossMode,
             bossStage: `${this.currentBossStage}/${this.totalBossStages}`
         };
+    }
+
+    // Quadratic Equation Generation Methods
+    generateQuadraticFactorizable() {
+        const variables = ['x'];
+        const variable = variables[Math.floor(Math.random() * variables.length)];
+        
+        // Start with very simple integer roots for beginners
+        const simpleRoots = [
+            [1, 2], [1, 3], [2, 3], [1, 4], [2, 4], 
+            [0, 1], [0, 2], [0, 3], [-1, 1], [-1, 2],
+            [-2, 1], [-1, 0], [1, -1], [2, -1]
+        ];
+        
+        const [x1, x2] = simpleRoots[Math.floor(Math.random() * simpleRoots.length)];
+        
+        // Calculate coefficients: (x - x1)(x - x2) = x² - (x1+x2)x + x1*x2
+        const b = -(x1 + x2);
+        const c = x1 * x2;
+        
+        const formulaText = this.formatQuadraticEquation(1, b, c, variable);
+        
+        const formula = {
+            text: formulaText,
+            type: 'quadratic_factorizable',
+            typeName: 'Quadratische Gleichung (Faktorisierbar)',
+            variable: variable,
+            solutions: [x1, x2].sort((a, b) => a - b), // Sort solutions
+            difficulty: this.calculateQuadraticDifficulty(1, b, c),
+            coefficients: { a: 1, b: b, c: c }
+        };
+        
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+
+    generateQuadraticPQFormula() {
+        const variables = ['x'];
+        const variable = variables[Math.floor(Math.random() * variables.length)];
+        
+        // Use predefined simple p-q combinations that result in nice solutions
+        const simplePQ = [
+            { p: -3, q: 2 },   // x² - 3x + 2 = 0 → x₁=1, x₂=2
+            { p: -5, q: 6 },   // x² - 5x + 6 = 0 → x₁=2, x₂=3
+            { p: -4, q: 3 },   // x² - 4x + 3 = 0 → x₁=1, x₂=3
+            { p: -1, q: 0 },   // x² - x = 0 → x₁=0, x₂=1
+            { p: -2, q: 0 },   // x² - 2x = 0 → x₁=0, x₂=2
+            { p: 1, q: 0 },    // x² + x = 0 → x₁=-1, x₂=0
+            { p: -4, q: 4 },   // x² - 4x + 4 = 0 → x₁=x₂=2 (doppelte Lösung)
+            { p: -6, q: 9 }    // x² - 6x + 9 = 0 → x₁=x₂=3 (doppelte Lösung)
+        ];
+        
+        const { p, q } = simplePQ[Math.floor(Math.random() * simplePQ.length)];
+        
+        // Calculate discriminant: (p/2)² - q
+        const discriminant = (p/2) * (p/2) - q;
+        
+        // Calculate solutions: x = -p/2 ± √((p/2)² - q)
+        let solutions = [];
+        if (discriminant > 0) {
+            const x1 = -p/2 + Math.sqrt(discriminant);
+            const x2 = -p/2 - Math.sqrt(discriminant);
+            solutions = [x1, x2].sort((a, b) => a - b);
+        } else if (discriminant === 0) {
+            const x = -p/2;
+            solutions = [x]; // Doppelte Lösung
+        }
+        
+        const formulaText = this.formatQuadraticEquation(1, p, q, variable);
+        
+        const formula = {
+            text: formulaText,
+            type: 'quadratic_pq_formula',
+            typeName: 'Quadratische Gleichung (p-q-Formel)',
+            variable: variable,
+            solutions: solutions,
+            difficulty: this.calculateQuadraticDifficulty(1, p, q) + 0.5,
+            coefficients: { a: 1, b: p, c: q }
+        };
+        
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+
+    generateQuadraticABCFormula() {
+        const variables = ['x'];
+        const variable = variables[Math.floor(Math.random() * variables.length)];
+        
+        // Use predefined simple abc combinations that result in nice solutions
+        const simpleABC = [
+            { a: 2, b: -6, c: 4 },   // 2x² - 6x + 4 = 0 → x₁=1, x₂=2
+            { a: 2, b: -4, c: 2 },   // 2x² - 4x + 2 = 0 → x₁=x₂=1
+            { a: 3, b: -6, c: 3 },   // 3x² - 6x + 3 = 0 → x₁=x₂=1
+            { a: 2, b: -2, c: 0 },   // 2x² - 2x = 0 → x₁=0, x₂=1
+            { a: 2, b: 2, c: 0 },    // 2x² + 2x = 0 → x₁=-1, x₂=0
+            { a: 2, b: -8, c: 6 },   // 2x² - 8x + 6 = 0 → x₁=1, x₂=3
+            { a: 3, b: -9, c: 6 }    // 3x² - 9x + 6 = 0 → x₁=1, x₂=2
+        ];
+        
+        const { a, b, c } = simpleABC[Math.floor(Math.random() * simpleABC.length)];
+        
+        // Calculate discriminant: b² - 4ac
+        const discriminant = b * b - 4 * a * c;
+        
+        // Calculate solutions: x = (-b ± √(b² - 4ac)) / (2a)
+        let solutions = [];
+        if (discriminant > 0) {
+            const x1 = (-b + Math.sqrt(discriminant)) / (2 * a);
+            const x2 = (-b - Math.sqrt(discriminant)) / (2 * a);
+            solutions = [x1, x2].sort((a, b) => a - b);
+        } else if (discriminant === 0) {
+            const x = -b / (2 * a);
+            solutions = [x]; // Doppelte Lösung
+        }
+        
+        const formulaText = this.formatQuadraticEquation(a, b, c, variable);
+        
+        const formula = {
+            text: formulaText,
+            type: 'quadratic_abc_formula',
+            typeName: 'Quadratische Gleichung (abc-Formel)',
+            variable: variable,
+            solutions: solutions,
+            difficulty: this.calculateQuadraticDifficulty(a, b, c) + 1.0,
+            coefficients: { a: a, b: b, c: c }
+        };
+        
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+
+    generateQuadraticNoSolution() {
+        const variables = ['x'];
+        const variable = variables[Math.floor(Math.random() * variables.length)];
+        
+        // Use simple predefined combinations with no real solutions
+        const noSolutionCombos = [
+            { a: 1, b: 2, c: 5 },   // x² + 2x + 5 = 0 (Diskriminante: 4 - 20 = -16)
+            { a: 1, b: 1, c: 1 },   // x² + x + 1 = 0 (Diskriminante: 1 - 4 = -3)
+            { a: 2, b: 2, c: 3 },   // 2x² + 2x + 3 = 0 (Diskriminante: 4 - 24 = -20)
+            { a: 1, b: 0, c: 1 },   // x² + 1 = 0 (Diskriminante: 0 - 4 = -4)
+            { a: 1, b: 4, c: 5 }    // x² + 4x + 5 = 0 (Diskriminante: 16 - 20 = -4)
+        ];
+        
+        const { a, b, c } = noSolutionCombos[Math.floor(Math.random() * noSolutionCombos.length)];
+        
+        const formulaText = this.formatQuadraticEquation(a, b, c, variable);
+        
+        const formula = {
+            text: formulaText,
+            type: 'quadratic_no_solution',
+            typeName: 'Quadratische Gleichung (Keine reellen Lösungen)',
+            variable: variable,
+            solutions: [], // No real solutions
+            difficulty: this.calculateQuadraticDifficulty(a, b, c) + 0.8,
+            coefficients: { a: a, b: b, c: c }
+        };
+        
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+
+    formatQuadraticEquation(a, b, c, variable) {
+        let equation = '';
+        
+        // Format ax²
+        if (a === 1) {
+            equation += `${variable}²`;
+        } else if (a === -1) {
+            equation += `-${variable}²`;
+        } else {
+            equation += `${a}${variable}²`;
+        }
+        
+        // Format bx
+        if (b > 0) {
+            equation += ` + ${b === 1 ? '' : b}${variable}`;
+        } else if (b < 0) {
+            equation += ` - ${Math.abs(b) === 1 ? '' : Math.abs(b)}${variable}`;
+        }
+        
+        // Format c
+        if (c > 0) {
+            equation += ` + ${c}`;
+        } else if (c < 0) {
+            equation += ` - ${Math.abs(c)}`;
+        }
+        
+        return equation + ' = 0';
+    }
+
+    calculateQuadraticDifficulty(a, b, c) {
+        let difficulty = 1.0;
+        
+        // Higher coefficients = higher difficulty
+        difficulty += Math.abs(a) * 0.1;
+        difficulty += Math.abs(b) * 0.1;
+        difficulty += Math.abs(c) * 0.1;
+        
+        // Negative coefficients add complexity
+        if (b < 0) difficulty += 0.2;
+        if (c < 0) difficulty += 0.2;
+        
+        return Math.min(difficulty, 3.0); // Cap at 3.0
+    }
+
+    validateQuadraticSolutions(normalizedInput) {
+        const solutions = this.currentFormula.solutions;
+        
+        if (solutions.length === 0) {
+            // No solution case
+            return this.validateQuadraticNoSolution(normalizedInput);
+        }
+        
+        const userSolutions = this.parseQuadraticSolutions(normalizedInput);
+        
+        if (userSolutions.length !== solutions.length) {
+            return false;
+        }
+        
+        // Sort both arrays for comparison
+        const sortedUser = userSolutions.sort((a, b) => a - b);
+        const sortedCorrect = solutions.sort((a, b) => a - b);
+        
+        // Compare with tolerance
+        const tolerance = 0.01;
+        return sortedUser.every((userSol, index) => 
+            Math.abs(userSol - sortedCorrect[index]) < tolerance
+        );
+    }
+
+    validateQuadraticNoSolution(normalizedInput) {
+        const noSolutionPatterns = [
+            /keine.*lösung/i,
+            /keine.*reell/i,
+            /unmöglich/i,
+            /nicht.*lösbar/i,
+            /∅/,
+            /leere.*menge/i,
+            /no.*solution/i
+        ];
+        
+        return noSolutionPatterns.some(pattern => pattern.test(normalizedInput));
+    }
+
+    parseQuadraticSolutions(input) {
+        const solutions = [];
+        
+        // Remove spaces and common prefixes
+        let cleanInput = input.replace(/\s/g, '').toLowerCase();
+        cleanInput = cleanInput.replace(/x[₁₂]?=/g, '');
+        cleanInput = cleanInput.replace(/lösung[en]?:/g, '');
+        
+        // Try different separation patterns
+        const separators = [',', ';', '∨', 'oder', 'and', '&'];
+        let parts = [cleanInput];
+        
+        for (const sep of separators) {
+            if (cleanInput.includes(sep)) {
+                parts = cleanInput.split(sep);
+                break;
+            }
+        }
+        
+        // Parse each part as a number
+        for (const part of parts) {
+            const trimmed = part.trim();
+            if (trimmed) {
+                const num = parseFloat(trimmed);
+                if (!isNaN(num)) {
+                    solutions.push(num);
+                }
+            }
+        }
+        
+        return solutions;
     }
 }

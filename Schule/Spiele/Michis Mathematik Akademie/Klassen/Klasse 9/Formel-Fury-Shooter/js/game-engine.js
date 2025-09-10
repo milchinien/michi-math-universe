@@ -1542,10 +1542,17 @@ class GameEngine {
         // Update UI
         const mcQuestion = document.getElementById('mcQuestion');
         if (mcQuestion) {
-            mcQuestion.innerHTML = `
-                <div style="font-size: 18px; margin-bottom: 10px;">Welche Formel-Art ist das?</div>
-                <div style="font-size: 24px; color: #00ff00;">${formula.text}</div>
-            `;
+            if (this.isQuadraticEquationType(formula.type)) {
+                mcQuestion.innerHTML = `
+                    <div style="font-size: 18px; margin-bottom: 10px;">Löse die quadratische Gleichung:</div>
+                    <div style="font-size: 24px; color: #00ff00;">${formula.text}</div>
+                `;
+            } else {
+                mcQuestion.innerHTML = `
+                    <div style="font-size: 18px; margin-bottom: 10px;">Welche Formel-Art ist das?</div>
+                    <div style="font-size: 24px; color: #00ff00;">${formula.text}</div>
+                `;
+            }
         }
         
         const answerButtons = document.querySelectorAll('.mc-answer');
@@ -1578,7 +1585,12 @@ class GameEngine {
     }
 
     generateFormulaTypeOptions(formulaType) {
-        // Always show the same 4 options in a fixed order
+        // Check if this is a quadratic equation type
+        if (this.isQuadraticEquationType(formulaType)) {
+            return this.generateQuadraticSolutionOptions(formulaType);
+        }
+        
+        // Always show the same 4 options in a fixed order for binomial formulas
         return [
             '<div class="formula-type-option"><div class="formula-name">1. Binomische Formel</div><div class="formula-pattern">(a+b)² = a² + 2ab + b²</div></div>',
             '<div class="formula-type-option"><div class="formula-name">2. Binomische Formel</div><div class="formula-pattern">(a-b)² = a² - 2ab + b²</div></div>',
@@ -1588,7 +1600,12 @@ class GameEngine {
     }
     
     getCorrectFormulaTypeIndex(formulaType) {
-        // Map formula types to the correct index (0-3)
+        // For quadratic equations, return the index of the correct solution
+        if (this.isQuadraticEquationType(formulaType)) {
+            return this.getCorrectQuadraticSolutionIndex(formulaType);
+        }
+        
+        // Map formula types to the correct index (0-3) for binomial formulas
         switch (formulaType) {
             case 'expansion_plus':
                 return 0; // 1. Binomische Formel
@@ -1601,6 +1618,100 @@ class GameEngine {
                 return 3; // Faktorisierung
             default:
                 return 0; // Fallback to 1. Binomische Formel
+        }
+    }
+
+    isQuadraticEquationType(formulaType) {
+        return ['quadratic_factorizable', 'quadratic_pq_formula', 'quadratic_abc_formula', 'quadratic_no_solution'].includes(formulaType);
+    }
+
+    generateQuadraticSolutionOptions(formulaType) {
+        if (!this.targetedEnemy || !this.targetedEnemy.assignedFormula) {
+            return [];
+        }
+
+        const formula = this.targetedEnemy.assignedFormula;
+        
+        if (formulaType === 'quadratic_no_solution') {
+            return [
+                '<div class="solution-option">x₁ = 0, x₂ = 1</div>',
+                '<div class="solution-option">x₁ = -1, x₂ = 2</div>',
+                '<div class="solution-option">Keine reellen Lösungen</div>',
+                '<div class="solution-option">x = 0</div>'
+            ];
+        }
+
+        const correctSolutions = formula.solutions || [];
+        const options = [];
+        
+        // Add correct solution
+        if (correctSolutions.length === 2) {
+            options.push(`<div class="solution-option">x₁ = ${correctSolutions[0]}, x₂ = ${correctSolutions[1]}</div>`);
+        } else if (correctSolutions.length === 1) {
+            options.push(`<div class="solution-option">x = ${correctSolutions[0]}</div>`);
+        }
+
+        // Generate 3 wrong solutions
+        while (options.length < 4) {
+            const wrongSolution = this.generateWrongQuadraticSolution(correctSolutions);
+            if (!options.includes(wrongSolution)) {
+                options.push(wrongSolution);
+            }
+        }
+
+        // Shuffle options but remember correct index
+        const correctOption = options[0];
+        this.shuffleArray(options);
+        this.quadraticCorrectIndex = options.indexOf(correctOption);
+
+        return options;
+    }
+
+    generateWrongQuadraticSolution(correctSolutions) {
+        const variations = [
+            () => {
+                // Change signs
+                const x1 = correctSolutions[0] ? -correctSolutions[0] : Math.floor(Math.random() * 10) - 5;
+                const x2 = correctSolutions[1] ? -correctSolutions[1] : Math.floor(Math.random() * 10) - 5;
+                return `<div class="solution-option">x₁ = ${x1}, x₂ = ${x2}</div>`;
+            },
+            () => {
+                // Swap values
+                if (correctSolutions.length >= 2) {
+                    return `<div class="solution-option">x₁ = ${correctSolutions[1]}, x₂ = ${correctSolutions[0]}</div>`;
+                }
+                const x = Math.floor(Math.random() * 10) - 5;
+                return `<div class="solution-option">x = ${x}</div>`;
+            },
+            () => {
+                // Add/subtract 1
+                const x1 = (correctSolutions[0] || 0) + (Math.random() > 0.5 ? 1 : -1);
+                const x2 = (correctSolutions[1] || 0) + (Math.random() > 0.5 ? 1 : -1);
+                return `<div class="solution-option">x₁ = ${x1}, x₂ = ${x2}</div>`;
+            },
+            () => {
+                // Random wrong solutions
+                const x1 = Math.floor(Math.random() * 10) - 5;
+                const x2 = Math.floor(Math.random() * 10) - 5;
+                return `<div class="solution-option">x₁ = ${x1}, x₂ = ${x2}</div>`;
+            }
+        ];
+
+        const randomVariation = variations[Math.floor(Math.random() * variations.length)];
+        return randomVariation();
+    }
+
+    getCorrectQuadraticSolutionIndex(formulaType) {
+        if (formulaType === 'quadratic_no_solution') {
+            return 2; // "Keine reellen Lösungen" is at index 2
+        }
+        return this.quadraticCorrectIndex || 0;
+    }
+
+    shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
     }
 

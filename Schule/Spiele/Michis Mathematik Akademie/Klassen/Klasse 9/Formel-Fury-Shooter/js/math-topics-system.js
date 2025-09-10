@@ -17,7 +17,7 @@ class MathTopicsSystem {
                 name: 'Quadratische Gleichungs-Dämonen',
                 difficulty: 2,
                 category: 'algebra',
-                enabled: false
+                enabled: true
             },
             'quadratic-functions': {
                 name: 'Parabel-Phantome',

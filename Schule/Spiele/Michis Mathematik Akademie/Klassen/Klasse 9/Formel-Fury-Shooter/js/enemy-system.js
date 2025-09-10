@@ -119,6 +119,63 @@ class Enemy {
                 rotationSpeed: 0.03,
                 scoreMultiplier: 1.0,
                 difficultyBias: 0
+            },
+            'quadratic_demon_basic': {
+                name: 'Quadratischer Dämon',
+                width: 40,
+                height: 40,
+                speed: 50,
+                maxSpeed: 80,
+                health: 120,
+                damage: 18,
+                coinValue: 10,
+                xpValue: 20,
+                acceleration: 250,
+                color: '#8B0000',
+                glowColor: 'rgba(139, 0, 0, 0.6)',
+                shape: 'triangle',
+                directionInterval: 180,
+                rotationSpeed: 0.02,
+                scoreMultiplier: 1.5,
+                difficultyBias: 0.3
+            },
+            'quadratic_demon_elite': {
+                name: 'Elite Quadrat-Dämon',
+                width: 50,
+                height: 50,
+                speed: 35,
+                maxSpeed: 60,
+                health: 200,
+                damage: 30,
+                coinValue: 20,
+                xpValue: 40,
+                acceleration: 180,
+                color: '#DC143C',
+                glowColor: 'rgba(220, 20, 60, 0.7)',
+                shape: 'star',
+                directionInterval: 250,
+                rotationSpeed: 0.015,
+                scoreMultiplier: 2.5,
+                difficultyBias: 0.8
+            },
+            'quadratic_demon_nightmare': {
+                name: 'Alptraum-Quadrat-Dämon',
+                width: 60,
+                height: 60,
+                speed: 25,
+                maxSpeed: 45,
+                health: 300,
+                damage: 45,
+                coinValue: 35,
+                xpValue: 70,
+                acceleration: 120,
+                color: '#B22222',
+                glowColor: 'rgba(178, 34, 34, 0.8)',
+                shape: 'pentagon',
+                directionInterval: 300,
+                rotationSpeed: 0.01,
+                scoreMultiplier: 3.5,
+                difficultyBias: 1.2
             }
         };
 
@@ -871,45 +928,101 @@ class EnemySpawner {
             elite_mob: 0.1,         // 10% base chance
             basic: 0.1              // 10% fallback
         };
+        
+        // Quadratic demon probabilities (used when quadratic topic is selected)
+        this.quadraticProbabilities = {
+            quadratic_demon_basic: 0.5,     // 50% basic quadratic demons
+            quadratic_demon_elite: 0.3,     // 30% elite quadratic demons
+            quadratic_demon_nightmare: 0.2  // 20% nightmare quadratic demons
+        };
     }
 
     getSpawnType(playerScore, combo) {
-        // Adjust probabilities based on player progress
-        let probabilities = { ...this.spawnProbabilities };
+        // Check selected math topics to determine enemy types
+        const selectedTopics = this.getSelectedMathTopics();
+        const hasQuadratic = selectedTopics.includes('quadratic-equations');
+        const hasBinomial = selectedTopics.includes('binomial-formulas');
         
-        // Early game (score < 500): More zombies, fewer advanced
-        if (playerScore < 500) {
-            probabilities.polynom_zombie = 0.7;
-            probabilities.gleichungs_geist = 0.2;
-            probabilities.elite_mob = 0.05;
-            probabilities.basic = 0.05;
+        let probabilities = {};
+        
+        // If both topics are selected, mix enemy types
+        if (hasQuadratic && hasBinomial) {
+            // 50% chance for each topic type
+            if (Math.random() < 0.5) {
+                probabilities = { ...this.spawnProbabilities };
+            } else {
+                probabilities = { ...this.quadraticProbabilities };
+            }
         }
-        // Mid game (500-1500): Balanced
-        else if (playerScore < 1500) {
-            probabilities.polynom_zombie = 0.4;
-            probabilities.gleichungs_geist = 0.4;
-            probabilities.elite_mob = 0.15;
-            probabilities.basic = 0.05;
+        // Only quadratic equations selected
+        else if (hasQuadratic) {
+            probabilities = { ...this.quadraticProbabilities };
         }
-        // Late game (1500+): More advanced enemies
+        // Only binomial formulas or no specific selection
         else {
-            probabilities.polynom_zombie = 0.2;
-            probabilities.gleichungs_geist = 0.4;
-            probabilities.elite_mob = 0.35;
-            probabilities.basic = 0.05;
+            probabilities = { ...this.spawnProbabilities };
         }
         
-        // High combo = more elite enemies
-        if (combo >= 5) {
-            probabilities.elite_mob += 0.1;
-            probabilities.polynom_zombie -= 0.05;
-            probabilities.gleichungs_geist -= 0.05;
-        }
-        
-        if (combo >= 10) {
-            probabilities.elite_mob += 0.15;
-            probabilities.polynom_zombie -= 0.1;
-            probabilities.gleichungs_geist -= 0.05;
+        // Adjust probabilities based on player progress
+        if (hasQuadratic && (probabilities.quadratic_demon_basic !== undefined)) {
+            // Quadratic demon progression
+            if (playerScore < 500) {
+                probabilities.quadratic_demon_basic = 0.7;
+                probabilities.quadratic_demon_elite = 0.25;
+                probabilities.quadratic_demon_nightmare = 0.05;
+            } else if (playerScore < 1500) {
+                probabilities.quadratic_demon_basic = 0.5;
+                probabilities.quadratic_demon_elite = 0.35;
+                probabilities.quadratic_demon_nightmare = 0.15;
+            } else {
+                probabilities.quadratic_demon_basic = 0.3;
+                probabilities.quadratic_demon_elite = 0.4;
+                probabilities.quadratic_demon_nightmare = 0.3;
+            }
+            
+            // High combo = more nightmare demons
+            if (combo >= 5) {
+                probabilities.quadratic_demon_nightmare += 0.1;
+                probabilities.quadratic_demon_basic -= 0.05;
+                probabilities.quadratic_demon_elite -= 0.05;
+            }
+            
+            if (combo >= 10) {
+                probabilities.quadratic_demon_nightmare += 0.15;
+                probabilities.quadratic_demon_basic -= 0.1;
+                probabilities.quadratic_demon_elite -= 0.05;
+            }
+        } else {
+            // Original binomial enemy progression
+            if (playerScore < 500) {
+                probabilities.polynom_zombie = 0.7;
+                probabilities.gleichungs_geist = 0.2;
+                probabilities.elite_mob = 0.05;
+                probabilities.basic = 0.05;
+            } else if (playerScore < 1500) {
+                probabilities.polynom_zombie = 0.4;
+                probabilities.gleichungs_geist = 0.4;
+                probabilities.elite_mob = 0.15;
+                probabilities.basic = 0.05;
+            } else {
+                probabilities.polynom_zombie = 0.2;
+                probabilities.gleichungs_geist = 0.4;
+                probabilities.elite_mob = 0.35;
+                probabilities.basic = 0.05;
+            }
+            
+            // High combo = more elite enemies
+            if (combo >= 5) {
+                probabilities.elite_mob += 0.1;
+                probabilities.polynom_zombie -= 0.05;
+                probabilities.gleichungs_geist -= 0.05;
+            }
+            
+            if (combo >= 10) {
+                probabilities.elite_mob += 0.15;
+                probabilities.polynom_zombie -= 0.1;
+                probabilities.gleichungs_geist -= 0.05;
+            }
         }
         
         // Select type based on probabilities
@@ -924,6 +1037,22 @@ class EnemySpawner {
         }
         
         return 'basic'; // Fallback
+    }
+
+    getSelectedMathTopics() {
+        // Get selected math topics from the math topics system
+        if (window.mathTopicsSystem && typeof window.mathTopicsSystem.getSelectedTopics === 'function') {
+            return window.mathTopicsSystem.getSelectedTopics();
+        }
+        
+        // Fallback: check localStorage directly
+        try {
+            const selectedTopics = JSON.parse(localStorage.getItem('selectedMathTopics') || '[]');
+            return selectedTopics;
+        } catch (e) {
+            console.warn('Could not get selected math topics:', e);
+            return ['binomial-formulas']; // Default fallback
+        }
     }
 
     update(deltaTime, player) {
