@@ -738,14 +738,60 @@ body {
 
 #menuTitle {
     color: #FFD700;
-    font-family: 'Courier New', monospace;
-    font-size: 48px;
-    font-weight: bold;
-    text-shadow: 0 0 30px #CD853F, 2px 2px 4px rgba(0, 0, 0, 0.8);
-    margin-bottom: 20px;
-    animation: titlePulse 3s ease-in-out infinite alternate;
+    font-family: 'Orbitron', 'Courier New', monospace;
+    font-size: 4.5em;
+    font-weight: 900;
     text-align: center;
-    line-height: 1.2;
+    margin-bottom: 20px;
+    text-shadow: 
+        0 0 10px #FFD700,
+        0 0 20px #FFD700,
+        0 0 30px #FF6B00,
+        0 0 40px #FF6B00,
+        0 0 50px #FF0000,
+        2px 2px 0px #8B0000,
+        4px 4px 0px #654321;
+    background: linear-gradient(45deg, #FFD700, #FF6B00, #FF0000, #FF6B00, #FFD700);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titlePulse 3s ease-in-out infinite, gradientShift 4s ease-in-out infinite;
+    letter-spacing: 3px;
+    transform: perspective(500px) rotateX(15deg);
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+    line-height: 1.1;
+}
+
+@keyframes titlePulse {
+    0% { 
+        transform: perspective(500px) rotateX(15deg) scale(1);
+        text-shadow: 
+            0 0 10px #FFD700,
+            0 0 20px #FFD700,
+            0 0 30px #FF6B00,
+            0 0 40px #FF6B00,
+            0 0 50px #FF0000,
+            2px 2px 0px #8B0000,
+            4px 4px 0px #654321;
+    }
+    100% { 
+        transform: perspective(500px) rotateX(15deg) scale(1.05);
+        text-shadow: 
+            0 0 15px #FFD700,
+            0 0 30px #FFD700,
+            0 0 45px #FF6B00,
+            0 0 60px #FF6B00,
+            0 0 75px #FF0000,
+            3px 3px 0px #8B0000,
+            6px 6px 0px #654321;
+    }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 #menuSubtitle {
@@ -780,6 +826,65 @@ body {
     gap: 20px;
     align-items: center;
     margin-bottom: 40px;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #FFD700 0%, #FF6B00 50%, #FF0000 100%);
+    border: 3px solid #FFD700;
+    color: #000;
+    font-weight: 900;
+    font-size: 1.3em;
+    padding: 15px 40px;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.3);
+    box-shadow: 
+        0 0 20px rgba(255, 215, 0, 0.6),
+        0 8px 16px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+    animation: primaryPulse 2s ease-in-out infinite;
+}
+
+.primary-btn:hover {
+    background: linear-gradient(135deg, #FFED4E 0%, #FF8C00 50%, #FF4500 100%);
+    box-shadow: 
+        0 0 30px rgba(255, 215, 0, 0.8),
+        0 12px 24px rgba(0, 0, 0, 0.4),
+        inset 0 2px 4px rgba(255, 255, 255, 0.4);
+    transform: scale(1.15);
+}
+
+.secondary-btn {
+    background: linear-gradient(135deg, #4ecdc4 0%, #45b7d1 100%);
+    border: 2px solid #4ecdc4;
+    color: #fff;
+    font-weight: 700;
+}
+
+.secondary-btn:hover {
+    background: linear-gradient(135deg, #5dd8cf 0%, #56c2dc 100%);
+    box-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+    transform: translateY(-2px);
+}
+
+@keyframes primaryPulse {
+    0% { 
+        box-shadow: 
+            0 0 20px rgba(255, 215, 0, 0.6),
+            0 8px 16px rgba(0, 0, 0, 0.3),
+            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+    50% { 
+        box-shadow: 
+            0 0 35px rgba(255, 215, 0, 0.9),
+            0 8px 16px rgba(0, 0, 0, 0.3),
+            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+    100% { 
+        box-shadow: 
+            0 0 20px rgba(255, 215, 0, 0.6),
+            0 8px 16px rgba(0, 0, 0, 0.3),
+            inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
 }
 
 .menu-btn {

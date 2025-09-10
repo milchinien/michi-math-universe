@@ -186,38 +186,47 @@ class Enemy {
         // Use the main formula system to generate varied formula types
         if (window.game && window.game.formulaSystem) {
             const formula = window.game.formulaSystem.generateFormula();
-            this.assignedFormula = {
-                type: formula.type,
-                typeName: formula.typeName,
-                text: formula.text,
-                solutions: formula.solutions,
-                difficulty: formula.difficulty,
-                variable: formula.variable,
-                a: formula.a,
-                b: formula.b
-            };
+            if (formula && formula.type) {
+                this.assignedFormula = {
+                    type: formula.type,
+                    typeName: formula.typeName,
+                    text: formula.text,
+                    solutions: formula.solutions,
+                    difficulty: formula.difficulty,
+                    variable: formula.variable,
+                    a: formula.a,
+                    b: formula.b
+                };
+            } else {
+                console.warn('⚠️ Formula system returned invalid formula, using fallback');
+                this.generateFallbackFormula();
+            }
         } else {
-            // Fallback to first binomial if formula system not available
-            const a = Math.floor(Math.random() * 5) + 1;
-            const b = Math.floor(Math.random() * 5) + 1;
-            const variables = ['x', 'y', 'z', 'a', 'b', 'c'];
-            const variable = variables[Math.floor(Math.random() * variables.length)];
-            
-            const text = `(${a}${variable} + ${b})²`;
-            const expanded = `${a*a}${variable}² + ${2*a*b}${variable} + ${b*b}`;
-            const solutions = [expanded];
-            
-            this.assignedFormula = {
-                type: 'expansion_plus',
-                typeName: 'Erste Binomische Formel',
-                text: text,
-                solutions: solutions,
-                difficulty: this.getDifficultyForType(),
-                variable: variable,
-                a: a,
-                b: b
-            };
+            this.generateFallbackFormula();
         }
+    }
+
+    generateFallbackFormula() {
+        // Fallback to first binomial if formula system not available
+        const a = Math.floor(Math.random() * 5) + 1;
+        const b = Math.floor(Math.random() * 5) + 1;
+        const variables = ['x', 'y', 'z', 'a', 'b', 'c'];
+        const variable = variables[Math.floor(Math.random() * variables.length)];
+        
+        const text = `(${a}${variable} + ${b})²`;
+        const expanded = `${a*a}${variable}² + ${2*a*b}${variable} + ${b*b}`;
+        const solutions = [expanded];
+        
+        this.assignedFormula = {
+            type: 'expansion_plus',
+            typeName: 'Erste Binomische Formel',
+            text: text,
+            solutions: solutions,
+            difficulty: this.getDifficultyForType(),
+            variable: variable,
+            a: a,
+            b: b
+        };
         
         // Also set formula for backward compatibility
         this.formula = this.assignedFormula;

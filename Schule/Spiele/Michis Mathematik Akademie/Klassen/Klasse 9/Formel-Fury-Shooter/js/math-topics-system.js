@@ -6,7 +6,43 @@
 class MathTopicsSystem {
     constructor() {
         this.selectedTopics = new Set(['binomial-formulas']); // Default selection
-        // Difficulty is now handled by the separate difficulty selection system
+        this.selectedDifficulty = 'easy'; // Default difficulty
+        
+        // Tutor mapping for each topic
+        this.topicTutorMapping = {
+            'binomial-formulas': 'binomial-formulas',
+            'quadratic-equations': 'quadratic-equations',
+            'quadratic-functions': 'quadratic-functions', 
+            'function-transformations': 'function-transformations',
+            'root-calculations': 'root-calculations',
+            'power-laws': 'power-laws'
+        };
+        
+        // Difficulty definitions for backward compatibility
+        this.difficultyDefinitions = {
+            'easy': {
+                name: 'Einfach',
+                enemyMultiplier: 0.8,
+                timeMultiplier: 1.3,
+                complexityLevel: 1,
+                showExplanations: false
+            },
+            'medium': {
+                name: 'Mittel',
+                enemyMultiplier: 1.0,
+                timeMultiplier: 1.0,
+                complexityLevel: 2,
+                showExplanations: false
+            },
+            'hard': {
+                name: 'Schwer',
+                enemyMultiplier: 1.3,
+                timeMultiplier: 0.8,
+                complexityLevel: 3,
+                showExplanations: false
+            }
+        };
+        
         this.topicDefinitions = {
             'binomial-formulas': {
                 name: 'Binomische Formeln-Bestien',
@@ -24,13 +60,13 @@ class MathTopicsSystem {
                 name: 'Parabel-Phantome',
                 difficulty: 2,
                 category: 'functions',
-                enabled: false
+                enabled: true
             },
             'function-transformations': {
                 name: 'Funktions-Transformations-Titanen',
                 difficulty: 2,
                 category: 'functions',
-                enabled: false
+                enabled: true
             },
             'square-roots': {
                 name: 'Wurzel-Wächter',
@@ -51,8 +87,46 @@ class MathTopicsSystem {
     
     init() {
         this.setupTopicEventListeners();
-        this.loadSavedSelections();
-        this.updateDisplay();
+        this.loadSettings();
+    }
+    
+    // Get the appropriate tutor for currently selected topics
+    getRecommendedTutor() {
+        const selectedArray = Array.from(this.selectedTopics);
+        
+        // Priority order for tutor selection
+        const tutorPriority = [
+            'quadratic-equations',
+            'quadratic-functions', 
+            'function-transformations',
+            'root-calculations',
+            'power-laws',
+            'binomial-formulas'
+        ];
+        
+        // Find the highest priority selected topic
+        for (const topic of tutorPriority) {
+            if (selectedArray.includes(topic)) {
+                return this.topicTutorMapping[topic];
+            }
+        }
+        
+        return 'binomial-formulas'; // Default fallback
+    }
+    
+    // Start tutorial for a specific topic
+    startTutorialForTopic(topicKey) {
+        if (window.tutorialSystem) {
+            return window.tutorialSystem.startTutorialForTopic(topicKey);
+        }
+        console.warn('Tutorial system not available');
+        return false;
+    }
+    
+    // Start tutorial for currently selected topics
+    startRecommendedTutorial() {
+        const recommendedTutor = this.getRecommendedTutor();
+        return this.startTutorialForTopic(recommendedTutor);
     }
     
     setupTopicEventListeners() {

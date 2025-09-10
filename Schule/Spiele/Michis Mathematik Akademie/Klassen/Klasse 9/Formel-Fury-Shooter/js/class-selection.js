@@ -112,8 +112,12 @@ class ClassSelectionSystem {
         if (classSelectionMenu) {
             classSelectionMenu.style.animation = 'fadeOutUp 0.5s ease-in-out forwards';
             
-                
-
+            // Wait for animation to complete, then hide and initialize game
+            setTimeout(() => {
+                classSelectionMenu.style.display = 'none';
+                classSelectionMenu.classList.remove('active');
+                this.initializeGame();
+            }, 500);
         }
     }
 

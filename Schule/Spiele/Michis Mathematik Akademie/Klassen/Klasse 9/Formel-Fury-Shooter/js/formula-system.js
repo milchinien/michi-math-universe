@@ -157,6 +157,9 @@ class FormulaSystem {
                 case 'quadratic-functions':
                     availableTypes.push(...this.getQuadraticFunctionTypes());
                     break;
+                case 'function-transformations':
+                    availableTypes.push(...this.getFunctionTransformationTypes());
+                    break;
                 case 'exponential-functions':
                     availableTypes.push(...this.getExponentialFunctionTypes());
                     break;
@@ -205,8 +208,21 @@ class FormulaSystem {
     }
     
     getQuadraticFunctionTypes() {
-        // TODO: Implement quadratic function formula types
-        return [];
+        return [
+            'parabola_vertex',           // Find vertex of quadratic function
+            'parabola_zeros',           // Find zeros of quadratic function
+            'parabola_vertex_form',     // Convert to vertex form
+            'parabola_from_properties'  // Find function from properties
+        ];
+    }
+    
+    getFunctionTransformationTypes() {
+        return [
+            'transformation_shift',      // Simple shifts (vertical/horizontal)
+            'transformation_stretch',    // Stretching and compression
+            'transformation_reflection', // Reflections across axes
+            'transformation_combined'    // Combined transformations
+        ];
     }
 
     getExponentialFunctionTypes() {
@@ -255,6 +271,22 @@ class FormulaSystem {
                 return this.generateQuadraticABCFormula();
             case 'quadratic_no_solution':
                 return this.generateQuadraticNoSolution();
+            case 'parabola_vertex':
+                return this.generateParabolaVertex();
+            case 'parabola_zeros':
+                return this.generateParabolaZeros();
+            case 'parabola_vertex_form':
+                return this.generateParabolaVertexForm();
+            case 'parabola_from_properties':
+                return this.generateParabolaFromProperties();
+            case 'transformation_shift':
+                return this.generateTransformationShift();
+            case 'transformation_stretch':
+                return this.generateTransformationStretch();
+            case 'transformation_reflection':
+                return this.generateTransformationReflection();
+            case 'transformation_combined':
+                return this.generateTransformationCombined();
             default:
                 console.log(`⚠️ Unknown formula type: ${type}, defaulting to expansion_plus`);
                 return this.generateExpansionPlus();
@@ -1437,5 +1469,525 @@ class FormulaSystem {
         }
         
         return solutions;
+    }
+
+    // ===== PARABEL-PHANTOME (QUADRATIC FUNCTIONS) =====
+    
+    generateParabolaVertex() {
+        const a = this.generateNonZeroCoefficient();
+        const b = this.generateCoefficient();
+        const c = this.generateConstant();
+        
+        // Calculate vertex: x_s = -b/(2a), y_s = f(x_s)
+        const x_vertex = -b / (2 * a);
+        const y_vertex = a * x_vertex * x_vertex + b * x_vertex + c;
+        
+        const formulaText = `f(x) = ${this.formatQuadratic(a, b, c)}`;
+        
+        const formula = {
+            text: formulaText,
+            type: 'parabola_vertex',
+            typeName: 'Scheitelpunkt bestimmen',
+            a, b, c,
+            difficulty: this.calculateParabolaDifficulty(a, b, c),
+            vertex: { x: x_vertex, y: y_vertex }
+        };
+        
+        formula.solutions = this.generateVertexSolutions(x_vertex, y_vertex);
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+    
+    generateParabolaZeros() {
+        // Generate parabola with nice zeros
+        const x1 = Math.floor(Math.random() * 10) - 5; // -5 to 4
+        const x2 = Math.floor(Math.random() * 10) - 5;
+        const a = this.generateNonZeroCoefficient();
+        
+        // f(x) = a(x - x1)(x - x2) = ax² - a(x1+x2)x + ax1x2
+        const b = -a * (x1 + x2);
+        const c = a * x1 * x2;
+        
+        const formulaText = `f(x) = ${this.formatQuadratic(a, b, c)}`;
+        
+        const formula = {
+            text: formulaText,
+            type: 'parabola_zeros',
+            typeName: 'Nullstellen berechnen',
+            a, b, c,
+            difficulty: this.calculateParabolaDifficulty(a, b, c),
+            zeros: x1 !== x2 ? [x1, x2].sort((a, b) => a - b) : [x1]
+        };
+        
+        formula.solutions = this.generateZerosSolutions(formula.zeros);
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+    
+    generateParabolaVertexForm() {
+        const a = this.generateNonZeroCoefficient();
+        const h = Math.floor(Math.random() * 10) - 5; // vertex x-coordinate
+        const k = Math.floor(Math.random() * 10) - 5; // vertex y-coordinate
+        
+        // Standard form: f(x) = a(x - h)² + k = ax² - 2ahx + ah² + k
+        const b = -2 * a * h;
+        const c = a * h * h + k;
+        
+        const formulaText = `f(x) = ${this.formatQuadratic(a, b, c)}`;
+        
+        const formula = {
+            text: formulaText,
+            type: 'parabola_vertex_form',
+            typeName: 'Scheitelpunktform umwandeln',
+            a, b, c, h, k,
+            difficulty: this.calculateParabolaDifficulty(a, b, c),
+            vertexForm: `f(x) = ${a === 1 ? '' : a === -1 ? '-' : a}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`
+        };
+        
+        formula.solutions = this.generateVertexFormSolutions(a, h, k);
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+    
+    generateParabolaFromProperties() {
+        const h = Math.floor(Math.random() * 8) - 4; // vertex x
+        const k = Math.floor(Math.random() * 8) - 4; // vertex y
+        const x_point = h + (Math.floor(Math.random() * 4) + 1); // point x
+        const y_point = Math.floor(Math.random() * 10) - 5; // point y
+        
+        // Calculate a from vertex form: y_point = a(x_point - h)² + k
+        const a = (y_point - k) / Math.pow(x_point - h, 2);
+        
+        const formulaText = `Scheitelpunkt S(${h}, ${k}), durch Punkt P(${x_point}, ${y_point})`;
+        
+        const formula = {
+            text: formulaText,
+            type: 'parabola_from_properties',
+            typeName: 'Funktionsgleichung aus Eigenschaften',
+            h, k, x_point, y_point, a,
+            difficulty: 3,
+            resultFunction: `f(x) = ${this.formatNumber(a)}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`
+        };
+        
+        formula.solutions = this.generateFromPropertiesSolutions(a, h, k);
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+
+    // ===== FUNKTIONS-TRANSFORMATIONS-TITANEN =====
+    
+    generateTransformationShift() {
+        const baseFunctions = ['x²', '|x|', '√x', 'sin(x)', 'cos(x)'];
+        const baseFunc = baseFunctions[Math.floor(Math.random() * baseFunctions.length)];
+        
+        const horizontal = Math.floor(Math.random() * 8) - 4; // -4 to 3
+        const vertical = Math.floor(Math.random() * 8) - 4;
+        
+        let transformedFunc;
+        if (horizontal === 0 && vertical === 0) {
+            // Ensure at least one transformation
+            const isVertical = Math.random() < 0.5;
+            if (isVertical) {
+                const v = Math.floor(Math.random() * 6) + 1;
+                transformedFunc = `${baseFunc} ${v >= 0 ? '+' : ''} ${v}`;
+            } else {
+                const h = Math.floor(Math.random() * 6) + 1;
+                transformedFunc = baseFunc.replace('x', `(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})`);
+            }
+        } else {
+            transformedFunc = baseFunc.replace('x', horizontal !== 0 ? `(x ${horizontal >= 0 ? '-' : '+'} ${Math.abs(horizontal)})` : 'x');
+            if (vertical !== 0) {
+                transformedFunc = `${transformedFunc} ${vertical >= 0 ? '+' : ''} ${vertical}`;
+            }
+        }
+        
+        const formulaText = `f(x) = ${baseFunc} → g(x) = ${transformedFunc}`;
+        
+        const formula = {
+            text: formulaText,
+            type: 'transformation_shift',
+            typeName: 'Verschiebung',
+            baseFunction: baseFunc,
+            horizontal, vertical,
+            transformedFunction: transformedFunc,
+            difficulty: 2
+        };
+        
+        formula.solutions = this.generateShiftSolutions(horizontal, vertical);
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+    
+    generateTransformationStretch() {
+        const baseFunctions = ['x²', '|x|', '√x'];
+        const baseFunc = baseFunctions[Math.floor(Math.random() * baseFunctions.length)];
+        
+        const verticalFactors = [0.5, 2, 3, -1, -2];
+        const horizontalFactors = [0.5, 2, 3];
+        
+        const isVertical = Math.random() < 0.7; // Prefer vertical stretching
+        
+        let transformedFunc, factor, direction;
+        if (isVertical) {
+            factor = verticalFactors[Math.floor(Math.random() * verticalFactors.length)];
+            transformedFunc = `${factor === 1 ? '' : factor === -1 ? '-' : factor}${baseFunc}`;
+            direction = 'vertical';
+        } else {
+            factor = horizontalFactors[Math.floor(Math.random() * horizontalFactors.length)];
+            transformedFunc = baseFunc.replace('x', `${factor}x`);
+            direction = 'horizontal';
+        }
+        
+        const formulaText = `f(x) = ${baseFunc} → g(x) = ${transformedFunc}`;
+        
+        const formula = {
+            text: formulaText,
+            type: 'transformation_stretch',
+            typeName: 'Streckung/Stauchung',
+            baseFunction: baseFunc,
+            factor, direction,
+            transformedFunction: transformedFunc,
+            difficulty: 2
+        };
+        
+        formula.solutions = this.generateStretchSolutions(factor, direction);
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+    
+    generateTransformationReflection() {
+        const baseFunctions = ['x²', '|x|', '√x', '2^x'];
+        const baseFunc = baseFunctions[Math.floor(Math.random() * baseFunctions.length)];
+        
+        const reflectionTypes = ['x-axis', 'y-axis'];
+        const reflection = reflectionTypes[Math.floor(Math.random() * reflectionTypes.length)];
+        
+        let transformedFunc;
+        if (reflection === 'x-axis') {
+            transformedFunc = `-${baseFunc}`;
+        } else {
+            transformedFunc = baseFunc.replace(/x/g, '(-x)');
+        }
+        
+        const formulaText = `f(x) = ${baseFunc} → g(x) = ${transformedFunc}`;
+        
+        const formula = {
+            text: formulaText,
+            type: 'transformation_reflection',
+            typeName: 'Spiegelung',
+            baseFunction: baseFunc,
+            reflection,
+            transformedFunction: transformedFunc,
+            difficulty: 2
+        };
+        
+        formula.solutions = this.generateReflectionSolutions(reflection);
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+    
+    generateTransformationCombined() {
+        const baseFunc = 'x²';
+        const a = this.generateNonZeroCoefficient();
+        const h = Math.floor(Math.random() * 6) - 3;
+        const k = Math.floor(Math.random() * 6) - 3;
+        
+        const transformedFunc = `${a === 1 ? '' : a === -1 ? '-' : a}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
+        
+        const formulaText = `f(x) = ${baseFunc} → g(x) = ${transformedFunc}`;
+        
+        const formula = {
+            text: formulaText,
+            type: 'transformation_combined',
+            typeName: 'Kombinierte Transformationen',
+            baseFunction: baseFunc,
+            a, h, k,
+            transformedFunction: transformedFunc,
+            difficulty: 3
+        };
+        
+        formula.solutions = this.generateCombinedTransformationSolutions(a, h, k);
+        this.updateCurrentFormula(formula);
+        return formula;
+    }
+
+    // ===== HELPER METHODS =====
+    
+    formatQuadratic(a, b, c) {
+        let result = '';
+        
+        // x² term
+        if (a === 1) result += 'x²';
+        else if (a === -1) result += '-x²';
+        else result += `${a}x²`;
+        
+        // x term
+        if (b > 0) result += ` + ${b === 1 ? '' : b}x`;
+        else if (b < 0) result += ` - ${Math.abs(b) === 1 ? '' : Math.abs(b)}x`;
+        
+        // constant term
+        if (c > 0) result += ` + ${c}`;
+        else if (c < 0) result += ` - ${Math.abs(c)}`;
+        
+        return result;
+    }
+    
+    formatNumber(num) {
+        if (num === 1) return '';
+        if (num === -1) return '-';
+        if (Number.isInteger(num)) return num.toString();
+        return num.toFixed(2);
+    }
+    
+    generateNonZeroCoefficient() {
+        const coefficients = [-3, -2, -1, 1, 2, 3];
+        return coefficients[Math.floor(Math.random() * coefficients.length)];
+    }
+    
+    calculateParabolaDifficulty(a, b, c) {
+        let difficulty = 1;
+        if (Math.abs(a) > 1) difficulty++;
+        if (b !== 0) difficulty++;
+        if (Math.abs(c) > 5) difficulty++;
+        return Math.min(difficulty, 4);
+    }
+
+    // ===== SOLUTION GENERATORS =====
+    
+    generateVertexSolutions(x_vertex, y_vertex) {
+        const gameMode = this.getGameMode();
+        
+        if (gameMode === 'day') {
+            // Multiple choice for day mode
+            const correct = `S(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex)})`;
+            const wrong1 = `S(${this.formatNumber(x_vertex + 1)}, ${this.formatNumber(y_vertex)})`;
+            const wrong2 = `S(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex + 2)})`;
+            const wrong3 = `S(${this.formatNumber(-x_vertex)}, ${this.formatNumber(y_vertex)})`;
+            
+            return {
+                correct,
+                choices: this.shuffleArray([correct, wrong1, wrong2, wrong3])
+            };
+        } else {
+            // Free input for night mode
+            return {
+                correct: `S(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex)})`,
+                acceptedFormats: [
+                    `S(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex)})`,
+                    `(${this.formatNumber(x_vertex)}|${this.formatNumber(y_vertex)})`,
+                    `${this.formatNumber(x_vertex)}; ${this.formatNumber(y_vertex)}`
+                ]
+            };
+        }
+    }
+    
+    generateZerosSolutions(zeros) {
+        const gameMode = this.getGameMode();
+        
+        if (gameMode === 'day') {
+            const correct = zeros.length === 1 ? 
+                `x = ${zeros[0]}` : 
+                `x₁ = ${zeros[0]}, x₂ = ${zeros[1]}`;
+            
+            const wrong1 = zeros.length === 1 ? 
+                `x = ${zeros[0] + 1}` : 
+                `x₁ = ${zeros[0] + 1}, x₂ = ${zeros[1]}`;
+            const wrong2 = `Keine Nullstellen`;
+            const wrong3 = zeros.length === 1 ? 
+                `x = ${-zeros[0]}` : 
+                `x₁ = ${-zeros[0]}, x₂ = ${-zeros[1]}`;
+            
+            return {
+                correct,
+                choices: this.shuffleArray([correct, wrong1, wrong2, wrong3])
+            };
+        } else {
+            return {
+                correct: zeros.join('; '),
+                acceptedFormats: [
+                    zeros.join('; '),
+                    zeros.join(', '),
+                    zeros.map(z => `x=${z}`).join(', ')
+                ]
+            };
+        }
+    }
+    
+    generateVertexFormSolutions(a, h, k) {
+        const gameMode = this.getGameMode();
+        const correct = `f(x) = ${this.formatNumber(a)}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
+        
+        if (gameMode === 'day') {
+            const wrong1 = `f(x) = ${this.formatNumber(a)}(x ${h >= 0 ? '+' : '-'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
+            const wrong2 = `f(x) = ${this.formatNumber(a)}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '-' : '+'} ${Math.abs(k)}`;
+            const wrong3 = `f(x) = ${this.formatNumber(-a)}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
+            
+            return {
+                correct,
+                choices: this.shuffleArray([correct, wrong1, wrong2, wrong3])
+            };
+        } else {
+            return {
+                correct,
+                acceptedFormats: [correct]
+            };
+        }
+    }
+    
+    generateFromPropertiesSolutions(a, h, k) {
+        const gameMode = this.getGameMode();
+        const correct = `f(x) = ${this.formatNumber(a)}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
+        
+        if (gameMode === 'day') {
+            const wrong1 = `f(x) = ${this.formatNumber(a)}(x ${h >= 0 ? '+' : '-'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
+            const wrong2 = `f(x) = ${this.formatNumber(-a)}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
+            const wrong3 = `f(x) = ${this.formatNumber(a)}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '-' : '+'} ${Math.abs(k)}`;
+            
+            return {
+                correct,
+                choices: this.shuffleArray([correct, wrong1, wrong2, wrong3])
+            };
+        } else {
+            return {
+                correct,
+                acceptedFormats: [correct]
+            };
+        }
+    }
+    
+    generateShiftSolutions(horizontal, vertical) {
+        const gameMode = this.getGameMode();
+        
+        let description = '';
+        if (horizontal !== 0 && vertical !== 0) {
+            description = `${Math.abs(horizontal)} nach ${horizontal > 0 ? 'rechts' : 'links'}, ${Math.abs(vertical)} nach ${vertical > 0 ? 'oben' : 'unten'}`;
+        } else if (horizontal !== 0) {
+            description = `${Math.abs(horizontal)} nach ${horizontal > 0 ? 'rechts' : 'links'}`;
+        } else if (vertical !== 0) {
+            description = `${Math.abs(vertical)} nach ${vertical > 0 ? 'oben' : 'unten'}`;
+        }
+        
+        if (gameMode === 'day') {
+            const wrong1 = `${Math.abs(horizontal)} nach ${horizontal > 0 ? 'links' : 'rechts'}, ${Math.abs(vertical)} nach ${vertical > 0 ? 'oben' : 'unten'}`;
+            const wrong2 = `${Math.abs(horizontal)} nach ${horizontal > 0 ? 'rechts' : 'links'}, ${Math.abs(vertical)} nach ${vertical > 0 ? 'unten' : 'oben'}`;
+            const wrong3 = `Streckung um Faktor ${Math.abs(horizontal + vertical)}`;
+            
+            return {
+                correct: description,
+                choices: this.shuffleArray([description, wrong1, wrong2, wrong3])
+            };
+        } else {
+            return {
+                correct: description,
+                acceptedFormats: [description]
+            };
+        }
+    }
+    
+    generateStretchSolutions(factor, direction) {
+        const gameMode = this.getGameMode();
+        
+        let description;
+        if (direction === 'vertical') {
+            if (Math.abs(factor) > 1) {
+                description = `Streckung um Faktor ${Math.abs(factor)}${factor < 0 ? ', Spiegelung an x-Achse' : ''}`;
+            } else {
+                description = `Stauchung um Faktor ${Math.abs(factor)}${factor < 0 ? ', Spiegelung an x-Achse' : ''}`;
+            }
+        } else {
+            description = Math.abs(factor) > 1 ? 
+                `Stauchung um Faktor ${1/Math.abs(factor)}` : 
+                `Streckung um Faktor ${1/Math.abs(factor)}`;
+        }
+        
+        if (gameMode === 'day') {
+            const wrong1 = `Verschiebung um ${factor}`;
+            const wrong2 = direction === 'vertical' ? 
+                `Horizontale Streckung um Faktor ${Math.abs(factor)}` : 
+                `Vertikale Streckung um Faktor ${Math.abs(factor)}`;
+            const wrong3 = `Spiegelung an ${direction === 'vertical' ? 'y' : 'x'}-Achse`;
+            
+            return {
+                correct: description,
+                choices: this.shuffleArray([description, wrong1, wrong2, wrong3])
+            };
+        } else {
+            return {
+                correct: description,
+                acceptedFormats: [description]
+            };
+        }
+    }
+    
+    generateReflectionSolutions(reflection) {
+        const gameMode = this.getGameMode();
+        const correct = `Spiegelung an ${reflection === 'x-axis' ? 'x' : 'y'}-Achse`;
+        
+        if (gameMode === 'day') {
+            const wrong1 = `Spiegelung an ${reflection === 'x-axis' ? 'y' : 'x'}-Achse`;
+            const wrong2 = `Streckung um Faktor -1`;
+            const wrong3 = `Verschiebung um -1`;
+            
+            return {
+                correct,
+                choices: this.shuffleArray([correct, wrong1, wrong2, wrong3])
+            };
+        } else {
+            return {
+                correct,
+                acceptedFormats: [correct]
+            };
+        }
+    }
+    
+    generateCombinedTransformationSolutions(a, h, k) {
+        const gameMode = this.getGameMode();
+        
+        let description = '';
+        if (Math.abs(a) !== 1) {
+            description += Math.abs(a) > 1 ? `Streckung Faktor ${Math.abs(a)}` : `Stauchung Faktor ${Math.abs(a)}`;
+        }
+        if (a < 0) {
+            description += (description ? ', ' : '') + 'Spiegelung an x-Achse';
+        }
+        if (h !== 0) {
+            description += (description ? ', ' : '') + `${Math.abs(h)} nach ${h > 0 ? 'rechts' : 'links'}`;
+        }
+        if (k !== 0) {
+            description += (description ? ', ' : '') + `${Math.abs(k)} nach ${k > 0 ? 'oben' : 'unten'}`;
+        }
+        
+        if (gameMode === 'day') {
+            const wrong1 = `Streckung Faktor ${a}, Verschiebung (${h}|${k})`;
+            const wrong2 = `${Math.abs(h)} nach ${h > 0 ? 'links' : 'rechts'}, ${Math.abs(k)} nach ${k > 0 ? 'unten' : 'oben'}`;
+            const wrong3 = `Nur Verschiebung um (${h}|${k})`;
+            
+            return {
+                correct: description,
+                choices: this.shuffleArray([description, wrong1, wrong2, wrong3])
+            };
+        } else {
+            return {
+                correct: description,
+                acceptedFormats: [description]
+            };
+        }
+    }
+    
+    getGameMode() {
+        // Check if we're in day or night mode
+        if (window.gameEngine && window.gameEngine.gameMode) {
+            return window.gameEngine.gameMode;
+        }
+        return 'day'; // Default fallback
+    }
+    
+    shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
     }
 }

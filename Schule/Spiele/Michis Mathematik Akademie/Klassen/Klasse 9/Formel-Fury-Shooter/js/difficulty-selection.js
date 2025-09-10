@@ -3,19 +3,6 @@ class DifficultySelectionSystem {
     constructor() {
         this.selectedDifficulty = 'easy';
         this.difficulties = {
-            tutorial: {
-                name: 'Akademie-Neuling',
-                icon: '👨‍🏫',
-                description: 'Interaktiver Mathe-Lehrer Modus',
-                isTutorial: true,
-                multipliers: {
-                    enemyCount: 0,
-                    enemySpeed: 0,
-                    timeLimit: 999,
-                    damage: 0,
-                    rewards: 1.0
-                }
-            },
             easy: {
                 name: 'Formel-Krieger',
                 icon: '⚔️',

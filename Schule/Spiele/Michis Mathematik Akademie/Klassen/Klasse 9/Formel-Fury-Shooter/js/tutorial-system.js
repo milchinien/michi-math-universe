@@ -4,13 +4,194 @@ class TutorialSystem {
         this.currentLesson = 0;
         this.currentStep = 0;
         this.isActive = false;
-        this.tutorCharacter = {
-            name: "Professor Algebra",
-            avatar: "👨‍🏫",
-            personality: "freundlich und geduldig"
+        this.isDarkMode = localStorage.getItem('tutorial-dark-mode') === 'true';
+        this.tutorCharacters = {
+            'binomial-formulas': {
+                name: "Professor Binomius",
+                avatar: "🧙‍♂️",
+                personality: "weise und erfahren",
+                greeting: "Willkommen in der Welt der binomischen Formeln!",
+                specialty: "Binomische Formeln und algebraische Identitäten"
+            },
+            'quadratic-equations': {
+                name: "Professor Algebrar",
+                avatar: "👨‍🔬",
+                personality: "analytisch und präzise",
+                greeting: "Bereit, die Geheimnisse quadratischer Gleichungen zu entschlüsseln?",
+                specialty: "Quadratische Gleichungen und Lösungsverfahren"
+            },
+            'quadratic-functions': {
+                name: "Professor Parabolus",
+                avatar: "👨‍🎨",
+                personality: "kreativ und visuell",
+                greeting: "Lass uns die elegante Welt der Parabeln erkunden!",
+                specialty: "Quadratische Funktionen und Parabeln"
+            },
+            'function-transformations': {
+                name: "Professor Transformis",
+                avatar: "🧙‍♂️",
+                personality: "dynamisch und wandelbar",
+                greeting: "Bereit für die Magie der Funktions-Transformationen?",
+                specialty: "Funktions-Transformationen und geometrische Veränderungen"
+            },
+            'root-calculations': {
+                name: "Professor Radicus",
+                avatar: "🌳",
+                personality: "geerdet und naturverbunden",
+                greeting: "Lass uns die Wurzeln der Mathematik erforschen!",
+                specialty: "Wurzelrechnung und Radikale"
+            },
+            'power-laws': {
+                name: "Professor Potentius",
+                avatar: "🏴‍☠️",
+                personality: "abenteuerlustig und energisch",
+                greeting: "Ahoy! Bereit für ein Abenteuer mit den Potenzgesetzen?",
+                specialty: "Potenzgesetze und Exponentialrechnung"
+            }
         };
         
+        this.currentTutor = this.tutorCharacters['binomial-formulas'];
+        
         this.lessons = {
+            'quadratic-equations': {
+                title: "Quadratische Gleichungen Meistern",
+                description: "Lerne die p-q-Formel und Mitternachtsformel mit praktischen Beispielen",
+                steps: [
+                    {
+                        type: 'introduction',
+                        title: "Willkommen zu den Quadratischen Gleichungen!",
+                        dialogue: [
+                            "👨‍🏫 Hallo! Heute erobern wir die quadratischen Gleichungen!",
+                            "Quadratische Gleichungen sind Gleichungen mit x² - sie kommen überall vor!",
+                            "Wir lernen zwei mächtige Lösungsformeln: die p-q-Formel und die Mitternachtsformel.",
+                            "Mit diesen Werkzeugen kannst du jede quadratische Gleichung lösen! 🎯"
+                        ],
+                        action: 'continue'
+                    },
+                    {
+                        type: 'theory',
+                        title: "Was sind quadratische Gleichungen?",
+                        dialogue: [
+                            "👨‍🏫 Eine quadratische Gleichung hat die Form ax² + bx + c = 0",
+                            "Das x² macht sie 'quadratisch' - das ist der höchste Exponent.",
+                            "Beispiele: x² - 5x + 6 = 0 oder 2x² + 3x - 1 = 0",
+                            "🔧 p-q-Formel: Für x² + px + q = 0",
+                            "🔧 Mitternachtsformel: Für ax² + bx + c = 0",
+                            "Beide führen zur Lösung - lass uns sie kennenlernen! 📐"
+                        ],
+                        action: 'continue'
+                    },
+                    {
+                        type: 'example',
+                        title: "p-q-Formel anwenden",
+                        dialogue: [],
+                        example: {
+                            problem: "x² - 5x + 6 = 0",
+                            solution: "x₁ = 2, x₂ = 3",
+                            steps: [
+                                "Erkenne: x² + px + q = 0 mit p = -5, q = 6",
+                                "p-q-Formel: x = -p/2 ± √((p/2)² - q)",
+                                "Einsetzen: x = 5/2 ± √((5/2)² - 6)",
+                                "Berechnen: x = 2.5 ± √(6.25 - 6) = 2.5 ± 0.5",
+                                "Lösungen: x₁ = 3, x₂ = 2"
+                            ]
+                        },
+                        action: 'practice'
+                    }
+                ]
+            },
+            'quadratic-functions': {
+                title: "Quadratische Funktionen Verstehen",
+                description: "Lerne Parabeln, Scheitelpunkte und Nullstellen zu bestimmen",
+                steps: [
+                    {
+                        type: 'introduction',
+                        title: "Willkommen zu den Parabeln!",
+                        dialogue: [
+                            "👨‍🏫 Heute entdecken wir die wunderschöne Welt der Parabeln!",
+                            "Quadratische Funktionen zeichnen Parabeln - diese eleganten Kurven.",
+                            "Wir lernen Scheitelpunkte, Nullstellen und die Scheitelpunktform kennen.",
+                            "Parabeln sind überall: Brücken, Fontänen, Wurfbahnen! 🌉"
+                        ],
+                        action: 'continue'
+                    },
+                    {
+                        type: 'theory',
+                        title: "Aufbau quadratischer Funktionen",
+                        dialogue: [
+                            "👨‍🏫 Eine quadratische Funktion hat die Form f(x) = ax² + bx + c",
+                            "📍 Scheitelpunkt: Der höchste oder tiefste Punkt der Parabel",
+                            "🎯 Nullstellen: Wo die Parabel die x-Achse schneidet",
+                            "📐 Scheitelpunktform: f(x) = a(x - h)² + k",
+                            "Der Parameter 'a' bestimmt Öffnung: a > 0 nach oben, a < 0 nach unten",
+                            "Lass uns diese Eigenschaften erkunden! 🔍"
+                        ],
+                        action: 'continue'
+                    },
+                    {
+                        type: 'example',
+                        title: "Scheitelpunkt bestimmen",
+                        dialogue: [],
+                        example: {
+                            problem: "f(x) = x² - 4x + 3",
+                            solution: "S(2, -1)",
+                            steps: [
+                                "Scheitelpunkt-Formel: x_s = -b/(2a)",
+                                "Hier: a = 1, b = -4, also x_s = 4/2 = 2",
+                                "y-Koordinate: f(2) = 4 - 8 + 3 = -1",
+                                "Scheitelpunkt: S(2, -1)"
+                            ]
+                        },
+                        action: 'practice'
+                    }
+                ]
+            },
+            'function-transformations': {
+                title: "Funktions-Transformationen Meistern",
+                description: "Lerne Verschiebungen, Streckungen und Spiegelungen von Funktionen",
+                steps: [
+                    {
+                        type: 'introduction',
+                        title: "Willkommen zu den Transformationen!",
+                        dialogue: [
+                            "👨‍🏫 Heute verwandeln wir Funktionen wie Zauberer!",
+                            "Transformationen verschieben, strecken und spiegeln Funktionen.",
+                            "Mit wenigen Regeln kannst du jede Funktion nach Belieben verändern.",
+                            "Das ist wie Funktions-Origami - elegant und mächtig! ✨"
+                        ],
+                        action: 'continue'
+                    },
+                    {
+                        type: 'theory',
+                        title: "Die vier Grundtransformationen",
+                        dialogue: [
+                            "👨‍🏫 Es gibt vier Hauptarten von Transformationen:",
+                            "↕️ Vertikale Verschiebung: f(x) + d",
+                            "↔️ Horizontale Verschiebung: f(x + c)",
+                            "📏 Vertikale Streckung: a·f(x)",
+                            "🪞 Spiegelungen: -f(x) oder f(-x)",
+                            "Jede Transformation hat ihre eigene Wirkung auf den Graphen! 🎨"
+                        ],
+                        action: 'continue'
+                    },
+                    {
+                        type: 'example',
+                        title: "Verschiebung verstehen",
+                        dialogue: [],
+                        example: {
+                            problem: "f(x) = x² → g(x) = (x - 2)² + 3",
+                            solution: "2 nach rechts, 3 nach oben",
+                            steps: [
+                                "Ausgangsfunktion: f(x) = x²",
+                                "Horizontale Verschiebung: (x - 2) bedeutet 2 nach rechts",
+                                "Vertikale Verschiebung: +3 bedeutet 3 nach oben",
+                                "Ergebnis: 2 Einheiten rechts, 3 Einheiten hoch"
+                            ]
+                        },
+                        action: 'practice'
+                    }
+                ]
+            },
             'binomial-formulas': {
                 title: "Binomische Formeln Meistern",
                 description: "Lerne die drei wichtigsten binomischen Formeln mit praktischen Beispielen",
@@ -43,23 +224,16 @@ class TutorialSystem {
                     {
                         type: 'example',
                         title: "Erste binomische Formel: (a + b)²",
-                        dialogue: [
-                            "👨‍🏫 Schauen wir uns ein konkretes Beispiel an:",
-                            "Nehmen wir (x + 3)²",
-                            "Hier ist a = x und b = 3",
-                            "Nach der Formel: (a + b)² = a² + 2ab + b²",
-                            "Setzen wir ein: (x + 3)² = x² + 2·x·3 + 3²",
-                            "Das ergibt: x² + 6x + 9",
-                            "Siehst du das Muster? 🤔"
-                        ],
+                        dialogue: [],
                         example: {
-                            problem: "(x + 3)²",
-                            solution: "x² + 6x + 9",
+                            problem: "(a + b)²",
+                            solution: "a² + 2ab + b²",
                             steps: [
-                                "Erkenne: a = x, b = 3",
+                                "Erkenne die Struktur: (a + b)²",
                                 "Wende Formel an: a² + 2ab + b²",
-                                "Berechne: x² + 2·x·3 + 3²",
-                                "Vereinfache: x² + 6x + 9"
+                                "Erstes Glied: a²",
+                                "Mittleres Glied: 2ab",
+                                "Letztes Glied: b²"
                             ]
                         },
                         action: 'practice'
@@ -67,12 +241,10 @@ class TutorialSystem {
                     {
                         type: 'practice',
                         title: "Jetzt bist du dran!",
-                        dialogue: [
+                        dialogue: [],
+                        initialMessage: [
                             "👨‍🏫 Perfekt! Jetzt versuch du es mal.",
-                            "Löse die allgemeine Form: (a + b)²",
-                            "Das ist die Grundformel für alle binomischen Formeln!",
-                            "Verwende die Formel: (a + b)² = a² + 2ab + b²",
-                            "Nimm dir alle Zeit, die du brauchst! ⏰"
+                            "Löse die allgemeine Form: (a + b)²"
                         ],
                         problem: {
                             question: "(a + b)²",
@@ -91,23 +263,16 @@ class TutorialSystem {
                     {
                         type: 'example',
                         title: "Zweite binomische Formel: (a - b)²",
-                        dialogue: [
-                            "👨‍🏫 Großartig! Jetzt zur zweiten Formel.",
-                            "Bei (a - b)² haben wir ein Minus zwischen den Termen.",
-                            "Die Formel lautet: (a - b)² = a² - 2ab + b²",
-                            "Wichtig: Das mittlere Glied wird NEGATIV!",
-                            "Beispiel: (x - 4)²",
-                            "= x² - 2·x·4 + 4² = x² - 8x + 16",
-                            "Merkst du den Unterschied zur ersten Formel? 🧐"
-                        ],
+                        dialogue: [],
                         example: {
-                            problem: "(x - 4)²",
-                            solution: "x² - 8x + 16",
+                            problem: "(a - b)²",
+                            solution: "a² - 2ab + b²",
                             steps: [
-                                "Erkenne: a = x, b = 4",
+                                "Erkenne die Struktur: (a - b)²",
                                 "Wende Formel an: a² - 2ab + b²",
-                                "Berechne: x² - 2·x·4 + 4²",
-                                "Vereinfache: x² - 8x + 16"
+                                "Erstes Glied: a²",
+                                "Mittleres Glied: -2ab (negativ!)",
+                                "Letztes Glied: b²"
                             ]
                         },
                         action: 'practice'
@@ -115,11 +280,10 @@ class TutorialSystem {
                     {
                         type: 'practice',
                         title: "Übung zur zweiten Formel",
-                        dialogue: [
+                        dialogue: [],
+                        initialMessage: [
                             "👨‍🏫 Zeit für eine weitere Übung!",
-                            "Löse die allgemeine Form: (a - b)²",
-                            "Achte auf das Vorzeichen beim mittleren Term!",
-                            "Du schaffst das! 💪"
+                            "Löse die allgemeine Form: (a - b)²"
                         ],
                         problem: {
                             question: "(a - b)²",
@@ -138,22 +302,16 @@ class TutorialSystem {
                     {
                         type: 'example',
                         title: "Dritte binomische Formel: (a + b)(a - b)",
-                        dialogue: [
-                            "👨‍🏫 Jetzt zur dritten und letzten Formel!",
-                            "Diese ist besonders elegant: (a + b)(a - b) = a² - b²",
-                            "Das Ergebnis hat nur ZWEI Terme - das mittlere fällt weg!",
-                            "Beispiel: (x + 5)(x - 5)",
-                            "= x² - 5² = x² - 25",
-                            "Wie einfach ist das denn? ✨"
-                        ],
+                        dialogue: [],
                         example: {
-                            problem: "(x + 5)(x - 5)",
-                            solution: "x² - 25",
+                            problem: "(a + b)(a - b)",
+                            solution: "a² - b²",
                             steps: [
-                                "Erkenne: a = x, b = 5",
+                                "Erkenne die Struktur: (a + b)(a - b)",
                                 "Wende Formel an: a² - b²",
-                                "Berechne: x² - 5²",
-                                "Vereinfache: x² - 25"
+                                "Erstes Glied: a²",
+                                "Zweites Glied: -b²",
+                                "Das mittlere Glied fällt weg!"
                             ]
                         },
                         action: 'practice'
@@ -161,11 +319,10 @@ class TutorialSystem {
                     {
                         type: 'practice',
                         title: "Letzte Übung!",
-                        dialogue: [
+                        dialogue: [],
+                        initialMessage: [
                             "👨‍🏫 Zum Abschluss eine Aufgabe zur dritten Formel:",
-                            "Löse die allgemeine Form: (a + b)(a - b)",
-                            "Denk daran: Das Ergebnis hat nur zwei Terme!",
-                            "Du bist fast am Ziel! 🎯"
+                            "Löse die allgemeine Form: (a + b)(a - b)"
                         ],
                         problem: {
                             question: "(a + b)(a - b)",
@@ -197,6 +354,101 @@ class TutorialSystem {
                         action: 'complete'
                     }
                 ]
+            },
+            'root-calculations': {
+                title: "Wurzelrechnung Meistern",
+                description: "Lerne Wurzeln zu vereinfachen, zu kombinieren und Wurzelgleichungen zu lösen",
+                steps: [
+                    {
+                        type: 'introduction',
+                        title: "Willkommen zur Wurzel-Akademie!",
+                        dialogue: [
+                            "🌳 Grüße, junger Mathematiker! Ich bin Professor Radicus.",
+                            "Heute tauchen wir tief in die Wurzeln der Mathematik ein!",
+                            "Wurzeln sind wie die Fundamente eines Baumes - sie geben Stabilität.",
+                            "Lass uns gemeinsam diese natürlichen mathematischen Strukturen erforschen! 🌱"
+                        ],
+                        action: 'continue'
+                    },
+                    {
+                        type: 'theory',
+                        title: "Was sind Wurzeln?",
+                        dialogue: [
+                            "🌳 Eine Wurzel ist die Umkehrung des Potenzierens.",
+                            "√16 = 4, weil 4² = 16",
+                            "📏 Wurzelgesetze: √(a·b) = √a · √b",
+                            "📏 √(a/b) = √a / √b",
+                            "🔧 Vereinfachung: √18 = √(9·2) = 3√2",
+                            "Diese Gesetze helfen uns, komplexe Wurzeln zu vereinfachen! 🍃"
+                        ],
+                        action: 'continue'
+                    },
+                    {
+                        type: 'example',
+                        title: "Wurzeln vereinfachen",
+                        dialogue: [],
+                        example: {
+                            problem: "√72",
+                            solution: "6√2",
+                            steps: [
+                                "Zerlege 72 in Primfaktoren: 72 = 36 · 2",
+                                "Erkenne perfekte Quadrate: 36 = 6²",
+                                "Wende Wurzelgesetz an: √72 = √(36·2) = √36 · √2",
+                                "Vereinfache: √36 = 6",
+                                "Ergebnis: 6√2"
+                            ]
+                        },
+                        action: 'practice'
+                    }
+                ]
+            },
+            'power-laws': {
+                title: "Potenzgesetze Erobern",
+                description: "Lerne die Potenzgesetze und werde zum Exponential-Piraten",
+                steps: [
+                    {
+                        type: 'introduction',
+                        title: "Ahoy, Matrose!",
+                        dialogue: [
+                            "🏴‍☠️ Ahoy! Kapitän Potentius hier, bereit für ein mathematisches Abenteuer!",
+                            "Heute segeln wir durch die stürmischen Gewässer der Potenzgesetze!",
+                            "Diese mächtigen Gesetze sind wie Schätze - einmal gefunden, machen sie dich reich!",
+                            "Bereit, die Geheimnisse der Exponenten zu plündern? ⚓"
+                        ],
+                        action: 'continue'
+                    },
+                    {
+                        type: 'theory',
+                        title: "Die Potenzgesetze-Schatzkarte",
+                        dialogue: [
+                            "🏴‍☠️ Hier sind die wertvollsten Schätze der Potenzgesetze:",
+                            "⚔️ Produktregel: a^m · a^n = a^(m+n)",
+                            "🗡️ Quotientenregel: a^m / a^n = a^(m-n)",
+                            "🛡️ Potenzregel: (a^m)^n = a^(m·n)",
+                            "💎 Negative Exponenten: a^(-n) = 1/a^n",
+                            "🏆 Nullexponent: a^0 = 1",
+                            "Mit diesen Waffen bist du unbesiegbar! ⚡"
+                        ],
+                        action: 'continue'
+                    },
+                    {
+                        type: 'example',
+                        title: "Potenzgesetze in Aktion",
+                        dialogue: [],
+                        example: {
+                            problem: "2³ · 2⁵",
+                            solution: "2⁸ = 256",
+                            steps: [
+                                "Erkenne gleiche Basen: 2³ · 2⁵",
+                                "Wende Produktregel an: a^m · a^n = a^(m+n)",
+                                "Addiere Exponenten: 3 + 5 = 8",
+                                "Ergebnis: 2⁸",
+                                "Berechne: 2⁸ = 256"
+                            ]
+                        },
+                        action: 'practice'
+                    }
+                ]
             }
         };
         
@@ -208,20 +460,150 @@ class TutorialSystem {
         this.setupEventListeners();
     }
     
+    // Method to switch tutor based on selected math topic
+    setTutorForTopic(topicKey) {
+        const tutorMapping = {
+            'binomial-formulas': 'binomial-formulas',
+            'quadratic-equations': 'quadratic-equations', 
+            'quadratic-functions': 'quadratic-functions',
+            'function-transformations': 'function-transformations',
+            'root-calculations': 'root-calculations',
+            'power-laws': 'power-laws'
+        };
+        
+        const tutorKey = tutorMapping[topicKey] || 'binomial-formulas';
+        this.currentTutor = this.tutorCharacters[tutorKey];
+        
+        // Update UI if tutorial is active
+        if (this.isActive) {
+            this.updateTutorUI();
+        }
+        
+        return this.currentTutor;
+    }
+    
+    // Method to get appropriate tutor for current math topics selection
+    selectTutorForCurrentTopics() {
+        // Get selected topics from math-topics-system
+        const selectedTopics = JSON.parse(localStorage.getItem('selectedMathTopics') || '["binomial-formulas"]');
+        
+        // Priority order for tutor selection (if multiple topics selected)
+        const tutorPriority = [
+            'quadratic-equations',
+            'quadratic-functions', 
+            'function-transformations',
+            'root-calculations',
+            'power-laws',
+            'binomial-formulas'
+        ];
+        
+        // Find the highest priority selected topic
+        for (const topic of tutorPriority) {
+            if (selectedTopics.includes(topic)) {
+                return this.setTutorForTopic(topic);
+            }
+        }
+        
+        // Default fallback
+        return this.setTutorForTopic('binomial-formulas');
+    }
+    
+    // Update tutor information in UI
+    updateTutorUI() {
+        const avatarElement = document.querySelector('.tutor-avatar');
+        const nameElement = document.querySelector('.tutor-name');
+        const specialtyElement = document.querySelector('.tutor-specialty');
+        
+        if (avatarElement) avatarElement.textContent = this.currentTutor.avatar;
+        if (nameElement) nameElement.textContent = this.currentTutor.name;
+        if (specialtyElement) specialtyElement.textContent = this.currentTutor.specialty;
+    }
+    
+    // Start tutorial for a specific topic
+    startTutorialForTopic(topicKey) {
+        // Set the appropriate tutor
+        this.setTutorForTopic(topicKey);
+        
+        // Check if lesson exists for this topic
+        if (!this.lessons[topicKey]) {
+            console.warn(`No tutorial lesson found for topic: ${topicKey}`);
+            return false;
+        }
+        
+        // Start the tutorial
+        this.startTutorial(topicKey);
+        return true;
+    }
+    
+    // Enhanced start tutorial method
+    startTutorial(lessonKey = null) {
+        // If no lesson specified, select based on current math topics
+        if (!lessonKey) {
+            const selectedTutor = this.selectTutorForCurrentTopics();
+            // Find matching lesson key
+            const lessonKeys = Object.keys(this.lessons);
+            lessonKey = lessonKeys.find(key => 
+                this.lessons[key].title.toLowerCase().includes(selectedTutor.name.toLowerCase().split(' ')[1])
+            ) || 'binomial-formulas';
+        }
+        
+        this.currentLesson = lessonKey;
+        this.currentStep = 0;
+        this.isActive = true;
+        
+        // Update tutor for this lesson
+        this.setTutorForTopic(lessonKey);
+        
+        // Create tutorial UI if it doesn't exist
+        if (!document.getElementById('tutorialOverlay')) {
+            this.createTutorialUI();
+        }
+        
+        // Hide all menus
+        const menus = ['mainMenu', 'classSelectionMenu', 'mathTopicsMenu', 'difficultySelectionMenu', 'akademieMenu', 'learningModeMenu'];
+        menus.forEach(menuId => {
+            const menu = document.getElementById(menuId);
+            if (menu) menu.style.display = 'none';
+        });
+        
+        // Hide game canvas
+        const canvas = document.getElementById('gameCanvas');
+        if (canvas) canvas.style.display = 'none';
+        
+        // Show tutorial overlay
+        const overlay = document.getElementById('tutorialOverlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            this.updateTutorUI();
+            this.displayCurrentStep();
+        }
+        
+        // Disable body scrolling
+        document.body.style.overflow = 'hidden';
+        
+        console.log('Tutorial started for lesson:', lessonKey);
+    }
+    
     createTutorialUI() {
         // Create tutorial overlay HTML
         const tutorialHTML = `
-            <div id="tutorialOverlay" class="tutorial-overlay" style="display: none;">
+            <div id="tutorialOverlay" class="tutorial-overlay ${this.isDarkMode ? 'dark-mode' : 'light-mode'}" style="display: none;">
                 <div class="tutorial-container">
                     <div class="tutorial-header">
-                        <div class="tutor-avatar">${this.tutorCharacter.avatar}</div>
+                        <div class="tutor-avatar">${this.currentTutor.avatar}</div>
                         <div class="tutor-info">
-                            <h2 class="tutor-name">${this.tutorCharacter.name}</h2>
+                            <h2 class="tutor-name">${this.currentTutor.name}</h2>
+                            <p class="tutor-specialty">${this.currentTutor.specialty}</p>
                             <div class="lesson-progress">
                                 <span id="tutorialProgress">Schritt 1 von 9</span>
                             </div>
                         </div>
-                        <button class="tutorial-close" onclick="tutorialSystem.exitTutorial()">✕</button>
+                        <div class="tutorial-header-controls">
+                            <button class="theme-toggle-btn" onclick="tutorialSystem.toggleTheme()" title="Theme wechseln">
+                                <span class="theme-icon">${this.isDarkMode ? '☀️' : '🌙'}</span>
+                            </button>
+                            <button class="tutorial-close" onclick="tutorialSystem.exitTutorial()">✕</button>
+                        </div>
                     </div>
                     
                     <div class="tutorial-content">
@@ -255,13 +637,13 @@ class TutorialSystem {
         document.addEventListener('keydown', (e) => {
             if (this.isActive) {
                 if (e.key === 'Enter') {
-                    this.nextStep();
+                    this.handleEnterKey();
                 } else if (e.key === 'Escape') {
                     this.exitTutorial();
                 } else if (e.key === 'ArrowLeft') {
                     this.previousStep();
                 } else if (e.key === 'ArrowRight') {
-                    this.nextStep();
+                    this.handleArrowRightKey();
                 }
             }
         });
@@ -276,6 +658,9 @@ class TutorialSystem {
         this.currentLesson = topicId;
         this.currentStep = 0;
         this.isActive = true;
+        
+        // Disable scrolling
+        document.body.style.overflow = 'hidden';
         
         // Show tutorial overlay
         document.getElementById('tutorialOverlay').style.display = 'flex';
@@ -320,22 +705,42 @@ class TutorialSystem {
         const dialogueContainer = document.getElementById('tutorialDialogue');
         dialogueContainer.innerHTML = '';
         
-        dialogue.forEach((line, index) => {
-            setTimeout(() => {
+        // Check current step type
+        const currentStep = this.lessons[this.currentLesson].steps[this.currentStep];
+        const isTaskStep = currentStep.type === 'practice';
+        const isExampleStep = currentStep.type === 'example';
+        
+        if (isTaskStep) {
+            // For task steps, show only initialMessage if it exists, then stop
+            const messagesToShow = currentStep.initialMessage || [];
+            messagesToShow.forEach((line) => {
                 const p = document.createElement('p');
                 p.textContent = line;
                 p.classList.add('dialogue-line');
                 dialogueContainer.appendChild(p);
-                
-                // Scroll to bottom
-                dialogueContainer.scrollTop = dialogueContainer.scrollHeight;
-                
-                // Play typing sound
-                if (window.audioManager) {
-                    window.audioManager.playSound('dialogue-type', 'feedback');
-                }
-            }, index * 2500);
-        });
+            });
+        } else if (isExampleStep) {
+            // For example steps, show no dialogue (professor stays silent)
+            return;
+        } else {
+            // For introduction/theory/conclusion steps, show animated dialogue
+            dialogue.forEach((line, index) => {
+                setTimeout(() => {
+                    const p = document.createElement('p');
+                    p.textContent = line;
+                    p.classList.add('dialogue-line');
+                    dialogueContainer.appendChild(p);
+                    
+                    // Scroll to bottom
+                    dialogueContainer.scrollTop = dialogueContainer.scrollHeight;
+                    
+                    // Play typing sound
+                    if (window.audioManager) {
+                        window.audioManager.playSound('dialogue-type', 'feedback');
+                    }
+                }, index * 2500);
+            });
+        }
     }
     
     handleStepType(step) {
@@ -344,9 +749,16 @@ class TutorialSystem {
         document.getElementById('tutorialProblem').style.display = 'none';
         document.getElementById('tutorialHintBtn').style.display = 'none';
         
-        // Always show dialogue for all step types
+        // Control dialogue container visibility based on step type
         const dialogueContainer = document.getElementById('tutorialDialogue');
-        dialogueContainer.style.display = 'flex';
+        
+        if (step.type === 'example' || step.type === 'practice') {
+            // Hide dialogue container completely for examples and practice
+            dialogueContainer.style.display = 'none';
+        } else {
+            // Show dialogue container for introduction/theory/conclusion
+            dialogueContainer.style.display = 'flex';
+        }
         
         switch (step.type) {
             case 'example':
@@ -405,6 +817,9 @@ class TutorialSystem {
         const feedback = document.getElementById('problemFeedback');
         
         if (this.normalizeAnswer(userAnswer) === this.normalizeAnswer(correctAnswer)) {
+            // Show green screen flash effect
+            this.showSuccessFlash();
+            
             feedback.innerHTML = `
                 <div class="feedback-correct">
                     ✅ Richtig! Sehr gut gemacht!
@@ -412,9 +827,13 @@ class TutorialSystem {
                 </div>
             `;
             
-            // Enable next button
-            document.getElementById('tutorialNextBtn').disabled = false;
-            document.getElementById('tutorialNextBtn').textContent = 'Weiter →';
+            // Enable next button and mark step as solved
+            const nextBtn = document.getElementById('tutorialNextBtn');
+            nextBtn.disabled = false;
+            nextBtn.textContent = 'Weiter →';
+            
+            // Disable answer input to prevent further changes
+            document.getElementById('tutorialAnswer').disabled = true;
             
             // Play success sound
             if (window.audioManager) {
@@ -482,6 +901,47 @@ class TutorialSystem {
         }
     }
     
+    handleEnterKey() {
+        const currentStep = this.lessons[this.currentLesson].steps[this.currentStep];
+        
+        // For practice steps, check if answer is required and correct
+        if (currentStep.type === 'practice') {
+            const answerInput = document.getElementById('tutorialAnswer');
+            const nextBtn = document.getElementById('tutorialNextBtn');
+            
+            // If there's an answer input and it's not disabled, try to check the answer
+            if (answerInput && !answerInput.disabled) {
+                // If there's text in the input, check the answer
+                if (answerInput.value.trim()) {
+                    this.checkAnswer();
+                }
+                return; // Don't proceed to next step
+            }
+            
+            // If the next button is disabled, don't allow proceeding
+            if (nextBtn && nextBtn.disabled) {
+                return;
+            }
+        }
+        
+        // For non-practice steps or when answer is already correct, proceed normally
+        this.nextStep();
+    }
+    
+    handleArrowRightKey() {
+        const currentStep = this.lessons[this.currentLesson].steps[this.currentStep];
+        
+        // For practice steps, don't allow arrow key navigation if answer not solved
+        if (currentStep.type === 'practice') {
+            const nextBtn = document.getElementById('tutorialNextBtn');
+            if (nextBtn && nextBtn.disabled) {
+                return; // Don't allow navigation if answer not correct
+            }
+        }
+        
+        this.nextStep();
+    }
+
     nextStep() {
         const lesson = this.lessons[this.currentLesson];
         
@@ -520,16 +980,76 @@ class TutorialSystem {
     
     exitTutorial() {
         this.isActive = false;
-        document.getElementById('tutorialOverlay').style.display = 'none';
         
-        // Show difficulty selection menu
-        document.getElementById('difficultySelectionMenu').style.display = 'block';
-        document.getElementById('difficultySelectionMenu').classList.add('active');
+        // Hide tutorial overlay
+        const overlay = document.getElementById('tutorialOverlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        
+        // Re-enable scrolling
+        document.body.style.overflow = 'auto';
+        
+        // Return to Akademie menu if we came from there
+        if (window.akademieSystem && window.akademieSystem.currentMode === 'training') {
+            window.akademieSystem.showAkademieMenu();
+        } else {
+            // Show main menu as fallback
+            showMainMenu();
+        }
+        
+        console.log('Tutorial exited');
     }
     
-    isTutorialMode() {
-        return window.difficultySelectionSystem && 
-               window.difficultySelectionSystem.getCurrentDifficulty() === 'tutorial';
+    toggleTheme() {
+        this.isDarkMode = !this.isDarkMode;
+        localStorage.setItem('tutorial-dark-mode', this.isDarkMode.toString());
+        
+        const overlay = document.getElementById('tutorialOverlay');
+        const themeIcon = document.querySelector('.theme-icon');
+        
+        if (this.isDarkMode) {
+            overlay.classList.remove('light-mode');
+            overlay.classList.add('dark-mode');
+            themeIcon.textContent = '☀️';
+        } else {
+            overlay.classList.remove('dark-mode');
+            overlay.classList.add('light-mode');
+            themeIcon.textContent = '🌙';
+        }
+        
+        // Play theme toggle sound
+        if (window.audioManager) {
+            window.audioManager.playSound('ui-click', 'feedback');
+        }
+    }
+    
+    showSuccessFlash() {
+        // Create success flash overlay
+        const flashOverlay = document.createElement('div');
+        flashOverlay.className = 'tutorial-success-flash';
+        flashOverlay.innerHTML = `
+            <div class="success-flash-content">
+                <div class="success-icon">✅</div>
+                <div class="success-text">RICHTIG!</div>
+            </div>
+        `;
+        
+        // Add to tutorial overlay
+        const tutorialOverlay = document.getElementById('tutorialOverlay');
+        tutorialOverlay.appendChild(flashOverlay);
+        
+        // Trigger animation
+        setTimeout(() => {
+            flashOverlay.classList.add('flash-active');
+        }, 10);
+        
+        // Remove after animation
+        setTimeout(() => {
+            if (flashOverlay.parentNode) {
+                flashOverlay.parentNode.removeChild(flashOverlay);
+            }
+        }, 1500);
     }
 }
 

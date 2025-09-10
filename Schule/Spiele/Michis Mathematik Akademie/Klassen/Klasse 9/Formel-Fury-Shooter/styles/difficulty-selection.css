@@ -19,7 +19,8 @@
 #difficultySelectionMenu.active {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: center;
 }
 
 #difficultySelectionTitle {
@@ -45,9 +46,12 @@
 }
 
 .difficulty-selection-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    max-width: 1200px;
     max-width: 1200px;
     margin: 0 auto 20px auto;
     padding: 0 15px;

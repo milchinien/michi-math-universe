@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="styles/math-topics.css">
     <link rel="stylesheet" href="styles/difficulty-selection.css">
     <link rel="stylesheet" href="styles/tutorial.css">
+    <link rel="stylesheet" href="styles/akademie.css">
     <link rel="stylesheet" href="styles/boss.css">
 </head>
 <body>
@@ -192,20 +193,11 @@
         </div>
         
         <div id="menuButtons">
-            <button class="menu-btn" onclick="showMathTopicsMenu()">
+            <button class="menu-btn primary-btn" onclick="showMathTopicsMenu()">
                 🎮 SPIEL STARTEN
             </button>
-            <button class="menu-btn" onclick="showInstructions()">
-                📚 SPIELANLEITUNG
-            </button>
-            <button class="menu-btn" onclick="showSettings()">
-                ⚙️ EINSTELLUNGEN
-            </button>
-            <button class="menu-btn" onclick="showHighScores()">
-                🏆 BESTENLISTE
-            </button>
-            <button class="menu-btn" onclick="showUpgrades()">
-                ⬆️ UPGRADES
+            <button class="menu-btn secondary-btn" onclick="showAkademieMenu()">
+                🎓 AKADEMIE
             </button>
         </div>
 
@@ -268,20 +260,18 @@
             <div class="topic-category">
                 <h3 class="category-title">📈 Quadratische Funktionen - Die Parabeln</h3>
                 <div class="topic-items">
-                    <div class="topic-item disabled">
-                        <input type="checkbox" id="quadratic-functions" class="topic-checkbox" disabled>
+                    <div class="topic-item">
+                        <input type="checkbox" id="quadratic-functions" class="topic-checkbox">
                         <label for="quadratic-functions" class="topic-label">
                             <span class="topic-name">🌙 Parabel-Phantome</span>
                             <span class="topic-description">Scheitelpunkt, Nullstellen & Normalform-Monster</span>
-                            <span class="coming-soon">Bald verfügbar</span>
                         </label>
                     </div>
-                    <div class="topic-item disabled">
-                        <input type="checkbox" id="function-transformations" class="topic-checkbox" disabled>
+                    <div class="topic-item">
+                        <input type="checkbox" id="function-transformations" class="topic-checkbox">
                         <label for="function-transformations" class="topic-label">
                             <span class="topic-name">🔄 Funktions-Transformations-Titanen</span>
                             <span class="topic-description">Verschiebung, Streckung & Spiegelung der Parabeln</span>
-                            <span class="coming-soon">Bald verfügbar</span>
                         </label>
                     </div>
                 </div>
@@ -337,18 +327,6 @@
         </div>
         
         <div class="difficulty-selection-grid">
-            <div class="difficulty-selection-card tutorial" data-difficulty="tutorial">
-                <div class="difficulty-selection-icon">👨‍🏫</div>
-                <div class="difficulty-selection-name">Akademie-Neuling</div>
-                <div class="difficulty-selection-description">Interaktiver Mathe-Lehrer Modus</div>
-                <div class="difficulty-selection-features">
-                    <div class="difficulty-feature">👨‍🏫 Persönlicher Mathe-Tutor</div>
-                    <div class="difficulty-feature">💬 Interaktive Gespräche</div>
-                    <div class="difficulty-feature">📝 Schritt-für-Schritt Beispiele</div>
-                    <div class="difficulty-feature">🎯 Kein Zeitdruck - Nur Lernen</div>
-                </div>
-            </div>
-            
             <div class="difficulty-selection-card easy selected" data-difficulty="easy">
                 <div class="difficulty-selection-icon">⚔️</div>
                 <div class="difficulty-selection-name">Formel-Krieger</div>
@@ -898,6 +876,107 @@
        <div id="shopFeedback" class="shop-feedback"></div>
    </div>
 
+   <!-- Akademie Menu -->
+   <div id="akademieMenu" style="display: none;">
+       <div id="akademieTitle">
+           🎓 MATHEMATIK AKADEMIE
+       </div>
+       <div id="akademieSubtitle">
+           Wähle deinen Lernbereich - Klicke auf ein Thema für Training oder Quiz!
+       </div>
+       
+       <div class="akademie-topics-container">
+           <div class="akademie-topic-category">
+               <h3 class="akademie-category-title">🔥 Binomische Formeln - Die Klassiker</h3>
+               <div class="akademie-topic-items">
+                   <div class="akademie-topic-item" data-topic="binomial-formulas">
+                       <div class="akademie-topic-content">
+                           <span class="akademie-topic-name">🏛️ Binomische Formeln-Bestien</span>
+                           <span class="akademie-topic-description">Die drei legendären Formeln: (a+b)², (a-b)², (a+b)(a-b)</span>
+                       </div>
+                   </div>
+                   <div class="akademie-topic-item" data-topic="quadratic-equations">
+                       <div class="akademie-topic-content">
+                           <span class="akademie-topic-name">⚔️ Quadratische Gleichungs-Dämonen</span>
+                           <span class="akademie-topic-description">Mitternachtsformel & p-q-Formel Krieger</span>
+                       </div>
+                   </div>
+               </div>
+           </div>
+           
+           <div class="akademie-topic-category">
+               <h3 class="akademie-category-title">📈 Quadratische Funktionen - Die Parabeln</h3>
+               <div class="akademie-topic-items">
+                   <div class="akademie-topic-item disabled" data-topic="quadratic-functions">
+                       <div class="akademie-topic-content">
+                           <span class="akademie-topic-name">🌙 Parabel-Phantome</span>
+                           <span class="akademie-topic-description">Scheitelpunkt, Nullstellen & Normalform-Monster</span>
+                           <span class="akademie-coming-soon">Bald verfügbar</span>
+                       </div>
+                   </div>
+                   <div class="akademie-topic-item disabled" data-topic="function-transformations">
+                       <div class="akademie-topic-content">
+                           <span class="akademie-topic-name">🔄 Funktions-Transformations-Titanen</span>
+                           <span class="akademie-topic-description">Verschiebung, Streckung & Spiegelung der Parabeln</span>
+                           <span class="akademie-coming-soon">Bald verfügbar</span>
+                       </div>
+                   </div>
+               </div>
+           </div>
+           
+           <div class="akademie-topic-category">
+               <h3 class="akademie-category-title">🧮 Wurzeln & Potenzen - Die Radikalen</h3>
+               <div class="akademie-topic-items">
+                   <div class="akademie-topic-item disabled" data-topic="square-roots">
+                       <div class="akademie-topic-content">
+                           <span class="akademie-topic-name">√ Wurzel-Wächter</span>
+                           <span class="akademie-topic-description">Quadratwurzeln ziehen & Wurzelgesetze anwenden</span>
+                           <span class="akademie-coming-soon">Bald verfügbar</span>
+                       </div>
+                   </div>
+                   <div class="akademie-topic-item disabled" data-topic="power-laws">
+                       <div class="akademie-topic-content">
+                           <span class="akademie-topic-name">💥 Potenzgesetze-Piraten</span>
+                           <span class="akademie-topic-description">Negative & rationale Exponenten meistern</span>
+                           <span class="akademie-coming-soon">Bald verfügbar</span>
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+       
+       <div class="akademie-buttons">
+           <button class="menu-btn secondary" onclick="backToMainMenuFromAkademie()">
+               ↩️ ZURÜCK ZUM HAUPTMENÜ
+           </button>
+       </div>
+   </div>
+
+   <!-- Learning Mode Selection Modal -->
+   <div id="learningModeModal" class="modal-overlay" style="display: none;">
+       <div class="modal-content">
+           <div class="modal-header">
+               <h3 id="modalTopicTitle">📚 Lernmodus wählen</h3>
+               <button class="modal-close" onclick="closeLearningModeModal()">✖</button>
+           </div>
+           <div class="modal-body">
+               <p>Wie möchtest du <span id="modalTopicName">dieses Thema</span> lernen?</p>
+               <div class="learning-mode-buttons">
+                   <button class="learning-mode-btn training-btn" onclick="startTrainingMode()">
+                       <div class="btn-icon">👨‍🏫</div>
+                       <div class="btn-title">TRAINING</div>
+                       <div class="btn-description">Interaktiver Tutor</div>
+                   </button>
+                   <button class="learning-mode-btn quiz-btn disabled" onclick="startQuizMode()">
+                       <div class="btn-icon">📝</div>
+                       <div class="btn-title">QUIZ</div>
+                       <div class="btn-description">Bald verfügbar</div>
+                   </button>
+               </div>
+           </div>
+       </div>
+   </div>
+
    <!-- JavaScript Module Imports -->
    <script src="js/particle-system.js"></script>
    <script src="js/screen-effects.js"></script>
@@ -922,6 +1001,7 @@
    <script src="js/math-topics-system.js"></script>
    <script src="js/difficulty-selection.js"></script>
    <script src="js/tutorial-system.js"></script>
+   <script src="js/akademie-system.js"></script>
    <script src="js/main.js"></script>
 </body>
 </html>
