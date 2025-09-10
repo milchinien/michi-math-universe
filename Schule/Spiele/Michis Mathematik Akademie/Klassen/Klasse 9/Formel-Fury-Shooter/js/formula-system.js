@@ -443,6 +443,10 @@ class FormulaSystem {
         
         const formulaText = this.formatExpandedForm(coefficient_x2, coefficient_x, constant, variable);
         
+        // Generate solutions
+        const solution1 = `(${a === 1 ? '' : a}${variable}${b >= 0 ? '+' : ''}${b})²`;
+        const solution2 = `(${a === 1 ? '' : a}${variable}${b >= 0 ? ' + ' : ' - '}${Math.abs(b)})²`;
+        
         const formula = {
             text: formulaText,
             type: 'factorization_square',
@@ -455,9 +459,11 @@ class FormulaSystem {
                 x2: coefficient_x2,
                 x: coefficient_x,
                 constant: constant
-            }
+            },
+            solutions: [solution1, solution2]
         };
         
+        return formula;
     }
 
     formatQuadraticTerm(coefficient, variable) {

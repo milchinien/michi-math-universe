@@ -27,7 +27,8 @@ class AudioManager {
             base: [], // Ambient and music
             action: [], // Gameplay sounds
             feedback: [], // Immediate reaction sounds
-            effect: [] // Special effects and distortions
+            effect: [], // Special effects and distortions
+            ambient: [] // Ambient sounds layer
         };
         
         // Dynamic audio state

@@ -67,7 +67,10 @@ class AkademieSystem {
     
     attachTopicListeners() {
         const topicItems = document.querySelectorAll('.akademie-topic-item:not(.disabled)');
-        console.log('Found topic items:', topicItems.length);
+        // Reduced logging to prevent spam
+        if (topicItems.length === 0) {
+            console.warn('No topic items found');
+        }
         
         topicItems.forEach(item => {
             item.addEventListener('click', (e) => {
@@ -125,7 +128,16 @@ class AkademieSystem {
     
     updateSelectedTopicDisplay() {
         const selectedTopicElement = document.getElementById('akademieSelectedTopic');
+        if (!selectedTopicElement) {
+            console.warn('akademieSelectedTopic element not found');
+            return;
+        }
+        
         const selectedNameElement = selectedTopicElement.querySelector('.akademie-selected-name');
+        if (!selectedNameElement) {
+            console.warn('akademie-selected-name element not found');
+            return;
+        }
         
         if (this.selectedTopic && this.availableTopics[this.selectedTopic]) {
             const topic = this.availableTopics[this.selectedTopic];

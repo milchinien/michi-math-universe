@@ -87,7 +87,7 @@ class MathTopicsSystem {
     
     init() {
         this.setupTopicEventListeners();
-        this.loadSettings();
+        this.loadSelection();
     }
     
     // Get the appropriate tutor for currently selected topics
