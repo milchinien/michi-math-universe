@@ -112,19 +112,8 @@ class ClassSelectionSystem {
         if (classSelectionMenu) {
             classSelectionMenu.style.animation = 'fadeOutUp 0.5s ease-in-out forwards';
             
-            setTimeout(() => {
-                classSelectionMenu.style.display = 'none';
                 
-                // Show game canvas and start the game
-                const gameCanvas = document.getElementById('gameCanvas');
-                if (gameCanvas) {
-                    gameCanvas.style.display = 'block';
-                    gameCanvas.style.animation = 'fadeInDown 0.5s ease-in-out';
-                }
-                
-                // Initialize the actual game
-                this.initializeGame();
-            }, 500);
+
         }
     }
 
@@ -274,6 +263,22 @@ const notificationStyles = `
     }
 }
 
+.class-card.selected {
+    border-color: #2196F3 !important;
+    background: linear-gradient(145deg, #2a4a6a, #1e3a5a) !important;
+    box-shadow: 0 0 25px rgba(33, 150, 243, 0.4) !important;
+}
+
+.class-card.selected .class-number {
+    color: #2196F3 !important;
+    text-shadow: 0 0 15px rgba(33, 150, 243, 0.5) !important;
+}
+
+.class-card.selected .topic {
+    background: rgba(33, 150, 243, 0.2) !important;
+    border-color: rgba(33, 150, 243, 0.4) !important;
+    color: #64B5F6 !important;
+}
 `;
 
 // Add notification styles to the page

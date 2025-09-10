@@ -6,6 +6,7 @@
 class MathTopicsSystem {
     constructor() {
         this.selectedTopics = new Set(['binomial-formulas']); // Default selection
+        // Difficulty is now handled by the separate difficulty selection system
         this.topicDefinitions = {
             'binomial-formulas': {
                 name: 'Binomische Formeln-Bestien',
@@ -49,12 +50,12 @@ class MathTopicsSystem {
     }
     
     init() {
-        this.setupEventListeners();
-        this.updateUI();
-        this.setupEasterEggs();
+        this.setupTopicEventListeners();
+        this.loadSavedSelections();
+        this.updateDisplay();
     }
     
-    setupEventListeners() {
+    setupTopicEventListeners() {
         // Add event listeners for all checkboxes
         const checkboxes = document.querySelectorAll('.topic-checkbox');
         checkboxes.forEach(checkbox => {
@@ -72,6 +73,8 @@ class MathTopicsSystem {
             }, { passive: false });
         }
     }
+    
+    // Difficulty handling removed - now handled by separate difficulty selection system
     
     setupEasterEggs() {
         // Konami Code Easter Egg (↑↑↓↓←→←→BA)
@@ -408,7 +411,11 @@ class MathTopicsSystem {
     
     saveSelection() {
         try {
-            localStorage.setItem('mathTopicsSelection', JSON.stringify(Array.from(this.selectedTopics)));
+            const selectionData = {
+                topics: Array.from(this.selectedTopics),
+                difficulty: this.selectedDifficulty
+            };
+            localStorage.setItem('mathTopicsSelection', JSON.stringify(selectionData));
         } catch (error) {
             console.warn('Could not save math topics selection:', error);
         }
@@ -418,14 +425,31 @@ class MathTopicsSystem {
         try {
             const saved = localStorage.getItem('mathTopicsSelection');
             if (saved) {
-                const topics = JSON.parse(saved);
-                this.selectedTopics = new Set(topics.filter(topicId => 
-                    this.topicDefinitions[topicId] && this.topicDefinitions[topicId].enabled
-                ));
+                const selectionData = JSON.parse(saved);
+                
+                // Handle both old format (array) and new format (object)
+                if (Array.isArray(selectionData)) {
+                    // Old format - just topics
+                    this.selectedTopics = new Set(selectionData.filter(topicId => 
+                        this.topicDefinitions[topicId] && this.topicDefinitions[topicId].enabled
+                    ));
+                    this.selectedDifficulty = 'easy'; // Default difficulty
+                } else {
+                    // New format - object with topics and difficulty
+                    this.selectedTopics = new Set((selectionData.topics || []).filter(topicId => 
+                        this.topicDefinitions[topicId] && this.topicDefinitions[topicId].enabled
+                    ));
+                    this.selectedDifficulty = selectionData.difficulty || 'easy';
+                }
                 
                 // Ensure at least one topic is selected
                 if (this.selectedTopics.size === 0) {
                     this.selectedTopics.add('binomial-formulas');
+                }
+                
+                // Ensure valid difficulty
+                if (!this.difficultyDefinitions[this.selectedDifficulty]) {
+                    this.selectedDifficulty = 'easy';
                 }
                 
                 // Update checkboxes to match loaded selection
@@ -434,6 +458,7 @@ class MathTopicsSystem {
         } catch (error) {
             console.warn('Could not load math topics selection:', error);
             this.selectedTopics = new Set(['binomial-formulas']);
+            this.selectedDifficulty = 'easy';
         }
     }
     
@@ -472,6 +497,39 @@ class MathTopicsSystem {
     getDifficultyMultiplier() {
         const avgDifficulty = this.getAverageDifficulty();
         return Math.max(0.8, Math.min(1.5, avgDifficulty / 2));
+    }
+    
+    // Get selected difficulty settings
+    getSelectedDifficulty() {
+        return this.selectedDifficulty;
+    }
+    
+    getDifficultySettings() {
+        return this.difficultyDefinitions[this.selectedDifficulty] || this.difficultyDefinitions['easy'];
+    }
+    
+    // Get enemy count multiplier based on difficulty
+    getEnemyCountMultiplier() {
+        const settings = this.getDifficultySettings();
+        return settings.enemyMultiplier;
+    }
+    
+    // Get time multiplier based on difficulty
+    getTimeMultiplier() {
+        const settings = this.getDifficultySettings();
+        return settings.timeMultiplier;
+    }
+    
+    // Get complexity level for formula generation
+    getComplexityLevel() {
+        const settings = this.getDifficultySettings();
+        return settings.complexityLevel;
+    }
+    
+    // Check if explanations should be shown (tutorial mode)
+    shouldShowExplanations() {
+        const settings = this.getDifficultySettings();
+        return settings.showExplanations;
     }
 }
 

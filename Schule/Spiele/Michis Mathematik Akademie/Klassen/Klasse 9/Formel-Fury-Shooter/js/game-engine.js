@@ -98,6 +98,11 @@ class GameEngine {
         console.log('🔧 Cheat code system initialized. Use Ctrl+CapsLock to toggle cheat menu.');
 
         document.addEventListener('keydown', (e) => {
+            // Skip input handling if tutorial is active
+            if (window.tutorialSystem && window.tutorialSystem.isActive) {
+                return;
+            }
+            
             // Track key states
             if (e.code === 'ControlLeft' || e.code === 'ControlRight') {
                 this.cheatKeys.ctrl = true;
@@ -998,6 +1003,11 @@ class GameEngine {
 
         // Escape key for pause menu and exiting combat
         document.addEventListener('keydown', (e) => {
+            // Skip input handling if tutorial is active
+            if (window.tutorialSystem && window.tutorialSystem.isActive) {
+                return;
+            }
+            
             if (e.key === 'Escape') {
                 if (this.combatMode) {
                     // Exit combat mode when fighting enemies

@@ -301,17 +301,31 @@ class Enemy {
     }
 
     getSpeedMultiplier() {
+        // Get difficulty speed multiplier
+        let difficultySpeedMultiplier = 1.0;
+        if (window.difficultySelectionSystem) {
+            difficultySpeedMultiplier = window.difficultySelectionSystem.getDifficultyMultipliers().enemySpeed;
+        }
+        
         // Calculate speed multiplier based on AI state
+        let aiSpeedMultiplier = 1.0;
         switch (this.processingState) {
             case 'alert':
-                return 1.5;
+                aiSpeedMultiplier = 1.5;
+                break;
             case 'calculating':
-                return 1.2;
+                aiSpeedMultiplier = 1.2;
+                break;
             case 'thinking':
-                return 1.0;
+                aiSpeedMultiplier = 1.0;
+                break;
             default:
-                return 0.8;
+                aiSpeedMultiplier = 0.8;
+                break;
         }
+        
+        // Return combined multiplier
+        return aiSpeedMultiplier * difficultySpeedMultiplier;
     }
 
     takeDamage(damage) {

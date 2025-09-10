@@ -230,7 +230,11 @@ class FormulaSystem {
     }
 
     generateFormulaByType(type) {
-        console.log(`🧮 Generating formula of type: ${type}`);
+        // Get difficulty settings to adjust formula complexity
+        const complexityLevel = this.getDifficultyComplexity();
+        const showExplanations = this.shouldShowExplanations();
+        
+        let formula, solution, choices;
         
         switch (type) {
             case 'expansion_plus':
@@ -422,28 +426,6 @@ class FormulaSystem {
             }
         };
         
-        formula.solutions = this.generateFactorizationSquareSolutions(a, b, variable);
-        this.updateCurrentFormula(formula);
-        return formula;
-    }
-
-    // Helper methods for coefficient generation
-    generateCoefficient() {
-        // Progressive difficulty based on score
-        if (this.score < 500) return Math.floor(Math.random() * 3) + 1; // 1-3
-        if (this.score < 1500) return Math.floor(Math.random() * 5) + 1; // 1-5
-        return Math.floor(Math.random() * 7) + 1; // 1-7
-    }
-
-    generateConstant() {
-        if (this.score < 500) return Math.floor(Math.random() * 4) + 1; // 1-4
-        if (this.score < 1500) return Math.floor(Math.random() * 6) + 1; // 1-6
-        return Math.floor(Math.random() * 10) + 1; // 1-10
-    }
-
-    formatTerm(coefficient, variable) {
-        if (coefficient === 1) return variable;
-        return `${coefficient}${variable}`;
     }
 
     formatQuadraticTerm(coefficient, variable) {
@@ -495,6 +477,67 @@ class FormulaSystem {
         if (Math.abs(constant) > 36) difficulty += 0.5;
         
         return Math.max(1, Math.min(5, difficulty)); // Extended range 1-5
+    }
+
+    // Helper methods for difficulty integration
+    getDifficultyComplexity() {
+        if (window.mathTopicsSystem) {
+            return window.mathTopicsSystem.getComplexityLevel();
+        }
+        return 2; // Default medium complexity
+    }
+    
+    shouldShowExplanations() {
+        if (window.mathTopicsSystem) {
+            return window.mathTopicsSystem.shouldShowExplanations();
+        }
+        return false; // Default no explanations
+    }
+
+    // Helper methods for coefficient generation with difficulty adjustment
+    generateCoefficient() {
+        const complexityLevel = this.getDifficultyComplexity();
+        
+        switch (complexityLevel) {
+            case 1: // Tutorial - very simple
+                return Math.floor(Math.random() * 2) + 1; // 1-2
+            case 2: // Easy - simple
+                return Math.floor(Math.random() * 3) + 1; // 1-3
+            case 3: // Medium - moderate
+                return Math.floor(Math.random() * 5) + 1; // 1-5
+            case 4: // Hard - complex
+                return Math.floor(Math.random() * 8) + 1; // 1-8
+            default:
+                return Math.floor(Math.random() * 3) + 1; // Fallback
+        }
+    }
+
+    generateConstant() {
+        const complexityLevel = this.getDifficultyComplexity();
+        
+        switch (complexityLevel) {
+            case 1: // Tutorial - very simple
+                return Math.floor(Math.random() * 3) + 1; // 1-3
+            case 2: // Easy - simple
+                return Math.floor(Math.random() * 4) + 1; // 1-4
+            case 3: // Medium - moderate
+                return Math.floor(Math.random() * 6) + 1; // 1-6
+            case 4: // Hard - complex
+                return Math.floor(Math.random() * 10) + 1; // 1-10
+            default:
+                return Math.floor(Math.random() * 4) + 1; // Fallback
+        }
+    }
+
+    // Helper method for formatting terms in formulas
+    formatTerm(coefficient, variable) {
+        if (coefficient === 1) {
+            return variable;
+        } else if (coefficient === -1) {
+            return `-${variable}`;
+        } else {
+            return `${coefficient}${variable}`;
+        }
     }
 
     startComboTimer() {

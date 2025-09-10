@@ -1959,9 +1959,21 @@ body:has(#mainMenu:not([style*="display: none"])) #gameInfo {
     display: none !important;
 }
 
+/* Hide floating formula container completely */
+#floatingFormulaContainer,
+.floating-formula-container {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 /* Alternative approach using class-based hiding */
 .main-menu-active #keyBindingsDisplay,
 .main-menu-active #levelDisplay,
+.main-menu-active #waveDisplay,
+.main-menu-active #scoreDisplay,
+.main-menu-active #highScoreDisplay,
 .main-menu-active #gameInfo {
     display: none !important;
 }

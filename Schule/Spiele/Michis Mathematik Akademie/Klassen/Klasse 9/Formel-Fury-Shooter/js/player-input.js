@@ -646,6 +646,10 @@ class InputHandler {
 
     setupEventListeners() {
         document.addEventListener('keydown', (e) => {
+            // Skip input handling if tutorial is active
+            if (window.tutorialSystem && window.tutorialSystem.isActive) {
+                return;
+            }
             this.keys[e.key] = true;
         });
 
@@ -678,8 +682,11 @@ class InputHandler {
             e.preventDefault();
         });
         
-        // Prevent default behavior for WASD keys
+        // Prevent default behavior for WASD keys (only when NOT in tutorial)
         document.addEventListener('keydown', (e) => {
+            if (window.tutorialSystem && window.tutorialSystem.isActive) {
+                return; // Allow normal typing in tutorial
+            }
             if (['w', 'a', 's', 'd', 'W', 'A', 'S', 'D'].includes(e.key)) {
                 e.preventDefault();
             }

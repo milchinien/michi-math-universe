@@ -630,6 +630,10 @@ class FloatingInputSystem {
         if (this.connectionLine) {
             this.connectionLine.remove();
         }
+        
+        // Remove any existing floating containers from DOM
+        const existingContainers = document.querySelectorAll('#floatingFormulaContainer, .floating-formula-container');
+        existingContainers.forEach(container => container.remove());
     }
 }
 

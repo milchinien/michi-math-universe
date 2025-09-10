@@ -168,25 +168,28 @@ class WaveSystem {
     }
     
     calculateWaveProgression() {
-        // Increase difficulty over time
-        const baseEnemies = 3;
-        const baseSpawnRate = 3000;
-        const baseBonusMultiplier = 1.0;
-        
-        // Progressive scaling - more aggressive difficulty increase
-        this.enemiesPerWave = Math.floor(baseEnemies + (this.currentWave - 1) * 2);
-        this.enemySpawnRate = Math.max(800, baseSpawnRate - (this.currentWave - 1) * 200);
-        this.waveBonus = baseBonusMultiplier + (this.currentWave - 1) * 0.15;
-        
-        // Update global game difficulty for formula system
-        if (window.game && window.game.formulaSystem) {
-            window.game.formulaSystem.currentWave = this.currentWave;
+        // Get difficulty multipliers from new difficulty selection system
+        let difficultyMultipliers = { enemyCount: 1.0, enemySpeed: 1.0, timeLimit: 1.0 };
+        if (window.difficultySelectionSystem) {
+            difficultyMultipliers = window.difficultySelectionSystem.getDifficultyMultipliers();
         }
         
-        console.log(`📈 Wave ${this.currentWave} progression:`, {
+        // Increase enemies per wave with difficulty adjustment
+        const baseEnemies = Math.floor(5 + (this.currentWave * 0.5));
+        this.enemiesPerWave = Math.max(1, Math.floor(baseEnemies * difficultyMultipliers.enemyCount));
+        
+        // Decrease spawn rate (faster spawning) with difficulty adjustment
+        const baseSpawnRate = Math.max(500, 2000 - (this.currentWave * 50));
+        this.enemySpawnRate = Math.floor(baseSpawnRate * difficultyMultipliers.timeLimit);
+        
+        // Increase wave bonus
+        this.waveBonus = 1.0 + (this.currentWave * 0.1);
+        
+        console.log(`📊 Wave ${this.currentWave} progression:`, {
             enemies: this.enemiesPerWave,
             spawnRate: this.enemySpawnRate,
-            bonus: this.waveBonus.toFixed(1)
+            bonus: this.waveBonus,
+            difficulty: window.difficultySelectionSystem ? window.difficultySelectionSystem.getCurrentDifficulty() : 'unknown'
         });
     }
     
