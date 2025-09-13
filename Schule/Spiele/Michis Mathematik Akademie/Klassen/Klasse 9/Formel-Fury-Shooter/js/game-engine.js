@@ -1040,6 +1040,9 @@ class GameEngine {
             this.statsSystem.hide();
         }
         
+        // Remove night mode styling when returning to menu
+        document.body.classList.remove('night-mode');
+        
         // Add class to body to hide game UI elements
         document.body.classList.add('main-menu-active');
         
@@ -1047,12 +1050,6 @@ class GameEngine {
         this.canvas.style.display = 'block';
         this.canvas.style.filter = 'blur(3px)';
         this.canvas.style.zIndex = '1';
-        
-        const mainMenu = document.getElementById('mainMenu');
-        if (mainMenu) {
-            mainMenu.style.display = 'flex';
-            mainMenu.style.zIndex = '10';
-        }
         
         // Start background animation with enemies
         this.startMenuBackgroundAnimation();
@@ -1217,6 +1214,13 @@ class GameEngine {
         this.gameState = 'playing';
         this.hideGameModeSelection();
         this.hideMainMenu();
+        
+        // Apply night mode styling to body
+        if (mode === 'night') {
+            document.body.classList.add('night-mode');
+        } else {
+            document.body.classList.remove('night-mode');
+        }
         this.showGameHUD();
         
         // Show XP bar when starting game
