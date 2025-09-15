@@ -1,0 +1,2920 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadrier-Quarantäne - Wurzelgleichungs-Boss-Rush</title>
+    
+    <!-- KaTeX CDN für mathematische Notation -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" integrity="sha384-cpW21h6RZv/phavutF+AuVYrr+dA8xD9zs6FwLpaCct6O9ctzYFfFr4dgmgccOTx" crossorigin="anonymous"></script>
+    
+    <style>
+        /* Futuristisches Gaming CSS Variables */
+        :root {
+            --neon-cyan: #00ffff;
+            --neon-orange: #ff8800;
+            --neon-red: #ff0040;
+            --neon-purple: #cc00ff;
+            --neon-green: #00ff80;
+            --dark-bg: #0a0a0f;
+            --dark-bg-secondary: #1a1a2e;
+            --dark-bg-tertiary: #16213e;
+            --text-neon: #00ffff;
+            --text-white: #ffffff;
+            --text-gray: #8892b0;
+            --border-neon: #00ffff;
+            --glow-cyan: 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff;
+            --glow-orange: 0 0 20px #ff8800, 0 0 40px #ff8800, 0 0 60px #ff8800;
+            --glow-red: 0 0 20px #ff0040, 0 0 40px #ff0040, 0 0 60px #ff0040;
+            --glow-purple: 0 0 20px #cc00ff, 0 0 40px #cc00ff, 0 0 60px #cc00ff;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;800&display=swap');
+
+        /* Reset und Futuristic Grundstyles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Exo 2', 'Orbitron', monospace;
+            background: radial-gradient(ellipse at top, var(--dark-bg-secondary) 0%, var(--dark-bg) 70%);
+            background-attachment: fixed;
+            color: var(--text-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 136, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 60%, rgba(255, 0, 64, 0.05) 0%, transparent 50%);
+            animation: particles 20s infinite linear;
+            z-index: -1;
+        }
+
+        @keyframes particles {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+
+        /* Futuristisches Grid Layout */
+        .game-container {
+            display: grid;
+            grid-template-columns: 320px 1fr 420px;
+            grid-template-rows: 100px 1fr;
+            grid-template-areas: 
+                "progress progress progress"
+                "tools equation boss";
+            height: 100vh;
+            gap: 25px;
+            padding: 25px;
+            max-width: 1800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Futuristische Fortschrittsleiste */
+        .progress-bar {
+            grid-area: progress;
+            background: linear-gradient(135deg, var(--dark-bg-tertiary) 0%, var(--dark-bg-secondary) 100%);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 15px;
+            box-shadow: var(--glow-cyan);
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: scan 3s infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .progress-bar > div {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--neon-cyan);
+            text-shadow: var(--glow-cyan);
+            z-index: 1;
+        }
+
+        .boss-health {
+            flex: 1;
+            height: 25px;
+            background: var(--dark-bg);
+            border: 2px solid var(--neon-red);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 0 30px;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(255, 0, 64, 0.3);
+        }
+
+        .health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-red) 0%, var(--neon-orange) 50%, var(--neon-red) 100%);
+            width: 100%;
+            transition: width 0.5s ease;
+            box-shadow: var(--glow-red);
+            position: relative;
+        }
+
+        .health-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
+            animation: health-pulse 2s infinite;
+        }
+
+        @keyframes health-pulse {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* Futuristische Werkzeugleiste */
+        .tools-panel {
+            grid-area: tools;
+            background: linear-gradient(135deg, var(--dark-bg-tertiary) 0%, var(--dark-bg-secondary) 100%);
+            border: 2px solid var(--neon-purple);
+            border-radius: 15px;
+            box-shadow: var(--glow-purple);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tools-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(204, 0, 255, 0.05) 50%, transparent 70%);
+            animation: tool-scan 4s infinite;
+        }
+
+        @keyframes tool-scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .tools-panel h3 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.3rem;
+            color: var(--neon-purple);
+            text-shadow: var(--glow-purple);
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            z-index: 1;
+            position: relative;
+        }
+
+        .tool-button {
+            padding: 18px 20px;
+            border: 2px solid;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Exo 2', monospace;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .tool-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+            z-index: -1;
+        }
+
+        .tool-button:hover::before {
+            left: 100%;
+        }
+
+        .tool-button:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .tool-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .tool-button.definitions-lamp {
+            background: linear-gradient(135deg, var(--dark-bg-secondary), var(--dark-bg-tertiary));
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .tool-button.probe-seal {
+            background: linear-gradient(135deg, var(--dark-bg-secondary), var(--dark-bg-tertiary));
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .tool-button.isolation-compass {
+            background: linear-gradient(135deg, var(--dark-bg-secondary), var(--dark-bg-tertiary));
+            border-color: var(--neon-orange);
+            color: var(--neon-orange);
+            box-shadow: var(--glow-orange);
+        }
+
+        .tool-info {
+            font-family: 'Exo 2', sans-serif;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 10px;
+            z-index: 1;
+            position: relative;
+        }
+
+        /* Futuristischer Gleichungsbereich */
+        .equation-area {
+            grid-area: equation;
+            background: linear-gradient(135deg, var(--dark-bg-tertiary) 0%, var(--dark-bg-secondary) 100%);
+            border: 2px solid var(--neon-cyan);
+            border-radius: 15px;
+            box-shadow: var(--glow-cyan);
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .equation-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg, transparent 30%, rgba(0, 255, 255, 0.03) 50%, transparent 70%),
+                radial-gradient(circle at 30% 30%, rgba(255, 136, 0, 0.05) 0%, transparent 50%);
+            animation: equation-glow 6s infinite;
+        }
+
+        @keyframes equation-glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .equation-area h2 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--neon-cyan);
+            text-shadow: var(--glow-cyan);
+            text-align: center;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 1;
+        }
+
+        .equation-display {
+            font-size: 2.8rem;
+            margin: 25px 0;
+            padding: 25px;
+            background: var(--dark-bg);
+            border: 2px solid var(--neon-orange);
+            border-radius: 12px;
+            box-shadow: 
+                var(--glow-orange),
+                inset 0 0 20px rgba(255, 136, 0, 0.1);
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            color: var(--text-white);
+            position: relative;
+            z-index: 1;
+        }
+
+        .equation-display .katex {
+            color: var(--neon-orange) !important;
+            text-shadow: var(--glow-orange);
+        }
+
+        .equation-steps {
+            width: 100%;
+            margin-top: 20px;
+            z-index: 1;
+        }
+
+        .step {
+            padding: 15px;
+            margin: 12px 0;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-bg-secondary) 100%);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 8px;
+            border-left: 4px solid var(--neon-cyan);
+            color: var(--text-white);
+            font-family: 'Exo 2', sans-serif;
+            font-size: 0.95rem;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        .step strong {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        /* Futuristische Boss-Arena */
+        .boss-arena {
+            grid-area: boss;
+            background: linear-gradient(135deg, var(--dark-bg-tertiary) 0%, var(--dark-bg-secondary) 100%);
+            border: 2px solid var(--neon-red);
+            border-radius: 15px;
+            box-shadow: var(--glow-red);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .boss-arena::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 0, 64, 0.08) 0%, transparent 70%);
+            animation: boss-pulse 3s infinite;
+        }
+
+        @keyframes boss-pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        #boss-canvas {
+            width: 100%;
+            height: 420px;
+            border: 3px solid var(--neon-red);
+            border-radius: 12px;
+            background: 
+                radial-gradient(ellipse at center, var(--dark-bg-secondary) 0%, var(--dark-bg) 100%),
+                linear-gradient(45deg, 
+                    rgba(255, 0, 64, 0.1) 0%, 
+                    transparent 25%, 
+                    rgba(255, 136, 0, 0.1) 50%, 
+                    transparent 75%, 
+                    rgba(204, 0, 255, 0.1) 100%
+                );
+            box-shadow: 
+                var(--glow-red),
+                inset 0 0 30px rgba(255, 0, 64, 0.2);
+            z-index: 1;
+            position: relative;
+        }
+
+        .boss-info {
+            margin-top: 20px;
+            text-align: center;
+            z-index: 1;
+            position: relative;
+        }
+
+        .boss-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--neon-red);
+            text-shadow: var(--glow-red);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .boss-ability {
+            font-family: 'Exo 2', sans-serif;
+            color: var(--text-gray);
+            font-style: italic;
+            font-size: 0.95rem;
+            text-shadow: 0 0 5px rgba(255, 0, 64, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto;
+                grid-template-areas: 
+                    "progress"
+                    "tools"
+                    "equation"
+                    "boss";
+                height: auto;
+            }
+
+            .tools-panel {
+                flex-direction: row;
+                overflow-x: auto;
+            }
+
+            .tool-button {
+                min-width: 150px;
+                flex-shrink: 0;
+            }
+        }
+
+        /* Debug-Informationen */
+        .debug-info {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .debug-info.visible {
+            display: block;
+        }
+
+        /* Animationen */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* Feedback-Overlays */
+        .feedback-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px 40px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feedback-overlay.success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .feedback-overlay.error {
+            background: var(--error-color);
+            color: white;
+        }
+
+        .feedback-overlay.visible {
+            opacity: 1;
+        }
+
+        /* Futuristisches Lösungs-Input Styling */
+        .solution-input {
+            width: 100%;
+            margin-top: 25px;
+            padding: 25px;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-bg-secondary) 100%);
+            border: 2px solid var(--neon-orange);
+            border-radius: 12px;
+            box-shadow: var(--glow-orange);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .solution-input::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 40%, rgba(255, 136, 0, 0.05) 50%, transparent 60%);
+            animation: input-scan 5s infinite;
+            z-index: -1;
+        }
+
+        @keyframes input-scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .solution-input h3 {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--neon-orange);
+            text-shadow: var(--glow-orange);
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .input-group label {
+            font-family: 'Orbitron', monospace;
+            font-weight: bold;
+            font-size: 1.4rem;
+            color: var(--neon-cyan);
+            text-shadow: var(--glow-cyan);
+        }
+
+        #solution-field {
+            padding: 12px 18px;
+            border: 2px solid var(--neon-cyan);
+            border-radius: 8px;
+            font-family: 'Exo 2', monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            width: 180px;
+            text-align: center;
+            background: var(--dark-bg-tertiary);
+            color: var(--text-white);
+            box-shadow: 
+                inset 0 0 10px rgba(0, 255, 255, 0.2),
+                0 0 10px rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        #solution-field:focus {
+            outline: none;
+            border-color: var(--neon-orange);
+            box-shadow: 
+                inset 0 0 15px rgba(255, 136, 0, 0.3),
+                var(--glow-orange);
+            transform: scale(1.02);
+        }
+
+        .action-button {
+            padding: 12px 25px;
+            border: 2px solid;
+            border-radius: 10px;
+            font-family: 'Exo 2', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+            z-index: -1;
+        }
+
+        .action-button:hover::before {
+            left: 100%;
+        }
+
+        .action-button.check {
+            background: linear-gradient(135deg, var(--dark-bg-secondary), var(--dark-bg-tertiary));
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .action-button.new {
+            background: linear-gradient(135deg, var(--dark-bg-secondary), var(--dark-bg-tertiary));
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .action-button.steps {
+            background: linear-gradient(135deg, var(--dark-bg-secondary), var(--dark-bg-tertiary));
+            border-color: var(--neon-orange);
+            color: var(--neon-orange);
+            box-shadow: var(--glow-orange);
+        }
+
+        .action-button:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .action-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Futuristisches Validierungsergebnis */
+        .validation-result {
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 10px;
+            font-family: 'Exo 2', monospace;
+            font-weight: 600;
+            font-size: 1rem;
+            text-align: center;
+            min-height: 25px;
+            border: 2px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .validation-result::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: result-flash 2s infinite;
+        }
+
+        @keyframes result-flash {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .validation-result.success {
+            background: linear-gradient(135deg, var(--dark-bg), rgba(0, 255, 128, 0.1));
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            text-shadow: var(--glow-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .validation-result.error {
+            background: linear-gradient(135deg, var(--dark-bg), rgba(255, 0, 64, 0.1));
+            border-color: var(--neon-red);
+            color: var(--neon-red);
+            text-shadow: var(--glow-red);
+            box-shadow: var(--glow-red);
+        }
+
+        .validation-result.spurious {
+            background: linear-gradient(135deg, var(--dark-bg), rgba(255, 136, 0, 0.1));
+            border-color: var(--neon-orange);
+            color: var(--neon-orange);
+            text-shadow: var(--glow-orange);
+            box-shadow: var(--glow-orange);
+        }
+
+        /* Futuristische Lösungsschritte Anzeige */
+        .solution-steps {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--dark-bg-secondary), var(--dark-bg-tertiary));
+            border: 2px solid var(--neon-cyan);
+            border-radius: 10px;
+            border-left: 6px solid var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .solution-steps h4 {
+            margin-bottom: 15px;
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            text-shadow: var(--glow-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .solution-steps ol {
+            padding-left: 25px;
+        }
+
+        .solution-steps li {
+            margin: 8px 0;
+            font-family: 'Exo 2', monospace;
+            color: var(--text-white);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* Screen Shake Animation für Boss-Kämpfe */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-10px); }
+            20% { transform: translateX(10px); }
+            30% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            50% { transform: translateX(-6px); }
+            60% { transform: translateX(6px); }
+            70% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+            90% { transform: translateX(-2px); }
+        }
+
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        /* Boss-Kampf spezifische Animationen */
+        @keyframes boss-damage-flash {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(1.5) contrast(1.2); }
+            100% { filter: brightness(1); }
+        }
+
+        .boss-hit {
+            animation: boss-damage-flash 0.3s ease-in-out;
+        }
+
+        /* Responsive Gaming Design */
+        @media (max-width: 1024px) {
+            .game-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto auto;
+                grid-template-areas: 
+                    "progress"
+                    "tools"
+                    "equation"
+                    "boss";
+                height: auto;
+                gap: 20px;
+            }
+
+            .tools-panel {
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 20px;
+            }
+
+            .tool-button {
+                min-width: 160px;
+                flex-shrink: 0;
+                padding: 15px 18px;
+                font-size: 0.9rem;
+            }
+
+            .boss-arena {
+                padding: 20px;
+            }
+
+            #boss-canvas {
+                height: 300px;
+            }
+
+            .shake {
+                animation: shake 0.3s ease-in-out;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Debug-Informationen -->
+    <div class="debug-info" id="debug-info">
+        Spiel-Status: Initialisierung...<br>
+        Boss: Nicht geladen<br>
+        Gleichung: Keine
+    </div>
+
+    <div class="game-container">
+        <!-- Fortschrittsleiste -->
+        <div class="progress-bar">
+            <div>
+                <strong>Spieler-Level:</strong> 1
+            </div>
+            <div class="boss-health">
+                <div class="health-fill" id="boss-health-fill"></div>
+            </div>
+            <div>
+                <strong>Score:</strong> <span id="score">0</span>
+            </div>
+        </div>
+
+        <!-- Werkzeugleiste -->
+        <div class="tools-panel">
+            <h3>Werkzeuge</h3>
+            <button class="tool-button definitions-lamp" id="definitions-lamp">
+                💡 Definitions-Lampe
+            </button>
+            <button class="tool-button probe-seal" id="probe-seal">
+                🔍 Probe-Siegel
+            </button>
+            <button class="tool-button isolation-compass" id="isolation-compass">
+                🧭 Isolations-Kompass
+            </button>
+            <div class="tool-info">
+                <p>Verwende die Werkzeuge, um Scheinlösungen zu entlarven!</p>
+            </div>
+        </div>
+
+        <!-- Gleichungsbereich -->
+        <div class="equation-area">
+            <h2>Aktueller Boss: <span id="current-boss">Mirror Chief</span></h2>
+            
+            <div class="equation-display" id="equation-display">
+                <!-- Hier wird die KaTeX-Gleichung gerendert -->
+                Gleichung wird geladen...
+            </div>
+
+            <div class="equation-steps" id="equation-steps">
+                <div class="step">
+                    <strong>Schritt 1:</strong> Identifiziere die Wurzeln in der Gleichung
+                </div>
+                <div class="step">
+                    <strong>Schritt 2:</strong> Prüfe den Definitionsbereich
+                </div>
+                <div class="step">
+                    <strong>Schritt 3:</strong> Isoliere die Wurzeln systematisch
+                </div>
+                <div class="step">
+                    <strong>Schritt 4:</strong> Quadriere vorsichtig und prüfe Scheinlösungen
+                </div>
+            </div>
+
+            <!-- Lösungs-Input Bereich -->
+            <div class="solution-input" id="solution-input">
+                <h3>Deine Lösung eingeben:</h3>
+                <div class="input-group">
+                    <label for="solution-field">x = </label>
+                    <input type="number" id="solution-field" placeholder="Lösung eingeben..." step="0.1">
+                    <button id="check-solution" class="action-button check">Prüfen</button>
+                </div>
+                <div class="input-group">
+                    <button id="new-equation" class="action-button new">Neue Gleichung</button>
+                    <button id="show-steps" class="action-button steps">Lösungsweg</button>
+                </div>
+                <div id="validation-result" class="validation-result"></div>
+            </div>
+
+            <!-- Feedback-Overlay -->
+            <div class="feedback-overlay" id="feedback-overlay"></div>
+        </div>
+
+        <!-- Boss-Arena -->
+        <div class="boss-arena">
+            <canvas id="boss-canvas" width="360" height="400"></canvas>
+            <div class="boss-info">
+                <div class="boss-name" id="boss-name">Mirror Chief</div>
+                <div class="boss-ability" id="boss-ability">Spezialist für Vorzeichen-Fallen</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quadrier-Quarantäne Game Engine
+        // Implementierung Schritt 1: Grundgerüst und Basis-Setup
+
+        (function() {
+            'use strict';
+
+            // Debug-Modus aktivieren/deaktivieren
+            const DEBUG_MODE = true;
+
+            // EquationEngine-Klasse für Wurzelgleichungen
+            class EquationEngine {
+                constructor() {
+                    this.currentEquation = null;
+                    this.currentSolutions = [];
+                    this.spuriousSolutions = [];
+                    this.correctSolutions = [];
+                    this.testEquations = this.generateTestEquations();
+                    this.testIndex = 0;
+                }
+
+                // Einfache Wurzelgleichung generieren: √(ax + b) = c
+                generateSimpleRootEquation() {
+                    const a = this.getRandomInt(1, 5);
+                    const c = this.getRandomInt(2, 8);
+                    const x_solution = this.getRandomInt(1, 10);
+                    
+                    // b berechnen, sodass echte Lösung existiert
+                    // √(ax + b) = c → ax + b = c² → b = c² - ax
+                    const b = c * c - a * x_solution;
+                    
+                    const equation = {
+                        type: 'simple_root',
+                        a: a,
+                        b: b,
+                        c: c,
+                        latex: `\\sqrt{${a === 1 ? '' : a}x ${b >= 0 ? '+' : ''} ${b === 0 ? '' : b}} = ${c}`,
+                        correctSolutions: [x_solution],
+                        spuriousSolutions: [],
+                        definitionDomain: b === 0 ? 'x ≥ 0' : (a > 0 ? `x ≥ ${-b/a}` : `x ≤ ${-b/a}`)
+                    };
+
+                    return equation;
+                }
+
+                // Gleichung mit Scheinlösung generieren
+                generateEquationWithSpuriousSolution() {
+                    // Beispiel: √(x-1) = x-3
+                    // Quadriert: x-1 = (x-3)² = x² - 6x + 9
+                    // x-1 = x² - 6x + 9 → x² - 7x + 10 = 0 → (x-2)(x-5) = 0
+                    // x = 2 oder x = 5
+                    // Probe x=2: √(2-1) = √1 = 1, aber x-3 = 2-3 = -1 → 1 ≠ -1 (Scheinlösung)
+                    // Probe x=5: √(5-1) = √4 = 2, und x-3 = 5-3 = 2 → 2 = 2 ✓ (echte Lösung)
+                    
+                    const equations = [
+                        {
+                            type: 'spurious_trap',
+                            latex: '\\sqrt{x-1} = x-3',
+                            correctSolutions: [5],
+                            spuriousSolutions: [2],
+                            definitionDomain: 'x ≥ 1',
+                            explanation: 'Beim Quadrieren entstehen Scheinlösungen!'
+                        },
+                        {
+                            type: 'spurious_trap',
+                            latex: '\\sqrt{2x+3} = x',
+                            correctSolutions: [3],
+                            spuriousSolutions: [-1],
+                            definitionDomain: 'x ≥ -1.5',
+                            explanation: 'Negative Wurzeln sind nicht erlaubt!'
+                        },
+                        {
+                            type: 'spurious_trap',
+                            latex: '\\sqrt{x+4} = x-2',
+                            correctSolutions: [5],
+                            spuriousSolutions: [0],
+                            definitionDomain: 'x ≥ -4',
+                            explanation: 'Definitionsbereich prüfen ist entscheidend!'
+                        }
+                    ];
+
+                    return equations[Math.floor(Math.random() * equations.length)];
+                }
+
+                // 5 vorgenerierte Testgleichungen
+                generateTestEquations() {
+                    return [
+                        {
+                            type: 'simple',
+                            latex: '\\sqrt{x + 3} = 5',
+                            correctSolutions: [22],
+                            spuriousSolutions: [],
+                            definitionDomain: 'x ≥ -3'
+                        },
+                        {
+                            type: 'simple',
+                            latex: '\\sqrt{2x - 6} = 4',
+                            correctSolutions: [11],
+                            spuriousSolutions: [],
+                            definitionDomain: 'x ≥ 3'
+                        },
+                        {
+                            type: 'spurious',
+                            latex: '\\sqrt{x-1} = x-3',
+                            correctSolutions: [5],
+                            spuriousSolutions: [2],
+                            definitionDomain: 'x ≥ 1'
+                        },
+                        {
+                            type: 'spurious',
+                            latex: '\\sqrt{2x+3} = x',
+                            correctSolutions: [3],
+                            spuriousSolutions: [-1],
+                            definitionDomain: 'x ≥ -1.5'
+                        },
+                        {
+                            type: 'complex',
+                            latex: '\\sqrt{x+4} + \\sqrt{x-1} = 5',
+                            correctSolutions: [5],
+                            spuriousSolutions: [],
+                            definitionDomain: 'x ≥ 1'
+                        }
+                    ];
+                }
+
+                // Lösung validieren
+                validateSolution(x, equation) {
+                    if (equation === null) {
+                        return {
+                            isValid: false,
+                            message: 'Keine Gleichung geladen!',
+                            type: 'error'
+                        };
+                    }
+
+                    const numX = parseFloat(x);
+                    
+                    if (isNaN(numX)) {
+                        return {
+                            isValid: false,
+                            message: 'Bitte gib eine gültige Zahl ein!',
+                            type: 'error'
+                        };
+                    }
+
+                    // Prüfe ob es eine korrekte Lösung ist
+                    if (equation.correctSolutions.includes(numX)) {
+                        return {
+                            isValid: true,
+                            message: `Richtig! x = ${numX} ist eine echte Lösung! 🎉`,
+                            type: 'success'
+                        };
+                    }
+
+                    // Prüfe ob es eine Scheinlösung ist
+                    if (equation.spuriousSolutions.includes(numX)) {
+                        return {
+                            isValid: false,
+                            message: `Achtung! x = ${numX} ist eine Scheinlösung! Beim Quadrieren entstanden falsche Lösungen.`,
+                            type: 'spurious'
+                        };
+                    }
+
+                    // Detaillierte Probe durch Einsetzen
+                    const probeResult = this.performDetailedProbe(numX, equation);
+                    return probeResult;
+                }
+
+                // Detaillierte Probe durch Einsetzen
+                performDetailedProbe(x, equation) {
+                    try {
+                        // Für verschiedene Gleichungstypen verschiedene Prüfungen
+                        if (equation.latex.includes('\\sqrt{x-1} = x-3')) {
+                            const leftSide = Math.sqrt(x - 1);
+                            const rightSide = x - 3;
+                            
+                            if (x < 1) {
+                                return {
+                                    isValid: false,
+                                    message: `x = ${x} liegt außerhalb des Definitionsbereichs (x ≥ 1)!`,
+                                    type: 'error'
+                                };
+                            }
+
+                            if (rightSide < 0) {
+                                return {
+                                    isValid: false,
+                                    message: `x = ${x}: Rechte Seite ist negativ (${rightSide}), aber Wurzeln sind immer ≥ 0!`,
+                                    type: 'error'
+                                };
+                            }
+
+                            if (Math.abs(leftSide - rightSide) < 0.001) {
+                                return {
+                                    isValid: true,
+                                    message: `Richtig! √(${x}-1) = ${leftSide.toFixed(2)} und ${x}-3 = ${rightSide}`,
+                                    type: 'success'
+                                };
+                            } else {
+                                return {
+                                    isValid: false,
+                                    message: `Falsch! √(${x}-1) = ${leftSide.toFixed(2)}, aber ${x}-3 = ${rightSide}`,
+                                    type: 'error'
+                                };
+                            }
+                        }
+
+                        // Fallback für andere Gleichungstypen
+                        if (equation.latex.includes('\\sqrt{x + 3} = 5')) {
+                            // √(x + 3) = 5 → x + 3 = 25 → x = 22
+                            if (x < -3) {
+                                return {
+                                    isValid: false,
+                                    message: `x = ${x} liegt außerhalb des Definitionsbereichs (x ≥ -3)!`,
+                                    type: 'error'
+                                };
+                            }
+                            const leftSide = Math.sqrt(x + 3);
+                            const rightSide = 5;
+                            
+                            if (Math.abs(leftSide - rightSide) < 0.001) {
+                                return {
+                                    isValid: true,
+                                    message: `Richtig! √(${x}+3) = ${leftSide.toFixed(2)} = ${rightSide}`,
+                                    type: 'success'
+                                };
+                            }
+                        }
+
+                        if (equation.latex.includes('\\sqrt{2x - 6} = 4')) {
+                            // √(2x - 6) = 4 → 2x - 6 = 16 → x = 11
+                            if (x < 3) {
+                                return {
+                                    isValid: false,
+                                    message: `x = ${x} liegt außerhalb des Definitionsbereichs (x ≥ 3)!`,
+                                    type: 'error'
+                                };
+                            }
+                            const leftSide = Math.sqrt(2*x - 6);
+                            const rightSide = 4;
+                            
+                            if (Math.abs(leftSide - rightSide) < 0.001) {
+                                return {
+                                    isValid: true,
+                                    message: `Richtig! √(2·${x}-6) = √${2*x-6} = ${leftSide.toFixed(2)} = ${rightSide}`,
+                                    type: 'success'
+                                };
+                            }
+                        }
+
+                        if (equation.latex.includes('\\sqrt{2x+3} = x')) {
+                            // √(2x+3) = x → 2x+3 = x² → x² - 2x - 3 = 0 → (x-3)(x+1) = 0
+                            // x = 3 (echt) oder x = -1 (Scheinlösung, da rechte Seite negativ)
+                            if (x < -1.5) {
+                                return {
+                                    isValid: false,
+                                    message: `x = ${x} liegt außerhalb des Definitionsbereichs (x ≥ -1.5)!`,
+                                    type: 'error'
+                                };
+                            }
+                            
+                            if (x < 0) {
+                                return {
+                                    isValid: false,
+                                    message: `x = ${x}: Rechte Seite ist negativ, aber Wurzeln sind immer ≥ 0!`,
+                                    type: 'error'
+                                };
+                            }
+                            
+                            const leftSide = Math.sqrt(2*x + 3);
+                            const rightSide = x;
+                            
+                            if (Math.abs(leftSide - rightSide) < 0.001) {
+                                return {
+                                    isValid: true,
+                                    message: `Richtig! √(2·${x}+3) = √${2*x+3} = ${leftSide.toFixed(2)} = ${rightSide}`,
+                                    type: 'success'
+                                };
+                            }
+                        }
+
+                        // Allgemeiner Fallback
+                        return {
+                            isValid: false,
+                            message: `x = ${x} ist nicht korrekt. Prüfe den Definitionsbereich und deine Rechnung!`,
+                            type: 'error'
+                        };
+
+                    } catch (error) {
+                        return {
+                            isValid: false,
+                            message: 'Fehler bei der Berechnung. Prüfe den Definitionsbereich!',
+                            type: 'error'
+                        };
+                    }
+                }
+
+                // Nächste Testgleichung laden
+                getNextTestEquation() {
+                    const equation = this.testEquations[this.testIndex];
+                    this.testIndex = (this.testIndex + 1) % this.testEquations.length;
+                    this.currentEquation = equation;
+                    return equation;
+                }
+
+                // Zufällige Ganzzahl zwischen min und max (inklusive)
+                getRandomInt(min, max) {
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
+                }
+
+                // Lösungsschritte anzeigen
+                getSolutionSteps(equation) {
+                    if (!equation) return [];
+
+                    if (equation.latex.includes('\\sqrt{x-1} = x-3')) {
+                        return [
+                            'Gegeben: √(x-1) = x-3',
+                            'Definitionsbereich: x ≥ 1 UND x-3 ≥ 0 → x ≥ 3',
+                            'Beide Seiten quadrieren: (√(x-1))² = (x-3)²',
+                            'Vereinfachen: x-1 = x² - 6x + 9',
+                            'Umformen: x² - 7x + 10 = 0',
+                            'Faktorisieren: (x-2)(x-5) = 0',
+                            'Lösungen: x = 2 oder x = 5',
+                            'Probe x = 2: √(1) = 1, aber 2-3 = -1 → 1 ≠ -1 (Scheinlösung!)',
+                            'Probe x = 5: √(4) = 2 und 5-3 = 2 → 2 = 2 ✓',
+                            'Echte Lösung: x = 5'
+                        ];
+                    }
+
+                    return ['Lösungsschritte für diese Gleichung werden noch implementiert...'];
+                }
+            }
+
+            // BossManager-Klasse für Boss-Kämpfe
+            class BossManager {
+                constructor() {
+                    this.currentBoss = null;
+                    this.bossTypes = {
+                        'mirror-chief': {
+                            name: 'Mirror Chief',
+                            maxHealth: 100,
+                            specialty: 'Vorzeichen-Fallen',
+                            description: 'Spezialist für Vorzeichen-Fallen',
+                            color: '#ff0040',
+                            glowColor: 'rgba(255, 0, 64, 0.8)',
+                            attacks: ['Spiegelverzerrung', 'Vorzeichenchaos', 'Negativitätswelle']
+                        },
+                        'stacker': {
+                            name: 'Stacker',
+                            maxHealth: 120,
+                            specialty: 'Multiple Wurzeln',
+                            description: 'Schichtet Wurzeln übereinander',
+                            color: '#cc00ff',
+                            glowColor: 'rgba(204, 0, 255, 0.8)'
+                        },
+                        'fraction-fiend': {
+                            name: 'Fraction Fiend',
+                            maxHealth: 150,
+                            specialty: 'Rationale Exponenten',
+                            description: 'Meister der gebrochenen Exponenten',
+                            color: '#ff8800',
+                            glowColor: 'rgba(255, 136, 0, 0.8)'
+                        }
+                    };
+                    this.animationFrame = null;
+                    this.bossAnimationState = {
+                        angle: 0,
+                        scale: 1,
+                        isAttacking: false,
+                        isDamaged: false,
+                        pulseIntensity: 1,
+                        mirrorPhase: 0
+                    };
+                }
+
+                // Mirror Chief Boss erstellen und aktivieren
+                createMirrorChief() {
+                    const bossTemplate = this.bossTypes['mirror-chief'];
+                    this.currentBoss = {
+                        type: 'mirror-chief',
+                        name: bossTemplate.name,
+                        health: bossTemplate.maxHealth,
+                        maxHealth: bossTemplate.maxHealth,
+                        specialty: bossTemplate.specialty,
+                        description: bossTemplate.description,
+                        color: bossTemplate.color,
+                        glowColor: bossTemplate.glowColor,
+                        attacks: bossTemplate.attacks,
+                        isDefeated: false,
+                        isAlive: true,
+                        damageDealt: 0,
+                        consecutiveFailures: 0,
+                        lastAttack: null,
+                        position: { x: 180, y: 200 },
+                        size: 60
+                    };
+                    
+                    console.log(`[Boss] ${this.currentBoss.name} erwacht! HP: ${this.currentBoss.health}/${this.currentBoss.maxHealth}`);
+                    return this.currentBoss;
+                }
+
+                // Boss Schaden zufügen
+                damageBoss(damage) {
+                    if (!this.currentBoss || this.currentBoss.isDefeated) return false;
+
+                    this.currentBoss.health = Math.max(0, this.currentBoss.health - damage);
+                    this.currentBoss.damageDealt += damage;
+                    this.currentBoss.consecutiveFailures = 0; // Reset failure counter
+                    
+                    // Damage animation trigger
+                    this.bossAnimationState.isDamaged = true;
+                    setTimeout(() => {
+                        this.bossAnimationState.isDamaged = false;
+                    }, 500);
+
+                    console.log(`[Boss] ${this.currentBoss.name} nimmt ${damage} Schaden! HP: ${this.currentBoss.health}/${this.currentBoss.maxHealth}`);
+
+                    if (this.currentBoss.health <= 0) {
+                        this.defeatBoss();
+                        return 'defeated';
+                    }
+
+                    return 'damaged';
+                }
+
+                // Boss-Niederlage bei Scheinlösungen
+                registerFailure() {
+                    if (!this.currentBoss || this.currentBoss.isDefeated) return false;
+
+                    this.currentBoss.consecutiveFailures++;
+                    console.log(`[Boss] Scheinlösung erkannt! Failures: ${this.currentBoss.consecutiveFailures}/3`);
+
+                    // Trigger attack animation
+                    this.bossAnimationState.isAttacking = true;
+                    setTimeout(() => {
+                        this.bossAnimationState.isAttacking = false;
+                    }, 800);
+
+                    if (this.currentBoss.consecutiveFailures >= 3) {
+                        return 'player-defeated';
+                    }
+
+                    return 'boss-attack';
+                }
+
+                // Boss besiegen
+                defeatBoss() {
+                    if (!this.currentBoss) return;
+
+                    this.currentBoss.isDefeated = true;
+                    this.currentBoss.isAlive = false;
+                    console.log(`[Boss] ${this.currentBoss.name} wurde besiegt! 🎉`);
+                    
+                    // Victory animation
+                    this.bossAnimationState.scale = 0.1;
+                    this.bossAnimationState.pulseIntensity = 0.3;
+                }
+
+                // Boss für neuen Kampf zurücksetzen
+                resetBoss() {
+                    if (this.currentBoss) {
+                        this.currentBoss.health = this.currentBoss.maxHealth;
+                        this.currentBoss.isDefeated = false;
+                        this.currentBoss.isAlive = true;
+                        this.currentBoss.damageDealt = 0;
+                        this.currentBoss.consecutiveFailures = 0;
+                        this.bossAnimationState = {
+                            angle: 0,
+                            scale: 1,
+                            isAttacking: false,
+                            isDamaged: false,
+                            pulseIntensity: 1,
+                            mirrorPhase: 0
+                        };
+                        console.log(`[Boss] ${this.currentBoss.name} ist bereit für einen neuen Kampf!`);
+                    }
+                }
+
+                // Mirror Chief spezifische Gleichungen generieren
+                generateMirrorChiefEquation() {
+                    const equations = [
+                        {
+                            type: 'mirror-trap',
+                            latex: '\\sqrt{-2x + 8} = 4',
+                            correctSolutions: [-4],
+                            spuriousSolutions: [4],
+                            definitionDomain: 'x ≤ 4',
+                            explanation: 'Vorzeichen-Falle! Das Minuszeichen ist kritisch.',
+                            mirrorTrap: 'Viele vergessen das Minuszeichen vor 2x!'
+                        },
+                        {
+                            type: 'mirror-trap',
+                            latex: '\\sqrt{3 - x} = x + 1',
+                            correctSolutions: [1],
+                            spuriousSolutions: [-2],
+                            definitionDomain: 'x ≤ 3',
+                            explanation: 'Mirror Chief verwirrt mit negativen Lösungen!',
+                            mirrorTrap: 'Die negative Lösung ist eine Spiegelung!'
+                        },
+                        {
+                            type: 'mirror-trap',
+                            latex: '\\sqrt{-x + 5} = 2',
+                            correctSolutions: [1],
+                            spuriousSolutions: [9],
+                            definitionDomain: 'x ≤ 5',
+                            explanation: 'Spiegeleffekt bei der Auflösung nach x!',
+                            mirrorTrap: 'Das Vorzeichen spiegelt das Ergebnis!'
+                        }
+                    ];
+
+                    return equations[Math.floor(Math.random() * equations.length)];
+                }
+
+                // Boss-Status für UI
+                getBossStatus() {
+                    if (!this.currentBoss) return null;
+
+                    return {
+                        name: this.currentBoss.name,
+                        health: this.currentBoss.health,
+                        maxHealth: this.currentBoss.maxHealth,
+                        healthPercent: (this.currentBoss.health / this.currentBoss.maxHealth) * 100,
+                        isDefeated: this.currentBoss.isDefeated,
+                        consecutiveFailures: this.currentBoss.consecutiveFailures,
+                        specialty: this.currentBoss.specialty
+                    };
+                }
+
+                // Aktuellen Boss abrufen
+                getCurrentBoss() {
+                    return this.currentBoss;
+                }
+            }
+
+            // ToolSystem-Klasse für Werkzeuge
+            class ToolSystem {
+                constructor() {
+                    this.tools = {
+                        'definitions-lamp': {
+                            name: 'Definitions-Lampe',
+                            type: 'analysis',
+                            description: 'Zeigt den Definitionsbereich der Gleichung visuell an',
+                            icon: '💡',
+                            isActive: false,
+                            isUnlocked: true,
+                            cooldown: 0,
+                            maxCooldown: 1000, // 1 Sekunde
+                            uses: 0,
+                            effectiveness: 1.0
+                        },
+                        'probe-seal': {
+                            name: 'Probe-Siegel',
+                            type: 'validation',
+                            description: 'Validiert Lösungen automatisch und zeigt Scheinlösungen',
+                            icon: '🔍',
+                            isActive: false,
+                            isUnlocked: true,
+                            cooldown: 0,
+                            maxCooldown: 2000, // 2 Sekunden
+                            uses: 0,
+                            effectiveness: 1.0
+                        },
+                        'isolation-compass': {
+                            name: 'Isolations-Kompass',
+                            type: 'guidance',
+                            description: 'Hilft bei der systematischen Wurzelisolation',
+                            icon: '🧭',
+                            isActive: false,
+                            isUnlocked: true,
+                            cooldown: 0,
+                            maxCooldown: 1500, // 1.5 Sekunden
+                            uses: 0,
+                            effectiveness: 1.0
+                        }
+                    };
+                    
+                    this.numberLineCanvas = null;
+                    this.numberLineCtx = null;
+                    this.currentDefinitionDomain = null;
+                    this.isNumberLineVisible = false;
+                }
+
+                // Werkzeug aktivieren
+                activateTool(toolId) {
+                    const tool = this.tools[toolId];
+                    if (!tool || !tool.isUnlocked || tool.cooldown > 0) {
+                        return false;
+                    }
+
+                    // Alle anderen Tools deaktivieren
+                    Object.keys(this.tools).forEach(id => {
+                        this.tools[id].isActive = false;
+                    });
+
+                    // Aktuelles Tool aktivieren
+                    tool.isActive = true;
+                    tool.uses++;
+                    tool.cooldown = tool.maxCooldown;
+
+                    console.log(`[Tools] ${tool.name} aktiviert (Verwendung #${tool.uses})`);
+                    
+                    // Cooldown starten
+                    setTimeout(() => {
+                        tool.cooldown = 0;
+                    }, tool.maxCooldown);
+
+                    return true;
+                }
+
+                // Tool deaktivieren
+                deactivateTool(toolId) {
+                    const tool = this.tools[toolId];
+                    if (tool) {
+                        tool.isActive = false;
+                        console.log(`[Tools] ${tool.name} deaktiviert`);
+                    }
+                }
+
+                // Definitions-Lampe verwenden
+                useDefinitionsLamp(equation) {
+                    if (!this.activateTool('definitions-lamp')) {
+                        return { success: false, message: 'Definitions-Lampe ist nicht verfügbar!' };
+                    }
+
+                    if (!equation) {
+                        return { success: false, message: 'Keine Gleichung zum Analysieren vorhanden!' };
+                    }
+
+                    // Definitionsbereich berechnen
+                    const domain = this.calculateDefinitionDomain(equation);
+                    this.currentDefinitionDomain = domain;
+
+                    // Zahlenstrahl anzeigen
+                    this.showNumberLine();
+                    this.drawNumberLine(domain);
+
+                    return {
+                        success: true,
+                        message: `📍 Definitionsbereich: ${domain.description}`,
+                        domain: domain
+                    };
+                }
+
+                // Definitionsbereich berechnen
+                calculateDefinitionDomain(equation) {
+                    if (!equation || !equation.latex) {
+                        return {
+                            type: 'error',
+                            description: 'Unbekannt',
+                            min: -Infinity,
+                            max: Infinity,
+                            intervals: []
+                        };
+                    }
+
+                    const latex = equation.latex;
+                    console.log(`[Tools] Berechne Definitionsbereich für: ${latex}`);
+
+                    // √(-2x + 8) = 4
+                    if (latex.includes('\\sqrt{-2x + 8}')) {
+                        // -2x + 8 ≥ 0 → -2x ≥ -8 → x ≤ 4
+                        return {
+                            type: 'interval',
+                            description: 'x ≤ 4',
+                            min: -Infinity,
+                            max: 4,
+                            intervals: [{ start: -Infinity, end: 4, included: [false, true] }],
+                            criticalPoints: [4],
+                            explanation: 'Radikand -2x + 8 muss ≥ 0 sein'
+                        };
+                    }
+
+                    // √(3 - x) = x + 1
+                    if (latex.includes('\\sqrt{3 - x}')) {
+                        // 3 - x ≥ 0 → x ≤ 3
+                        return {
+                            type: 'interval',
+                            description: 'x ≤ 3',
+                            min: -Infinity,
+                            max: 3,
+                            intervals: [{ start: -Infinity, end: 3, included: [false, true] }],
+                            criticalPoints: [3],
+                            explanation: 'Radikand 3 - x muss ≥ 0 sein'
+                        };
+                    }
+
+                    // √(-x + 5) = 2
+                    if (latex.includes('\\sqrt{-x + 5}')) {
+                        // -x + 5 ≥ 0 → x ≤ 5
+                        return {
+                            type: 'interval',
+                            description: 'x ≤ 5',
+                            min: -Infinity,
+                            max: 5,
+                            intervals: [{ start: -Infinity, end: 5, included: [false, true] }],
+                            criticalPoints: [5],
+                            explanation: 'Radikand -x + 5 muss ≥ 0 sein'
+                        };
+                    }
+
+                    // √(x + 3) = 5
+                    if (latex.includes('\\sqrt{x + 3}')) {
+                        // x + 3 ≥ 0 → x ≥ -3
+                        return {
+                            type: 'interval',
+                            description: 'x ≥ -3',
+                            min: -3,
+                            max: Infinity,
+                            intervals: [{ start: -3, end: Infinity, included: [true, false] }],
+                            criticalPoints: [-3],
+                            explanation: 'Radikand x + 3 muss ≥ 0 sein'
+                        };
+                    }
+
+                    // √(2x - 6) = 4
+                    if (latex.includes('\\sqrt{2x - 6}')) {
+                        // 2x - 6 ≥ 0 → x ≥ 3
+                        return {
+                            type: 'interval',
+                            description: 'x ≥ 3',
+                            min: 3,
+                            max: Infinity,
+                            intervals: [{ start: 3, end: Infinity, included: [true, false] }],
+                            criticalPoints: [3],
+                            explanation: 'Radikand 2x - 6 muss ≥ 0 sein'
+                        };
+                    }
+
+                    // √(2x+3) = x
+                    if (latex.includes('\\sqrt{2x+3}')) {
+                        // 2x + 3 ≥ 0 → x ≥ -1.5
+                        return {
+                            type: 'interval',
+                            description: 'x ≥ -1.5',
+                            min: -1.5,
+                            max: Infinity,
+                            intervals: [{ start: -1.5, end: Infinity, included: [true, false] }],
+                            criticalPoints: [-1.5],
+                            explanation: 'Radikand 2x + 3 muss ≥ 0 sein'
+                        };
+                    }
+
+                    // Fallback für unbekannte Gleichungen
+                    return {
+                        type: 'all_reals',
+                        description: 'Alle reellen Zahlen',
+                        min: -Infinity,
+                        max: Infinity,
+                        intervals: [{ start: -Infinity, end: Infinity, included: [false, false] }],
+                        criticalPoints: [],
+                        explanation: 'Keine Einschränkungen erkannt'
+                    };
+                }
+
+                // Zahlenstrahl-Canvas erstellen
+                createNumberLineCanvas() {
+                    if (this.numberLineCanvas) return;
+
+                    const container = document.getElementById('equation-steps');
+                    
+                    // Canvas-Container erstellen
+                    const canvasContainer = document.createElement('div');
+                    canvasContainer.id = 'number-line-container';
+                    canvasContainer.style.cssText = `
+                        margin: 20px 0;
+                        padding: 15px;
+                        background: linear-gradient(135deg, var(--dark-bg), var(--dark-bg-secondary));
+                        border: 2px solid var(--neon-cyan);
+                        border-radius: 10px;
+                        box-shadow: var(--glow-cyan);
+                        display: none;
+                    `;
+
+                    // Canvas erstellen
+                    this.numberLineCanvas = document.createElement('canvas');
+                    this.numberLineCanvas.width = 500;
+                    this.numberLineCanvas.height = 120;
+                    this.numberLineCanvas.style.cssText = `
+                        width: 100%;
+                        height: 120px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                    `;
+
+                    this.numberLineCtx = this.numberLineCanvas.getContext('2d');
+
+                    // Event Listeners hinzufügen
+                    this.setupNumberLineEvents();
+
+                    canvasContainer.appendChild(this.numberLineCanvas);
+                    container.appendChild(canvasContainer);
+                }
+
+                // Event Listeners für Zahlenstrahl
+                setupNumberLineEvents() {
+                    if (!this.numberLineCanvas) return;
+
+                    // Mouse Move für Hover-Effekt
+                    this.numberLineCanvas.addEventListener('mousemove', (e) => {
+                        const rect = this.numberLineCanvas.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const scaleX = this.numberLineCanvas.width / rect.width;
+                        const canvasX = x * scaleX;
+                        
+                        // X-Wert basierend auf Mausposition berechnen
+                        const xValue = this.canvasXToValue(canvasX);
+                        this.showHoverTooltip(e.clientX, e.clientY, xValue);
+                    });
+
+                    // Mouse Leave
+                    this.numberLineCanvas.addEventListener('mouseleave', () => {
+                        this.hideHoverTooltip();
+                    });
+
+                    // Click zum Setzen von Werten
+                    this.numberLineCanvas.addEventListener('click', (e) => {
+                        const rect = this.numberLineCanvas.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const scaleX = this.numberLineCanvas.width / rect.width;
+                        const canvasX = x * scaleX;
+                        
+                        const xValue = this.canvasXToValue(canvasX);
+                        this.setInputValue(xValue);
+                    });
+                }
+
+                // Canvas-X zu mathematischem Wert konvertieren
+                canvasXToValue(canvasX) {
+                    const margin = 50;
+                    const width = this.numberLineCanvas.width - 2 * margin;
+                    const minVal = -10;
+                    const maxVal = 10;
+                    const range = maxVal - minVal;
+                    
+                    const normalizedX = (canvasX - margin) / width;
+                    return minVal + normalizedX * range;
+                }
+
+                // Mathematischen Wert zu Canvas-X konvertieren
+                valueToCanvasX(value) {
+                    const margin = 50;
+                    const width = this.numberLineCanvas.width - 2 * margin;
+                    const minVal = -10;
+                    const maxVal = 10;
+                    const range = maxVal - minVal;
+                    
+                    const normalizedX = (value - minVal) / range;
+                    return margin + normalizedX * width;
+                }
+
+                // Werkzeug-Status abrufen
+                getToolStatus(toolId) {
+                    return this.tools[toolId] || null;
+                }
+
+                // Zahlenstrahl anzeigen
+                showNumberLine() {
+                    this.createNumberLineCanvas();
+                    const container = document.getElementById('number-line-container');
+                    if (container) {
+                        container.style.display = 'block';
+                        this.isNumberLineVisible = true;
+                    }
+                }
+
+                // Zahlenstrahl ausblenden
+                hideNumberLine() {
+                    const container = document.getElementById('number-line-container');
+                    if (container) {
+                        container.style.display = 'none';
+                        this.isNumberLineVisible = false;
+                    }
+                }
+
+                // Zahlenstrahl zeichnen
+                drawNumberLine(domain) {
+                    if (!this.numberLineCtx) return;
+
+                    const ctx = this.numberLineCtx;
+                    const canvas = this.numberLineCanvas;
+                    
+                    // Canvas löschen
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Hintergrund
+                    ctx.fillStyle = 'rgba(10, 10, 15, 0.8)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    const margin = 50;
+                    const width = canvas.width - 2 * margin;
+                    const centerY = canvas.height / 2;
+                    const minVal = -10;
+                    const maxVal = 10;
+                    
+                    // Haupt-Zahlenstrahl
+                    ctx.strokeStyle = '#00ffff';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(margin, centerY);
+                    ctx.lineTo(margin + width, centerY);
+                    ctx.stroke();
+                    
+                    // Pfeilspitzen
+                    ctx.fillStyle = '#00ffff';
+                    ctx.beginPath();
+                    ctx.moveTo(margin + width, centerY);
+                    ctx.lineTo(margin + width - 10, centerY - 5);
+                    ctx.lineTo(margin + width - 10, centerY + 5);
+                    ctx.fill();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(margin, centerY);
+                    ctx.lineTo(margin + 10, centerY - 5);
+                    ctx.lineTo(margin + 10, centerY + 5);
+                    ctx.fill();
+                    
+                    // Zahlenmarkierungen
+                    ctx.strokeStyle = '#8892b0';
+                    ctx.lineWidth = 1;
+                    ctx.font = '12px Exo, monospace';
+                    ctx.fillStyle = '#8892b0';
+                    ctx.textAlign = 'center';
+                    
+                    for (let i = minVal; i <= maxVal; i += 2) {
+                        const x = this.valueToCanvasX(i);
+                        ctx.beginPath();
+                        ctx.moveTo(x, centerY - 8);
+                        ctx.lineTo(x, centerY + 8);
+                        ctx.stroke();
+                        ctx.fillText(i.toString(), x, centerY + 25);
+                    }
+                    
+                    // Definitionsbereich visualisieren
+                    if (domain && domain.intervals) {
+                        domain.intervals.forEach(interval => {
+                            this.drawInterval(ctx, interval, centerY, margin, width, minVal, maxVal);
+                        });
+                    }
+                    
+                    // Kritische Punkte markieren
+                    if (domain && domain.criticalPoints) {
+                        domain.criticalPoints.forEach(point => {
+                            this.drawCriticalPoint(ctx, point, centerY);
+                        });
+                    }
+                    
+                    // Legende
+                    this.drawLegend(ctx, domain);
+                }
+
+                // Intervall zeichnen
+                drawInterval(ctx, interval, centerY, margin, width, minVal, maxVal) {
+                    const startX = interval.start === -Infinity ? margin : this.valueToCanvasX(Math.max(interval.start, minVal));
+                    const endX = interval.end === Infinity ? margin + width : this.valueToCanvasX(Math.min(interval.end, maxVal));
+                    
+                    // Erlaubter Bereich (grün)
+                    ctx.fillStyle = 'rgba(0, 255, 128, 0.3)';
+                    ctx.fillRect(startX, centerY - 15, endX - startX, 30);
+                    
+                    // Rand des erlaubten Bereichs
+                    ctx.strokeStyle = '#00ff80';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(startX, centerY - 15, endX - startX, 30);
+                    
+                    // Endpunkt-Markierungen
+                    if (interval.start !== -Infinity && interval.start >= minVal && interval.start <= maxVal) {
+                        ctx.fillStyle = interval.included[0] ? '#00ff80' : '#ff8800';
+                        ctx.beginPath();
+                        if (interval.included[0]) {
+                            ctx.rect(startX - 4, centerY - 4, 8, 8); // Gefülltes Quadrat
+                        } else {
+                            ctx.arc(startX, centerY, 4, 0, Math.PI * 2); // Leerer Kreis
+                            ctx.stroke();
+                        }
+                        ctx.fill();
+                    }
+                    
+                    if (interval.end !== Infinity && interval.end >= minVal && interval.end <= maxVal) {
+                        ctx.fillStyle = interval.included[1] ? '#00ff80' : '#ff8800';
+                        ctx.beginPath();
+                        if (interval.included[1]) {
+                            ctx.rect(endX - 4, centerY - 4, 8, 8); // Gefülltes Quadrat
+                        } else {
+                            ctx.arc(endX, centerY, 4, 0, Math.PI * 2); // Leerer Kreis
+                            ctx.stroke();
+                        }
+                        ctx.fill();
+                    }
+                }
+
+                // Kritischen Punkt zeichnen
+                drawCriticalPoint(ctx, point, centerY) {
+                    const x = this.valueToCanvasX(point);
+                    
+                    // Kritischer Punkt als gelber Diamant
+                    ctx.fillStyle = '#ffff00';
+                    ctx.strokeStyle = '#ff8800';
+                    ctx.lineWidth = 2;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(x, centerY - 8);
+                    ctx.lineTo(x + 6, centerY);
+                    ctx.lineTo(x, centerY + 8);
+                    ctx.lineTo(x - 6, centerY);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    // Vertikale Linie
+                    ctx.strokeStyle = '#ffff00';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.beginPath();
+                    ctx.moveTo(x, centerY - 30);
+                    ctx.lineTo(x, centerY + 30);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+
+                // Legende zeichnen
+                drawLegend(ctx, domain) {
+                    ctx.font = 'bold 14px Orbitron, monospace';
+                    ctx.fillStyle = '#00ffff';
+                    ctx.textAlign = 'left';
+                    ctx.fillText('💡 Definitions-Lampe:', 10, 20);
+                    
+                    ctx.font = '12px Exo, monospace';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(domain.description, 10, 40);
+                    
+                    if (domain.explanation) {
+                        ctx.fillStyle = '#8892b0';
+                        ctx.fillText(domain.explanation, 10, 55);
+                    }
+                    
+                    // Farblegende
+                    ctx.fillStyle = 'rgba(0, 255, 128, 0.5)';
+                    ctx.fillRect(300, 15, 20, 10);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText('Erlaubt', 325, 25);
+                    
+                    ctx.fillStyle = '#ffff00';
+                    ctx.beginPath();
+                    ctx.moveTo(300, 35);
+                    ctx.lineTo(306, 40);
+                    ctx.lineTo(300, 45);
+                    ctx.lineTo(294, 40);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.fillText('Kritisch', 325, 42);
+                }
+
+                // Hover-Tooltip anzeigen
+                showHoverTooltip(x, y, value) {
+                    // Bestehenden Tooltip entfernen
+                    this.hideHoverTooltip();
+                    
+                    const tooltip = document.createElement('div');
+                    tooltip.id = 'number-line-tooltip';
+                    tooltip.style.cssText = `
+                        position: fixed;
+                        left: ${x + 10}px;
+                        top: ${y - 30}px;
+                        background: rgba(0, 0, 0, 0.9);
+                        color: #00ffff;
+                        padding: 5px 10px;
+                        border-radius: 5px;
+                        font-family: 'Orbitron', monospace;
+                        font-size: 12px;
+                        z-index: 1000;
+                        pointer-events: none;
+                        border: 1px solid #00ffff;
+                    `;
+                    tooltip.textContent = `x = ${value.toFixed(1)}`;
+                    document.body.appendChild(tooltip);
+                }
+
+                // Hover-Tooltip ausblenden
+                hideHoverTooltip() {
+                    const tooltip = document.getElementById('number-line-tooltip');
+                    if (tooltip) {
+                        tooltip.remove();
+                    }
+                }
+
+                // Wert in Eingabefeld setzen
+                setInputValue(value) {
+                    const inputField = document.getElementById('solution-field');
+                    if (inputField) {
+                        const roundedValue = Math.round(value * 10) / 10; // Auf 1 Dezimalstelle runden
+                        inputField.value = roundedValue;
+                        inputField.focus();
+                        
+                        // Visuelles Feedback
+                        inputField.style.background = 'rgba(0, 255, 255, 0.2)';
+                        setTimeout(() => {
+                            inputField.style.background = '';
+                        }, 300);
+                    }
+                }
+
+                // Zahlenstrahl Toggle
+                toggleNumberLine() {
+                    if (this.isNumberLineVisible) {
+                        this.hideNumberLine();
+                    } else {
+                        const currentEquation = document.querySelector('#equation-display') ? true : false;
+                        if (currentEquation) {
+                            this.showNumberLine();
+                        }
+                    }
+                }
+
+                // Aktives Werkzeug abrufen
+                getActiveTool() {
+                    return Object.keys(this.tools).find(id => this.tools[id].isActive) || null;
+                }
+            }
+
+            // Haupt-Game-Engine Objekt
+            const GameEngine = {
+                // Module
+                equation: new EquationEngine(),
+                boss: new BossManager(),
+                tools: new ToolSystem(),
+                score: null,
+                ui: null,
+                
+                // Canvas-Kontext
+                canvas: null,
+                ctx: null,
+                
+                // Spiel-Zustand
+                gameState: {
+                    currentBoss: 'mirror-chief',
+                    playerLevel: 1,
+                    score: 0,
+                    bossHealth: 100,
+                    isPlaying: false
+                },
+
+                // Initialisierung
+                init: function() {
+                    this.log('🎮 Quadrier-Quarantäne wird initialisiert...');
+                    
+                    // Canvas Setup
+                    this.setupCanvas();
+                    
+                    // KaTeX Test
+                    this.testKaTeX();
+                    
+                    // Event Listeners
+                    this.setupEventListeners();
+                    
+                    // Erster Boss-Kampf vorbereiten
+                    this.startNewBoss();
+                    
+                    // Debug-Info aktivieren
+                    if (DEBUG_MODE) {
+                        this.showDebugInfo();
+                    }
+                    
+                    this.log('✅ Initialisierung abgeschlossen!');
+                },
+
+                // Canvas-Setup und erste Zeichnung
+                setupCanvas: function() {
+                    this.canvas = document.getElementById('boss-canvas');
+                    this.ctx = this.canvas.getContext('2d');
+                    
+                    if (!this.ctx) {
+                        this.log('❌ Canvas-Kontext konnte nicht erstellt werden');
+                        return;
+                    }
+                    
+                    // Basis-Hintergrund zeichnen
+                    this.drawCanvasBackground();
+                    this.log('🎨 Canvas initialisiert und Hintergrund gezeichnet');
+                },
+
+                // Canvas-Hintergrund zeichnen
+                drawCanvasBackground: function() {
+                    const ctx = this.ctx;
+                    const canvas = this.canvas;
+                    
+                    // Clear canvas
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Futuristischer Gradient-Hintergrund
+                    const gradient = ctx.createRadialGradient(
+                        canvas.width/2, canvas.height/2, 0,
+                        canvas.width/2, canvas.height/2, canvas.width/2
+                    );
+                    gradient.addColorStop(0, 'rgba(26, 26, 46, 0.8)');
+                    gradient.addColorStop(1, 'rgba(10, 10, 15, 1)');
+                    
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Boss-Arena-Grenzen
+                    ctx.strokeStyle = '#ff0040';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([10, 5]);
+                    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 60);
+                    ctx.setLineDash([]);
+                },
+
+                // Mirror Chief Boss zeichnen
+                drawMirrorChief: function() {
+                    const ctx = this.ctx;
+                    const canvas = this.canvas;
+                    const boss = this.boss.getCurrentBoss();
+                    const animState = this.boss.bossAnimationState;
+                    
+                    if (!boss || !boss.isAlive) return;
+
+                    const centerX = boss.position.x;
+                    const centerY = boss.position.y;
+                    const size = boss.size * animState.scale;
+                    
+                    // Update animation
+                    animState.angle += 0.02;
+                    animState.mirrorPhase += 0.05;
+                    
+                    // Damage flash effect
+                    if (animState.isDamaged) {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    }
+                    
+                    // Save context for transformations
+                    ctx.save();
+                    
+                    // Boss main body (reflective sphere)
+                    const healthPercent = boss.health / boss.maxHealth;
+                    const bodyGradient = ctx.createRadialGradient(
+                        centerX - size/3, centerY - size/3, 0,
+                        centerX, centerY, size
+                    );
+                    
+                    if (animState.isAttacking) {
+                        bodyGradient.addColorStop(0, '#ff0040');
+                        bodyGradient.addColorStop(0.7, '#990000');
+                        bodyGradient.addColorStop(1, '#440000');
+                    } else {
+                        bodyGradient.addColorStop(0, `rgba(255, ${Math.floor(64 * healthPercent)}, ${Math.floor(64 * healthPercent)}, 0.9)`);
+                        bodyGradient.addColorStop(0.7, '#ff0040');
+                        bodyGradient.addColorStop(1, '#220011');
+                    }
+                    
+                    ctx.fillStyle = bodyGradient;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, size, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Mirror effect (shifting reflections)
+                    for (let i = 0; i < 3; i++) {
+                        const reflectionSize = size * (0.3 + i * 0.1);
+                        const offsetX = Math.cos(animState.mirrorPhase + i * Math.PI / 3) * 30;
+                        const offsetY = Math.sin(animState.mirrorPhase + i * Math.PI / 3) * 20;
+                        
+                        const reflectionGradient = ctx.createRadialGradient(
+                            centerX + offsetX, centerY + offsetY, 0,
+                            centerX + offsetX, centerY + offsetY, reflectionSize
+                        );
+                        reflectionGradient.addColorStop(0, 'rgba(0, 255, 255, 0.3)');
+                        reflectionGradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+                        
+                        ctx.fillStyle = reflectionGradient;
+                        ctx.beginPath();
+                        ctx.arc(centerX + offsetX, centerY + offsetY, reflectionSize, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    
+                    // Boss eyes with glow
+                    const eyeGlow = animState.isAttacking ? '#ff0040' : '#00ffff';
+                    const eyeSize = 8 * animState.scale;
+                    
+                    // Left eye
+                    ctx.fillStyle = eyeGlow;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = eyeGlow;
+                    ctx.beginPath();
+                    ctx.arc(centerX - 20 * animState.scale, centerY - 10 * animState.scale, eyeSize, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Right eye
+                    ctx.beginPath();
+                    ctx.arc(centerX + 20 * animState.scale, centerY - 10 * animState.scale, eyeSize, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.shadowBlur = 0;
+                    
+                    // Health bar above boss
+                    const barWidth = 120;
+                    const barHeight = 8;
+                    const barX = centerX - barWidth / 2;
+                    const barY = centerY - size - 30;
+                    
+                    // Health bar background
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                    ctx.fillRect(barX - 2, barY - 2, barWidth + 4, barHeight + 4);
+                    
+                    // Health bar fill
+                    const healthWidth = (barWidth * healthPercent);
+                    const healthGradient = ctx.createLinearGradient(barX, barY, barX + barWidth, barY);
+                    healthGradient.addColorStop(0, '#ff0040');
+                    healthGradient.addColorStop(0.5, '#ff8800');
+                    healthGradient.addColorStop(1, '#ffff00');
+                    
+                    ctx.fillStyle = healthGradient;
+                    ctx.fillRect(barX, barY, healthWidth, barHeight);
+                    
+                    // Health bar border
+                    ctx.strokeStyle = '#00ffff';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(barX, barY, barWidth, barHeight);
+                    
+                    // Boss name and HP text
+                    ctx.fillStyle = '#00ffff';
+                    ctx.font = 'bold 12px Orbitron, monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${boss.name}`, centerX, barY - 8);
+                    ctx.font = '10px Exo, monospace';
+                    ctx.fillText(`${boss.health}/${boss.maxHealth} HP`, centerX, barY + barHeight + 15);
+                    
+                    // Attack warning
+                    if (animState.isAttacking) {
+                        ctx.fillStyle = '#ff0040';
+                        ctx.font = 'bold 16px Orbitron, monospace';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('SPIEGELANGRIFF!', centerX, centerY + size + 40);
+                    }
+                    
+                    // Failure counter warning
+                    if (boss.consecutiveFailures > 0) {
+                        ctx.fillStyle = '#ff8800';
+                        ctx.font = 'bold 14px Orbitron, monospace';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`Scheinlösungen: ${boss.consecutiveFailures}/3`, centerX, canvas.height - 20);
+                    }
+                    
+                    ctx.restore();
+                },
+
+                // Canvas Animation Loop
+                animateCanvas: function() {
+                    this.drawCanvasBackground();
+                    this.drawMirrorChief();
+                    
+                    // Continue animation
+                    this.animationFrame = requestAnimationFrame(() => this.animateCanvas());
+                },
+
+                // Animation starten
+                startCanvasAnimation: function() {
+                    if (this.animationFrame) {
+                        cancelAnimationFrame(this.animationFrame);
+                    }
+                    this.animateCanvas();
+                },
+
+                // Animation stoppen
+                stopCanvasAnimation: function() {
+                    if (this.animationFrame) {
+                        cancelAnimationFrame(this.animationFrame);
+                        this.animationFrame = null;
+                    }
+                },
+
+                // KaTeX-Test und erste Gleichung laden
+                testKaTeX: function() {
+                    this.log('🔤 KaTeX wird getestet...');
+                    
+                    try {
+                        // Erste Gleichung aus der EquationEngine laden
+                        this.loadNewEquation();
+                        this.log('✅ KaTeX erfolgreich initialisiert!');
+                        
+                    } catch (error) {
+                        this.log('❌ KaTeX-Fehler: ' + error.message);
+                        const equationDisplay = document.getElementById('equation-display');
+                        equationDisplay.innerHTML = '<span style="color: red;">Fehler beim Laden der Gleichung</span>';
+                    }
+                },
+
+                // Neue Gleichung laden (Boss-bewusst)
+                loadNewEquation: function() {
+                    let equation;
+                    
+                    // Prüfe ob Boss-Kampf aktiv ist
+                    const currentBoss = this.boss.getCurrentBoss();
+                    if (currentBoss && currentBoss.isAlive && !currentBoss.isDefeated) {
+                        // 70% Chance für Boss-spezifische Gleichungen
+                        if (Math.random() < 0.7) {
+                            equation = this.boss.generateMirrorChiefEquation();
+                            this.log(`👹 Boss-Gleichung geladen: ${equation.latex}`);
+                        } else {
+                            equation = this.equation.getNextTestEquation();
+                            this.log(`🔢 Standard-Gleichung geladen: ${equation.latex}`);
+                        }
+                    } else {
+                        equation = this.equation.getNextTestEquation();
+                        this.log(`🔢 Neue Gleichung geladen: ${equation.latex}`);
+                    }
+                    
+                    this.equation.currentEquation = equation;
+                    this.renderEquation(equation);
+                    this.clearValidationResult();
+                    this.clearSolutionInput();
+                },
+
+                // Gleichung in KaTeX rendern
+                renderEquation: function(equation) {
+                    const equationDisplay = document.getElementById('equation-display');
+                    
+                    try {
+                        katex.render(equation.latex, equationDisplay, {
+                            throwOnError: false,
+                            displayMode: true
+                        });
+                    } catch (error) {
+                        this.log('❌ Render-Fehler: ' + error.message);
+                        equationDisplay.innerHTML = '<span style="color: red;">Fehler beim Rendern</span>';
+                    }
+                },
+
+                // Lösung prüfen mit Boss-Kampf-Integration
+                checkSolution: function() {
+                    const solutionField = document.getElementById('solution-field');
+                    const userSolution = solutionField.value.trim();
+                    
+                    if (userSolution === '') {
+                        this.showValidationResult('Bitte gib eine Lösung ein!', 'error');
+                        return;
+                    }
+
+                    const currentEquation = this.equation.currentEquation;
+                    const result = this.validateSolutionWithBoss(userSolution, currentEquation);
+                    
+                    this.showValidationResult(result.message, result.type);
+                    this.handleBossCombat(result);
+                    
+                    this.log(`🎯 Lösungsversuch: ${userSolution} → ${result.message}`);
+                },
+
+                // Erweiterte Validierung mit Boss-spezifischen Gleichungen
+                validateSolutionWithBoss: function(userSolution, equation) {
+                    // Basis-Validierung
+                    let result = this.equation.validateSolution(userSolution, equation);
+                    
+                    // Boss-spezifische Validierung für Mirror Chief
+                    if (equation && equation.type === 'mirror-trap') {
+                        result = this.validateMirrorChiefSolution(userSolution, equation);
+                    }
+                    
+                    return result;
+                },
+
+                // Mirror Chief spezifische Validierung
+                validateMirrorChiefSolution: function(x, equation) {
+                    const numX = parseFloat(x);
+                    
+                    if (isNaN(numX)) {
+                        return {
+                            isValid: false,
+                            message: 'Bitte gib eine gültige Zahl ein!',
+                            type: 'error'
+                        };
+                    }
+
+                    // Spezifische Validierung für Mirror Chief Gleichungen
+                    if (equation.latex.includes('\\sqrt{-2x + 8} = 4')) {
+                        // √(-2x + 8) = 4 → -2x + 8 = 16 → -2x = 8 → x = -4
+                        if (numX === -4) {
+                            return {
+                                isValid: true,
+                                message: `Richtig! x = ${numX} ist die echte Lösung! Du hast Mirror Chief's Vorzeichen-Falle durchschaut! 🎉`,
+                                type: 'success',
+                                isBossHit: true
+                            };
+                        } else if (numX === 4) {
+                            return {
+                                isValid: false,
+                                message: `Mirror Chief's Falle! x = ${numX} entsteht, wenn man das Minuszeichen vor 2x vergisst. Die echte Lösung ist x = -4!`,
+                                type: 'spurious',
+                                isBossAttack: true
+                            };
+                        } else {
+                            return {
+                                isValid: false,
+                                message: `Falsch! Achte auf das Vorzeichen: √(-2x + 8) = 4. Die Lösung ist x = -4.`,
+                                type: 'error'
+                            };
+                        }
+                    }
+
+                    if (equation.latex.includes('\\sqrt{3 - x} = x + 1')) {
+                        // √(3 - x) = x + 1 → 3 - x = (x + 1)² → 3 - x = x² + 2x + 1 → x² + 3x - 2 = 0
+                        if (numX === 1) {
+                            return {
+                                isValid: true,
+                                message: `Exzellent! x = ${numX} ist die korrekte Lösung! Mirror Chief's Spiegelung konnte dich nicht täuschen! 🎉`,
+                                type: 'success',
+                                isBossHit: true
+                            };
+                        } else if (numX === -2) {
+                            return {
+                                isValid: false,
+                                message: `Gespiegelt! x = ${numX} ist eine Scheinlösung. Rechte Seite wäre -1, aber Wurzeln sind ≥ 0!`,
+                                type: 'spurious',
+                                isBossAttack: true
+                            };
+                        }
+                    }
+
+                    if (equation.latex.includes('\\sqrt{-x + 5} = 2')) {
+                        // √(-x + 5) = 2 → -x + 5 = 4 → -x = -1 → x = 1
+                        if (numX === 1) {
+                            return {
+                                isValid: true,
+                                message: `Perfekt! x = ${numX} ist richtig! Das Vorzeichen wurde korrekt behandelt! 🎉`,
+                                type: 'success',
+                                isBossHit: true
+                            };
+                        } else if (numX === 9) {
+                            return {
+                                isValid: false,
+                                message: `Mirror Chief's Spiegelmagie! x = ${numX} entsteht durch Vorzeichenfehler. Echte Lösung: x = 1`,
+                                type: 'spurious',
+                                isBossAttack: true
+                            };
+                        }
+                    }
+
+                    // Fallback für unerkannte Lösungen
+                    return {
+                        isValid: false,
+                        message: `Nicht korrekt! Prüfe die Vorzeichen genau - Mirror Chief versteckt Fallen!`,
+                        type: 'error'
+                    };
+                },
+
+                // Boss-Kampf-Handler
+                handleBossCombat: function(result) {
+                    const currentBoss = this.boss.getCurrentBoss();
+                    if (!currentBoss || !currentBoss.isAlive) return;
+
+                    if (result.isValid && result.isBossHit) {
+                        // Boss treffen
+                        const bossResult = this.boss.damageBoss(20);
+                        this.updateScore(150); // Bonus für Boss-Treffer
+                        this.triggerScreenShake();
+                        
+                        if (bossResult === 'defeated') {
+                            this.showFeedback('🎉 MIRROR CHIEF BESIEGT! 🎉', 'success');
+                            setTimeout(() => {
+                                this.showVictoryScreen();
+                            }, 1500);
+                        } else {
+                            this.showFeedback('💥 KRITISCHER TREFFER! +150 Punkte', 'success');
+                        }
+                        
+                    } else if (result.type === 'spurious' && result.isBossAttack) {
+                        // Boss greift an
+                        const attackResult = this.boss.registerFailure();
+                        this.triggerScreenShake();
+                        
+                        if (attackResult === 'player-defeated') {
+                            this.showFeedback('💀 MIRROR CHIEF SIEGE! SPIEGELMAGIE ZU STARK!', 'error');
+                            setTimeout(() => {
+                                this.showDefeatScreen();
+                            }, 1500);
+                        } else {
+                            this.showFeedback('⚡ SPIEGELANGRIFF! Vorsicht vor Scheinlösungen!', 'error');
+                        }
+                    } else if (result.type === 'error') {
+                        // Normaler Fehler - kein Boss-Effekt
+                        this.showFeedback('Falsche Lösung - versuche es nochmal!', 'error');
+                    }
+                },
+
+                // Screen Shake Effekt
+                triggerScreenShake: function() {
+                    const gameContainer = document.querySelector('.game-container');
+                    gameContainer.classList.add('shake');
+                    setTimeout(() => {
+                        gameContainer.classList.remove('shake');
+                    }, 500);
+                },
+
+                // Sieg-Screen anzeigen
+                showVictoryScreen: function() {
+                    this.showValidationResult('🏆 SIEG! Mirror Chief wurde besiegt! Ein neuer Kampf beginnt in 3 Sekunden...', 'success');
+                    setTimeout(() => {
+                        this.boss.resetBoss();
+                        this.loadNewEquation();
+                        this.updateUI();
+                    }, 3000);
+                },
+
+                // Niederlage-Screen anzeigen
+                showDefeatScreen: function() {
+                    this.showValidationResult('💀 NIEDERLAGE! Mirror Chief hat gewonnen. Neuer Versuch in 3 Sekunden...', 'error');
+                    setTimeout(() => {
+                        this.boss.resetBoss();
+                        this.loadNewEquation();
+                        this.updateUI();
+                    }, 3000);
+                },
+
+                // Validierungsergebnis anzeigen
+                showValidationResult: function(message, type) {
+                    const resultDiv = document.getElementById('validation-result');
+                    resultDiv.textContent = message;
+                    resultDiv.className = `validation-result ${type}`;
+                },
+
+                // Validierungsergebnis löschen
+                clearValidationResult: function() {
+                    const resultDiv = document.getElementById('validation-result');
+                    resultDiv.textContent = '';
+                    resultDiv.className = 'validation-result';
+                },
+
+                // Eingabefeld leeren
+                clearSolutionInput: function() {
+                    document.getElementById('solution-field').value = '';
+                },
+
+                // Lösungsschritte anzeigen
+                showSolutionSteps: function() {
+                    const currentEquation = this.equation.currentEquation;
+                    if (!currentEquation) return;
+
+                    const steps = this.equation.getSolutionSteps(currentEquation);
+                    const resultDiv = document.getElementById('validation-result');
+                    
+                    let stepsHtml = '<div class="solution-steps">';
+                    stepsHtml += '<h4>🔍 Lösungsweg:</h4>';
+                    stepsHtml += '<ol>';
+                    steps.forEach(step => {
+                        stepsHtml += `<li>${step}</li>`;
+                    });
+                    stepsHtml += '</ol>';
+                    stepsHtml += '</div>';
+                    
+                    resultDiv.innerHTML = stepsHtml;
+                    resultDiv.className = 'validation-result';
+                },
+
+                // Score aktualisieren
+                updateScore: function(points) {
+                    this.gameState.score += points;
+                    document.getElementById('score').textContent = this.gameState.score;
+                },
+
+                // Boss Schaden zufügen
+                damageBoss: function(damage) {
+                    this.gameState.bossHealth = Math.max(0, this.gameState.bossHealth - damage);
+                    const healthFill = document.getElementById('boss-health-fill');
+                    healthFill.style.width = this.gameState.bossHealth + '%';
+                    
+                    if (this.gameState.bossHealth <= 0) {
+                        this.showFeedback('Boss besiegt! 🎉', 'success');
+                        setTimeout(() => {
+                            this.gameState.bossHealth = 100;
+                            this.updateUI();
+                            this.loadNewEquation();
+                        }, 2000);
+                    }
+                },
+
+                // Event Listeners einrichten
+                setupEventListeners: function() {
+                    // Werkzeug-Buttons
+                    document.getElementById('definitions-lamp').addEventListener('click', () => {
+                        this.useTool('definitions-lamp');
+                    });
+                    
+                    document.getElementById('probe-seal').addEventListener('click', () => {
+                        this.useTool('probe-seal');
+                    });
+                    
+                    document.getElementById('isolation-compass').addEventListener('click', () => {
+                        this.useTool('isolation-compass');
+                    });
+
+                    // Lösungs-Buttons
+                    document.getElementById('check-solution').addEventListener('click', () => {
+                        this.checkSolution();
+                    });
+
+                    document.getElementById('new-equation').addEventListener('click', () => {
+                        this.loadNewEquation();
+                    });
+
+                    document.getElementById('show-steps').addEventListener('click', () => {
+                        this.showSolutionSteps();
+                    });
+
+                    // Enter-Taste im Eingabefeld
+                    document.getElementById('solution-field').addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            this.checkSolution();
+                        }
+                    });
+                    
+                    // Debug-Toggle (Ctrl+Shift+D)
+                    document.addEventListener('keydown', (e) => {
+                        if (e.ctrlKey && e.shiftKey && e.code === 'KeyD') {
+                            this.toggleDebug();
+                        }
+                    });
+                    
+                    this.log('🎯 Event Listeners eingerichtet');
+                },
+
+                // Werkzeug verwenden (erweitert mit ToolSystem)
+                useTool: function(toolName) {
+                    this.log('🔧 Werkzeug verwendet: ' + toolName);
+                    
+                    const currentEquation = this.equation.currentEquation;
+                    if (!currentEquation) {
+                        this.showFeedback('Keine Gleichung geladen!', 'error');
+                        return;
+                    }
+                    
+                    switch(toolName) {
+                        case 'definitions-lamp':
+                            this.useDefinitionsLamp(currentEquation);
+                            break;
+                        case 'probe-seal':
+                            this.useProbeSeal(currentEquation);
+                            break;
+                        case 'isolation-compass':
+                            this.useIsolationCompass(currentEquation);
+                            break;
+                    }
+                },
+
+                // Definitions-Lampe verwenden
+                useDefinitionsLamp: function(equation) {
+                    const result = this.tools.useDefinitionsLamp(equation);
+                    
+                    if (result.success) {
+                        this.showValidationResult(result.message, 'success');
+                        this.showFeedback('💡 Definitions-Lampe aktiviert!', 'success');
+                        this.updateToolButtons();
+                    } else {
+                        this.showValidationResult(result.message, 'error');
+                        this.showFeedback('Definitions-Lampe nicht verfügbar!', 'error');
+                    }
+                },
+
+                // Probe-Siegel verwenden (erweitert)
+                useProbeSeal: function(equation) {
+                    if (!this.tools.activateTool('probe-seal')) {
+                        this.showFeedback('Probe-Siegel ist im Cooldown!', 'error');
+                        return;
+                    }
+
+                    let hint = '🔍 Probe-Siegel aktiviert!\n\n';
+                    hint += 'Tipp: Setze deine Lösung in die ursprüngliche Gleichung ein und prüfe beide Seiten!\n\n';
+                    
+                    if (equation.spuriousSolutions && equation.spuriousSolutions.length > 0) {
+                        hint += `⚠️ WARNUNG: Diese Gleichung hat ${equation.spuriousSolutions.length} bekannte Scheinlösung(en)!\n`;
+                        hint += 'Scheinlösungen: ' + equation.spuriousSolutions.join(', ');
+                    }
+
+                    // Wenn es eine Boss-Gleichung ist, extra Hinweise
+                    if (equation.type === 'mirror-trap') {
+                        hint += '\n\n👹 Mirror Chief Warnung: Achte besonders auf Vorzeichen!';
+                    }
+                    
+                    this.showValidationResult(hint, 'success');
+                    this.showFeedback('🔍 Probe-Siegel verwendet!', 'success');
+                    this.updateToolButtons();
+                },
+
+                // Isolations-Kompass verwenden (erweitert)
+                useIsolationCompass: function(equation) {
+                    if (!this.tools.activateTool('isolation-compass')) {
+                        this.showFeedback('Isolations-Kompass ist im Cooldown!', 'error');
+                        return;
+                    }
+
+                    let hint = '🧭 Isolations-Kompass aktiviert!\n\n';
+                    
+                    if (equation.latex.includes('\\sqrt')) {
+                        hint += 'Lösungsstrategie für Wurzelgleichungen:\n';
+                        hint += '1. Wurzel auf einer Seite isolieren\n';
+                        hint += '2. Beide Seiten quadrieren\n';
+                        hint += '3. Resultierende Gleichung lösen\n';
+                        hint += '4. WICHTIG: Probe mit allen Lösungen!\n\n';
+                        
+                        if (equation.type === 'mirror-trap') {
+                            hint += '👹 Mirror Chief Spezialfall:\n';
+                            hint += '- Achte auf negative Vorzeichen!\n';
+                            hint += '- Prüfe Definitionsbereich genau!\n';
+                            hint += '- Scheinlösungen sind wahrscheinlich!';
+                        }
+                    } else {
+                        hint += 'Allgemeine Lösungsstrategie:\n';
+                        hint += '1. Alle Terme mit x auf eine Seite\n';
+                        hint += '2. Konstanten auf die andere Seite\n';
+                        hint += '3. Nach x auflösen';
+                    }
+                    
+                    this.showValidationResult(hint, 'success');
+                    this.showFeedback('🧭 Isolations-Kompass zeigt den Weg!', 'success');
+                    this.updateToolButtons();
+                },
+
+                // Tool-Buttons visuell aktualisieren
+                updateToolButtons: function() {
+                    const toolButtons = document.querySelectorAll('.tool-button');
+                    
+                    toolButtons.forEach(button => {
+                        const toolId = button.id;
+                        const tool = this.tools.getToolStatus(toolId);
+                        
+                        if (tool) {
+                            // Cooldown-Indikator
+                            if (tool.cooldown > 0) {
+                                button.style.opacity = '0.5';
+                                button.style.cursor = 'not-allowed';
+                                button.textContent = `${tool.icon} ${tool.name} (${Math.ceil(tool.cooldown/1000)}s)`;
+                            } else {
+                                button.style.opacity = '1';
+                                button.style.cursor = 'pointer';
+                                button.textContent = `${tool.icon} ${tool.name}`;
+                            }
+                            
+                            // Aktiver Tool-Indikator
+                            if (tool.isActive) {
+                                button.style.transform = 'scale(1.05)';
+                                button.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.8)';
+                            } else {
+                                button.style.transform = '';
+                                button.style.boxShadow = '';
+                            }
+                        }
+                    });
+                    
+                    // Update nach einer Sekunde für Cooldown-Timer
+                    setTimeout(() => {
+                        const anyToolsOnCooldown = Object.values(this.tools.tools).some(tool => tool.cooldown > 0);
+                        if (anyToolsOnCooldown) {
+                            this.updateToolButtons();
+                        }
+                    }, 1000);
+                },
+
+                // Feedback anzeigen
+                showFeedback: function(message, type) {
+                    const overlay = document.getElementById('feedback-overlay');
+                    overlay.textContent = message;
+                    overlay.className = `feedback-overlay ${type} visible`;
+                    
+                    setTimeout(() => {
+                        overlay.classList.remove('visible');
+                    }, 2000);
+                },
+
+                // Mirror Chief Boss-Kampf initialisieren
+                startNewBoss: function() {
+                    this.log('👹 Initialisiere Mirror Chief Boss-Kampf...');
+                    
+                    // Mirror Chief erstellen
+                    const mirrorChief = this.boss.createMirrorChief();
+                    
+                    // Gamestate aktualisieren
+                    this.gameState.currentBoss = 'mirror-chief';
+                    this.gameState.bossHealth = 100;
+                    this.gameState.isPlaying = true;
+                    
+                    // Tool-System initialisieren
+                    this.initializeToolSystem();
+                    
+                    // UI und Animation starten
+                    this.updateUI();
+                    this.startCanvasAnimation();
+                    
+                    // Erste Boss-Gleichung laden
+                    this.loadNewEquation();
+                    
+                    this.log(`✅ ${mirrorChief.name} erwacht! Kampf beginnt!`);
+                },
+
+                // Tool-System initialisieren
+                initializeToolSystem: function() {
+                    // Tool-Buttons aktualisieren
+                    this.updateToolButtons();
+                    
+                    // Zahlenstrahl-Canvas vorbereiten (falls nicht vorhanden)
+                    if (!this.tools.numberLineCanvas) {
+                        this.tools.createNumberLineCanvas();
+                    }
+                    
+                    this.log('🔧 Tool-System initialisiert');
+                },
+
+                // UI aktualisieren mit Boss-Status
+                updateUI: function() {
+                    document.getElementById('score').textContent = this.gameState.score;
+                    
+                    // Boss-Status aktualisieren
+                    const bossStatus = this.boss.getBossStatus();
+                    if (bossStatus) {
+                        document.getElementById('current-boss').textContent = bossStatus.name;
+                        document.getElementById('boss-name').textContent = bossStatus.name;
+                        document.getElementById('boss-ability').textContent = bossStatus.specialty;
+                        
+                        const healthFill = document.getElementById('boss-health-fill');
+                        healthFill.style.width = bossStatus.healthPercent + '%';
+                        
+                        // Gamestate synchronisieren
+                        this.gameState.bossHealth = bossStatus.healthPercent;
+                    } else {
+                        // Fallback wenn kein Boss aktiv
+                        document.getElementById('current-boss').textContent = 'Kein Boss';
+                        document.getElementById('boss-name').textContent = 'Bereit für Kampf';
+                        document.getElementById('boss-ability').textContent = 'Wähle einen Gegner';
+                        
+                        const healthFill = document.getElementById('boss-health-fill');
+                        healthFill.style.width = '100%';
+                    }
+                },
+
+                // Debug-Informationen anzeigen/ausblenden
+                toggleDebug: function() {
+                    const debugInfo = document.getElementById('debug-info');
+                    debugInfo.classList.toggle('visible');
+                    this.log('🐛 Debug-Modus umgeschaltet');
+                },
+
+                // Debug-Informationen aktualisieren
+                showDebugInfo: function() {
+                    const debugInfo = document.getElementById('debug-info');
+                    debugInfo.classList.add('visible');
+                    
+                    setInterval(() => {
+                        const bossStatus = this.boss.getBossStatus();
+                        const currentEquation = this.equation.currentEquation;
+                        
+                        debugInfo.innerHTML = `
+                            Spiel-Status: ${this.gameState.isPlaying ? 'Boss-Kampf aktiv' : 'Pausiert'}<br>
+                            Boss: ${bossStatus ? bossStatus.name : 'Keiner'} (${bossStatus ? Math.round(bossStatus.healthPercent) : 0}% HP)<br>
+                            Scheinlösungen: ${bossStatus ? bossStatus.consecutiveFailures : 0}/3<br>
+                            Score: ${this.gameState.score}<br>
+                            Gleichungstyp: ${currentEquation ? currentEquation.type : 'Keine'}<br>
+                            Animation: ${this.animationFrame ? 'Läuft' : 'Gestoppt'}
+                        `;
+                    }, 1000);
+                },
+
+                // Logging-Funktion
+                log: function(message) {
+                    if (DEBUG_MODE) {
+                        console.log(`[Quadrier-Quarantäne] ${message}`);
+                    }
+                }
+            };
+
+            // Spiel starten wenn DOM geladen ist
+            document.addEventListener('DOMContentLoaded', function() {
+                GameEngine.init();
+            });
+
+            // Spiel-Engine global verfügbar machen (für Debugging)
+            window.QuadrierQuarantäne = GameEngine;
+
+        })();
+    </script>
+</body>
+</html>

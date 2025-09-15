@@ -14,7 +14,7 @@ class MathTopicsSystem {
             'quadratic-equations': 'quadratic-equations',
             'quadratic-functions': 'quadratic-functions', 
             'function-transformations': 'function-transformations',
-            'root-calculations': 'root-calculations',
+            'square-roots': 'square-roots',
             'power-laws': 'power-laws'
         };
         
@@ -99,7 +99,7 @@ class MathTopicsSystem {
             'quadratic-equations',
             'quadratic-functions', 
             'function-transformations',
-            'root-calculations',
+            'square-roots',
             'power-laws',
             'binomial-formulas'
         ];

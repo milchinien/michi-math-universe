@@ -23,25 +23,25 @@ class AkademieSystem {
             'quadratic-functions': {
                 name: '🌙 Parabel-Phantome',
                 description: 'Scheitelpunkt, Nullstellen & Normalform-Monster',
-                enabled: false,
+                enabled: true,
                 tutorId: 'parabolus'
             },
             'function-transformations': {
                 name: '🔄 Funktions-Transformations-Titanen',
                 description: 'Verschiebung, Streckung & Spiegelung der Parabeln',
-                enabled: false,
+                enabled: true,
                 tutorId: 'transformis'
             },
             'square-roots': {
                 name: '√ Wurzel-Wächter',
                 description: 'Quadratwurzeln ziehen & Wurzelgesetze anwenden',
-                enabled: false,
+                enabled: true,
                 tutorId: 'radicus'
             },
             'power-laws': {
                 name: '💥 Potenzgesetze-Piraten',
                 description: 'Negative & rationale Exponenten meistern',
-                enabled: false,
+                enabled: true,
                 tutorId: 'potentius'
             }
         };
@@ -66,40 +66,97 @@ class AkademieSystem {
     }
     
     attachTopicListeners() {
-        const topicItems = document.querySelectorAll('.akademie-topic-item:not(.disabled)');
-        // Reduced logging to prevent spam
+        const topicItems = document.querySelectorAll('.akademie-topic-item');
+        console.log(`🔗 Attaching listeners to ${topicItems.length} topic items`);
+        
         if (topicItems.length === 0) {
-            console.warn('No topic items found');
+            console.warn('❌ No topic items found for event listeners');
+            return;
         }
         
-        topicItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const topic = item.getAttribute('data-topic');
-                console.log('Topic clicked:', topic);
-                this.selectTopic(topic);
-            });
+        topicItems.forEach((item, index) => {
+            const topic = item.getAttribute('data-topic');
+            const isDisabled = item.classList.contains('disabled');
             
-            // Add visual feedback
-            item.style.cursor = 'pointer';
+            console.log(`Topic ${index}: ${topic}, disabled: ${isDisabled}`);
+            
+            // Remove any existing listeners
+            const newItem = item.cloneNode(true);
+            item.parentNode.replaceChild(newItem, item);
+            
+            if (!isDisabled) {
+                newItem.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log(`🖱️ Akademie topic clicked: ${topic}`);
+                    this.selectTopic(topic);
+                });
+                
+                // Add visual feedback
+                newItem.style.cursor = 'pointer';
+                newItem.style.userSelect = 'none';
+            } else {
+                newItem.style.cursor = 'not-allowed';
+            }
         });
         
-        // Also add click listeners when Akademie menu is shown
-        setTimeout(() => {
-            this.attachTopicListeners();
-        }, 100);
+        console.log('✅ Topic listeners attached successfully');
+    }
+    
+    // DEBUGGING: Add direct test event listeners
+    addTestEventListeners() {
+        console.log('🧪 Adding test event listeners...');
+        
+        // Try multiple approaches to attach listeners
+        const approaches = [
+            () => document.querySelectorAll('[data-topic="quadratic-equations"]'),
+            () => document.querySelectorAll('.akademie-topic-item[data-topic="quadratic-equations"]'),
+            () => document.querySelectorAll('#akademieMenu .akademie-topic-item[data-topic="quadratic-equations"]')
+        ];
+        
+        approaches.forEach((approach, index) => {
+            const elements = approach();
+            console.log(`Approach ${index + 1}: Found ${elements.length} elements`);
+            
+            elements.forEach((element, elemIndex) => {
+                console.log(`  Element ${elemIndex}:`, element);
+                
+                // Add VERY direct listener
+                element.addEventListener('click', (e) => {
+                    console.log('🚨 DIRECT CLICK DETECTED on quadratic-equations!');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.selectedTopic = 'quadratic-equations';
+                    console.log('✅ selectedTopic set to:', this.selectedTopic);
+                    this.showLearningModeModal();
+                });
+                
+                // Also try with mousedown
+                element.addEventListener('mousedown', (e) => {
+                    console.log('🚨 MOUSEDOWN DETECTED on quadratic-equations!');
+                });
+            });
+        });
     }
     
     selectTopic(topicId) {
-        if (!this.availableTopics[topicId] || !this.availableTopics[topicId].enabled) {
+        console.log(`🎯 selectTopic called with: ${topicId}`);
+        
+        if (!this.availableTopics[topicId]) {
+            console.error(`❌ Topic '${topicId}' not found in availableTopics`);
+            console.log('Available topics:', Object.keys(this.availableTopics));
+            return;
+        }
+        
+        if (!this.availableTopics[topicId].enabled) {
+            console.error(`❌ Topic '${topicId}' is not enabled`);
             return;
         }
         
         this.selectedTopic = topicId;
-        this.showLearningModeModal();
+        console.log(`✅ Topic selected: ${this.selectedTopic}`);
         
-        console.log('Selected topic:', topicId);
+        this.showLearningModeModal();
     }
     
     showLearningModeModal() {
@@ -123,7 +180,7 @@ class AkademieSystem {
         if (modal) {
             modal.style.display = 'none';
         }
-        this.selectedTopic = null;
+        // this.selectedTopic = null;
     }
     
     updateSelectedTopicDisplay() {
@@ -169,10 +226,13 @@ class AkademieSystem {
             akademieMenu.style.display = 'flex';
         }
         
+        console.log('🎭 Akademie menu shown, attaching listeners...');
+        
         // Re-attach event listeners after menu is shown
         setTimeout(() => {
             this.attachTopicListeners();
-        }, 50);
+            this.addTestEventListeners(); // DEBUGGING: Add direct test listeners
+        }, 100);
         
         console.log('Showing Akademie menu');
     }
@@ -196,8 +256,11 @@ class AkademieSystem {
     }
     
     startTrainingMode() {
+        console.log(`🎯 startTrainingMode called, selectedTopic: ${this.selectedTopic}`);
+        
         if (!this.selectedTopic) {
-            console.warn('No topic selected for training');
+            console.error('❌ No topic selected for training');
+            alert('Fehler: Kein Thema ausgewählt! Bitte wähle zuerst ein Thema aus.');
             return;
         }
         
@@ -205,7 +268,13 @@ class AkademieSystem {
         
         // Get the appropriate tutor for this topic
         const topic = this.availableTopics[this.selectedTopic];
+        if (!topic) {
+            console.error(`❌ Topic data not found for: ${this.selectedTopic}`);
+            return;
+        }
+        
         const tutorId = topic.tutorId;
+        console.log(`📚 Topic: ${topic.name}, Tutor: ${tutorId}`);
         
         // Hide modal and akademie menu
         this.closeLearningModeModal();
@@ -218,21 +287,28 @@ class AkademieSystem {
         if (window.tutorialSystem) {
             // Set the selected topic in math topics system for compatibility
             if (window.mathTopicsSystem) {
-                window.mathTopicsSystem.clearAllSelections();
-                window.mathTopicsSystem.selectTopic(this.selectedTopic);
+                // Clear existing selections by creating a new Set with only our topic
+                window.mathTopicsSystem.selectedTopics = new Set([this.selectedTopic]);
+                window.mathTopicsSystem.saveSelection();
+                console.log('🔗 Synced topic with mathTopicsSystem:', this.selectedTopic);
             }
             
-            // Create tutorial UI if it doesn't exist
-            if (!document.getElementById('tutorialOverlay')) {
-                window.tutorialSystem.createTutorialUI();
+            console.log(`🎯 Akademie starting tutorial for topic: ${this.selectedTopic}`);
+            console.log(`👨‍🏫 Expected tutor: ${tutorId}`);
+
+            // Add a check for null before attempting to start the tutorial
+            if (this.selectedTopic === null) {
+                console.error('Cannot start tutorial: selectedTopic is null');
+                alert('Fehler: Kein Thema ausgewählt.');
+                return;
             }
-            
-            // Start tutorial for the selected topic
+
+            // Start tutorial for the selected topic (tutorial system will handle UI creation)
             const success = window.tutorialSystem.startTutorialForTopic(this.selectedTopic);
             if (!success) {
                 console.error('Failed to start tutorial for topic:', this.selectedTopic);
-                // Fallback to binomial formulas if topic not found
-                window.tutorialSystem.startTutorialForTopic('binomial-formulas');
+                alert(`Fehler: Tutorial für '${this.selectedTopic}' konnte nicht gestartet werden.`);
+                return;
             }
         } else {
             console.error('Tutorial system not available');
@@ -361,3 +437,36 @@ function backToMainMenuFromAkademie() {
 document.addEventListener('DOMContentLoaded', () => {
     window.akademieSystem = new AkademieSystem();
 });
+
+// DEBUGGING: Global test function
+window.testQuadraticSelection = function() {
+    console.log('🧪 Testing quadratic selection...');
+    if (window.akademieSystem) {
+        window.akademieSystem.selectedTopic = 'quadratic-equations';
+        console.log('✅ Manually set selectedTopic to:', window.akademieSystem.selectedTopic);
+        window.akademieSystem.showLearningModeModal();
+    } else {
+        console.error('❌ akademieSystem not available');
+    }
+};
+
+// DEBUGGING: Direct tutorial start
+window.startQuadraticTutorial = function() {
+    console.log('🧪 Direct tutorial start...');
+    if (window.tutorialSystem) {
+        window.tutorialSystem.startTutorialForTopic('quadratic-equations');
+    } else {
+        console.error('❌ tutorialSystem not available');
+    }
+};
+
+// Global function for HTML onclick events
+window.selectAkademieTopic = function(topicId) {
+    console.log(`🎯 selectAkademieTopic called with: ${topicId}`);
+    
+    if (window.akademieSystem) {
+        window.akademieSystem.selectTopic(topicId);
+    } else {
+        console.error('❌ akademieSystem not available');
+    }
+};

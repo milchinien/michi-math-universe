@@ -1,7 +1,7 @@
 // Tutorial System for Akademie-Neuling Mode
 class TutorialSystem {
     constructor() {
-        this.currentLesson = 0;
+        this.currentLesson = 'binomial-formulas'; // Default lesson KEY, not index
         this.currentStep = 0;
         this.isActive = false;
         this.isDarkMode = localStorage.getItem('tutorial-dark-mode') === 'true';
@@ -34,7 +34,7 @@ class TutorialSystem {
                 greeting: "Bereit für die Magie der Funktions-Transformationen?",
                 specialty: "Funktions-Transformationen und geometrische Veränderungen"
             },
-            'root-calculations': {
+            'square-roots': {
                 name: "Professor Radicus",
                 avatar: "🌳",
                 personality: "geerdet und naturverbunden",
@@ -355,7 +355,7 @@ class TutorialSystem {
                     }
                 ]
             },
-            'root-calculations': {
+            'square-roots': {
                 title: "Wurzelrechnung Meistern",
                 description: "Lerne Wurzeln zu vereinfachen, zu kombinieren und Wurzelgleichungen zu lösen",
                 steps: [
@@ -467,7 +467,7 @@ class TutorialSystem {
             'quadratic-equations': 'quadratic-equations', 
             'quadratic-functions': 'quadratic-functions',
             'function-transformations': 'function-transformations',
-            'root-calculations': 'root-calculations',
+            'square-roots': 'square-roots',
             'power-laws': 'power-laws'
         };
         
@@ -492,7 +492,7 @@ class TutorialSystem {
             'quadratic-equations',
             'quadratic-functions', 
             'function-transformations',
-            'root-calculations',
+            'square-roots',
             'power-laws',
             'binomial-formulas'
         ];
@@ -521,14 +521,25 @@ class TutorialSystem {
     
     // Start tutorial for a specific topic
     startTutorialForTopic(topicKey) {
+        console.log(`🎓 Starting tutorial for topic: ${topicKey}`);
+        
+        // FORCE RELOAD: Clear any cached tutorial state
+        this.isActive = false;
+        this.currentStep = 0;
+        
         // Set the appropriate tutor
         this.setTutorForTopic(topicKey);
         
         // Check if lesson exists for this topic
         if (!this.lessons[topicKey]) {
-            console.warn(`No tutorial lesson found for topic: ${topicKey}`);
+            console.warn(`❌ No tutorial lesson found for topic: ${topicKey}`);
+            console.log('Available lessons:', Object.keys(this.lessons));
             return false;
         }
+        
+        console.log(`✅ Found lesson for topic: ${topicKey}`);
+        console.log(`📖 Lesson title: ${this.lessons[topicKey].title}`);
+        console.log(`📝 First step: ${this.lessons[topicKey].steps[0].title}`);
         
         // Start the tutorial
         this.startTutorial(topicKey);
@@ -537,27 +548,39 @@ class TutorialSystem {
     
     // Enhanced start tutorial method
     startTutorial(lessonKey = null) {
+        console.log(`🎬 startTutorial called with lessonKey: ${lessonKey}`);
+        
         // If no lesson specified, select based on current math topics
         if (!lessonKey) {
             const selectedTutor = this.selectTutorForCurrentTopics();
-            // Find matching lesson key
-            const lessonKeys = Object.keys(this.lessons);
-            lessonKey = lessonKeys.find(key => 
-                this.lessons[key].title.toLowerCase().includes(selectedTutor.name.toLowerCase().split(' ')[1])
-            ) || 'binomial-formulas';
+            lessonKey = 'binomial-formulas'; // Fallback only when no lesson specified
+            console.log(`🔄 No lessonKey provided, using fallback: ${lessonKey}`);
         }
         
+        // Check if lesson exists
+        if (!this.lessons[lessonKey]) {
+            console.warn(`❌ Lesson '${lessonKey}' not found, falling back to binomial-formulas`);
+            console.log('Available lessons:', Object.keys(this.lessons));
+            lessonKey = 'binomial-formulas';
+        }
+        
+        console.log(`📚 Setting currentLesson to: ${lessonKey}`);
         this.currentLesson = lessonKey;
         this.currentStep = 0;
         this.isActive = true;
         
         // Update tutor for this lesson
         this.setTutorForTopic(lessonKey);
+        console.log(`👨‍🏫 Current tutor set to: ${this.currentTutor.name}`);
         
-        // Create tutorial UI if it doesn't exist
-        if (!document.getElementById('tutorialOverlay')) {
-            this.createTutorialUI();
+        // FORCE RECREATION: Remove existing tutorial UI to ensure fresh content
+        const existingOverlay = document.getElementById('tutorialOverlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
         }
+        
+        // Create fresh tutorial UI with current tutor
+        this.createTutorialUI();
         
         // Hide all menus
         const menus = ['mainMenu', 'classSelectionMenu', 'mathTopicsMenu', 'difficultySelectionMenu', 'akademieMenu', 'learningModeMenu'];
@@ -581,7 +604,7 @@ class TutorialSystem {
         // Disable body scrolling
         document.body.style.overflow = 'hidden';
         
-        console.log('Tutorial started for lesson:', lessonKey);
+        console.log(`✅ Tutorial started successfully for lesson: ${lessonKey}`);
     }
     
     createTutorialUI() {
@@ -649,40 +672,25 @@ class TutorialSystem {
         });
     }
     
-    startTutorial(topicId) {
-        if (!this.lessons[topicId]) {
-            console.error('Tutorial for topic not found:', topicId);
+    // NOTE: This duplicate method was removed - the main startTutorial method above handles all functionality
+    
+    displayCurrentStep() {
+        console.log(`🎬 displayCurrentStep called - currentLesson: ${this.currentLesson}, currentStep: ${this.currentStep}`);
+        
+        const lesson = this.lessons[this.currentLesson];
+        if (!lesson) {
+            console.error(`❌ No lesson found for key: ${this.currentLesson}`);
+            console.log('Available lessons:', Object.keys(this.lessons));
             return;
         }
         
-        this.currentLesson = topicId;
-        this.currentStep = 0;
-        this.isActive = true;
-        
-        // Disable scrolling
-        document.body.style.overflow = 'hidden';
-        
-        // Show tutorial overlay
-        document.getElementById('tutorialOverlay').style.display = 'flex';
-        
-        // Hide game canvas and UI
-        document.getElementById('gameCanvas').style.display = 'none';
-        document.getElementById('difficultySelectionMenu').style.display = 'none';
-        document.getElementById('gameModeMenu').style.display = 'none';
-        
-        this.displayCurrentStep();
-        
-        // Play tutorial start sound
-        if (window.audioManager) {
-            window.audioManager.playSound('tutorial-start', 'feedback');
-        }
-    }
-    
-    displayCurrentStep() {
-        const lesson = this.lessons[this.currentLesson];
         const step = lesson.steps[this.currentStep];
+        if (!step) {
+            console.error(`❌ No step found at index: ${this.currentStep} for lesson: ${this.currentLesson}`);
+            return;
+        }
         
-        if (!step) return;
+        console.log(`✅ Displaying lesson: ${lesson.title}, step: ${step.title}`);
         
         // Update progress
         document.getElementById('tutorialProgress').textContent = 
