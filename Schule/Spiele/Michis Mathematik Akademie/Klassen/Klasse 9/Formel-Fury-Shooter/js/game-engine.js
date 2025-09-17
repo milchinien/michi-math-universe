@@ -92,7 +92,31 @@ class GameEngine {
             infiniteHPRegen: false,
             infiniteCoins: false,
             showCorrectAnswers: false,
-            infiniteShopPurchases: false
+            infiniteShopPurchases: false,
+            godMode: false,
+            permanentSlowMotion: false,
+            fastForward: false,
+            xrayVision: false,
+            autoPlay: false,
+            rainbowMode: false,
+            partyMode: false,
+            gravityReverse: false,
+            matrixMode: false,
+            showHitboxes: false,
+            showDetailedFPS: false,
+            showAIDebug: false,
+            showCoordinates: false
+        };
+        
+        // Additional cheat state
+        this.cheatState = {
+            enemiesFrozen: false,
+            enemiesFriendly: false,
+            timeScale: 1.0,
+            discoMode: false,
+            arenaTheme: 0,
+            matrixEffect: null,
+            partyLights: []
         };
         
         console.log('🔧 Cheat code system initialized. Use Ctrl+CapsLock to toggle cheat menu.');
@@ -148,7 +172,7 @@ class GameEngine {
         
         // Pause game if playing
         if (this.gameState === 'playing') {
-            this.pauseGame();
+            this.isPaused = true;
         }
         
         console.log('🔧 Cheat menu opened');
@@ -161,62 +185,278 @@ class GameEngine {
             <div class="cheat-overlay">
                 <div class="cheat-panel">
                     <div class="cheat-header">
-                        <h2>🔧 CHEAT MENU</h2>
-                        <button class="cheat-close" onclick="window.gameEngine.hideCheatMenu()">✖</button>
+                        <div class="cheat-title-section">
+                            <h2>🚀 DEVELOPER CONSOLE</h2>
+                            <p class="cheat-subtitle">Experimentiere mit dem Spiel!</p>
+                        </div>
+                        <button class="cheat-close" onclick="window.gameEngine.hideCheatMenu()">
+                            <span>✕</span>
+                        </button>
                     </div>
                     
                     <div class="cheat-content">
-                        <div class="cheat-section">
-                            <h3>💪 Gameplay Cheats</h3>
-                            <div class="cheat-options">
-                                <label class="cheat-option">
-                                    <input type="checkbox" id="cheatInfiniteHP" onchange="window.gameEngine.toggleCheat('infiniteHP', this.checked)">
-                                    <span>🩸 Unendlich HP</span>
-                                </label>
-                                <label class="cheat-option">
-                                    <input type="checkbox" id="cheatInfiniteHPRegen" onchange="window.gameEngine.toggleCheat('infiniteHPRegen', this.checked)">
-                                    <span>💚 Unendliche HP-Regeneration</span>
-                                </label>
-                                <label class="cheat-option">
-                                    <input type="checkbox" id="cheatInfiniteCoins" onchange="window.gameEngine.toggleCheat('infiniteCoins', this.checked)">
-                                    <span>💰 Unendlich Münzen</span>
-                                </label>
-                                <label class="cheat-option">
-                                    <input type="checkbox" id="cheatShowAnswers" onchange="window.gameEngine.toggleCheat('showCorrectAnswers', this.checked)">
-                                    <span>🎯 Richtige Antworten anzeigen</span>
-                                </label>
-                                <label class="cheat-option">
-                                    <input type="checkbox" id="cheatInfiniteShop" onchange="window.gameEngine.toggleCheat('infiniteShopPurchases', this.checked)">
-                                    <span>🛒 Unendliche Shop-Käufe</span>
-                                </label>
+                        <div class="cheat-tabs">
+                            <button class="cheat-tab active" data-tab="basic">🎮 Basis</button>
+                            <button class="cheat-tab" data-tab="advanced">⚡ Erweitert</button>
+                            <button class="cheat-tab" data-tab="creative">🎨 Kreativ</button>
+                            <button class="cheat-tab" data-tab="debug">🔧 Debug</button>
+                        </div>
+                        
+                        <!-- Basic Tab -->
+                        <div class="cheat-tab-content active" id="basic-tab">
+                            <div class="cheat-section">
+                                <h3>💪 Gameplay Cheats</h3>
+                                <div class="cheat-grid">
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatInfiniteHP" onchange="window.gameEngine.toggleCheat('infiniteHP', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">🩸</span>
+                                            <span class="cheat-text">Unendlich HP</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatInfiniteHPRegen" onchange="window.gameEngine.toggleCheat('infiniteHPRegen', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">💚</span>
+                                            <span class="cheat-text">HP-Regeneration</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatInfiniteCoins" onchange="window.gameEngine.toggleCheat('infiniteCoins', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">💰</span>
+                                            <span class="cheat-text">Unendlich Münzen</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatShowAnswers" onchange="window.gameEngine.toggleCheat('showCorrectAnswers', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">🎯</span>
+                                            <span class="cheat-text">Antworten zeigen</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatInfiniteShop" onchange="window.gameEngine.toggleCheat('infiniteShopPurchases', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">🛒</span>
+                                            <span class="cheat-text">Unendlich Shop</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatGodMode" onchange="window.gameEngine.toggleCheat('godMode', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">👑</span>
+                                            <span class="cheat-text">Gott-Modus</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="cheat-section">
+                                <h3>🎮 Schnelle Aktionen</h3>
+                                <div class="cheat-action-grid">
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.addCoins(1000)">
+                                        <span class="btn-icon">💰</span>
+                                        <span class="btn-text">+1000 Münzen</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.healPlayer()">
+                                        <span class="btn-icon">❤️</span>
+                                        <span class="btn-text">Vollständig heilen</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.skipToWave(10)">
+                                        <span class="btn-icon">🌊</span>
+                                        <span class="btn-text">Welle 10</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.maxLevel()">
+                                        <span class="btn-icon">📈</span>
+                                        <span class="btn-text">Max Level</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
-                        <div class="cheat-section">
-                            <h3>⬆️ Upgrade Manager</h3>
-                            <div class="cheat-upgrades">
-                                <button class="cheat-btn" onclick="window.gameEngine.openUpgradeCheatMenu()">
-                                    🎁 Alle Upgrades & Items
-                                </button>
-                                <button class="cheat-btn" onclick="window.gameEngine.resetAllUpgrades()">
-                                    🔄 Alle Upgrades zurücksetzen
-                                </button>
+                        <!-- Advanced Tab -->
+                        <div class="cheat-tab-content" id="advanced-tab">
+                            <div class="cheat-section">
+                                <h3>⚡ Erweiterte Cheats</h3>
+                                <div class="cheat-grid">
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatSlowMotion" onchange="window.gameEngine.toggleCheat('permanentSlowMotion', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">🐌</span>
+                                            <span class="cheat-text">Zeitlupe</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatFastForward" onchange="window.gameEngine.toggleCheat('fastForward', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">⚡</span>
+                                            <span class="cheat-text">Zeitraffer</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatXRayVision" onchange="window.gameEngine.toggleCheat('xrayVision', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">👁️</span>
+                                            <span class="cheat-text">Röntgenblick</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatAutoPlay" onchange="window.gameEngine.toggleCheat('autoPlay', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">🤖</span>
+                                            <span class="cheat-text">Auto-Play</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="cheat-section">
+                                <h3>🎯 Gegner-Kontrolle</h3>
+                                <div class="cheat-action-grid">
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.killAllEnemies()">
+                                        <span class="btn-icon">💀</span>
+                                        <span class="btn-text">Alle töten</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.freezeEnemies()">
+                                        <span class="btn-icon">🧊</span>
+                                        <span class="btn-text">Einfrieren</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.spawnBoss()">
+                                        <span class="btn-icon">👹</span>
+                                        <span class="btn-text">Boss spawnen</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.makeEnemiesFriendly()">
+                                        <span class="btn-icon">😊</span>
+                                        <span class="btn-text">Freundlich machen</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
-                        <div class="cheat-section">
-                            <h3>🎮 Schnelle Aktionen</h3>
-                            <div class="cheat-actions">
-                                <button class="cheat-btn" onclick="window.gameEngine.addCoins(1000)">
-                                    +1000 💰 Münzen
-                                </button>
-                                <button class="cheat-btn" onclick="window.gameEngine.healPlayer()">
-                                    ❤️ Vollständig heilen
-                                </button>
-                                <button class="cheat-btn" onclick="window.gameEngine.skipToWave(10)">
-                                    🌊 Zu Welle 10 springen
-                                </button>
+                        <!-- Creative Tab -->
+                        <div class="cheat-tab-content" id="creative-tab">
+                            <div class="cheat-section">
+                                <h3>🎨 Kreative Modi</h3>
+                                <div class="cheat-grid">
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatRainbowMode" onchange="window.gameEngine.toggleCheat('rainbowMode', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">🌈</span>
+                                            <span class="cheat-text">Regenbogen-Modus</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatPartyMode" onchange="window.gameEngine.toggleCheat('partyMode', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">🎉</span>
+                                            <span class="cheat-text">Party-Modus</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatGravityReverse" onchange="window.gameEngine.toggleCheat('gravityReverse', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">🔄</span>
+                                            <span class="cheat-text">Schwerkraft umkehren</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatMatrixMode" onchange="window.gameEngine.toggleCheat('matrixMode', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">💊</span>
+                                            <span class="cheat-text">Matrix-Modus</span>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
+                            
+                            <div class="cheat-section">
+                                <h3>🎮 Spielfeld-Manipulation</h3>
+                                <div class="cheat-action-grid">
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.createFireworks()">
+                                        <span class="btn-icon">🎆</span>
+                                        <span class="btn-text">Feuerwerk</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.changeArenaTheme()">
+                                        <span class="btn-icon">🏞️</span>
+                                        <span class="btn-text">Arena-Thema</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.spawnCoinRain()">
+                                        <span class="btn-icon">💸</span>
+                                        <span class="btn-text">Münzen-Regen</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.activateDiscoMode()">
+                                        <span class="btn-icon">🕺</span>
+                                        <span class="btn-text">Disco-Modus</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Debug Tab -->
+                        <div class="cheat-tab-content" id="debug-tab">
+                            <div class="cheat-section">
+                                <h3>🔧 Debug Tools</h3>
+                                <div class="cheat-grid">
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatShowHitboxes" onchange="window.gameEngine.toggleCheat('showHitboxes', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">📦</span>
+                                            <span class="cheat-text">Hitboxen anzeigen</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatShowFPS" onchange="window.gameEngine.toggleCheat('showDetailedFPS', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">📊</span>
+                                            <span class="cheat-text">Detaillierte FPS</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatShowAI" onchange="window.gameEngine.toggleCheat('showAIDebug', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">🧠</span>
+                                            <span class="cheat-text">KI-Debug</span>
+                                        </div>
+                                    </label>
+                                    <label class="cheat-option modern">
+                                        <input type="checkbox" id="cheatShowCoords" onchange="window.gameEngine.toggleCheat('showCoordinates', this.checked)">
+                                        <div class="cheat-option-content">
+                                            <span class="cheat-icon">📍</span>
+                                            <span class="cheat-text">Koordinaten</span>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="cheat-section">
+                                <h3>⚙️ System-Tools</h3>
+                                <div class="cheat-action-grid">
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.exportGameState()">
+                                        <span class="btn-icon">💾</span>
+                                        <span class="btn-text">Spielstand exportieren</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.resetAllUpgrades()">
+                                        <span class="btn-icon">🔄</span>
+                                        <span class="btn-text">Upgrades zurücksetzen</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.openUpgradeCheatMenu()">
+                                        <span class="btn-icon">🎁</span>
+                                        <span class="btn-text">Upgrade Manager</span>
+                                    </button>
+                                    <button class="cheat-btn modern" onclick="window.gameEngine.showSystemInfo()">
+                                        <span class="btn-icon">ℹ️</span>
+                                        <span class="btn-text">System-Info</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="cheat-footer">
+                        <div class="cheat-footer-info">
+                            <span>🎮 Developer Console v2.0</span>
+                            <span>Drücke Ctrl+CapsLock zum Öffnen/Schließen</span>
                         </div>
                     </div>
                 </div>
@@ -225,6 +465,30 @@ class GameEngine {
         
         document.body.appendChild(cheatMenu);
         this.styleCheatMenu();
+        this.initializeCheatTabs();
+    }
+    
+    initializeCheatTabs() {
+        const tabs = document.querySelectorAll('.cheat-tab');
+        const tabContents = document.querySelectorAll('.cheat-tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Show corresponding content
+                const targetTab = tab.getAttribute('data-tab');
+                const targetContent = document.getElementById(`${targetTab}-tab`);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            });
+        });
     }
     
     styleCheatMenu() {
@@ -238,132 +502,326 @@ class GameEngine {
                 width: 100%;
                 height: 100%;
                 z-index: 10000;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
             
             .cheat-overlay {
-                background: rgba(0, 0, 0, 0.8);
+                background: linear-gradient(135deg, rgba(20, 20, 40, 0.95), rgba(40, 20, 60, 0.95));
+                backdrop-filter: blur(10px);
                 width: 100%;
                 height: 100%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                animation: cheatOverlayFadeIn 0.3s ease-out;
             }
             
             .cheat-panel {
-                background: linear-gradient(135deg, #1a1a2e, #16213e);
-                border: 2px solid #00ffff;
-                border-radius: 15px;
-                width: 600px;
-                max-height: 80vh;
-                overflow-y: auto;
-                box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+                background: linear-gradient(145deg, #1e1e3f, #2a2a5a);
+                border: 2px solid #4a90e2;
+                border-radius: 20px;
+                width: 900px;
+                max-width: 95vw;
+                max-height: 90vh;
+                overflow: hidden;
+                box-shadow: 
+                    0 20px 60px rgba(74, 144, 226, 0.3),
+                    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+                animation: cheatPanelSlideIn 0.4s ease-out;
             }
             
             .cheat-header {
-                background: linear-gradient(90deg, #00ffff, #ff00ff);
-                color: #000;
-                padding: 15px 20px;
-                border-radius: 13px 13px 0 0;
+                background: linear-gradient(135deg, #4a90e2, #357abd, #2c5aa0);
+                color: #ffffff;
+                padding: 20px 25px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             }
             
-            .cheat-header h2 {
+            .cheat-title-section h2 {
+                margin: 0 0 5px 0;
+                font-size: 28px;
+                font-weight: 700;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            
+            .cheat-subtitle {
                 margin: 0;
-                font-size: 24px;
-                font-weight: bold;
+                font-size: 14px;
+                opacity: 0.9;
+                font-weight: 400;
             }
             
             .cheat-close {
-                background: rgba(255, 255, 255, 0.2);
-                border: none;
-                color: #000;
-                font-size: 20px;
-                width: 30px;
-                height: 30px;
-                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.15);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                color: #ffffff;
+                font-size: 18px;
+                width: 40px;
+                height: 40px;
+                border-radius: 12px;
                 cursor: pointer;
                 font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
             }
             
             .cheat-close:hover {
-                background: rgba(255, 255, 255, 0.4);
+                background: rgba(255, 255, 255, 0.25);
+                border-color: rgba(255, 255, 255, 0.5);
+                transform: scale(1.05);
+            }
+            
+            .cheat-tabs {
+                display: flex;
+                background: rgba(0, 0, 0, 0.2);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .cheat-tab {
+                flex: 1;
+                background: transparent;
+                border: none;
+                color: #a0a0a0;
+                padding: 15px 20px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                border-bottom: 3px solid transparent;
+            }
+            
+            .cheat-tab:hover {
+                background: rgba(74, 144, 226, 0.1);
+                color: #d0d0d0;
+            }
+            
+            .cheat-tab.active {
+                background: rgba(74, 144, 226, 0.2);
+                color: #4a90e2;
+                border-bottom-color: #4a90e2;
             }
             
             .cheat-content {
-                padding: 20px;
-                color: #fff;
+                height: 400px;
+                overflow-y: auto;
+                padding: 0;
+            }
+            
+            .cheat-tab-content {
+                display: none;
+                padding: 25px;
+                animation: cheatTabFadeIn 0.3s ease-out;
+            }
+            
+            .cheat-tab-content.active {
+                display: block;
             }
             
             .cheat-section {
-                margin-bottom: 25px;
-                padding: 15px;
-                background: rgba(0, 255, 255, 0.1);
-                border-radius: 10px;
-                border: 1px solid rgba(0, 255, 255, 0.3);
+                margin-bottom: 30px;
+                padding: 20px;
+                background: linear-gradient(135deg, rgba(74, 144, 226, 0.08), rgba(74, 144, 226, 0.12));
+                border-radius: 15px;
+                border: 1px solid rgba(74, 144, 226, 0.25);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             }
             
             .cheat-section h3 {
-                margin: 0 0 15px 0;
-                color: #00ffff;
+                margin: 0 0 20px 0;
+                color: #4a90e2;
                 font-size: 18px;
-            }
-            
-            .cheat-options {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .cheat-option {
+                font-weight: 600;
                 display: flex;
                 align-items: center;
+                gap: 8px;
+            }
+            
+            .cheat-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            
+            .cheat-option.modern {
+                display: block;
                 cursor: pointer;
-                padding: 8px;
-                border-radius: 5px;
-                transition: background 0.2s;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.08));
+                border: 2px solid rgba(74, 144, 226, 0.3);
+                border-radius: 12px;
+                padding: 15px;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
             }
             
-            .cheat-option:hover {
-                background: rgba(0, 255, 255, 0.1);
+            .cheat-option.modern:hover {
+                background: linear-gradient(135deg, rgba(74, 144, 226, 0.15), rgba(74, 144, 226, 0.2));
+                border-color: #4a90e2;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(74, 144, 226, 0.3);
             }
             
-            .cheat-option input[type="checkbox"] {
-                margin-right: 10px;
-                transform: scale(1.2);
-                accent-color: #00ffff;
+            .cheat-option.modern input[type="checkbox"] {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                width: 20px;
+                height: 20px;
+                accent-color: #4a90e2;
+                cursor: pointer;
             }
             
-            .cheat-option span {
+            .cheat-option-content {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 8px;
+                padding-right: 30px;
+            }
+            
+            .cheat-icon {
+                font-size: 24px;
+                line-height: 1;
+            }
+            
+            .cheat-text {
+                color: #ffffff;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 1.2;
+            }
+            
+            .cheat-action-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 15px;
+            }
+            
+            .cheat-btn.modern {
+                background: linear-gradient(135deg, #4a90e2, #357abd);
+                color: #ffffff;
+                border: none;
+                padding: 15px 20px;
+                border-radius: 12px;
+                cursor: pointer;
+                font-weight: 600;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+            }
+            
+            .cheat-btn.modern:hover {
+                background: linear-gradient(135deg, #357abd, #2c5aa0);
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
+            }
+            
+            .cheat-btn.modern:active {
+                transform: translateY(-1px);
+            }
+            
+            .btn-icon {
                 font-size: 16px;
             }
             
-            .cheat-upgrades, .cheat-actions {
+            .btn-text {
+                font-size: 13px;
+            }
+            
+            .cheat-footer {
+                background: linear-gradient(135deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2));
+                padding: 15px 25px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .cheat-footer-info {
                 display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
+                justify-content: space-between;
+                align-items: center;
+                color: #a0a0a0;
+                font-size: 12px;
             }
             
-            .cheat-btn {
-                background: linear-gradient(45deg, #ff00ff, #00ffff);
-                color: #000;
-                border: none;
-                padding: 10px 15px;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: bold;
-                font-size: 14px;
-                transition: transform 0.2s, box-shadow 0.2s;
+            /* Scrollbar Styling */
+            .cheat-content::-webkit-scrollbar {
+                width: 8px;
             }
             
-            .cheat-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+            .cheat-content::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 4px;
             }
             
-            .cheat-btn:active {
-                transform: translateY(0);
+            .cheat-content::-webkit-scrollbar-thumb {
+                background: rgba(74, 144, 226, 0.6);
+                border-radius: 4px;
+            }
+            
+            .cheat-content::-webkit-scrollbar-thumb:hover {
+                background: rgba(74, 144, 226, 0.8);
+            }
+            
+            /* Animations */
+            @keyframes cheatOverlayFadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes cheatPanelSlideIn {
+                from { 
+                    opacity: 0;
+                    transform: scale(0.9) translateY(-20px);
+                }
+                to { 
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+            
+            @keyframes cheatTabFadeIn {
+                from { 
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to { 
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .cheat-panel {
+                    width: 95vw;
+                    margin: 10px;
+                }
+                
+                .cheat-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .cheat-action-grid {
+                    grid-template-columns: 1fr;
+                }
+                
+                .cheat-tabs {
+                    flex-wrap: wrap;
+                }
+                
+                .cheat-tab {
+                    flex: 1 1 50%;
+                    min-width: 120px;
+                }
             }
         `;
         
@@ -377,8 +835,8 @@ class GameEngine {
         }
         
         // Resume game if it was paused by cheat menu
-        if (this.gameState === 'paused') {
-            this.resumeGame();
+        if (this.isPaused) {
+            this.isPaused = false;
         }
         
         console.log('🔧 Cheat menu closed');
@@ -399,6 +857,49 @@ class GameEngine {
                     if (this.currencySystem) {
                         this.currencySystem.addCoins(999999);
                     }
+                    break;
+                case 'godMode':
+                    this.playerHealth = this.playerMaxHealth;
+                    this.cheatFeatures.infiniteHP = true;
+                    this.cheatFeatures.infiniteHPRegen = true;
+                    this.cheatFeatures.infiniteCoins = true;
+                    break;
+                case 'permanentSlowMotion':
+                    this.cheatState.timeScale = 0.3;
+                    break;
+                case 'fastForward':
+                    this.cheatState.timeScale = 2.0;
+                    break;
+                case 'rainbowMode':
+                    this.initRainbowMode();
+                    break;
+                case 'partyMode':
+                    this.initPartyMode();
+                    break;
+                case 'matrixMode':
+                    this.initMatrixMode();
+                    break;
+                case 'autoPlay':
+                    this.initAutoPlay();
+                    break;
+            }
+        } else {
+            switch(cheatName) {
+                case 'permanentSlowMotion':
+                case 'fastForward':
+                    this.cheatState.timeScale = 1.0;
+                    break;
+                case 'rainbowMode':
+                    this.disableRainbowMode();
+                    break;
+                case 'partyMode':
+                    this.disablePartyMode();
+                    break;
+                case 'matrixMode':
+                    this.disableMatrixMode();
+                    break;
+                case 'autoPlay':
+                    this.disableAutoPlay();
                     break;
             }
         }
@@ -457,6 +958,247 @@ class GameEngine {
         }
     }
     
+    // =================== NEW CHEAT FUNCTIONS ===================
+    
+    maxLevel() {
+        if (this.levelSystem) {
+            // Add massive XP to reach max level
+            this.levelSystem.addXp(100000);
+            console.log('🔧 Player leveled to maximum!');
+        }
+    }
+    
+    killAllEnemies() {
+        if (this.enemySpawner && this.enemySpawner.enemies) {
+            let killedCount = 0;
+            this.enemySpawner.enemies.forEach(enemy => {
+                if (!enemy.isDead) {
+                    // Different ways to kill enemy depending on available methods
+                    if (typeof enemy.startDeathAnimation === 'function') {
+                        enemy.startDeathAnimation();
+                    } else if (typeof enemy.kill === 'function') {
+                        enemy.kill();
+                    } else {
+                        // Fallback: manually set enemy as dead
+                        enemy.isDead = true;
+                        enemy.health = 0;
+                        enemy.deathTime = Date.now();
+                    }
+                    killedCount++;
+                }
+            });
+            console.log(`🔧 Killed ${killedCount} enemies`);
+        }
+    }
+    
+    freezeEnemies() {
+        this.cheatState.enemiesFrozen = !this.cheatState.enemiesFrozen;
+        console.log(`🔧 Enemies ${this.cheatState.enemiesFrozen ? 'frozen' : 'unfrozen'}`);
+    }
+    
+    spawnBoss() {
+        if (this.waveSystem && this.waveSystem.bossManager) {
+            this.waveSystem.bossManager.spawnBoss();
+            console.log('🔧 Boss spawned manually!');
+        }
+    }
+    
+    makeEnemiesFriendly() {
+        this.cheatState.enemiesFriendly = !this.cheatState.enemiesFriendly;
+        console.log(`🔧 Enemies are now ${this.cheatState.enemiesFriendly ? 'friendly' : 'hostile'}`);
+    }
+    
+    createFireworks() {
+        if (this.particleSystem) {
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const x = Math.random() * this.canvas.width;
+                    const y = Math.random() * this.canvas.height * 0.6;
+                    
+                    // Check if createFirework method exists, otherwise create explosion particles
+                    if (typeof this.particleSystem.createFirework === 'function') {
+                        this.particleSystem.createFirework(x, y);
+                    } else if (typeof this.particleSystem.createExplosion === 'function') {
+                        this.particleSystem.createExplosion(x, y, 50, '#ff6600');
+                    } else {
+                        // Fallback: create simple particles
+                        this.createSimpleFirework(x, y);
+                    }
+                }, i * 200);
+            }
+            console.log('🔧 Fireworks display started!');
+        } else {
+            console.log('🔧 Particle system not available, creating simple fireworks');
+            this.createSimpleFireworks();
+        }
+    }
+    
+    createSimpleFirework(x, y) {
+        // Simple firework effect without particle system
+        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+        
+        for (let i = 0; i < 20; i++) {
+            const angle = (Math.PI * 2 * i) / 20;
+            const speed = Math.random() * 5 + 2;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            this.createFireworkParticle(x, y, angle, speed, color);
+        }
+    }
+    
+    createFireworkParticle(x, y, angle, speed, color) {
+        // This would need to be rendered in the render loop
+        // For now just log the effect
+        console.log(`🎆 Firework particle at (${x}, ${y}) with color ${color}`);
+    }
+    
+    createSimpleFireworks() {
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                const x = Math.random() * this.canvas.width;
+                const y = Math.random() * this.canvas.height * 0.6;
+                this.createSimpleFirework(x, y);
+            }, i * 400);
+        }
+    }
+    
+    changeArenaTheme() {
+        this.cheatState.arenaTheme = (this.cheatState.arenaTheme + 1) % 4;
+        const themes = ['Desert', 'Forest', 'Snow', 'Lava'];
+        console.log(`🔧 Arena theme changed to: ${themes[this.cheatState.arenaTheme]}`);
+    }
+    
+    spawnCoinRain() {
+        if (this.currencySystem) {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const x = Math.random() * this.canvas.width;
+                    const y = -50;
+                    const coinValue = Math.floor(Math.random() * 100) + 10;
+                    
+                    // Check if createCoin method exists
+                    if (typeof this.currencySystem.createCoin === 'function') {
+                        this.currencySystem.createCoin(x, y, coinValue);
+                    } else if (typeof this.currencySystem.showCoinDrop === 'function') {
+                        this.currencySystem.showCoinDrop(x, y, coinValue);
+                    } else {
+                        // Fallback: just add coins directly
+                        this.currencySystem.addCoins(coinValue);
+                    }
+                }, i * 100);
+            }
+            console.log('🔧 Coin rain activated!');
+        } else {
+            console.log('🔧 Currency system not available for coin rain');
+        }
+    }
+    
+    activateDiscoMode() {
+        this.cheatState.discoMode = !this.cheatState.discoMode;
+        console.log(`🔧 Disco mode ${this.cheatState.discoMode ? 'activated' : 'deactivated'}!`);
+    }
+    
+    exportGameState() {
+        const gameState = {
+            playerHealth: this.playerHealth,
+            score: this.formulaSystem?.score || 0,
+            level: this.levelSystem?.currentLevel || 1,
+            coins: this.currencySystem?.coins || 0,
+            wave: this.waveSystem?.currentWave || 1,
+            timestamp: new Date().toISOString()
+        };
+        
+        const dataStr = JSON.stringify(gameState, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'formel-fury-save.json';
+        link.click();
+        
+        console.log('🔧 Game state exported!', gameState);
+    }
+    
+    showSystemInfo() {
+        const info = {
+            browser: navigator.userAgent,
+            screenResolution: `${screen.width}x${screen.height}`,
+            canvasSize: `${this.canvas.width}x${this.canvas.height}`,
+            performance: performance.now(),
+            memory: performance.memory ? `${Math.round(performance.memory.usedJSHeapSize / 1024 / 1024)}MB` : 'N/A',
+            fps: this.fps
+        };
+        
+        alert(`🔧 SYSTEM INFO\n\nFPS: ${info.fps}\nCanvas: ${info.canvasSize}\nScreen: ${info.screenResolution}\nMemory: ${info.memory}\nBrowser: ${info.browser.split(' ')[0]}`);
+        console.log('🔧 System info:', info);
+    }
+    
+    // =================== SPECIAL EFFECT FUNCTIONS ===================
+    
+    initRainbowMode() {
+        this.cheatState.rainbowTimer = 0;
+        console.log('🔧 Rainbow mode initialized!');
+    }
+    
+    disableRainbowMode() {
+        console.log('🔧 Rainbow mode disabled!');
+    }
+    
+    initPartyMode() {
+        this.cheatState.partyLights = [];
+        this.cheatState.partyTimer = 0;
+        
+        // Create party lights
+        for (let i = 0; i < 20; i++) {
+            this.cheatState.partyLights.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height,
+                color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                size: Math.random() * 20 + 10,
+                speed: Math.random() * 2 + 1
+            });
+        }
+        console.log('🔧 Party mode initialized!');
+    }
+    
+    disablePartyMode() {
+        this.cheatState.partyLights = [];
+        console.log('🔧 Party mode disabled!');
+    }
+    
+    initMatrixMode() {
+        this.cheatState.matrixEffect = {
+            drops: [],
+            chars: '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン'
+        };
+        
+        // Initialize matrix drops
+        const cols = Math.floor(this.canvas.width / 20);
+        for (let i = 0; i < cols; i++) {
+            this.cheatState.matrixEffect.drops.push({
+                x: i * 20,
+                y: Math.random() * this.canvas.height,
+                speed: Math.random() * 3 + 1
+            });
+        }
+        console.log('🔧 Matrix mode initialized!');
+    }
+    
+    disableMatrixMode() {
+        this.cheatState.matrixEffect = null;
+        console.log('🔧 Matrix mode disabled!');
+    }
+    
+    initAutoPlay() {
+        this.cheatState.autoPlayTimer = 0;
+        console.log('🔧 Auto-play mode initialized!');
+    }
+    
+    disableAutoPlay() {
+        console.log('🔧 Auto-play mode disabled!');
+    }
+    
     openUpgradeCheatMenu() {
         // Create upgrade selection menu
         if (!document.getElementById('upgradeCheatMenu')) {
@@ -468,7 +1210,7 @@ class GameEngine {
         
         // Ensure game stays paused when opening upgrade menu
         if (this.gameState === 'playing') {
-            this.pauseGame();
+            this.isPaused = true;
         }
     }
     
@@ -479,8 +1221,8 @@ class GameEngine {
         }
         
         // Resume game if it was paused by cheat menu
-        if (this.gameState === 'paused') {
-            this.resumeGame();
+        if (this.isPaused) {
+            this.isPaused = false;
         }
     }
     
@@ -648,8 +1390,11 @@ class GameEngine {
     applyCheatEffects(deltaTime) {
         if (!this.cheatFeatures) return;
         
+        // Apply time scale
+        const scaledDelta = deltaTime * this.cheatState.timeScale;
+        
         // Infinite HP
-        if (this.cheatFeatures.infiniteHP) {
+        if (this.cheatFeatures.infiniteHP || this.cheatFeatures.godMode) {
             this.playerHealth = this.playerMaxHealth;
         }
         
@@ -664,6 +1409,88 @@ class GameEngine {
                 this.currencySystem.addCoins(999999 - this.currencySystem.coins);
             }
         }
+        
+        // Auto-play functionality
+        if (this.cheatFeatures.autoPlay) {
+            this.updateAutoPlay(deltaTime);
+        }
+        
+        // Rainbow mode
+        if (this.cheatFeatures.rainbowMode) {
+            this.cheatState.rainbowTimer = (this.cheatState.rainbowTimer || 0) + deltaTime;
+        }
+        
+        // Party mode
+        if (this.cheatFeatures.partyMode) {
+            this.updatePartyMode(deltaTime);
+        }
+        
+        // Matrix mode
+        if (this.cheatFeatures.matrixMode && this.cheatState.matrixEffect) {
+            this.updateMatrixMode(deltaTime);
+        }
+        
+        // Frozen enemies
+        if (this.cheatState.enemiesFrozen && this.enemySpawner) {
+            this.enemySpawner.enemies.forEach(enemy => {
+                enemy.speed = 0;
+            });
+        }
+        
+        // Friendly enemies
+        if (this.cheatState.enemiesFriendly && this.enemySpawner) {
+            this.enemySpawner.enemies.forEach(enemy => {
+                enemy.isFriendly = true;
+            });
+        }
+    }
+    
+    updateAutoPlay(deltaTime) {
+        this.cheatState.autoPlayTimer += deltaTime;
+        
+        // Auto-answer formulas every 2 seconds
+        if (this.cheatState.autoPlayTimer > 2000) {
+            this.cheatState.autoPlayTimer = 0;
+            
+            if (this.combatMode && this.targetedEnemy) {
+                // Automatically solve the current formula
+                this.handleCorrectAnswer();
+            }
+        }
+        
+        // Auto-target nearest enemy
+        if (!this.combatMode && this.enemySpawner && this.enemySpawner.enemies.length > 0) {
+            const nearestEnemy = this.getNearestEnemyInRange(this.player.x, this.player.y, 200);
+            if (nearestEnemy) {
+                this.targetEnemy(nearestEnemy);
+            }
+        }
+    }
+    
+    updatePartyMode(deltaTime) {
+        this.cheatState.partyTimer += deltaTime;
+        
+        this.cheatState.partyLights.forEach(light => {
+            light.x += Math.sin(this.cheatState.partyTimer * 0.005) * light.speed;
+            light.y += Math.cos(this.cheatState.partyTimer * 0.003) * light.speed;
+            
+            // Keep lights in bounds
+            if (light.x < 0 || light.x > this.canvas.width) light.x = Math.random() * this.canvas.width;
+            if (light.y < 0 || light.y > this.canvas.height) light.y = Math.random() * this.canvas.height;
+            
+            // Change colors
+            light.color = `hsl(${(this.cheatState.partyTimer * 0.1) % 360}, 100%, 50%)`;
+        });
+    }
+    
+    updateMatrixMode(deltaTime) {
+        this.cheatState.matrixEffect.drops.forEach(drop => {
+            drop.y += drop.speed;
+            if (drop.y > this.canvas.height) {
+                drop.y = -20;
+                drop.x = Math.random() * this.canvas.width;
+            }
+        });
     }
     
     toggleCheatMode() {
@@ -1966,7 +2793,16 @@ class GameEngine {
             // Particle effects removed
             
             // Kill the enemy
-            this.targetedEnemy.startDeathAnimation();
+            if (typeof this.targetedEnemy.startDeathAnimation === 'function') {
+                this.targetedEnemy.startDeathAnimation();
+            } else if (typeof this.targetedEnemy.kill === 'function') {
+                this.targetedEnemy.kill();
+            } else {
+                // Fallback: manually set enemy as dead
+                this.targetedEnemy.isDead = true;
+                this.targetedEnemy.health = 0;
+                this.targetedEnemy.deathTime = Date.now();
+            }
             
             // Trigger screen effects for enemy death
             if (this.screenEffects) {
@@ -2300,10 +3136,196 @@ class GameEngine {
             this.renderPauseIndicator();
         }
         
+        // Render cheat visual effects
+        this.renderCheatEffects();
+        
         // Restore screen effects and render flash overlays
         if (this.screenEffects) {
             this.screenEffects.restoreEffects();
         }
+    }
+    
+    renderCheatEffects() {
+        // Rainbow mode
+        if (this.cheatFeatures.rainbowMode) {
+            this.renderRainbowMode();
+        }
+        
+        // Party mode
+        if (this.cheatFeatures.partyMode) {
+            this.renderPartyMode();
+        }
+        
+        // Matrix mode
+        if (this.cheatFeatures.matrixMode && this.cheatState.matrixEffect) {
+            this.renderMatrixMode();
+        }
+        
+        // X-Ray vision
+        if (this.cheatFeatures.xrayVision) {
+            this.renderXRayVision();
+        }
+        
+        // Debug overlays
+        if (this.cheatFeatures.showHitboxes) {
+            this.renderHitboxes();
+        }
+        
+        if (this.cheatFeatures.showCoordinates) {
+            this.renderCoordinates();
+        }
+        
+        // Disco mode
+        if (this.cheatState.discoMode) {
+            this.renderDiscoMode();
+        }
+    }
+    
+    renderRainbowMode() {
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.3;
+        this.ctx.globalCompositeOperation = 'overlay';
+        
+        const hue = (this.cheatState.rainbowTimer * 0.1) % 360;
+        const gradient = this.ctx.createLinearGradient(0, 0, this.canvas.width, this.canvas.height);
+        gradient.addColorStop(0, `hsl(${hue}, 100%, 50%)`);
+        gradient.addColorStop(0.5, `hsl(${(hue + 120) % 360}, 100%, 50%)`);
+        gradient.addColorStop(1, `hsl(${(hue + 240) % 360}, 100%, 50%)`);
+        
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.restore();
+    }
+    
+    renderPartyMode() {
+        this.ctx.save();
+        this.cheatState.partyLights.forEach(light => {
+            this.ctx.globalAlpha = 0.7;
+            this.ctx.fillStyle = light.color;
+            this.ctx.shadowColor = light.color;
+            this.ctx.shadowBlur = 30;
+            
+            this.ctx.beginPath();
+            this.ctx.arc(light.x, light.y, light.size, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+        this.ctx.restore();
+    }
+    
+    renderMatrixMode() {
+        this.ctx.save();
+        this.ctx.font = '14px monospace';
+        this.ctx.fillStyle = '#00ff00';
+        this.ctx.globalAlpha = 0.8;
+        
+        this.cheatState.matrixEffect.drops.forEach(drop => {
+            const chars = this.cheatState.matrixEffect.chars;
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            this.ctx.fillText(char, drop.x, drop.y);
+        });
+        this.ctx.restore();
+    }
+    
+    renderXRayVision() {
+        if (!this.enemySpawner) return;
+        
+        this.ctx.save();
+        this.ctx.strokeStyle = '#ff00ff';
+        this.ctx.lineWidth = 2;
+        this.ctx.globalAlpha = 0.6;
+        
+        this.enemySpawner.enemies.forEach(enemy => {
+            if (!enemy.isDead) {
+                // Draw health bar
+                const barWidth = 60;
+                const barHeight = 8;
+                const barX = enemy.x - barWidth / 2;
+                const barY = enemy.y - enemy.height / 2 - 20;
+                
+                this.ctx.strokeRect(barX, barY, barWidth, barHeight);
+                
+                const healthPercent = enemy.health / enemy.maxHealth;
+                this.ctx.fillStyle = healthPercent > 0.6 ? '#00ff00' : healthPercent > 0.3 ? '#ffff00' : '#ff0000';
+                this.ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
+                
+                // Draw formula preview
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.font = '12px monospace';
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(enemy.assignedFormula?.text || 'No Formula', enemy.x, barY - 10);
+            }
+        });
+        this.ctx.restore();
+    }
+    
+    renderHitboxes() {
+        this.ctx.save();
+        this.ctx.strokeStyle = '#ff0000';
+        this.ctx.lineWidth = 1;
+        this.ctx.globalAlpha = 0.5;
+        
+        // Player hitbox
+        if (this.player) {
+            this.ctx.strokeRect(
+                this.player.x - this.player.width / 2,
+                this.player.y - this.player.height / 2,
+                this.player.width,
+                this.player.height
+            );
+        }
+        
+        // Enemy hitboxes
+        if (this.enemySpawner) {
+            this.enemySpawner.enemies.forEach(enemy => {
+                if (!enemy.isDead) {
+                    this.ctx.strokeRect(
+                        enemy.x - enemy.width / 2,
+                        enemy.y - enemy.height / 2,
+                        enemy.width,
+                        enemy.height
+                    );
+                }
+            });
+        }
+        this.ctx.restore();
+    }
+    
+    renderCoordinates() {
+        this.ctx.save();
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = '12px monospace';
+        this.ctx.textAlign = 'left';
+        
+        // Player coordinates
+        if (this.player) {
+            this.ctx.fillText(`Player: (${Math.round(this.player.x)}, ${Math.round(this.player.y)})`, 10, this.canvas.height - 40);
+        }
+        
+        // Mouse coordinates
+        if (this.inputHandler) {
+            const mousePos = this.inputHandler.getMousePosition();
+            this.ctx.fillText(`Mouse: (${Math.round(mousePos.x)}, ${Math.round(mousePos.y)})`, 10, this.canvas.height - 20);
+        }
+        
+        this.ctx.restore();
+    }
+    
+    renderDiscoMode() {
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.1;
+        
+        const time = Date.now() * 0.01;
+        for (let i = 0; i < 10; i++) {
+            const x = Math.sin(time + i) * this.canvas.width * 0.3 + this.canvas.width / 2;
+            const y = Math.cos(time + i * 0.5) * this.canvas.height * 0.3 + this.canvas.height / 2;
+            const hue = (time * 5 + i * 36) % 360;
+            
+            this.ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, 50, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+        this.ctx.restore();
     }
 
     renderPlayerHealthBar() {
