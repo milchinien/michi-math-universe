@@ -139,11 +139,11 @@ class ArenaSystem {
     
     getPhaseDescription() {
         if (this.currentWave < this.deteriorationStartWave) {
-            return "Arena stabil";
+            return "Arena stable";
         } else if (this.currentWave < this.collapsePhaseStart) {
-            return "Erdbeben-Phase";
+            return "Earthquake phase";
         } else {
-            return "Kollaps-Phase";
+            return "Collapse phase";
         }
     }
     

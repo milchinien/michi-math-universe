@@ -187,7 +187,7 @@ class GameEngine {
                     <div class="cheat-header">
                         <div class="cheat-title-section">
                             <h2>🚀 DEVELOPER CONSOLE</h2>
-                            <p class="cheat-subtitle">Experimentiere mit dem Spiel!</p>
+                            <p class="cheat-subtitle">Experiment with the game!</p>
                         </div>
                         <button class="cheat-close" onclick="window.gameEngine.hideCheatMenu()">
                             <span>✕</span>
@@ -196,9 +196,9 @@ class GameEngine {
                     
                     <div class="cheat-content">
                         <div class="cheat-tabs">
-                            <button class="cheat-tab active" data-tab="basic">🎮 Basis</button>
-                            <button class="cheat-tab" data-tab="advanced">⚡ Erweitert</button>
-                            <button class="cheat-tab" data-tab="creative">🎨 Kreativ</button>
+                            <button class="cheat-tab active" data-tab="basic">🎮 Basic</button>
+                            <button class="cheat-tab" data-tab="advanced">⚡ Advanced</button>
+                            <button class="cheat-tab" data-tab="creative">🎨 Creative</button>
                             <button class="cheat-tab" data-tab="debug">🔧 Debug</button>
                         </div>
                         
@@ -211,61 +211,61 @@ class GameEngine {
                                         <input type="checkbox" id="cheatInfiniteHP" onchange="window.gameEngine.toggleCheat('infiniteHP', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">🩸</span>
-                                            <span class="cheat-text">Unendlich HP</span>
+                                            <span class="cheat-text">Infinite HP</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatInfiniteHPRegen" onchange="window.gameEngine.toggleCheat('infiniteHPRegen', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">💚</span>
-                                            <span class="cheat-text">HP-Regeneration</span>
+                                            <span class="cheat-text">HP Regeneration</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatInfiniteCoins" onchange="window.gameEngine.toggleCheat('infiniteCoins', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">💰</span>
-                                            <span class="cheat-text">Unendlich Münzen</span>
+                                            <span class="cheat-text">Infinite Coins</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatShowAnswers" onchange="window.gameEngine.toggleCheat('showCorrectAnswers', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">🎯</span>
-                                            <span class="cheat-text">Antworten zeigen</span>
+                                            <span class="cheat-text">Show answers</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatInfiniteShop" onchange="window.gameEngine.toggleCheat('infiniteShopPurchases', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">🛒</span>
-                                            <span class="cheat-text">Unendlich Shop</span>
+                                            <span class="cheat-text">Infinite Shop</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatGodMode" onchange="window.gameEngine.toggleCheat('godMode', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">👑</span>
-                                            <span class="cheat-text">Gott-Modus</span>
+                                            <span class="cheat-text">God Mode</span>
                                         </div>
                                     </label>
                                 </div>
                             </div>
                             
                             <div class="cheat-section">
-                                <h3>🎮 Schnelle Aktionen</h3>
+                                <h3>🎮 Quick Actions</h3>
                                 <div class="cheat-action-grid">
                                     <button class="cheat-btn modern" onclick="window.gameEngine.addCoins(1000)">
                                         <span class="btn-icon">💰</span>
-                                        <span class="btn-text">+1000 Münzen</span>
+                                        <span class="btn-text">+1000 Coins</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.healPlayer()">
                                         <span class="btn-icon">❤️</span>
-                                        <span class="btn-text">Vollständig heilen</span>
+                                        <span class="btn-text">Full heal</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.skipToWave(10)">
                                         <span class="btn-icon">🌊</span>
-                                        <span class="btn-text">Welle 10</span>
+                                        <span class="btn-text">Wave 10</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.maxLevel()">
                                         <span class="btn-icon">📈</span>
@@ -278,27 +278,27 @@ class GameEngine {
                         <!-- Advanced Tab -->
                         <div class="cheat-tab-content" id="advanced-tab">
                             <div class="cheat-section">
-                                <h3>⚡ Erweiterte Cheats</h3>
+                                <h3>⚡ Advanced Cheats</h3>
                                 <div class="cheat-grid">
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatSlowMotion" onchange="window.gameEngine.toggleCheat('permanentSlowMotion', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">🐌</span>
-                                            <span class="cheat-text">Zeitlupe</span>
+                                            <span class="cheat-text">Slow motion</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatFastForward" onchange="window.gameEngine.toggleCheat('fastForward', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">⚡</span>
-                                            <span class="cheat-text">Zeitraffer</span>
+                                            <span class="cheat-text">Fast forward</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatXRayVision" onchange="window.gameEngine.toggleCheat('xrayVision', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">👁️</span>
-                                            <span class="cheat-text">Röntgenblick</span>
+                                            <span class="cheat-text">X-ray vision</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
@@ -312,23 +312,23 @@ class GameEngine {
                             </div>
                             
                             <div class="cheat-section">
-                                <h3>🎯 Gegner-Kontrolle</h3>
+                                <h3>🎯 Enemy Control</h3>
                                 <div class="cheat-action-grid">
                                     <button class="cheat-btn modern" onclick="window.gameEngine.killAllEnemies()">
                                         <span class="btn-icon">💀</span>
-                                        <span class="btn-text">Alle töten</span>
+                                        <span class="btn-text">Kill all</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.freezeEnemies()">
                                         <span class="btn-icon">🧊</span>
-                                        <span class="btn-text">Einfrieren</span>
+                                        <span class="btn-text">Freeze</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.spawnBoss()">
                                         <span class="btn-icon">👹</span>
-                                        <span class="btn-text">Boss spawnen</span>
+                                        <span class="btn-text">Spawn boss</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.makeEnemiesFriendly()">
                                         <span class="btn-icon">😊</span>
-                                        <span class="btn-text">Freundlich machen</span>
+                                        <span class="btn-text">Make friendly</span>
                                     </button>
                                 </div>
                             </div>
@@ -337,57 +337,57 @@ class GameEngine {
                         <!-- Creative Tab -->
                         <div class="cheat-tab-content" id="creative-tab">
                             <div class="cheat-section">
-                                <h3>🎨 Kreative Modi</h3>
+                                <h3>🎨 Creative Modes</h3>
                                 <div class="cheat-grid">
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatRainbowMode" onchange="window.gameEngine.toggleCheat('rainbowMode', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">🌈</span>
-                                            <span class="cheat-text">Regenbogen-Modus</span>
+                                            <span class="cheat-text">Rainbow Mode</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatPartyMode" onchange="window.gameEngine.toggleCheat('partyMode', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">🎉</span>
-                                            <span class="cheat-text">Party-Modus</span>
+                                            <span class="cheat-text">Party Mode</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatGravityReverse" onchange="window.gameEngine.toggleCheat('gravityReverse', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">🔄</span>
-                                            <span class="cheat-text">Schwerkraft umkehren</span>
+                                            <span class="cheat-text">Reverse gravity</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatMatrixMode" onchange="window.gameEngine.toggleCheat('matrixMode', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">💊</span>
-                                            <span class="cheat-text">Matrix-Modus</span>
+                                            <span class="cheat-text">Matrix Mode</span>
                                         </div>
                                     </label>
                                 </div>
                             </div>
                             
                             <div class="cheat-section">
-                                <h3>🎮 Spielfeld-Manipulation</h3>
+                                <h3>🎮 Arena Manipulation</h3>
                                 <div class="cheat-action-grid">
                                     <button class="cheat-btn modern" onclick="window.gameEngine.createFireworks()">
                                         <span class="btn-icon">🎆</span>
-                                        <span class="btn-text">Feuerwerk</span>
+                                        <span class="btn-text">Fireworks</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.changeArenaTheme()">
                                         <span class="btn-icon">🏞️</span>
-                                        <span class="btn-text">Arena-Thema</span>
+                                        <span class="btn-text">Arena theme</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.spawnCoinRain()">
                                         <span class="btn-icon">💸</span>
-                                        <span class="btn-text">Münzen-Regen</span>
+                                        <span class="btn-text">Coin rain</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.activateDiscoMode()">
                                         <span class="btn-icon">🕺</span>
-                                        <span class="btn-text">Disco-Modus</span>
+                                        <span class="btn-text">Disco Mode</span>
                                     </button>
                                 </div>
                             </div>
@@ -402,43 +402,43 @@ class GameEngine {
                                         <input type="checkbox" id="cheatShowHitboxes" onchange="window.gameEngine.toggleCheat('showHitboxes', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">📦</span>
-                                            <span class="cheat-text">Hitboxen anzeigen</span>
+                                            <span class="cheat-text">Show hitboxes</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatShowFPS" onchange="window.gameEngine.toggleCheat('showDetailedFPS', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">📊</span>
-                                            <span class="cheat-text">Detaillierte FPS</span>
+                                            <span class="cheat-text">Detailed FPS</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatShowAI" onchange="window.gameEngine.toggleCheat('showAIDebug', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">🧠</span>
-                                            <span class="cheat-text">KI-Debug</span>
+                                            <span class="cheat-text">AI Debug</span>
                                         </div>
                                     </label>
                                     <label class="cheat-option modern">
                                         <input type="checkbox" id="cheatShowCoords" onchange="window.gameEngine.toggleCheat('showCoordinates', this.checked)">
                                         <div class="cheat-option-content">
                                             <span class="cheat-icon">📍</span>
-                                            <span class="cheat-text">Koordinaten</span>
+                                            <span class="cheat-text">Coordinates</span>
                                         </div>
                                     </label>
                                 </div>
                             </div>
                             
                             <div class="cheat-section">
-                                <h3>⚙️ System-Tools</h3>
+                                <h3>⚙️ System Tools</h3>
                                 <div class="cheat-action-grid">
                                     <button class="cheat-btn modern" onclick="window.gameEngine.exportGameState()">
                                         <span class="btn-icon">💾</span>
-                                        <span class="btn-text">Spielstand exportieren</span>
+                                        <span class="btn-text">Export save</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.resetAllUpgrades()">
                                         <span class="btn-icon">🔄</span>
-                                        <span class="btn-text">Upgrades zurücksetzen</span>
+                                        <span class="btn-text">Reset upgrades</span>
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.openUpgradeCheatMenu()">
                                         <span class="btn-icon">🎁</span>
@@ -446,7 +446,7 @@ class GameEngine {
                                     </button>
                                     <button class="cheat-btn modern" onclick="window.gameEngine.showSystemInfo()">
                                         <span class="btn-icon">ℹ️</span>
-                                        <span class="btn-text">System-Info</span>
+                                        <span class="btn-text">System Info</span>
                                     </button>
                                 </div>
                             </div>
@@ -456,7 +456,7 @@ class GameEngine {
                     <div class="cheat-footer">
                         <div class="cheat-footer-info">
                             <span>🎮 Developer Console v2.0</span>
-                            <span>Drücke Ctrl+CapsLock zum Öffnen/Schließen</span>
+                            <span>Press Ctrl+CapsLock to open/close</span>
                         </div>
                     </div>
                 </div>
@@ -1244,10 +1244,10 @@ class GameEngine {
                         
                         <div class="cheat-section">
                             <button class="cheat-btn" onclick="window.gameEngine.giveAllUpgrades()">
-                                🌟 Alle Upgrades geben
+                                🌟 Give all upgrades
                             </button>
                             <button class="cheat-btn" onclick="window.gameEngine.maxAllUpgrades()">
-                                ⭐ Alle Upgrades maximieren
+                                ⭐ Max all upgrades
                             </button>
                         </div>
                     </div>
@@ -1503,14 +1503,14 @@ class GameEngine {
             this.playerHealth = 999;
             
             // Show visible confirmation
-            alert('🔧 CHEAT-MODUS AKTIVIERT!\n\n✅ Unendlich Leben (999 HP)\n✅ Kein Schaden\n✅ Alle Features testbar\n\nTastenkombination: Strg+Shift+Y');
+            alert('🔧 CHEAT MODE ACTIVATED!\n\n✅ Infinite HP (999 HP)\n✅ No damage\n✅ All features testable\n\nShortcut: Ctrl+Shift+Y');
             console.log('🔧 CHEAT MODE ACTIVATED! (Ctrl+Shift+Y) Infinite health enabled.');
         } else {
             if (indicator) indicator.style.display = 'none';
             this.playerMaxHealth = 5;
             this.playerHealth = Math.min(this.playerHealth, 5);
             
-            alert('🔧 CHEAT-MODUS DEAKTIVIERT!\n\n❌ Normale Gesundheit wiederhergestellt\n❌ Normaler Schwierigkeitsgrad');
+            alert('🔧 CHEAT MODE DEACTIVATED!\n\n❌ Normal health restored\n❌ Normal difficulty');
             console.log('🔧 CHEAT MODE DEACTIVATED! Normal health restored.');
         }
         
@@ -1788,7 +1788,7 @@ class GameEngine {
             const userAnswer = this.formulaSystem.formulaInput.value.trim();
             
             if (!userAnswer) {
-                this.formulaSystem.showFeedback('Bitte gib eine Antwort ein!', false);
+                this.formulaSystem.showFeedback('Please enter an answer!', false);
                 return;
             }
             
@@ -1805,7 +1805,7 @@ class GameEngine {
         
         this.formulaSystem.skipFormula = () => {
             if (this.targetedEnemy) {
-                this.formulaSystem.showFeedback(`Übersprungen! Du nimmst Schaden!`, false);
+                this.formulaSystem.showFeedback(`Skipped! You take damage!`, false);
                 this.dealDamageToPlayer(1); // Only 1 HP damage
             }
             this.exitCombatMode();
@@ -2078,9 +2078,9 @@ class GameEngine {
     updateGameModeInfo() {
         const modeInfo = document.getElementById('gameModeInfo');
         if (modeInfo) {
-            const modeText = this.gameMode === 'day' ? 'TAG ☀️' : 'NACHT 🌙';
+            const modeText = this.gameMode === 'day' ? 'DAY ☀️' : 'NIGHT 🌙';
             const cheatText = this.cheatMode ? ' | CHEAT 🔧' : '';
-            modeInfo.textContent = `Modus: ${modeText}${cheatText} | Controls: WASD + Maus + ESC`;
+            modeInfo.textContent = `Mode: ${modeText}${cheatText} | Controls: WASD + Mouse + ESC`;
         }
     }
 
@@ -2385,12 +2385,12 @@ class GameEngine {
         if (mcQuestion) {
             if (this.isQuadraticEquationType(formula.type)) {
                 mcQuestion.innerHTML = `
-                    <div style="font-size: 18px; margin-bottom: 10px;">Löse die quadratische Gleichung:</div>
+                    <div style="font-size: 18px; margin-bottom: 10px;">Solve the quadratic equation:</div>
                     <div style="font-size: 24px; color: #00ff00;">${formula.text}</div>
                 `;
             } else {
                 mcQuestion.innerHTML = `
-                    <div style="font-size: 18px; margin-bottom: 10px;">Welche Formel-Art ist das?</div>
+                    <div style="font-size: 18px; margin-bottom: 10px;">Which type of formula is this?</div>
                     <div style="font-size: 24px; color: #00ff00;">${formula.text}</div>
                 `;
             }
@@ -2433,10 +2433,10 @@ class GameEngine {
         
         // Always show the same 4 options in a fixed order for binomial formulas
         return [
-            '<div class="formula-type-option"><div class="formula-name">1. Binomische Formel</div><div class="formula-pattern">(a+b)² = a² + 2ab + b²</div></div>',
-            '<div class="formula-type-option"><div class="formula-name">2. Binomische Formel</div><div class="formula-pattern">(a-b)² = a² - 2ab + b²</div></div>',
-            '<div class="formula-type-option"><div class="formula-name">3. Binomische Formel</div><div class="formula-pattern">(a+b)(a-b) = a² - b²</div></div>',
-            '<div class="formula-type-option"><div class="formula-name">Faktorisierung</div><div class="formula-pattern">Umkehrung der Binomischen Formeln</div></div>'
+            '<div class="formula-type-option"><div class="formula-name">1st binomial formula</div><div class="formula-pattern">(a+b)² = a² + 2ab + b²</div></div>',
+            '<div class="formula-type-option"><div class="formula-name">2nd binomial formula</div><div class="formula-pattern">(a-b)² = a² - 2ab + b²</div></div>',
+            '<div class="formula-type-option"><div class="formula-name">3rd binomial formula</div><div class="formula-pattern">(a+b)(a-b) = a² - b²</div></div>',
+            '<div class="formula-type-option"><div class="formula-name">Factoring</div><div class="formula-pattern">Reverse of the binomial formulas</div></div>'
         ];
     }
     
@@ -2477,7 +2477,7 @@ class GameEngine {
             return [
                 '<div class="solution-option">x₁ = 0, x₂ = 1</div>',
                 '<div class="solution-option">x₁ = -1, x₂ = 2</div>',
-                '<div class="solution-option">Keine reellen Lösungen</div>',
+                '<div class="solution-option">No real solutions</div>',
                 '<div class="solution-option">x = 0</div>'
             ];
         }
@@ -2667,7 +2667,7 @@ class GameEngine {
             const coinsText = coinsEarned > 0 ? ` +${coinsEarned} 💰` : '';
             const xpText = xpEarned > 0 ? ` +${xpEarned} XP` : '';
             this.formulaSystem.showFeedback(
-                `Richtig! +${earnedScore} Punkte${coinsText}${xpText} (Tag-Modus: ${this.targetedEnemy.typeName || this.targetedEnemy.type})`,
+                `Correct! +${earnedScore} points${coinsText}${xpText} (Day Mode: ${this.targetedEnemy.typeName || this.targetedEnemy.type})`,
                 true
             );
             
@@ -2685,7 +2685,7 @@ class GameEngine {
             this.dealDamageToPlayer(1); // Only 1 HP damage for day mode
         }
         
-        this.formulaSystem.showFeedback('Falsch! Versuche es beim nächsten Gegner noch einmal.', false);
+        this.formulaSystem.showFeedback('Wrong! Try again on the next enemy.', false);
         this.formulaSystem.updateScoreDisplay();
         this.formulaSystem.generateFormula();
     }
@@ -2823,12 +2823,12 @@ class GameEngine {
             }
             
             // Show detailed feedback with enemy type, coins and XP
-            const speedText = timeTaken < 5000 ? ' (Schnell!)' : '';
+            const speedText = timeTaken < 5000 ? ' (Fast!)' : '';
             const comboText = this.formulaSystem.combo >= 3 ? ` Combo x${this.formulaSystem.combo}!` : '';
             const typeText = this.targetedEnemy.scoreMultiplier > 1 ? ` [${this.targetedEnemy.typeName}]` : '';
             const coinsText = coinsEarned > 0 ? ` +${coinsEarned} 💰` : '';
             const xpText = xpEarned > 0 ? ` +${xpEarned} XP` : '';
-            this.formulaSystem.showFeedback(`Treffer! +${earnedScore} Punkte${coinsText}${xpText}${typeText}${speedText}${comboText}`, true);
+            this.formulaSystem.showFeedback(`Hit! +${earnedScore} points${coinsText}${xpText}${typeText}${speedText}${comboText}`, true);
             
             console.log(`${this.targetedEnemy.typeName} eliminated! Score: ${earnedScore} (Base: ${Math.round(earnedScore/this.targetedEnemy.scoreMultiplier)}, Multiplier: ${this.targetedEnemy.scoreMultiplier}x, Difficulty: ${this.targetedEnemy.assignedFormula.difficulty.toFixed(1)}, Time: ${timeTaken}ms, Combo: ${this.formulaSystem.combo})`);
         } else {
@@ -2842,7 +2842,7 @@ class GameEngine {
             this.formulaSystem.correctAnswers++;
             this.formulaSystem.score += earnedScore;
             this.formulaSystem.incrementCombo();
-            this.formulaSystem.showFeedback(`Richtig! +${earnedScore} Punkte`, true);
+            this.formulaSystem.showFeedback(`Correct! +${earnedScore} points`, true);
             
             // Trigger screen effects for correct answer
             if (this.screenEffects) {
@@ -2868,14 +2868,14 @@ class GameEngine {
 
     handleWrongAnswer() {
         // Break combo on wrong answer
-        this.formulaSystem.breakCombo('Falsche Antwort!');
+        this.formulaSystem.breakCombo('Wrong answer!');
         
         if (this.targetedEnemy) {
             // Player takes damage in combat
             this.formulaSystem.incorrectAnswers++;
             this.formulaSystem.score = Math.max(0, this.formulaSystem.score - 50);
             this.dealDamageToPlayer(1); // Only 1 HP damage for wrong answers
-            this.formulaSystem.showFeedback(`Falsch! Du nimmst Schaden! Richtig: ${this.formulaSystem.currentSolution[0]}`, false);
+            this.formulaSystem.showFeedback(`Wrong! You take damage! Correct: ${this.formulaSystem.currentSolution[0]}`, false);
             
             // Trigger screen effects for wrong answer
             if (this.screenEffects) {
@@ -2891,7 +2891,7 @@ class GameEngine {
             // Regular formula practice
             this.formulaSystem.incorrectAnswers++;
             this.formulaSystem.score = Math.max(0, this.formulaSystem.score - 25);
-            this.formulaSystem.showFeedback(`Falsch! Richtig wäre: ${this.formulaSystem.currentSolution[0]}`, false);
+            this.formulaSystem.showFeedback(`Wrong! The correct answer was: ${this.formulaSystem.currentSolution[0]}`, false);
         }
         
         this.formulaSystem.updateScoreDisplay();
@@ -3401,12 +3401,12 @@ class GameEngine {
         this.ctx.fillStyle = '#ffffff';
         this.ctx.font = '20px Courier New';
         this.ctx.shadowBlur = 10;
-        this.ctx.fillText('Automatischer Neustart in 3 Sekunden...', this.canvas.width / 2, this.canvas.height / 2 + 20);
+        this.ctx.fillText('Restarting automatically in 3 seconds...', this.canvas.width / 2, this.canvas.height / 2 + 20);
         
         // Final score
         this.ctx.fillStyle = '#00ff00';
         this.ctx.font = '24px Courier New';
-        this.ctx.fillText(`Endpunktzahl: ${this.formulaSystem.score}`, this.canvas.width / 2, this.canvas.height / 2 + 60);
+        this.ctx.fillText(`Final score: ${this.formulaSystem.score}`, this.canvas.width / 2, this.canvas.height / 2 + 60);
     }
 
     renderCombatModeIndicator() {
@@ -3428,7 +3428,7 @@ class GameEngine {
         this.ctx.textAlign = 'center';
         this.ctx.shadowColor = '#000000';
         this.ctx.shadowBlur = 5;
-        this.ctx.fillText(`KAMPFMODUS - Löse: ${this.targetedEnemy.assignedFormula.text}`, this.canvas.width / 2, 25);
+        this.ctx.fillText(`COMBAT MODE - Solve: ${this.targetedEnemy.assignedFormula.text}`, this.canvas.width / 2, 25);
         
         // Target line to enemy
         this.ctx.strokeStyle = '#ff000080';
@@ -3452,7 +3452,7 @@ class GameEngine {
         this.ctx.textAlign = 'right';
         this.ctx.shadowColor = '#ffff0080';
         this.ctx.shadowBlur = 10;
-        this.ctx.fillText('⏸ PAUSIERT', this.canvas.width - 20, 40);
+        this.ctx.fillText('⏸ PAUSED', this.canvas.width - 20, 40);
     }
 
     clearCanvas() {

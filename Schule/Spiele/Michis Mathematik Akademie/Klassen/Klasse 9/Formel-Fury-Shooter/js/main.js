@@ -51,7 +51,7 @@ window.addEventListener('load', () => {
         
     } catch (error) {
         console.error('❌ Failed to initialize game modules:', error);
-        alert('Fehler beim Laden des Spiels!\n\n' + error.message + '\n\nBitte überprüfe, ob alle Dateien korrekt geladen wurden.');
+        alert('Error loading the game!\n\n' + error.message + '\n\nPlease check that all files loaded correctly.');
     }
 });
 
@@ -78,7 +78,7 @@ window.initializeFormelFuryShooter = function() {
         
     } catch (error) {
         console.error('❌ Failed to start game:', error);
-        alert('Fehler beim Starten des Spiels!\n\n' + error.message);
+        alert('Error starting the game!\n\n' + error.message);
         return null;
     }
 };

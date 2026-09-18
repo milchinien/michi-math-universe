@@ -63,7 +63,7 @@ class CurrencySystem {
             console.warn('⚠️ CurrencyDisplay not found in HTML, creating dynamically...');
             this.currencyDisplay = document.createElement('div');
             this.currencyDisplay.id = 'currencyDisplay';
-            this.currencyDisplay.innerHTML = '💰 <span id="coinValue">0</span> Algebra-Coins';
+            this.currencyDisplay.innerHTML = '💰 <span id="coinValue">0</span> Algebra Coins';
             
             // Add CSS styles dynamically
             this.currencyDisplay.style.position = 'absolute';
@@ -172,7 +172,7 @@ class CurrencySystem {
     
     updateDisplay() {
         if (this.coinValueElement) {
-            this.coinValueElement.textContent = this.coins.toLocaleString();
+            this.coinValueElement.textContent = this.coins.toLocaleString('en-US');
         }
     }
     

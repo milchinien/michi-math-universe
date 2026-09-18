@@ -45,7 +45,7 @@ class Enemy {
     getTypeData(type) {
         const types = {
             'polynom_zombie': {
-                name: 'Polynom-Zombie',
+                name: 'Polynomial Zombie',
                 width: 35,
                 height: 35,
                 speed: 60,
@@ -64,7 +64,7 @@ class Enemy {
                 difficultyBias: -0.5 // Prefers easier formulas
             },
             'gleichungs_geist': {
-                name: 'Gleichungs-Geist',
+                name: 'Equation Ghost',
                 width: 25,
                 height: 25,
                 speed: 120,
@@ -83,7 +83,7 @@ class Enemy {
                 difficultyBias: 0 // Normal difficulty
             },
             'elite_mob': {
-                name: 'Elite-Algebra-Bestie',
+                name: 'Elite Algebra Beast',
                 width: 45,
                 height: 45,
                 speed: 40,
@@ -102,7 +102,7 @@ class Enemy {
                 difficultyBias: 1.0 // Prefers harder formulas
             },
             'basic': {
-                name: 'Standard-Gegner',
+                name: 'Standard Enemy',
                 width: 30,
                 height: 30,
                 speed: 80,
@@ -121,7 +121,7 @@ class Enemy {
                 difficultyBias: 0
             },
             'quadratic_demon_basic': {
-                name: 'Quadratischer Dämon',
+                name: 'Quadratic Demon',
                 width: 40,
                 height: 40,
                 speed: 50,
@@ -140,7 +140,7 @@ class Enemy {
                 difficultyBias: 0.3
             },
             'quadratic_demon_elite': {
-                name: 'Elite Quadrat-Dämon',
+                name: 'Elite Square Demon',
                 width: 50,
                 height: 50,
                 speed: 35,
@@ -159,7 +159,7 @@ class Enemy {
                 difficultyBias: 0.8
             },
             'quadratic_demon_nightmare': {
-                name: 'Alptraum-Quadrat-Dämon',
+                name: 'Nightmare Square Demon',
                 width: 60,
                 height: 60,
                 speed: 25,
@@ -219,7 +219,7 @@ class Enemy {
         
         this.assignedFormula = {
             type: 'expansion_plus',
-            typeName: 'Erste Binomische Formel',
+            typeName: '1st Binomial Formula',
             text: text,
             solutions: solutions,
             difficulty: this.getDifficultyForType(),
@@ -802,7 +802,7 @@ class Enemy {
                 indicator = 'PZ';
                 break;
             case 'gleichungs_geist':
-                indicator = 'GG';
+                indicator = 'EG';
                 break;
             case 'elite_mob':
                 indicator = 'EB';
@@ -905,7 +905,7 @@ class Enemy {
         ctx.fillStyle = '#ffff00';
         ctx.font = '12px Courier New';
         ctx.textAlign = 'center';
-        ctx.fillText('KLICKEN ZUM ANGRIFF', this.x, this.y + size + 20);
+        ctx.fillText('CLICK TO ATTACK', this.x, this.y + size + 20);
         
         ctx.restore();
     }
@@ -1368,7 +1368,7 @@ class EnemySpawner {
         
         // Show victory message
         if (window.game && window.game.gameEngine) {
-            window.game.gameEngine.showMessage(`🏆 ${boss.name} BESIEGT! 🏆`, 3000);
+            window.game.gameEngine.showMessage(`🏆 ${boss.name} DEFEATED! 🏆`, 3000);
         }
         
         // Hide boss health bar
@@ -1432,7 +1432,7 @@ class LegacyBoss extends Enemy {
     static getBossTypeForWave(waveNumber) {
         const bossTypes = {
             'ALGEBRA-TITAN': {
-                name: 'ALGEBRA-TITAN',
+                name: 'ALGEBRA TITAN',
                 icon: '🤖',
                 health: 300,
                 size: { width: 80, height: 80 },
@@ -1445,7 +1445,7 @@ class LegacyBoss extends Enemy {
                 xpReward: 100
             },
             'POLYNOM-KAISER': {
-                name: 'POLYNOM-KAISER',
+                name: 'POLYNOMIAL EMPEROR',
                 icon: '👑',
                 health: 500,
                 size: { width: 100, height: 100 },
@@ -1458,7 +1458,7 @@ class LegacyBoss extends Enemy {
                 xpReward: 200
             },
             'GLEICHUNGS-OVERLORD': {
-                name: 'GLEICHUNGS-OVERLORD',
+                name: 'EQUATION OVERLORD',
                 icon: '💀',
                 health: 800,
                 size: { width: 120, height: 120 },
@@ -1514,7 +1514,7 @@ class LegacyBoss extends Enemy {
             
             return {
                 type: 'expansion_plus',
-                typeName: 'Boss Binomische Formel',
+                typeName: 'Boss Binomial Formula',
                 text: text,
                 solutions: [expanded],
                 difficulty: 2.0 + stage * 0.5,
@@ -1527,7 +1527,7 @@ class LegacyBoss extends Enemy {
     
     takeDamage(amount) {
         if (this.isShielded) {
-            this.showMessage("🛡️ SCHILD BLOCKIERT ANGRIFF! 🛡️", 1500);
+            this.showMessage("🛡️ SHIELD BLOCKS ATTACK! 🛡️", 1500);
             return false;
         }
         
@@ -1591,7 +1591,7 @@ class LegacyBoss extends Enemy {
         this.shieldEndTime = Date.now() + duration;
         this.renderShield = true;
         
-        this.showMessage("🛡️ BOSS AKTIVIERT SCHILD! 🛡️", 2000);
+        this.showMessage("🛡️ BOSS ACTIVATES SHIELD! 🛡️", 2000);
         
         setTimeout(() => {
             this.isShielded = false;
@@ -1614,12 +1614,12 @@ class LegacyBoss extends Enemy {
             this.y = margin + Math.random() * (canvas.height - 2 * margin);
             
             this.isTeleporting = false;
-            this.showMessage("💫 BOSS TELEPORTIERT! 💫", 1500);
+            this.showMessage("💫 BOSS TELEPORTS! 💫", 1500);
         }, 1000);
     }
     
     spawnMinions(count) {
-        this.showMessage("👹 BOSS BESCHWÖRT VERSTÄRKUNG! 👹", 2000);
+        this.showMessage("👹 BOSS SUMMONS REINFORCEMENTS! 👹", 2000);
         
         if (window.game && window.game.enemySpawner) {
             for (let i = 0; i < count; i++) {

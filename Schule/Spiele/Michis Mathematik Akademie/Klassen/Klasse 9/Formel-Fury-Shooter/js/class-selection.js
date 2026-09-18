@@ -62,13 +62,13 @@ class ClassSelectionSystem {
             const startGameBtn = document.getElementById('startGameBtn');
             if (startGameBtn) {
                 startGameBtn.disabled = false;
-                startGameBtn.textContent = `🎮 KLASSE ${classNumber} STARTEN`;
+                startGameBtn.textContent = `🎮 START GRADE ${classNumber}`;
             }
 
             // Update footer text
             const footerText = document.querySelector('.footer-text');
             if (footerText) {
-                footerText.textContent = `Klasse ${classNumber} ausgewählt - Bereit zum Spielen!`;
+                footerText.textContent = `Grade ${classNumber} selected - ready to play!`;
             }
 
             // Add selection animation
@@ -85,7 +85,7 @@ class ClassSelectionSystem {
         notification.innerHTML = `
             <div class="notification-content">
                 <span class="notification-icon">🔒</span>
-                <span class="notification-text">Klasse ${classNumber} ist noch nicht verfügbar!</span>
+                <span class="notification-text">Grade ${classNumber} is not available yet!</span>
             </div>
         `;
         
@@ -168,12 +168,12 @@ class ClassSelectionSystem {
         const startGameBtn = document.getElementById('startGameBtn');
         if (startGameBtn) {
             startGameBtn.disabled = true;
-            startGameBtn.textContent = '🎮 SPIEL STARTEN';
+            startGameBtn.textContent = '🎮 START GAME';
         }
         
         const footerText = document.querySelector('.footer-text');
         if (footerText) {
-            footerText.textContent = 'Wähle eine verfügbare Klasse zum Spielen';
+            footerText.textContent = 'Choose an available grade to play';
         }
     }
 
@@ -196,7 +196,7 @@ class ClassSelectionSystem {
                 const badge = card.querySelector('.coming-soon-badge');
                 if (badge) {
                     badge.className = 'available-badge';
-                    badge.textContent = 'VERFÜGBAR';
+                    badge.textContent = 'AVAILABLE';
                 }
             }
         }

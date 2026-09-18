@@ -131,7 +131,7 @@ class FormulaSystem {
         // Fallback to binomial formulas if system not available
         return [{
             id: 'binomial-formulas',
-            name: 'Binomische Formeln',
+            name: 'Binomial Formulas',
             category: 'algebra',
             difficulty: 1
         }];
@@ -311,7 +311,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'expansion_plus',
-            typeName: 'Erste Binomische Formel',
+            typeName: '1st Binomial Formula',
             a: a,
             b: b,
             variable: variable,
@@ -345,7 +345,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'expansion_minus',
-            typeName: 'Zweite Binomische Formel',
+            typeName: '2nd Binomial Formula',
             a: a,
             b: b,
             variable: variable,
@@ -379,7 +379,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'difference_squares',
-            typeName: 'Dritte Binomische Formel',
+            typeName: '3rd Binomial Formula',
             a: a,
             b: b,
             variable: variable,
@@ -412,7 +412,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'factorization_difference',
-            typeName: 'Faktorisierung (Differenz)',
+            typeName: 'Factoring (Difference)',
             a: a,
             b: b,
             variable: variable,
@@ -450,7 +450,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'factorization_square',
-            typeName: 'Faktorisierung (Quadrat)',
+            typeName: 'Factoring (Square)',
             a: a,
             b: b,
             variable: variable,
@@ -589,7 +589,7 @@ class FormulaSystem {
         
         // Break combo if too much time has passed
         if (this.combo > 0 && timeSinceLastAnswer > this.comboTimeLimit) {
-            this.breakCombo('Zeit abgelaufen!');
+            this.breakCombo('Time is up!');
         }
     }
 
@@ -606,9 +606,9 @@ class FormulaSystem {
         }
     }
 
-    breakCombo(reason = 'Falsche Antwort!') {
+    breakCombo(reason = 'Wrong answer!') {
         if (this.combo >= 3) {
-            this.showFeedback(`Combo gebrochen! ${reason} (Combo: ${this.combo})`, false);
+            this.showFeedback(`Combo broken! ${reason} (Combo: ${this.combo})`, false);
         }
         this.combo = 0;
         this.lastAnswerTime = Date.now();
@@ -916,7 +916,7 @@ class FormulaSystem {
         const userAnswer = this.formulaInput.value.trim();
         
         if (!userAnswer) {
-            this.showFeedback('Bitte gib eine Antwort ein!', false);
+            this.showFeedback('Please enter an answer!', false);
             return;
         }
         
@@ -925,11 +925,11 @@ class FormulaSystem {
         if (isCorrect) {
             this.correctAnswers++;
             this.score += 100;
-            this.showFeedback('Richtig! +100 Punkte', true);
+            this.showFeedback('Correct! +100 points', true);
         } else {
             this.incorrectAnswers++;
             this.score = Math.max(0, this.score - 25);
-            this.showFeedback(`Falsch! Richtig wäre: ${this.currentSolution[0]}`, false);
+            this.showFeedback(`Wrong! The correct answer is: ${this.currentSolution[0]}`, false);
         }
         
         this.updateScoreDisplay();
@@ -949,7 +949,7 @@ class FormulaSystem {
     }
 
     skipFormula() {
-        this.showFeedback(`Übersprungen! Lösung war: ${this.currentSolution[0]}`, false);
+        this.showFeedback(`Skipped! The solution was: ${this.currentSolution[0]}`, false);
         this.formulaInput.value = '';
         
         // Clear any existing timeout to prevent race conditions
@@ -1047,7 +1047,7 @@ class FormulaSystem {
             <div class="formula-type">${this.currentFormula.typeName}</div>
             <div class="formula-text">${this.currentFormula.text}</div>
             <div class="formula-hint">
-                <small>Löse die binomische Formel!</small>
+                <small>Solve the binomial formula!</small>
             </div>
         `;
         this.formulaHUD.style.display = 'block';
@@ -1181,7 +1181,7 @@ class FormulaSystem {
                 <div class="formula-type">${this.currentFormula.typeName}</div>
                 <div class="formula-text">${this.currentFormula.text}</div>
                 <div class="formula-hint">
-                    <small>${this.isBossMode ? `Boss Stage ${this.currentBossStage}/${this.totalBossStages}` : 'Löse die binomische Formel!'}</small>
+                    <small>${this.isBossMode ? `Boss Stage ${this.currentBossStage}/${this.totalBossStages}` : 'Solve the binomial formula!'}</small>
                 </div>
             `;
         }
@@ -1224,7 +1224,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'quadratic_factorizable',
-            typeName: 'Quadratische Gleichung (Faktorisierbar)',
+            typeName: 'Quadratic Equation (Factorable)',
             variable: variable,
             solutions: [x1, x2].sort((a, b) => a - b), // Sort solutions
             difficulty: this.calculateQuadraticDifficulty(1, b, c),
@@ -1272,7 +1272,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'quadratic_pq_formula',
-            typeName: 'Quadratische Gleichung (p-q-Formel)',
+            typeName: 'Quadratic Equation (pq Formula)',
             variable: variable,
             solutions: solutions,
             difficulty: this.calculateQuadraticDifficulty(1, p, q) + 0.5,
@@ -1319,7 +1319,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'quadratic_abc_formula',
-            typeName: 'Quadratische Gleichung (abc-Formel)',
+            typeName: 'Quadratic Equation (Quadratic Formula)',
             variable: variable,
             solutions: solutions,
             difficulty: this.calculateQuadraticDifficulty(a, b, c) + 1.0,
@@ -1350,7 +1350,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'quadratic_no_solution',
-            typeName: 'Quadratische Gleichung (Keine reellen Lösungen)',
+            typeName: 'Quadratic Equation (No Real Solutions)',
             variable: variable,
             solutions: [], // No real solutions
             difficulty: this.calculateQuadraticDifficulty(a, b, c) + 0.8,
@@ -1453,7 +1453,7 @@ class FormulaSystem {
         cleanInput = cleanInput.replace(/lösung[en]?:/g, '');
         
         // Try different separation patterns
-        const separators = [',', ';', '∨', 'oder', 'and', '&'];
+        const separators = [',', ';', '∨', 'oder', 'or', 'and', '&'];
         let parts = [cleanInput];
         
         for (const sep of separators) {
@@ -1493,7 +1493,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'parabola_vertex',
-            typeName: 'Scheitelpunkt bestimmen',
+            typeName: 'Find the Vertex',
             a, b, c,
             difficulty: this.calculateParabolaDifficulty(a, b, c),
             vertex: { x: x_vertex, y: y_vertex }
@@ -1519,7 +1519,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'parabola_zeros',
-            typeName: 'Nullstellen berechnen',
+            typeName: 'Find the Zeros',
             a, b, c,
             difficulty: this.calculateParabolaDifficulty(a, b, c),
             zeros: x1 !== x2 ? [x1, x2].sort((a, b) => a - b) : [x1]
@@ -1544,7 +1544,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'parabola_vertex_form',
-            typeName: 'Scheitelpunktform umwandeln',
+            typeName: 'Convert to Vertex Form',
             a, b, c, h, k,
             difficulty: this.calculateParabolaDifficulty(a, b, c),
             vertexForm: `f(x) = ${a === 1 ? '' : a === -1 ? '-' : a}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`
@@ -1564,12 +1564,12 @@ class FormulaSystem {
         // Calculate a from vertex form: y_point = a(x_point - h)² + k
         const a = (y_point - k) / Math.pow(x_point - h, 2);
         
-        const formulaText = `Scheitelpunkt S(${h}, ${k}), durch Punkt P(${x_point}, ${y_point})`;
+        const formulaText = `Vertex V(${h}, ${k}), through point P(${x_point}, ${y_point})`;
         
         const formula = {
             text: formulaText,
             type: 'parabola_from_properties',
-            typeName: 'Funktionsgleichung aus Eigenschaften',
+            typeName: 'Function Equation from Properties',
             h, k, x_point, y_point, a,
             difficulty: 3,
             resultFunction: `f(x) = ${this.formatNumber(a)}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`
@@ -1612,7 +1612,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'transformation_shift',
-            typeName: 'Verschiebung',
+            typeName: 'Shift',
             baseFunction: baseFunc,
             horizontal, vertical,
             transformedFunction: transformedFunc,
@@ -1649,7 +1649,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'transformation_stretch',
-            typeName: 'Streckung/Stauchung',
+            typeName: 'Stretch/Compression',
             baseFunction: baseFunc,
             factor, direction,
             transformedFunction: transformedFunc,
@@ -1680,7 +1680,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'transformation_reflection',
-            typeName: 'Spiegelung',
+            typeName: 'Reflection',
             baseFunction: baseFunc,
             reflection,
             transformedFunction: transformedFunc,
@@ -1705,7 +1705,7 @@ class FormulaSystem {
         const formula = {
             text: formulaText,
             type: 'transformation_combined',
-            typeName: 'Kombinierte Transformationen',
+            typeName: 'Combined Transformations',
             baseFunction: baseFunc,
             a, h, k,
             transformedFunction: transformedFunc,
@@ -1765,10 +1765,10 @@ class FormulaSystem {
         
         if (gameMode === 'day') {
             // Multiple choice for day mode
-            const correct = `S(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex)})`;
-            const wrong1 = `S(${this.formatNumber(x_vertex + 1)}, ${this.formatNumber(y_vertex)})`;
-            const wrong2 = `S(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex + 2)})`;
-            const wrong3 = `S(${this.formatNumber(-x_vertex)}, ${this.formatNumber(y_vertex)})`;
+            const correct = `V(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex)})`;
+            const wrong1 = `V(${this.formatNumber(x_vertex + 1)}, ${this.formatNumber(y_vertex)})`;
+            const wrong2 = `V(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex + 2)})`;
+            const wrong3 = `V(${this.formatNumber(-x_vertex)}, ${this.formatNumber(y_vertex)})`;
             
             return {
                 correct,
@@ -1777,9 +1777,10 @@ class FormulaSystem {
         } else {
             // Free input for night mode
             return {
-                correct: `S(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex)})`,
+                correct: `V(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex)})`,
                 acceptedFormats: [
                     `S(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex)})`,
+                    `V(${this.formatNumber(x_vertex)}, ${this.formatNumber(y_vertex)})`,
                     `(${this.formatNumber(x_vertex)}|${this.formatNumber(y_vertex)})`,
                     `${this.formatNumber(x_vertex)}; ${this.formatNumber(y_vertex)}`
                 ]
@@ -1798,7 +1799,7 @@ class FormulaSystem {
             const wrong1 = zeros.length === 1 ? 
                 `x = ${zeros[0] + 1}` : 
                 `x₁ = ${zeros[0] + 1}, x₂ = ${zeros[1]}`;
-            const wrong2 = `Keine Nullstellen`;
+            const wrong2 = `No zeros`;
             const wrong3 = zeros.length === 1 ? 
                 `x = ${-zeros[0]}` : 
                 `x₁ = ${-zeros[0]}, x₂ = ${-zeros[1]}`;
@@ -1866,17 +1867,17 @@ class FormulaSystem {
         
         let description = '';
         if (horizontal !== 0 && vertical !== 0) {
-            description = `${Math.abs(horizontal)} nach ${horizontal > 0 ? 'rechts' : 'links'}, ${Math.abs(vertical)} nach ${vertical > 0 ? 'oben' : 'unten'}`;
+            description = `${Math.abs(horizontal)} ${horizontal > 0 ? 'right' : 'left'}, ${Math.abs(vertical)} ${vertical > 0 ? 'up' : 'down'}`;
         } else if (horizontal !== 0) {
-            description = `${Math.abs(horizontal)} nach ${horizontal > 0 ? 'rechts' : 'links'}`;
+            description = `${Math.abs(horizontal)} ${horizontal > 0 ? 'right' : 'left'}`;
         } else if (vertical !== 0) {
-            description = `${Math.abs(vertical)} nach ${vertical > 0 ? 'oben' : 'unten'}`;
+            description = `${Math.abs(vertical)} ${vertical > 0 ? 'up' : 'down'}`;
         }
         
         if (gameMode === 'day') {
-            const wrong1 = `${Math.abs(horizontal)} nach ${horizontal > 0 ? 'links' : 'rechts'}, ${Math.abs(vertical)} nach ${vertical > 0 ? 'oben' : 'unten'}`;
-            const wrong2 = `${Math.abs(horizontal)} nach ${horizontal > 0 ? 'rechts' : 'links'}, ${Math.abs(vertical)} nach ${vertical > 0 ? 'unten' : 'oben'}`;
-            const wrong3 = `Streckung um Faktor ${Math.abs(horizontal + vertical)}`;
+            const wrong1 = `${Math.abs(horizontal)} ${horizontal > 0 ? 'left' : 'right'}, ${Math.abs(vertical)} ${vertical > 0 ? 'up' : 'down'}`;
+            const wrong2 = `${Math.abs(horizontal)} ${horizontal > 0 ? 'right' : 'left'}, ${Math.abs(vertical)} ${vertical > 0 ? 'down' : 'up'}`;
+            const wrong3 = `Stretch by factor ${Math.abs(horizontal + vertical)}`;
             
             return {
                 correct: description,
@@ -1896,22 +1897,22 @@ class FormulaSystem {
         let description;
         if (direction === 'vertical') {
             if (Math.abs(factor) > 1) {
-                description = `Streckung um Faktor ${Math.abs(factor)}${factor < 0 ? ', Spiegelung an x-Achse' : ''}`;
+                description = `Stretch by factor ${Math.abs(factor)}${factor < 0 ? ', reflection across the x-axis' : ''}`;
             } else {
-                description = `Stauchung um Faktor ${Math.abs(factor)}${factor < 0 ? ', Spiegelung an x-Achse' : ''}`;
+                description = `Compression by factor ${Math.abs(factor)}${factor < 0 ? ', reflection across the x-axis' : ''}`;
             }
         } else {
             description = Math.abs(factor) > 1 ? 
-                `Stauchung um Faktor ${1/Math.abs(factor)}` : 
-                `Streckung um Faktor ${1/Math.abs(factor)}`;
+                `Compression by factor ${1/Math.abs(factor)}` : 
+                `Stretch by factor ${1/Math.abs(factor)}`;
         }
         
         if (gameMode === 'day') {
-            const wrong1 = `Verschiebung um ${factor}`;
+            const wrong1 = `Shift by ${factor}`;
             const wrong2 = direction === 'vertical' ? 
-                `Horizontale Streckung um Faktor ${Math.abs(factor)}` : 
-                `Vertikale Streckung um Faktor ${Math.abs(factor)}`;
-            const wrong3 = `Spiegelung an ${direction === 'vertical' ? 'y' : 'x'}-Achse`;
+                `Horizontal stretch by factor ${Math.abs(factor)}` : 
+                `Vertical stretch by factor ${Math.abs(factor)}`;
+            const wrong3 = `Reflection across the ${direction === 'vertical' ? 'y' : 'x'}-axis`;
             
             return {
                 correct: description,
@@ -1927,12 +1928,12 @@ class FormulaSystem {
     
     generateReflectionSolutions(reflection) {
         const gameMode = this.getGameMode();
-        const correct = `Spiegelung an ${reflection === 'x-axis' ? 'x' : 'y'}-Achse`;
+        const correct = `Reflection across the ${reflection === 'x-axis' ? 'x' : 'y'}-axis`;
         
         if (gameMode === 'day') {
-            const wrong1 = `Spiegelung an ${reflection === 'x-axis' ? 'y' : 'x'}-Achse`;
-            const wrong2 = `Streckung um Faktor -1`;
-            const wrong3 = `Verschiebung um -1`;
+            const wrong1 = `Reflection across the ${reflection === 'x-axis' ? 'y' : 'x'}-axis`;
+            const wrong2 = `Stretch by factor -1`;
+            const wrong3 = `Shift by -1`;
             
             return {
                 correct,
@@ -1951,22 +1952,22 @@ class FormulaSystem {
         
         let description = '';
         if (Math.abs(a) !== 1) {
-            description += Math.abs(a) > 1 ? `Streckung Faktor ${Math.abs(a)}` : `Stauchung Faktor ${Math.abs(a)}`;
+            description += Math.abs(a) > 1 ? `Stretch factor ${Math.abs(a)}` : `Compression factor ${Math.abs(a)}`;
         }
         if (a < 0) {
-            description += (description ? ', ' : '') + 'Spiegelung an x-Achse';
+            description += (description ? ', ' : '') + 'Reflection across the x-axis';
         }
         if (h !== 0) {
-            description += (description ? ', ' : '') + `${Math.abs(h)} nach ${h > 0 ? 'rechts' : 'links'}`;
+            description += (description ? ', ' : '') + `${Math.abs(h)} ${h > 0 ? 'right' : 'left'}`;
         }
         if (k !== 0) {
-            description += (description ? ', ' : '') + `${Math.abs(k)} nach ${k > 0 ? 'oben' : 'unten'}`;
+            description += (description ? ', ' : '') + `${Math.abs(k)} ${k > 0 ? 'up' : 'down'}`;
         }
         
         if (gameMode === 'day') {
-            const wrong1 = `Streckung Faktor ${a}, Verschiebung (${h}|${k})`;
-            const wrong2 = `${Math.abs(h)} nach ${h > 0 ? 'links' : 'rechts'}, ${Math.abs(k)} nach ${k > 0 ? 'unten' : 'oben'}`;
-            const wrong3 = `Nur Verschiebung um (${h}|${k})`;
+            const wrong1 = `Stretch factor ${a}, shift (${h}|${k})`;
+            const wrong2 = `${Math.abs(h)} ${h > 0 ? 'left' : 'right'}, ${Math.abs(k)} ${k > 0 ? 'down' : 'up'}`;
+            const wrong3 = `Only a shift by (${h}|${k})`;
             
             return {
                 correct: description,

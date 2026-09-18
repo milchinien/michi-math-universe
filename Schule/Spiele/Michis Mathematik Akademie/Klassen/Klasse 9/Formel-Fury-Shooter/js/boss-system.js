@@ -73,10 +73,10 @@ class Boss {
     
     generateBossName(level) {
         const names = [
-            "Grundlagen-Prüfer",
-            "Fortgeschrittenen-Herausforderer", 
-            "Meister-Prüfer",
-            "Grandmaster-Herausforderung"
+            "Fundamentals Examiner",
+            "Advanced Challenger", 
+            "Master Examiner",
+            "Grandmaster Challenge"
         ];
         return names[Math.min(level - 1, names.length - 1)];
     }
@@ -167,85 +167,85 @@ class Boss {
         const patterns = {
             1: [ // Welle 10 - Grundlagen-Prüfer
                 {
-                    name: "Algebra-Wellen",
-                    visual: "Mathematische Symbole fliegen über den Bildschirm",
-                    effect: "Bildschirm wackelt leicht",
+                    name: "Algebra Waves",
+                    visual: "Math symbols fly across the screen",
+                    effect: "Screen shakes slightly",
                     dayDuration: [10000, 15000],
                     nightDuration: [30000, 40000]
                 },
                 {
-                    name: "Zahlen-Regen",
-                    visual: "Zahlen fallen vom Himmel",
-                    effect: "Leichte Bildschirm-Verzerrung",
+                    name: "Number Rain",
+                    visual: "Numbers fall from the sky",
+                    effect: "Slight screen distortion",
                     dayDuration: [15000, 20000],
                     nightDuration: [40000, 50000]
                 }
             ],
             2: [ // Welle 20 - Fortgeschrittenen-Herausforderer
                 {
-                    name: "Formel-Sturm",
-                    visual: "Komplette Formeln wirbeln um den Boss",
-                    effect: "Bildschirm pulsiert",
+                    name: "Formula Storm",
+                    visual: "Whole formulas swirl around the boss",
+                    effect: "Screen pulses",
                     dayDuration: [12000, 18000],
                     nightDuration: [35000, 45000]
                 },
                 {
-                    name: "Variable-Chaos",
-                    visual: "X, Y, Z Variablen explodieren um den Boss",
-                    effect: "Farbverzerrung des Bildschirms",
+                    name: "Variable Chaos",
+                    visual: "X, Y, Z variables explode around the boss",
+                    effect: "Screen color distortion",
                     dayDuration: [15000, 22000],
                     nightDuration: [40000, 55000]
                 },
                 {
-                    name: "Binomial-Blitz",
-                    visual: "Binomische Formeln erscheinen und verschwinden schnell",
-                    effect: "Stroboskop-Effekt",
+                    name: "Binomial Blitz",
+                    visual: "Binomial formulas appear and vanish quickly",
+                    effect: "Strobe effect",
                     dayDuration: [18000, 25000],
                     nightDuration: [45000, 60000]
                 }
             ],
             3: [ // Welle 30 - Meister-Prüfer
                 {
-                    name: "Faktorisierungs-Wirbel",
-                    visual: "Terme werden live faktorisiert und wieder zusammengesetzt",
-                    effect: "Bildschirm dreht sich leicht",
+                    name: "Factoring Vortex",
+                    visual: "Expressions are factored live and reassembled",
+                    effect: "Screen rotates slightly",
                     dayDuration: [15000, 25000],
                     nightDuration: [40000, 60000]
                 },
                 {
-                    name: "Polynom-Explosion",
-                    visual: "Komplexe Polynome explodieren in ihre Faktoren",
-                    effect: "Schockwellen-Effekt",
+                    name: "Polynomial Explosion",
+                    visual: "Complex polynomials explode into their factors",
+                    effect: "Shockwave effect",
                     dayDuration: [18000, 28000],
                     nightDuration: [45000, 60000]
                 },
                 {
-                    name: "Gleichungs-Matrix",
-                    visual: "Matrix aus Gleichungen umhüllt den Boss",
-                    effect: "Matrix-ähnlicher Regen-Effekt",
+                    name: "Equation Matrix",
+                    visual: "A matrix of equations surrounds the boss",
+                    effect: "Matrix-style rain effect",
                     dayDuration: [20000, 30000],
                     nightDuration: [50000, 60000]
                 },
                 {
-                    name: "Algebra-Tornado",
-                    visual: "Alle mathematischen Symbole wirbeln in einem Tornado",
-                    effect: "Bildschirm wird in Tornado-Bewegung verzerrt",
+                    name: "Algebra Tornado",
+                    visual: "All math symbols swirl in a tornado",
+                    effect: "Screen is warped in a tornado motion",
                     dayDuration: [22000, 30000],
                     nightDuration: [55000, 60000]
                 }
             ],
             4: [ // Welle 40+ - Grandmaster-Herausforderung
                 {
-                    name: "Mathematik-Apokalypse",
-                    visual: "Alle mathematischen Konzepte gleichzeitig",
-                    effect: "Komplette Bildschirm-Transformation",
+                    name: "Math Apocalypse",
+                    visual: "All math concepts at once",
+                    effect: "Complete screen transformation",
                     dayDuration: [25000, 30000],
                     nightDuration: [60000, 60000]
                 },
                 {
-                    name: "Formel-Fusion",
-                    visual: "Verschiedene Formeln verschmelzen zu Super-Formeln",
-                    effect: "Kaleidoskop-Effekt mit Formeln",
+                    name: "Formula Fusion",
+                    visual: "Different formulas fuse into super formulas",
+                    effect: "Kaleidoscope effect with formulas",
                     dayDuration: [28000, 30000],
                     nightDuration: [60000, 60000]
                 }
@@ -301,7 +301,7 @@ class Boss {
         const warningElement = document.getElementById('bossWarning');
         if (warningElement) {
             warningElement.style.display = 'block';
-            warningElement.textContent = `⚠️ ANGRIFF IN ${secondsLeft}...`;
+            warningElement.textContent = `⚠️ ATTACK IN ${secondsLeft}...`;
         }
         
         // Audio warning
@@ -309,7 +309,7 @@ class Boss {
             window.gameEngine.audioManager.playSound('warning', 'feedback');
         }
         
-        console.log(`⚠️ ANGRIFF IN ${secondsLeft}...`);
+        console.log(`⚠️ ATTACK IN ${secondsLeft}...`);
     }
     
     updateAttack(deltaTime) {
@@ -372,7 +372,7 @@ class Boss {
         const feedbackElement = document.getElementById('gameStatus');
         if (feedbackElement) {
             const originalText = feedbackElement.textContent;
-            feedbackElement.textContent = 'UNTERBROCHEN! -1 Leben';
+            feedbackElement.textContent = 'INTERRUPTED! -1 Life';
             feedbackElement.style.color = '#ff0000';
             
             setTimeout(() => {
@@ -388,7 +388,7 @@ class Boss {
         // Show attack active message
         const warningElement = document.getElementById('bossWarning');
         if (warningElement) {
-            warningElement.textContent = '🔥 ANGRIFF AKTIV!';
+            warningElement.textContent = '🔥 ATTACK ACTIVE!';
             warningElement.style.backgroundColor = '#ff4444';
         }
         
@@ -515,7 +515,7 @@ class Boss {
         }
         
         this.formulasSolved += amount;
-        console.log(`💥 Boss Schaden: ${this.formulasSolved}/${this.formulasRequired} Formeln gelöst`);
+        console.log(`💥 Boss Schaden: ${this.formulasSolved}/${this.formulasRequired} formulas solved`);
         
         // Visual-Feedback
         if (this.visualSystem) {
@@ -848,7 +848,7 @@ class SpawningState extends BossState {
     enter() {
         this.spawnTimer = 2000; // 2 seconds
         this.playSpawnAnimation();
-        this.showBossMessage("Ein mächtiger Gegner erscheint!");
+        this.showBossMessage("A mighty enemy appears!");
         this.startBossMusic();
         
         console.log(`🌟 ${this.boss.name} erscheint...`);
@@ -1006,9 +1006,9 @@ class WarningState extends BossState {
     updateWarningCountdown(seconds) {
         const warningElement = document.getElementById('bossWarning');
         if (warningElement) {
-            warningElement.textContent = `⚠️ ANGRIFF IN ${seconds}...`;
+            warningElement.textContent = `⚠️ ATTACK IN ${seconds}...`;
         }
-        console.log(`⚠️ ANGRIFF IN ${seconds}...`);
+        console.log(`⚠️ ATTACK IN ${seconds}...`);
     }
     
     playWarningSound() {
@@ -1093,7 +1093,7 @@ class AttackingState extends BossState {
         const feedbackElement = document.getElementById('gameStatus');
         if (feedbackElement) {
             const originalText = feedbackElement.textContent;
-            feedbackElement.textContent = 'UNTERBROCHEN! -1 Leben';
+            feedbackElement.textContent = 'INTERRUPTED! -1 Life';
             feedbackElement.style.color = '#ff0000';
             
             setTimeout(() => {
@@ -1130,7 +1130,7 @@ class AttackingState extends BossState {
         // Show attack active message
         const warningElement = document.getElementById('bossWarning');
         if (warningElement) {
-            warningElement.textContent = '🔥 ANGRIFF AKTIV!';
+            warningElement.textContent = '🔥 ATTACK ACTIVE!';
             warningElement.style.backgroundColor = '#ff4444';
             warningElement.style.display = 'block';
         }
@@ -1222,13 +1222,13 @@ class DefeatedState extends BossState {
     
     showVictoryMessage() {
         const messages = {
-            1: "Grundlagen gemeistert! 🎯",
-            2: "Fortgeschrittener Status erreicht! 🚀",
-            3: "Meister-Level erreicht! 👑",
-            4: "Grandmaster der binomischen Formeln! 🌟"
+            1: "Fundamentals mastered! 🎯",
+            2: "Advanced status reached! 🚀",
+            3: "Master level reached! 👑",
+            4: "Grandmaster of binomial formulas! 🌟"
         };
         
-        const message = messages[this.boss.level] || "Boss besiegt!";
+        const message = messages[this.boss.level] || "Boss defeated!";
         
         const messageElement = document.getElementById('gameStatus');
         if (messageElement) {
@@ -1590,7 +1590,7 @@ class BossFormulaSystem {
         // Update Boss UI with current formula
         const progressElement = document.getElementById('bossProgress');
         if (progressElement) {
-            progressElement.textContent = `${this.formulasSolved}/${this.formulasRequired} Formeln gelöst`;
+            progressElement.textContent = `${this.formulasSolved}/${this.formulasRequired} formulas solved`;
         }
         
         // Show formula challenge (this would integrate with existing formula input system)
@@ -1708,14 +1708,14 @@ class BossFormulaSystem {
     
     showHint(formula, playerAnswer) {
         const hints = {
-            'basic_square_sum': "Denk an die binomische Formel: (a+b)² = a² + 2ab + b²",
-            'basic_square_diff': "Denk an die binomische Formel: (a-b)² = a² - 2ab + b²",
-            'difference_of_squares': "Denk an: (a+b)(a-b) = a² - b²",
-            'factorization': "Welche Zahlen ergeben diese Differenz von Quadraten?",
-            'nested_terms': "Behandle jeden Term separat: (ax+by)² = (ax)² + 2(ax)(by) + (by)²"
+            'basic_square_sum': "Remember the binomial formula: (a+b)² = a² + 2ab + b²",
+            'basic_square_diff': "Remember the binomial formula: (a-b)² = a² - 2ab + b²",
+            'difference_of_squares': "Remember: (a+b)(a-b) = a² - b²",
+            'factorization': "Which numbers give this difference of squares?",
+            'nested_terms': "Handle each term separately: (ax+by)² = (ax)² + 2(ax)(by) + (by)²"
         };
         
-        const hint = hints[formula.concept] || "Überprüfe deine Rechnung Schritt für Schritt.";
+        const hint = hints[formula.concept] || "Check your work step by step.";
         console.log(`💡 Hint: ${hint}`);
         
         // Show hint in UI
@@ -1794,7 +1794,7 @@ class BossFormulaSystem {
             averageTime: Math.round(avgTime / 1000), // in seconds
             strongAreas: this.playerPerformance.strongAreas,
             weakAreas: this.playerPerformance.weakAreas,
-            status: this.checkBossDefeat() ? 'BESTANDEN' : 'IN_PROGRESS'
+            status: this.checkBossDefeat() ? 'PASSED' : 'IN_PROGRESS'
         };
     }
 }
@@ -1813,7 +1813,7 @@ if (typeof window !== 'undefined') {
                         bossUI.style.display = 'block';
                         document.getElementById('bossName').textContent = boss.name;
                         document.getElementById('bossLevel').textContent = `Level ${boss.level}`;
-                        document.getElementById('bossProgress').textContent = `${boss.formulasSolved}/${boss.formulasRequired} Formeln gelöst`;
+                        document.getElementById('bossProgress').textContent = `${boss.formulasSolved}/${boss.formulasRequired} formulas solved`;
                     }
                 }
                 return boss;
@@ -1849,7 +1849,7 @@ if (typeof window !== 'undefined') {
             if (bossManager) {
                 return bossManager.getBossStats();
             } else {
-                return 'Boss System nicht verfügbar';
+                return 'Boss system not available';
             }
         },
         
@@ -2380,16 +2380,16 @@ class BossVisualSystem {
         
         // Create appropriate visual effect based on pattern name
         switch (pattern.name) {
-            case 'Algebra-Wellen':
+            case 'Algebra Waves':
                 this.currentEffects.push(new AlgebraWavesEffect(this.boss));
                 break;
-            case 'Zahlen-Regen':
+            case 'Number Rain':
                 this.currentEffects.push(new NumberRainEffect(this.boss));
                 break;
-            case 'Formel-Sturm':
+            case 'Formula Storm':
                 this.currentEffects.push(new FormulaStormEffect(this.boss));
                 break;
-            case 'Variable-Chaos':
+            case 'Variable Chaos':
                 this.currentEffects.push(new VariableChaosEffect(this.boss));
                 break;
             default:
@@ -2870,8 +2870,8 @@ class CorrectAnswerEffect {
         const x = context.canvas.width / 2;
         const y = context.canvas.height / 2 - 50;
         
-        context.strokeText('KORREKT!', x, y);
-        context.fillText('KORREKT!', x, y);
+        context.strokeText('CORRECT!', x, y);
+        context.fillText('CORRECT!', x, y);
         context.restore();
     }
 }
@@ -2906,8 +2906,8 @@ class IncorrectAnswerEffect {
         const x = context.canvas.width / 2 + shake;
         const y = context.canvas.height / 2 - 50;
         
-        context.strokeText('FALSCH!', x, y);
-        context.fillText('FALSCH!', x, y);
+        context.strokeText('WRONG!', x, y);
+        context.fillText('WRONG!', x, y);
         context.restore();
     }
 }
@@ -2942,12 +2942,12 @@ class InterruptionEffect {
         const x = context.canvas.width / 2 + shake;
         const y = context.canvas.height / 2 - 50;
         
-        context.strokeText('UNTERBROCHEN!', x, y);
-        context.fillText('UNTERBROCHEN!', x, y);
+        context.strokeText('INTERRUPTED!', x, y);
+        context.fillText('INTERRUPTED!', x, y);
         
         context.font = 'bold 24px Arial';
-        context.strokeText('-1 Leben', x, y + 40);
-        context.fillText('-1 Leben', x, y + 40);
+        context.strokeText('-1 Life', x, y + 40);
+        context.fillText('-1 Life', x, y + 40);
         context.restore();
     }
 }
@@ -3029,18 +3029,18 @@ class BossDefeatSequence {
         const x = context.canvas.width / 2;
         const y = context.canvas.height / 2;
         
-        context.strokeText('SIEG!', x, y);
-        context.fillText('SIEG!', x, y);
+        context.strokeText('VICTORY!', x, y);
+        context.fillText('VICTORY!', x, y);
         
         // Boss level completion message
         const messages = {
-            1: "Grundlagen gemeistert! 🎯",
-            2: "Fortgeschrittener Status erreicht! 🚀", 
-            3: "Meister-Level erreicht! 👑",
-            4: "Grandmaster der binomischen Formeln! 🌟"
+            1: "Fundamentals mastered! 🎯",
+            2: "Advanced status reached! 🚀", 
+            3: "Master level reached! 👑",
+            4: "Grandmaster of binomial formulas! 🌟"
         };
         
-        const message = messages[this.boss.level] || "Boss besiegt!";
+        const message = messages[this.boss.level] || "Boss defeated!";
         context.font = 'bold 24px Arial';
         context.strokeText(message, x, y + 60);
         context.fillText(message, x, y + 60);

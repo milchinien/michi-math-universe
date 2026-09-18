@@ -207,11 +207,11 @@ function filterUpgrades(category) {
 function showHighScores() {
     // For now, just show an alert with current high score
     const highScore = localStorage.getItem('formelFuryHighScore') || 0;
-    alert(`🏆 Aktuelle Bestenliste:\n\nHöchste Punktzahl: ${highScore}\n\n(Erweiterte Bestenliste kommt in einem späteren Update!)`);
+    alert(`🏆 Current leaderboard:\n\nHigh score: ${highScore}\n\n(An extended leaderboard is coming in a later update!)`);
 }
 
 function resetProgress() {
-    if (confirm('Möchtest du wirklich deinen gesamten Fortschritt zurücksetzen?\n\nDies löscht:\n- Höchste Punktzahl\n- Beste Combo\n- Anzahl richtiger Antworten\n- Gespielten Spiele\n\nDiese Aktion kann nicht rückgängig gemacht werden!')) {
+    if (confirm('Do you really want to reset all your progress?\n\nThis deletes:\n- High score\n- Best combo\n- Number of correct answers\n- Games played\n\nThis action cannot be undone!')) {
         localStorage.removeItem('formelFuryHighScore');
         localStorage.removeItem('formelFuryBestCombo');
         localStorage.removeItem('formelFuryTotalCorrect');
@@ -221,18 +221,18 @@ function resetProgress() {
             window.game.initializeMenuStats();
         }
         
-        alert('✅ Fortschritt wurde zurückgesetzt!');
+        alert('✅ Progress has been reset!');
     }
 }
 
 function resetCurrency() {
-    if (confirm('Möchtest du wirklich alle deine Algebra-Coins zurücksetzen?\n\nDies löscht:\n- Alle gesammelten Coins\n- Gesamt-Coins-Statistik\n\nDiese Aktion kann nicht rückgängig gemacht werden!')) {
+    if (confirm('Do you really want to reset all your Algebra Coins?\n\nThis deletes:\n- All collected coins\n- Total coins statistic\n\nThis action cannot be undone!')) {
         if (window.game && window.game.currencySystem) {
             window.game.currencySystem.resetCoins();
-            alert('💰 Alle Algebra-Coins wurden zurückgesetzt!');
+            alert('💰 All Algebra Coins have been reset!');
         } else {
             localStorage.removeItem('formelFuryCoins');
-            alert('💰 Währungsdaten wurden zurückgesetzt!');
+            alert('💰 Currency data has been reset!');
         }
     }
 }
@@ -276,7 +276,7 @@ function testCoinReward() {
         type: 'basic',
         x: 400,
         y: 300,
-        typeName: 'Test-Gegner',
+        typeName: 'Test Enemy',
         assignedFormula: {
             difficulty: 1.5
         }
@@ -527,9 +527,9 @@ function testNewLeveling() {
     
     // Simulate defeating 3 different enemy types
     const enemies = [
-        { type: 'polynom_zombie', name: 'Polynom-Zombie' },
-        { type: 'basic', name: 'Standard-Gegner' },
-        { type: 'elite_mob', name: 'Elite-Algebra-Bestie' }
+        { type: 'polynom_zombie', name: 'Polynomial Zombie' },
+        { type: 'basic', name: 'Standard Enemy' },
+        { type: 'elite_mob', name: 'Elite Algebra Beast' }
     ];
     
     enemies.forEach((enemy, index) => {

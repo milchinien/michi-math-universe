@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quadrier-Quarantäne - Wurzelgleichungs-Boss-Rush</title>
+    <title>Square Root Quarantine - Radical Equation Boss Rush</title>
     
     <!-- KaTeX CDN für mathematische Notation -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn" crossorigin="anonymous">
@@ -852,16 +852,16 @@
 <body>
     <!-- Debug-Informationen -->
     <div class="debug-info" id="debug-info">
-        Spiel-Status: Initialisierung...<br>
-        Boss: Nicht geladen<br>
-        Gleichung: Keine
+        Game status: Initializing...<br>
+        Boss: Not loaded<br>
+        Equation: None
     </div>
 
     <div class="game-container">
         <!-- Fortschrittsleiste -->
         <div class="progress-bar">
             <div>
-                <strong>Spieler-Level:</strong> 1
+                <strong>Player Level:</strong> 1
             </div>
             <div class="boss-health">
                 <div class="health-fill" id="boss-health-fill"></div>
@@ -873,56 +873,56 @@
 
         <!-- Werkzeugleiste -->
         <div class="tools-panel">
-            <h3>Werkzeuge</h3>
+            <h3>Tools</h3>
             <button class="tool-button definitions-lamp" id="definitions-lamp">
-                💡 Definitions-Lampe
+                💡 Domain Lamp
             </button>
             <button class="tool-button probe-seal" id="probe-seal">
-                🔍 Probe-Siegel
+                🔍 Check Seal
             </button>
             <button class="tool-button isolation-compass" id="isolation-compass">
-                🧭 Isolations-Kompass
+                🧭 Isolation Compass
             </button>
             <div class="tool-info">
-                <p>Verwende die Werkzeuge, um Scheinlösungen zu entlarven!</p>
+                <p>Use the tools to expose extraneous solutions!</p>
             </div>
         </div>
 
         <!-- Gleichungsbereich -->
         <div class="equation-area">
-            <h2>Aktueller Boss: <span id="current-boss">Mirror Chief</span></h2>
+            <h2>Current Boss: <span id="current-boss">Mirror Chief</span></h2>
             
             <div class="equation-display" id="equation-display">
                 <!-- Hier wird die KaTeX-Gleichung gerendert -->
-                Gleichung wird geladen...
+                Loading equation...
             </div>
 
             <div class="equation-steps" id="equation-steps">
                 <div class="step">
-                    <strong>Schritt 1:</strong> Identifiziere die Wurzeln in der Gleichung
+                    <strong>Step 1:</strong> Identify the roots in the equation
                 </div>
                 <div class="step">
-                    <strong>Schritt 2:</strong> Prüfe den Definitionsbereich
+                    <strong>Step 2:</strong> Check the domain
                 </div>
                 <div class="step">
-                    <strong>Schritt 3:</strong> Isoliere die Wurzeln systematisch
+                    <strong>Step 3:</strong> Isolate the roots systematically
                 </div>
                 <div class="step">
-                    <strong>Schritt 4:</strong> Quadriere vorsichtig und prüfe Scheinlösungen
+                    <strong>Step 4:</strong> Square carefully and check for extraneous solutions
                 </div>
             </div>
 
             <!-- Lösungs-Input Bereich -->
             <div class="solution-input" id="solution-input">
-                <h3>Deine Lösung eingeben:</h3>
+                <h3>Enter your solution:</h3>
                 <div class="input-group">
                     <label for="solution-field">x = </label>
-                    <input type="number" id="solution-field" placeholder="Lösung eingeben..." step="0.1">
-                    <button id="check-solution" class="action-button check">Prüfen</button>
+                    <input type="number" id="solution-field" placeholder="Enter solution..." step="0.1">
+                    <button id="check-solution" class="action-button check">Check</button>
                 </div>
                 <div class="input-group">
-                    <button id="new-equation" class="action-button new">Neue Gleichung</button>
-                    <button id="show-steps" class="action-button steps">Lösungsweg</button>
+                    <button id="new-equation" class="action-button new">New Equation</button>
+                    <button id="show-steps" class="action-button steps">Solution Steps</button>
                 </div>
                 <div id="validation-result" class="validation-result"></div>
             </div>
@@ -936,7 +936,7 @@
             <canvas id="boss-canvas" width="360" height="400"></canvas>
             <div class="boss-info">
                 <div class="boss-name" id="boss-name">Mirror Chief</div>
-                <div class="boss-ability" id="boss-ability">Spezialist für Vorzeichen-Fallen</div>
+                <div class="boss-ability" id="boss-ability">Specialist in sign traps</div>
             </div>
         </div>
     </div>
@@ -1002,7 +1002,7 @@
                             correctSolutions: [5],
                             spuriousSolutions: [2],
                             definitionDomain: 'x ≥ 1',
-                            explanation: 'Beim Quadrieren entstehen Scheinlösungen!'
+                            explanation: 'Squaring creates extraneous solutions!'
                         },
                         {
                             type: 'spurious_trap',
@@ -1010,7 +1010,7 @@
                             correctSolutions: [3],
                             spuriousSolutions: [-1],
                             definitionDomain: 'x ≥ -1.5',
-                            explanation: 'Negative Wurzeln sind nicht erlaubt!'
+                            explanation: 'Negative roots are not allowed!'
                         },
                         {
                             type: 'spurious_trap',
@@ -1018,7 +1018,7 @@
                             correctSolutions: [5],
                             spuriousSolutions: [0],
                             definitionDomain: 'x ≥ -4',
-                            explanation: 'Definitionsbereich prüfen ist entscheidend!'
+                            explanation: 'Checking the domain is crucial!'
                         }
                     ];
 
@@ -1071,7 +1071,7 @@
                     if (equation === null) {
                         return {
                             isValid: false,
-                            message: 'Keine Gleichung geladen!',
+                            message: 'No equation loaded!',
                             type: 'error'
                         };
                     }
@@ -1081,7 +1081,7 @@
                     if (isNaN(numX)) {
                         return {
                             isValid: false,
-                            message: 'Bitte gib eine gültige Zahl ein!',
+                            message: 'Please enter a valid number!',
                             type: 'error'
                         };
                     }
@@ -1090,7 +1090,7 @@
                     if (equation.correctSolutions.includes(numX)) {
                         return {
                             isValid: true,
-                            message: `Richtig! x = ${numX} ist eine echte Lösung! 🎉`,
+                            message: `Correct! x = ${numX} is a true solution! 🎉`,
                             type: 'success'
                         };
                     }
@@ -1099,7 +1099,7 @@
                     if (equation.spuriousSolutions.includes(numX)) {
                         return {
                             isValid: false,
-                            message: `Achtung! x = ${numX} ist eine Scheinlösung! Beim Quadrieren entstanden falsche Lösungen.`,
+                            message: `Watch out! x = ${numX} is an extraneous solution! Squaring produced false solutions.`,
                             type: 'spurious'
                         };
                     }
@@ -1120,7 +1120,7 @@
                             if (x < 1) {
                                 return {
                                     isValid: false,
-                                    message: `x = ${x} liegt außerhalb des Definitionsbereichs (x ≥ 1)!`,
+                                    message: `x = ${x} is outside the domain (x ≥ 1)!`,
                                     type: 'error'
                                 };
                             }
@@ -1128,7 +1128,7 @@
                             if (rightSide < 0) {
                                 return {
                                     isValid: false,
-                                    message: `x = ${x}: Rechte Seite ist negativ (${rightSide}), aber Wurzeln sind immer ≥ 0!`,
+                                    message: `x = ${x}: The right side is negative (${rightSide}), but square roots are always ≥ 0!`,
                                     type: 'error'
                                 };
                             }
@@ -1136,13 +1136,13 @@
                             if (Math.abs(leftSide - rightSide) < 0.001) {
                                 return {
                                     isValid: true,
-                                    message: `Richtig! √(${x}-1) = ${leftSide.toFixed(2)} und ${x}-3 = ${rightSide}`,
+                                    message: `Correct! √(${x}-1) = ${leftSide.toFixed(2)} and ${x}-3 = ${rightSide}`,
                                     type: 'success'
                                 };
                             } else {
                                 return {
                                     isValid: false,
-                                    message: `Falsch! √(${x}-1) = ${leftSide.toFixed(2)}, aber ${x}-3 = ${rightSide}`,
+                                    message: `Wrong! √(${x}-1) = ${leftSide.toFixed(2)}, but ${x}-3 = ${rightSide}`,
                                     type: 'error'
                                 };
                             }
@@ -1154,7 +1154,7 @@
                             if (x < -3) {
                                 return {
                                     isValid: false,
-                                    message: `x = ${x} liegt außerhalb des Definitionsbereichs (x ≥ -3)!`,
+                                    message: `x = ${x} is outside the domain (x ≥ -3)!`,
                                     type: 'error'
                                 };
                             }
@@ -1164,7 +1164,7 @@
                             if (Math.abs(leftSide - rightSide) < 0.001) {
                                 return {
                                     isValid: true,
-                                    message: `Richtig! √(${x}+3) = ${leftSide.toFixed(2)} = ${rightSide}`,
+                                    message: `Correct! √(${x}+3) = ${leftSide.toFixed(2)} = ${rightSide}`,
                                     type: 'success'
                                 };
                             }
@@ -1175,7 +1175,7 @@
                             if (x < 3) {
                                 return {
                                     isValid: false,
-                                    message: `x = ${x} liegt außerhalb des Definitionsbereichs (x ≥ 3)!`,
+                                    message: `x = ${x} is outside the domain (x ≥ 3)!`,
                                     type: 'error'
                                 };
                             }
@@ -1185,7 +1185,7 @@
                             if (Math.abs(leftSide - rightSide) < 0.001) {
                                 return {
                                     isValid: true,
-                                    message: `Richtig! √(2·${x}-6) = √${2*x-6} = ${leftSide.toFixed(2)} = ${rightSide}`,
+                                    message: `Correct! √(2·${x}-6) = √${2*x-6} = ${leftSide.toFixed(2)} = ${rightSide}`,
                                     type: 'success'
                                 };
                             }
@@ -1197,7 +1197,7 @@
                             if (x < -1.5) {
                                 return {
                                     isValid: false,
-                                    message: `x = ${x} liegt außerhalb des Definitionsbereichs (x ≥ -1.5)!`,
+                                    message: `x = ${x} is outside the domain (x ≥ -1.5)!`,
                                     type: 'error'
                                 };
                             }
@@ -1205,7 +1205,7 @@
                             if (x < 0) {
                                 return {
                                     isValid: false,
-                                    message: `x = ${x}: Rechte Seite ist negativ, aber Wurzeln sind immer ≥ 0!`,
+                                    message: `x = ${x}: The right side is negative, but square roots are always ≥ 0!`,
                                     type: 'error'
                                 };
                             }
@@ -1216,7 +1216,7 @@
                             if (Math.abs(leftSide - rightSide) < 0.001) {
                                 return {
                                     isValid: true,
-                                    message: `Richtig! √(2·${x}+3) = √${2*x+3} = ${leftSide.toFixed(2)} = ${rightSide}`,
+                                    message: `Correct! √(2·${x}+3) = √${2*x+3} = ${leftSide.toFixed(2)} = ${rightSide}`,
                                     type: 'success'
                                 };
                             }
@@ -1225,14 +1225,14 @@
                         // Allgemeiner Fallback
                         return {
                             isValid: false,
-                            message: `x = ${x} ist nicht korrekt. Prüfe den Definitionsbereich und deine Rechnung!`,
+                            message: `x = ${x} is not correct. Check the domain and your calculation!`,
                             type: 'error'
                         };
 
                     } catch (error) {
                         return {
                             isValid: false,
-                            message: 'Fehler bei der Berechnung. Prüfe den Definitionsbereich!',
+                            message: 'Calculation error. Check the domain!',
                             type: 'error'
                         };
                     }
@@ -1257,20 +1257,20 @@
 
                     if (equation.latex.includes('\\sqrt{x-1} = x-3')) {
                         return [
-                            'Gegeben: √(x-1) = x-3',
-                            'Definitionsbereich: x ≥ 1 UND x-3 ≥ 0 → x ≥ 3',
-                            'Beide Seiten quadrieren: (√(x-1))² = (x-3)²',
-                            'Vereinfachen: x-1 = x² - 6x + 9',
-                            'Umformen: x² - 7x + 10 = 0',
-                            'Faktorisieren: (x-2)(x-5) = 0',
-                            'Lösungen: x = 2 oder x = 5',
-                            'Probe x = 2: √(1) = 1, aber 2-3 = -1 → 1 ≠ -1 (Scheinlösung!)',
-                            'Probe x = 5: √(4) = 2 und 5-3 = 2 → 2 = 2 ✓',
-                            'Echte Lösung: x = 5'
+                            'Given: √(x-1) = x-3',
+                            'Domain: x ≥ 1 AND x-3 ≥ 0 → x ≥ 3',
+                            'Square both sides: (√(x-1))² = (x-3)²',
+                            'Simplify: x-1 = x² - 6x + 9',
+                            'Rearrange: x² - 7x + 10 = 0',
+                            'Factor: (x-2)(x-5) = 0',
+                            'Solutions: x = 2 or x = 5',
+                            'Check x = 2: √(1) = 1, but 2-3 = -1 → 1 ≠ -1 (extraneous solution!)',
+                            'Check x = 5: √(4) = 2 and 5-3 = 2 → 2 = 2 ✓',
+                            'True solution: x = 5'
                         ];
                     }
 
-                    return ['Lösungsschritte für diese Gleichung werden noch implementiert...'];
+                    return ['Solution steps for this equation are not implemented yet...'];
                 }
             }
 
@@ -1282,25 +1282,25 @@
                         'mirror-chief': {
                             name: 'Mirror Chief',
                             maxHealth: 100,
-                            specialty: 'Vorzeichen-Fallen',
-                            description: 'Spezialist für Vorzeichen-Fallen',
+                            specialty: 'Sign traps',
+                            description: 'Specialist in sign traps',
                             color: '#ff0040',
                             glowColor: 'rgba(255, 0, 64, 0.8)',
-                            attacks: ['Spiegelverzerrung', 'Vorzeichenchaos', 'Negativitätswelle']
+                            attacks: ['Mirror Distortion', 'Sign Chaos', 'Negativity Wave']
                         },
                         'stacker': {
                             name: 'Stacker',
                             maxHealth: 120,
-                            specialty: 'Multiple Wurzeln',
-                            description: 'Schichtet Wurzeln übereinander',
+                            specialty: 'Multiple roots',
+                            description: 'Stacks roots on top of each other',
                             color: '#cc00ff',
                             glowColor: 'rgba(204, 0, 255, 0.8)'
                         },
                         'fraction-fiend': {
                             name: 'Fraction Fiend',
                             maxHealth: 150,
-                            specialty: 'Rationale Exponenten',
-                            description: 'Meister der gebrochenen Exponenten',
+                            specialty: 'Rational exponents',
+                            description: 'Master of fractional exponents',
                             color: '#ff8800',
                             glowColor: 'rgba(255, 136, 0, 0.8)'
                         }
@@ -1428,8 +1428,8 @@
                             correctSolutions: [-4],
                             spuriousSolutions: [4],
                             definitionDomain: 'x ≤ 4',
-                            explanation: 'Vorzeichen-Falle! Das Minuszeichen ist kritisch.',
-                            mirrorTrap: 'Viele vergessen das Minuszeichen vor 2x!'
+                            explanation: 'Sign trap! The minus sign is critical.',
+                            mirrorTrap: 'Many forget the minus sign in front of 2x!'
                         },
                         {
                             type: 'mirror-trap',
@@ -1437,8 +1437,8 @@
                             correctSolutions: [1],
                             spuriousSolutions: [-2],
                             definitionDomain: 'x ≤ 3',
-                            explanation: 'Mirror Chief verwirrt mit negativen Lösungen!',
-                            mirrorTrap: 'Die negative Lösung ist eine Spiegelung!'
+                            explanation: 'Mirror Chief confuses you with negative solutions!',
+                            mirrorTrap: 'The negative solution is a reflection!'
                         },
                         {
                             type: 'mirror-trap',
@@ -1446,8 +1446,8 @@
                             correctSolutions: [1],
                             spuriousSolutions: [9],
                             definitionDomain: 'x ≤ 5',
-                            explanation: 'Spiegeleffekt bei der Auflösung nach x!',
-                            mirrorTrap: 'Das Vorzeichen spiegelt das Ergebnis!'
+                            explanation: 'Mirror effect when solving for x!',
+                            mirrorTrap: 'The sign mirrors the result!'
                         }
                     ];
 
@@ -1480,9 +1480,9 @@
                 constructor() {
                     this.tools = {
                         'definitions-lamp': {
-                            name: 'Definitions-Lampe',
+                            name: 'Domain Lamp',
                             type: 'analysis',
-                            description: 'Zeigt den Definitionsbereich der Gleichung visuell an',
+                            description: 'Visually shows the domain of the equation',
                             icon: '💡',
                             isActive: false,
                             isUnlocked: true,
@@ -1492,9 +1492,9 @@
                             effectiveness: 1.0
                         },
                         'probe-seal': {
-                            name: 'Probe-Siegel',
+                            name: 'Check Seal',
                             type: 'validation',
-                            description: 'Validiert Lösungen automatisch und zeigt Scheinlösungen',
+                            description: 'Automatically validates solutions and reveals extraneous solutions',
                             icon: '🔍',
                             isActive: false,
                             isUnlocked: true,
@@ -1504,9 +1504,9 @@
                             effectiveness: 1.0
                         },
                         'isolation-compass': {
-                            name: 'Isolations-Kompass',
+                            name: 'Isolation Compass',
                             type: 'guidance',
-                            description: 'Hilft bei der systematischen Wurzelisolation',
+                            description: 'Helps isolate the root systematically',
                             icon: '🧭',
                             isActive: false,
                             isUnlocked: true,
@@ -1562,11 +1562,11 @@
                 // Definitions-Lampe verwenden
                 useDefinitionsLamp(equation) {
                     if (!this.activateTool('definitions-lamp')) {
-                        return { success: false, message: 'Definitions-Lampe ist nicht verfügbar!' };
+                        return { success: false, message: 'Domain Lamp is not available!' };
                     }
 
                     if (!equation) {
-                        return { success: false, message: 'Keine Gleichung zum Analysieren vorhanden!' };
+                        return { success: false, message: 'No equation to analyze!' };
                     }
 
                     // Definitionsbereich berechnen
@@ -1579,7 +1579,7 @@
 
                     return {
                         success: true,
-                        message: `📍 Definitionsbereich: ${domain.description}`,
+                        message: `📍 Domain: ${domain.description}`,
                         domain: domain
                     };
                 }
@@ -1589,7 +1589,7 @@
                     if (!equation || !equation.latex) {
                         return {
                             type: 'error',
-                            description: 'Unbekannt',
+                            description: 'Unknown',
                             min: -Infinity,
                             max: Infinity,
                             intervals: []
@@ -1609,7 +1609,7 @@
                             max: 4,
                             intervals: [{ start: -Infinity, end: 4, included: [false, true] }],
                             criticalPoints: [4],
-                            explanation: 'Radikand -2x + 8 muss ≥ 0 sein'
+                            explanation: 'Radicand -2x + 8 must be ≥ 0'
                         };
                     }
 
@@ -1623,7 +1623,7 @@
                             max: 3,
                             intervals: [{ start: -Infinity, end: 3, included: [false, true] }],
                             criticalPoints: [3],
-                            explanation: 'Radikand 3 - x muss ≥ 0 sein'
+                            explanation: 'Radicand 3 - x must be ≥ 0'
                         };
                     }
 
@@ -1637,7 +1637,7 @@
                             max: 5,
                             intervals: [{ start: -Infinity, end: 5, included: [false, true] }],
                             criticalPoints: [5],
-                            explanation: 'Radikand -x + 5 muss ≥ 0 sein'
+                            explanation: 'Radicand -x + 5 must be ≥ 0'
                         };
                     }
 
@@ -1651,7 +1651,7 @@
                             max: Infinity,
                             intervals: [{ start: -3, end: Infinity, included: [true, false] }],
                             criticalPoints: [-3],
-                            explanation: 'Radikand x + 3 muss ≥ 0 sein'
+                            explanation: 'Radicand x + 3 must be ≥ 0'
                         };
                     }
 
@@ -1665,7 +1665,7 @@
                             max: Infinity,
                             intervals: [{ start: 3, end: Infinity, included: [true, false] }],
                             criticalPoints: [3],
-                            explanation: 'Radikand 2x - 6 muss ≥ 0 sein'
+                            explanation: 'Radicand 2x - 6 must be ≥ 0'
                         };
                     }
 
@@ -1679,19 +1679,19 @@
                             max: Infinity,
                             intervals: [{ start: -1.5, end: Infinity, included: [true, false] }],
                             criticalPoints: [-1.5],
-                            explanation: 'Radikand 2x + 3 muss ≥ 0 sein'
+                            explanation: 'Radicand 2x + 3 must be ≥ 0'
                         };
                     }
 
                     // Fallback für unbekannte Gleichungen
                     return {
                         type: 'all_reals',
-                        description: 'Alle reellen Zahlen',
+                        description: 'All real numbers',
                         min: -Infinity,
                         max: Infinity,
                         intervals: [{ start: -Infinity, end: Infinity, included: [false, false] }],
                         criticalPoints: [],
-                        explanation: 'Keine Einschränkungen erkannt'
+                        explanation: 'No restrictions detected'
                     };
                 }
 
@@ -1965,7 +1965,7 @@
                     ctx.font = 'bold 14px Orbitron, monospace';
                     ctx.fillStyle = '#00ffff';
                     ctx.textAlign = 'left';
-                    ctx.fillText('💡 Definitions-Lampe:', 10, 20);
+                    ctx.fillText('💡 Domain Lamp:', 10, 20);
                     
                     ctx.font = '12px Exo, monospace';
                     ctx.fillStyle = '#ffffff';
@@ -1980,7 +1980,7 @@
                     ctx.fillStyle = 'rgba(0, 255, 128, 0.5)';
                     ctx.fillRect(300, 15, 20, 10);
                     ctx.fillStyle = '#ffffff';
-                    ctx.fillText('Erlaubt', 325, 25);
+                    ctx.fillText('Allowed', 325, 25);
                     
                     ctx.fillStyle = '#ffff00';
                     ctx.beginPath();
@@ -1990,7 +1990,7 @@
                     ctx.lineTo(294, 40);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.fillText('Kritisch', 325, 42);
+                    ctx.fillText('Critical', 325, 42);
                 }
 
                 // Hover-Tooltip anzeigen
@@ -2272,7 +2272,7 @@
                         ctx.fillStyle = '#ff0040';
                         ctx.font = 'bold 16px Orbitron, monospace';
                         ctx.textAlign = 'center';
-                        ctx.fillText('SPIEGELANGRIFF!', centerX, centerY + size + 40);
+                        ctx.fillText('MIRROR ATTACK!', centerX, centerY + size + 40);
                     }
                     
                     // Failure counter warning
@@ -2280,7 +2280,7 @@
                         ctx.fillStyle = '#ff8800';
                         ctx.font = 'bold 14px Orbitron, monospace';
                         ctx.textAlign = 'center';
-                        ctx.fillText(`Scheinlösungen: ${boss.consecutiveFailures}/3`, centerX, canvas.height - 20);
+                        ctx.fillText(`Extraneous: ${boss.consecutiveFailures}/3`, centerX, canvas.height - 20);
                     }
                     
                     ctx.restore();
@@ -2323,7 +2323,7 @@
                     } catch (error) {
                         this.log('❌ KaTeX-Fehler: ' + error.message);
                         const equationDisplay = document.getElementById('equation-display');
-                        equationDisplay.innerHTML = '<span style="color: red;">Fehler beim Laden der Gleichung</span>';
+                        equationDisplay.innerHTML = '<span style="color: red;">Error loading the equation</span>';
                     }
                 },
 
@@ -2364,7 +2364,7 @@
                         });
                     } catch (error) {
                         this.log('❌ Render-Fehler: ' + error.message);
-                        equationDisplay.innerHTML = '<span style="color: red;">Fehler beim Rendern</span>';
+                        equationDisplay.innerHTML = '<span style="color: red;">Rendering error</span>';
                     }
                 },
 
@@ -2374,7 +2374,7 @@
                     const userSolution = solutionField.value.trim();
                     
                     if (userSolution === '') {
-                        this.showValidationResult('Bitte gib eine Lösung ein!', 'error');
+                        this.showValidationResult('Please enter a solution!', 'error');
                         return;
                     }
 
@@ -2407,7 +2407,7 @@
                     if (isNaN(numX)) {
                         return {
                             isValid: false,
-                            message: 'Bitte gib eine gültige Zahl ein!',
+                            message: 'Please enter a valid number!',
                             type: 'error'
                         };
                     }
@@ -2418,21 +2418,21 @@
                         if (numX === -4) {
                             return {
                                 isValid: true,
-                                message: `Richtig! x = ${numX} ist die echte Lösung! Du hast Mirror Chief's Vorzeichen-Falle durchschaut! 🎉`,
+                                message: `Correct! x = ${numX} is the true solution! You saw through Mirror Chief's sign trap! 🎉`,
                                 type: 'success',
                                 isBossHit: true
                             };
                         } else if (numX === 4) {
                             return {
                                 isValid: false,
-                                message: `Mirror Chief's Falle! x = ${numX} entsteht, wenn man das Minuszeichen vor 2x vergisst. Die echte Lösung ist x = -4!`,
+                                message: `Mirror Chief's trap! x = ${numX} comes from forgetting the minus sign in front of 2x. The true solution is x = -4!`,
                                 type: 'spurious',
                                 isBossAttack: true
                             };
                         } else {
                             return {
                                 isValid: false,
-                                message: `Falsch! Achte auf das Vorzeichen: √(-2x + 8) = 4. Die Lösung ist x = -4.`,
+                                message: `Wrong! Watch the sign: √(-2x + 8) = 4. The solution is x = -4.`,
                                 type: 'error'
                             };
                         }
@@ -2443,14 +2443,14 @@
                         if (numX === 1) {
                             return {
                                 isValid: true,
-                                message: `Exzellent! x = ${numX} ist die korrekte Lösung! Mirror Chief's Spiegelung konnte dich nicht täuschen! 🎉`,
+                                message: `Excellent! x = ${numX} is the correct solution! Mirror Chief's reflection couldn't fool you! 🎉`,
                                 type: 'success',
                                 isBossHit: true
                             };
                         } else if (numX === -2) {
                             return {
                                 isValid: false,
-                                message: `Gespiegelt! x = ${numX} ist eine Scheinlösung. Rechte Seite wäre -1, aber Wurzeln sind ≥ 0!`,
+                                message: `Mirrored! x = ${numX} is an extraneous solution. The right side would be -1, but square roots are ≥ 0!`,
                                 type: 'spurious',
                                 isBossAttack: true
                             };
@@ -2462,14 +2462,14 @@
                         if (numX === 1) {
                             return {
                                 isValid: true,
-                                message: `Perfekt! x = ${numX} ist richtig! Das Vorzeichen wurde korrekt behandelt! 🎉`,
+                                message: `Perfect! x = ${numX} is correct! You handled the sign correctly! 🎉`,
                                 type: 'success',
                                 isBossHit: true
                             };
                         } else if (numX === 9) {
                             return {
                                 isValid: false,
-                                message: `Mirror Chief's Spiegelmagie! x = ${numX} entsteht durch Vorzeichenfehler. Echte Lösung: x = 1`,
+                                message: `Mirror Chief's mirror magic! x = ${numX} comes from a sign error. True solution: x = 1`,
                                 type: 'spurious',
                                 isBossAttack: true
                             };
@@ -2479,7 +2479,7 @@
                     // Fallback für unerkannte Lösungen
                     return {
                         isValid: false,
-                        message: `Nicht korrekt! Prüfe die Vorzeichen genau - Mirror Chief versteckt Fallen!`,
+                        message: `Not correct! Check the signs carefully - Mirror Chief hides traps!`,
                         type: 'error'
                     };
                 },
@@ -2496,12 +2496,12 @@
                         this.triggerScreenShake();
                         
                         if (bossResult === 'defeated') {
-                            this.showFeedback('🎉 MIRROR CHIEF BESIEGT! 🎉', 'success');
+                            this.showFeedback('🎉 MIRROR CHIEF DEFEATED! 🎉', 'success');
                             setTimeout(() => {
                                 this.showVictoryScreen();
                             }, 1500);
                         } else {
-                            this.showFeedback('💥 KRITISCHER TREFFER! +150 Punkte', 'success');
+                            this.showFeedback('💥 CRITICAL HIT! +150 points', 'success');
                         }
                         
                     } else if (result.type === 'spurious' && result.isBossAttack) {
@@ -2510,16 +2510,16 @@
                         this.triggerScreenShake();
                         
                         if (attackResult === 'player-defeated') {
-                            this.showFeedback('💀 MIRROR CHIEF SIEGE! SPIEGELMAGIE ZU STARK!', 'error');
+                            this.showFeedback('💀 MIRROR CHIEF WINS! MIRROR MAGIC TOO STRONG!', 'error');
                             setTimeout(() => {
                                 this.showDefeatScreen();
                             }, 1500);
                         } else {
-                            this.showFeedback('⚡ SPIEGELANGRIFF! Vorsicht vor Scheinlösungen!', 'error');
+                            this.showFeedback('⚡ MIRROR ATTACK! Beware of extraneous solutions!', 'error');
                         }
                     } else if (result.type === 'error') {
                         // Normaler Fehler - kein Boss-Effekt
-                        this.showFeedback('Falsche Lösung - versuche es nochmal!', 'error');
+                        this.showFeedback('Wrong solution - try again!', 'error');
                     }
                 },
 
@@ -2534,7 +2534,7 @@
 
                 // Sieg-Screen anzeigen
                 showVictoryScreen: function() {
-                    this.showValidationResult('🏆 SIEG! Mirror Chief wurde besiegt! Ein neuer Kampf beginnt in 3 Sekunden...', 'success');
+                    this.showValidationResult('🏆 VICTORY! Mirror Chief has been defeated! A new battle starts in 3 seconds...', 'success');
                     setTimeout(() => {
                         this.boss.resetBoss();
                         this.loadNewEquation();
@@ -2544,7 +2544,7 @@
 
                 // Niederlage-Screen anzeigen
                 showDefeatScreen: function() {
-                    this.showValidationResult('💀 NIEDERLAGE! Mirror Chief hat gewonnen. Neuer Versuch in 3 Sekunden...', 'error');
+                    this.showValidationResult('💀 DEFEAT! Mirror Chief has won. New attempt in 3 seconds...', 'error');
                     setTimeout(() => {
                         this.boss.resetBoss();
                         this.loadNewEquation();
@@ -2580,7 +2580,7 @@
                     const resultDiv = document.getElementById('validation-result');
                     
                     let stepsHtml = '<div class="solution-steps">';
-                    stepsHtml += '<h4>🔍 Lösungsweg:</h4>';
+                    stepsHtml += '<h4>🔍 Solution steps:</h4>';
                     stepsHtml += '<ol>';
                     steps.forEach(step => {
                         stepsHtml += `<li>${step}</li>`;
@@ -2605,7 +2605,7 @@
                     healthFill.style.width = this.gameState.bossHealth + '%';
                     
                     if (this.gameState.bossHealth <= 0) {
-                        this.showFeedback('Boss besiegt! 🎉', 'success');
+                        this.showFeedback('Boss defeated! 🎉', 'success');
                         setTimeout(() => {
                             this.gameState.bossHealth = 100;
                             this.updateUI();
@@ -2665,7 +2665,7 @@
                     
                     const currentEquation = this.equation.currentEquation;
                     if (!currentEquation) {
-                        this.showFeedback('Keine Gleichung geladen!', 'error');
+                        this.showFeedback('No equation loaded!', 'error');
                         return;
                     }
                     
@@ -2688,70 +2688,70 @@
                     
                     if (result.success) {
                         this.showValidationResult(result.message, 'success');
-                        this.showFeedback('💡 Definitions-Lampe aktiviert!', 'success');
+                        this.showFeedback('💡 Domain Lamp activated!', 'success');
                         this.updateToolButtons();
                     } else {
                         this.showValidationResult(result.message, 'error');
-                        this.showFeedback('Definitions-Lampe nicht verfügbar!', 'error');
+                        this.showFeedback('Domain Lamp not available!', 'error');
                     }
                 },
 
                 // Probe-Siegel verwenden (erweitert)
                 useProbeSeal: function(equation) {
                     if (!this.tools.activateTool('probe-seal')) {
-                        this.showFeedback('Probe-Siegel ist im Cooldown!', 'error');
+                        this.showFeedback('Check Seal is on cooldown!', 'error');
                         return;
                     }
 
-                    let hint = '🔍 Probe-Siegel aktiviert!\n\n';
-                    hint += 'Tipp: Setze deine Lösung in die ursprüngliche Gleichung ein und prüfe beide Seiten!\n\n';
+                    let hint = '🔍 Check Seal activated!\n\n';
+                    hint += 'Tip: Plug your solution into the original equation and check both sides!\n\n';
                     
                     if (equation.spuriousSolutions && equation.spuriousSolutions.length > 0) {
-                        hint += `⚠️ WARNUNG: Diese Gleichung hat ${equation.spuriousSolutions.length} bekannte Scheinlösung(en)!\n`;
-                        hint += 'Scheinlösungen: ' + equation.spuriousSolutions.join(', ');
+                        hint += `⚠️ WARNING: This equation has ${equation.spuriousSolutions.length} known extraneous solution(s)!\n`;
+                        hint += 'Extraneous solutions: ' + equation.spuriousSolutions.join(', ');
                     }
 
                     // Wenn es eine Boss-Gleichung ist, extra Hinweise
                     if (equation.type === 'mirror-trap') {
-                        hint += '\n\n👹 Mirror Chief Warnung: Achte besonders auf Vorzeichen!';
+                        hint += '\n\n👹 Mirror Chief warning: Pay special attention to signs!';
                     }
                     
                     this.showValidationResult(hint, 'success');
-                    this.showFeedback('🔍 Probe-Siegel verwendet!', 'success');
+                    this.showFeedback('🔍 Check Seal used!', 'success');
                     this.updateToolButtons();
                 },
 
                 // Isolations-Kompass verwenden (erweitert)
                 useIsolationCompass: function(equation) {
                     if (!this.tools.activateTool('isolation-compass')) {
-                        this.showFeedback('Isolations-Kompass ist im Cooldown!', 'error');
+                        this.showFeedback('Isolation Compass is on cooldown!', 'error');
                         return;
                     }
 
-                    let hint = '🧭 Isolations-Kompass aktiviert!\n\n';
+                    let hint = '🧭 Isolation Compass activated!\n\n';
                     
                     if (equation.latex.includes('\\sqrt')) {
-                        hint += 'Lösungsstrategie für Wurzelgleichungen:\n';
-                        hint += '1. Wurzel auf einer Seite isolieren\n';
-                        hint += '2. Beide Seiten quadrieren\n';
-                        hint += '3. Resultierende Gleichung lösen\n';
-                        hint += '4. WICHTIG: Probe mit allen Lösungen!\n\n';
+                        hint += 'Strategy for radical equations:\n';
+                        hint += '1. Isolate the root on one side\n';
+                        hint += '2. Square both sides\n';
+                        hint += '3. Solve the resulting equation\n';
+                        hint += '4. IMPORTANT: Check all solutions!\n\n';
                         
                         if (equation.type === 'mirror-trap') {
-                            hint += '👹 Mirror Chief Spezialfall:\n';
-                            hint += '- Achte auf negative Vorzeichen!\n';
-                            hint += '- Prüfe Definitionsbereich genau!\n';
-                            hint += '- Scheinlösungen sind wahrscheinlich!';
+                            hint += '👹 Mirror Chief special case:\n';
+                            hint += '- Watch out for negative signs!\n';
+                            hint += '- Check the domain carefully!\n';
+                            hint += '- Extraneous solutions are likely!';
                         }
                     } else {
-                        hint += 'Allgemeine Lösungsstrategie:\n';
-                        hint += '1. Alle Terme mit x auf eine Seite\n';
-                        hint += '2. Konstanten auf die andere Seite\n';
-                        hint += '3. Nach x auflösen';
+                        hint += 'General solving strategy:\n';
+                        hint += '1. All terms with x on one side\n';
+                        hint += '2. Constants on the other side\n';
+                        hint += '3. Solve for x';
                     }
                     
                     this.showValidationResult(hint, 'success');
-                    this.showFeedback('🧭 Isolations-Kompass zeigt den Weg!', 'success');
+                    this.showFeedback('🧭 Isolation Compass shows the way!', 'success');
                     this.updateToolButtons();
                 },
 
@@ -2862,9 +2862,9 @@
                         this.gameState.bossHealth = bossStatus.healthPercent;
                     } else {
                         // Fallback wenn kein Boss aktiv
-                        document.getElementById('current-boss').textContent = 'Kein Boss';
-                        document.getElementById('boss-name').textContent = 'Bereit für Kampf';
-                        document.getElementById('boss-ability').textContent = 'Wähle einen Gegner';
+                        document.getElementById('current-boss').textContent = 'No boss';
+                        document.getElementById('boss-name').textContent = 'Ready for battle';
+                        document.getElementById('boss-ability').textContent = 'Choose an opponent';
                         
                         const healthFill = document.getElementById('boss-health-fill');
                         healthFill.style.width = '100%';
@@ -2888,12 +2888,12 @@
                         const currentEquation = this.equation.currentEquation;
                         
                         debugInfo.innerHTML = `
-                            Spiel-Status: ${this.gameState.isPlaying ? 'Boss-Kampf aktiv' : 'Pausiert'}<br>
-                            Boss: ${bossStatus ? bossStatus.name : 'Keiner'} (${bossStatus ? Math.round(bossStatus.healthPercent) : 0}% HP)<br>
-                            Scheinlösungen: ${bossStatus ? bossStatus.consecutiveFailures : 0}/3<br>
+                            Game status: ${this.gameState.isPlaying ? 'Boss battle active' : 'Paused'}<br>
+                            Boss: ${bossStatus ? bossStatus.name : 'None'} (${bossStatus ? Math.round(bossStatus.healthPercent) : 0}% HP)<br>
+                            Extraneous solutions: ${bossStatus ? bossStatus.consecutiveFailures : 0}/3<br>
                             Score: ${this.gameState.score}<br>
-                            Gleichungstyp: ${currentEquation ? currentEquation.type : 'Keine'}<br>
-                            Animation: ${this.animationFrame ? 'Läuft' : 'Gestoppt'}
+                            Equation type: ${currentEquation ? currentEquation.type : 'None'}<br>
+                            Animation: ${this.animationFrame ? 'Running' : 'Stopped'}
                         `;
                     }, 1000);
                 },

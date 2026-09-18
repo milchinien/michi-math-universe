@@ -9,44 +9,44 @@ class TutorialSystem {
             'binomial-formulas': {
                 name: "Professor Binomius",
                 avatar: "🧙‍♂️",
-                personality: "weise und erfahren",
-                greeting: "Willkommen in der Welt der binomischen Formeln!",
-                specialty: "Binomische Formeln und algebraische Identitäten"
+                personality: "wise and experienced",
+                greeting: "Welcome to the world of binomial formulas!",
+                specialty: "Binomial formulas and algebraic identities"
             },
             'quadratic-equations': {
                 name: "Professor Algebrar",
                 avatar: "👨‍🔬",
-                personality: "analytisch und präzise",
-                greeting: "Bereit, die Geheimnisse quadratischer Gleichungen zu entschlüsseln?",
-                specialty: "Quadratische Gleichungen und Lösungsverfahren"
+                personality: "analytical and precise",
+                greeting: "Ready to unlock the secrets of quadratic equations?",
+                specialty: "Quadratic equations and solution methods"
             },
             'quadratic-functions': {
                 name: "Professor Parabolus",
                 avatar: "👨‍🎨",
-                personality: "kreativ und visuell",
-                greeting: "Lass uns die elegante Welt der Parabeln erkunden!",
-                specialty: "Quadratische Funktionen und Parabeln"
+                personality: "creative and visual",
+                greeting: "Let's explore the elegant world of parabolas!",
+                specialty: "Quadratic functions and parabolas"
             },
             'function-transformations': {
                 name: "Professor Transformis",
                 avatar: "🧙‍♂️",
-                personality: "dynamisch und wandelbar",
-                greeting: "Bereit für die Magie der Funktions-Transformationen?",
-                specialty: "Funktions-Transformationen und geometrische Veränderungen"
+                personality: "dynamic and adaptable",
+                greeting: "Ready for the magic of function transformations?",
+                specialty: "Function transformations and geometric changes"
             },
             'square-roots': {
                 name: "Professor Radicus",
                 avatar: "🌳",
-                personality: "geerdet und naturverbunden",
-                greeting: "Lass uns die Wurzeln der Mathematik erforschen!",
-                specialty: "Wurzelrechnung und Radikale"
+                personality: "grounded and close to nature",
+                greeting: "Let's explore the roots of mathematics!",
+                specialty: "Square roots and radicals"
             },
             'power-laws': {
                 name: "Professor Potentius",
                 avatar: "🏴‍☠️",
-                personality: "abenteuerlustig und energisch",
-                greeting: "Ahoy! Bereit für ein Abenteuer mit den Potenzgesetzen?",
-                specialty: "Potenzgesetze und Exponentialrechnung"
+                personality: "adventurous and energetic",
+                greeting: "Ahoy! Ready for an adventure with the exponent rules?",
+                specialty: "Exponent rules and working with powers"
             }
         };
         
@@ -54,46 +54,46 @@ class TutorialSystem {
         
         this.lessons = {
             'quadratic-equations': {
-                title: "Quadratische Gleichungen Meistern",
-                description: "Lerne die p-q-Formel und Mitternachtsformel mit praktischen Beispielen",
+                title: "Mastering Quadratic Equations",
+                description: "Learn the pq formula and the quadratic formula with practical examples",
                 steps: [
                     {
                         type: 'introduction',
-                        title: "Willkommen zu den Quadratischen Gleichungen!",
+                        title: "Welcome to Quadratic Equations!",
                         dialogue: [
-                            "👨‍🏫 Hallo! Heute erobern wir die quadratischen Gleichungen!",
-                            "Quadratische Gleichungen sind Gleichungen mit x² - sie kommen überall vor!",
-                            "Wir lernen zwei mächtige Lösungsformeln: die p-q-Formel und die Mitternachtsformel.",
-                            "Mit diesen Werkzeugen kannst du jede quadratische Gleichung lösen! 🎯"
+                            "👨‍🏫 Hello! Today we're conquering quadratic equations!",
+                            "Quadratic equations are equations with x² - they show up everywhere!",
+                            "We'll learn two powerful solving formulas: the pq formula and the quadratic formula.",
+                            "With these tools you can solve any quadratic equation! 🎯"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'theory',
-                        title: "Was sind quadratische Gleichungen?",
+                        title: "What are quadratic equations?",
                         dialogue: [
-                            "👨‍🏫 Eine quadratische Gleichung hat die Form ax² + bx + c = 0",
-                            "Das x² macht sie 'quadratisch' - das ist der höchste Exponent.",
-                            "Beispiele: x² - 5x + 6 = 0 oder 2x² + 3x - 1 = 0",
-                            "🔧 p-q-Formel: Für x² + px + q = 0",
-                            "🔧 Mitternachtsformel: Für ax² + bx + c = 0",
-                            "Beide führen zur Lösung - lass uns sie kennenlernen! 📐"
+                            "👨‍🏫 A quadratic equation has the form ax² + bx + c = 0",
+                            "The x² makes it 'quadratic' - it's the highest exponent.",
+                            "Examples: x² - 5x + 6 = 0 or 2x² + 3x - 1 = 0",
+                            "🔧 pq formula: for x² + px + q = 0",
+                            "🔧 Quadratic formula: for ax² + bx + c = 0",
+                            "Both lead to the solution - let's get to know them! 📐"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'example',
-                        title: "p-q-Formel anwenden",
+                        title: "Using the pq formula",
                         dialogue: [],
                         example: {
                             problem: "x² - 5x + 6 = 0",
                             solution: "x₁ = 2, x₂ = 3",
                             steps: [
-                                "Erkenne: x² + px + q = 0 mit p = -5, q = 6",
-                                "p-q-Formel: x = -p/2 ± √((p/2)² - q)",
-                                "Einsetzen: x = 5/2 ± √((5/2)² - 6)",
-                                "Berechnen: x = 2.5 ± √(6.25 - 6) = 2.5 ± 0.5",
-                                "Lösungen: x₁ = 3, x₂ = 2"
+                                "Identify: x² + px + q = 0 with p = -5, q = 6",
+                                "pq formula: x = -p/2 ± √((p/2)² - q)",
+                                "Substitute: x = 5/2 ± √((5/2)² - 6)",
+                                "Calculate: x = 2.5 ± √(6.25 - 6) = 2.5 ± 0.5",
+                                "Solutions: x₁ = 3, x₂ = 2"
                             ]
                         },
                         action: 'practice'
@@ -101,45 +101,45 @@ class TutorialSystem {
                 ]
             },
             'quadratic-functions': {
-                title: "Quadratische Funktionen Verstehen",
-                description: "Lerne Parabeln, Scheitelpunkte und Nullstellen zu bestimmen",
+                title: "Understanding Quadratic Functions",
+                description: "Learn to find parabolas, vertices and zeros",
                 steps: [
                     {
                         type: 'introduction',
-                        title: "Willkommen zu den Parabeln!",
+                        title: "Welcome to Parabolas!",
                         dialogue: [
-                            "👨‍🏫 Heute entdecken wir die wunderschöne Welt der Parabeln!",
-                            "Quadratische Funktionen zeichnen Parabeln - diese eleganten Kurven.",
-                            "Wir lernen Scheitelpunkte, Nullstellen und die Scheitelpunktform kennen.",
-                            "Parabeln sind überall: Brücken, Fontänen, Wurfbahnen! 🌉"
+                            "👨‍🏫 Today we discover the beautiful world of parabolas!",
+                            "Quadratic functions draw parabolas - those elegant curves.",
+                            "We'll learn about vertices, zeros and the vertex form.",
+                            "Parabolas are everywhere: bridges, fountains, the path of a thrown ball! 🌉"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'theory',
-                        title: "Aufbau quadratischer Funktionen",
+                        title: "Structure of quadratic functions",
                         dialogue: [
-                            "👨‍🏫 Eine quadratische Funktion hat die Form f(x) = ax² + bx + c",
-                            "📍 Scheitelpunkt: Der höchste oder tiefste Punkt der Parabel",
-                            "🎯 Nullstellen: Wo die Parabel die x-Achse schneidet",
-                            "📐 Scheitelpunktform: f(x) = a(x - h)² + k",
-                            "Der Parameter 'a' bestimmt Öffnung: a > 0 nach oben, a < 0 nach unten",
-                            "Lass uns diese Eigenschaften erkunden! 🔍"
+                            "👨‍🏫 A quadratic function has the form f(x) = ax² + bx + c",
+                            "📍 Vertex: the highest or lowest point of the parabola",
+                            "🎯 Zeros: where the parabola crosses the x-axis",
+                            "📐 Vertex form: f(x) = a(x - h)² + k",
+                            "The parameter 'a' sets the opening: a > 0 opens up, a < 0 opens down",
+                            "Let's explore these properties! 🔍"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'example',
-                        title: "Scheitelpunkt bestimmen",
+                        title: "Finding the vertex",
                         dialogue: [],
                         example: {
                             problem: "f(x) = x² - 4x + 3",
-                            solution: "S(2, -1)",
+                            solution: "V(2, -1)",
                             steps: [
-                                "Scheitelpunkt-Formel: x_s = -b/(2a)",
-                                "Hier: a = 1, b = -4, also x_s = 4/2 = 2",
-                                "y-Koordinate: f(2) = 4 - 8 + 3 = -1",
-                                "Scheitelpunkt: S(2, -1)"
+                                "Vertex formula: x_v = -b/(2a)",
+                                "Here: a = 1, b = -4, so x_v = 4/2 = 2",
+                                "y-coordinate: f(2) = 4 - 8 + 3 = -1",
+                                "Vertex: V(2, -1)"
                             ]
                         },
                         action: 'practice'
@@ -147,45 +147,45 @@ class TutorialSystem {
                 ]
             },
             'function-transformations': {
-                title: "Funktions-Transformationen Meistern",
-                description: "Lerne Verschiebungen, Streckungen und Spiegelungen von Funktionen",
+                title: "Mastering Function Transformations",
+                description: "Learn shifts, stretches and reflections of functions",
                 steps: [
                     {
                         type: 'introduction',
-                        title: "Willkommen zu den Transformationen!",
+                        title: "Welcome to Transformations!",
                         dialogue: [
-                            "👨‍🏫 Heute verwandeln wir Funktionen wie Zauberer!",
-                            "Transformationen verschieben, strecken und spiegeln Funktionen.",
-                            "Mit wenigen Regeln kannst du jede Funktion nach Belieben verändern.",
-                            "Das ist wie Funktions-Origami - elegant und mächtig! ✨"
+                            "👨‍🏫 Today we transform functions like wizards!",
+                            "Transformations shift, stretch and reflect functions.",
+                            "With just a few rules you can change any function however you like.",
+                            "It's like function origami - elegant and powerful! ✨"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'theory',
-                        title: "Die vier Grundtransformationen",
+                        title: "The four basic transformations",
                         dialogue: [
-                            "👨‍🏫 Es gibt vier Hauptarten von Transformationen:",
-                            "↕️ Vertikale Verschiebung: f(x) + d",
-                            "↔️ Horizontale Verschiebung: f(x + c)",
-                            "📏 Vertikale Streckung: a·f(x)",
-                            "🪞 Spiegelungen: -f(x) oder f(-x)",
-                            "Jede Transformation hat ihre eigene Wirkung auf den Graphen! 🎨"
+                            "👨‍🏫 There are four main kinds of transformations:",
+                            "↕️ Vertical shift: f(x) + d",
+                            "↔️ Horizontal shift: f(x + c)",
+                            "📏 Vertical stretch: a·f(x)",
+                            "🪞 Reflections: -f(x) or f(-x)",
+                            "Each transformation has its own effect on the graph! 🎨"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'example',
-                        title: "Verschiebung verstehen",
+                        title: "Understanding shifts",
                         dialogue: [],
                         example: {
                             problem: "f(x) = x² → g(x) = (x - 2)² + 3",
-                            solution: "2 nach rechts, 3 nach oben",
+                            solution: "2 to the right, 3 up",
                             steps: [
-                                "Ausgangsfunktion: f(x) = x²",
-                                "Horizontale Verschiebung: (x - 2) bedeutet 2 nach rechts",
-                                "Vertikale Verschiebung: +3 bedeutet 3 nach oben",
-                                "Ergebnis: 2 Einheiten rechts, 3 Einheiten hoch"
+                                "Starting function: f(x) = x²",
+                                "Horizontal shift: (x - 2) means 2 to the right",
+                                "Vertical shift: +3 means 3 up",
+                                "Result: 2 units right, 3 units up"
                             ]
                         },
                         action: 'practice'
@@ -193,209 +193,209 @@ class TutorialSystem {
                 ]
             },
             'binomial-formulas': {
-                title: "Binomische Formeln Meistern",
-                description: "Lerne die drei wichtigsten binomischen Formeln mit praktischen Beispielen",
+                title: "Mastering Binomial Formulas",
+                description: "Learn the three most important binomial formulas with practical examples",
                 steps: [
                     {
                         type: 'introduction',
-                        title: "Willkommen zur Binomischen Formel Akademie!",
+                        title: "Welcome to the Binomial Formula Academy!",
                         dialogue: [
-                            "👨‍🏫 Hallo! Ich bin Professor Algebra, dein persönlicher Mathe-Tutor.",
-                            "Heute lernen wir gemeinsam die binomischen Formeln - keine Sorge, wir gehen Schritt für Schritt vor!",
-                            "Die binomischen Formeln sind wie magische Werkzeuge, die dir das Rechnen erleichtern.",
-                            "Bist du bereit? Dann lass uns anfangen! 🚀"
+                            "👨‍🏫 Hello! I'm Professor Algebra, your personal math tutor.",
+                            "Today we'll learn the binomial formulas together - don't worry, we'll go step by step!",
+                            "The binomial formulas are like magic tools that make calculating easier.",
+                            "Are you ready? Then let's get started! 🚀"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'theory',
-                        title: "Was sind binomische Formeln?",
+                        title: "What are binomial formulas?",
                         dialogue: [
-                            "👨‍🏫 Binomische Formeln sind spezielle Rechenregeln für Terme mit zwei Gliedern.",
-                            "Ein 'Binom' bedeutet 'zwei Namen' - also zwei Teile wie (a + b).",
-                            "Es gibt drei Hauptformeln, die du kennen solltest:",
-                            "1️⃣ Erste: (a + b)² = a² + 2ab + b²",
-                            "2️⃣ Zweite: (a - b)² = a² - 2ab + b²", 
-                            "3️⃣ Dritte: (a + b)(a - b) = a² - b²",
-                            "Lass uns mit der ersten beginnen! 📚"
+                            "👨‍🏫 Binomial formulas are special rules for expressions with two terms.",
+                            "A 'binomial' means 'two names' - so two parts like (a + b).",
+                            "There are three main formulas you should know:",
+                            "1️⃣ 1st: (a + b)² = a² + 2ab + b²",
+                            "2️⃣ 2nd: (a - b)² = a² - 2ab + b²",
+                            "3️⃣ 3rd: (a + b)(a - b) = a² - b²",
+                            "Let's start with the first one! 📚"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'example',
-                        title: "Erste binomische Formel: (a + b)²",
+                        title: "1st binomial formula: (a + b)²",
                         dialogue: [],
                         example: {
                             problem: "(a + b)²",
                             solution: "a² + 2ab + b²",
                             steps: [
-                                "Erkenne die Struktur: (a + b)²",
-                                "Wende Formel an: a² + 2ab + b²",
-                                "Erstes Glied: a²",
-                                "Mittleres Glied: 2ab",
-                                "Letztes Glied: b²"
+                                "Recognize the structure: (a + b)²",
+                                "Apply the formula: a² + 2ab + b²",
+                                "First term: a²",
+                                "Middle term: 2ab",
+                                "Last term: b²"
                             ]
                         },
                         action: 'practice'
                     },
                     {
                         type: 'practice',
-                        title: "Jetzt bist du dran!",
+                        title: "Now it's your turn!",
                         dialogue: [],
                         initialMessage: [
-                            "👨‍🏫 Perfekt! Jetzt versuch du es mal.",
-                            "Löse die allgemeine Form: (a + b)²"
+                            "👨‍🏫 Perfect! Now you give it a try.",
+                            "Expand the general form: (a + b)²"
                         ],
                         problem: {
                             question: "(a + b)²",
                             correctAnswer: "a² + 2ab + b²",
                             hints: [
-                                "💡 Tipp: Verwende die erste binomische Formel",
+                                "💡 Hint: Use the 1st binomial formula",
                                 "💡 (a + b)² = a² + 2ab + b²",
-                                "💡 Das erste Glied ist a²",
-                                "💡 Das mittlere Glied ist 2ab",
-                                "💡 Das letzte Glied ist b²"
+                                "💡 The first term is a²",
+                                "💡 The middle term is 2ab",
+                                "💡 The last term is b²"
                             ],
-                            explanation: "Lösung: (a + b)² = a² + 2ab + b²"
+                            explanation: "Solution: (a + b)² = a² + 2ab + b²"
                         },
                         action: 'solve'
                     },
                     {
                         type: 'example',
-                        title: "Zweite binomische Formel: (a - b)²",
+                        title: "2nd binomial formula: (a - b)²",
                         dialogue: [],
                         example: {
                             problem: "(a - b)²",
                             solution: "a² - 2ab + b²",
                             steps: [
-                                "Erkenne die Struktur: (a - b)²",
-                                "Wende Formel an: a² - 2ab + b²",
-                                "Erstes Glied: a²",
-                                "Mittleres Glied: -2ab (negativ!)",
-                                "Letztes Glied: b²"
+                                "Recognize the structure: (a - b)²",
+                                "Apply the formula: a² - 2ab + b²",
+                                "First term: a²",
+                                "Middle term: -2ab (negative!)",
+                                "Last term: b²"
                             ]
                         },
                         action: 'practice'
                     },
                     {
                         type: 'practice',
-                        title: "Übung zur zweiten Formel",
+                        title: "Practice for the 2nd formula",
                         dialogue: [],
                         initialMessage: [
-                            "👨‍🏫 Zeit für eine weitere Übung!",
-                            "Löse die allgemeine Form: (a - b)²"
+                            "👨‍🏫 Time for another exercise!",
+                            "Expand the general form: (a - b)²"
                         ],
                         problem: {
                             question: "(a - b)²",
                             correctAnswer: "a² - 2ab + b²",
                             hints: [
-                                "💡 Tipp: Verwende die zweite binomische Formel",
+                                "💡 Hint: Use the 2nd binomial formula",
                                 "💡 (a - b)² = a² - 2ab + b²",
-                                "💡 Das erste Glied ist a²",
-                                "💡 Das mittlere Glied ist -2ab (negativ!)",
-                                "💡 Das letzte Glied ist b²"
+                                "💡 The first term is a²",
+                                "💡 The middle term is -2ab (negative!)",
+                                "💡 The last term is b²"
                             ],
-                            explanation: "Lösung: (a - b)² = a² - 2ab + b²"
+                            explanation: "Solution: (a - b)² = a² - 2ab + b²"
                         },
                         action: 'solve'
                     },
                     {
                         type: 'example',
-                        title: "Dritte binomische Formel: (a + b)(a - b)",
+                        title: "3rd binomial formula: (a + b)(a - b)",
                         dialogue: [],
                         example: {
                             problem: "(a + b)(a - b)",
                             solution: "a² - b²",
                             steps: [
-                                "Erkenne die Struktur: (a + b)(a - b)",
-                                "Wende Formel an: a² - b²",
-                                "Erstes Glied: a²",
-                                "Zweites Glied: -b²",
-                                "Das mittlere Glied fällt weg!"
+                                "Recognize the structure: (a + b)(a - b)",
+                                "Apply the formula: a² - b²",
+                                "First term: a²",
+                                "Second term: -b²",
+                                "The middle term cancels out!"
                             ]
                         },
                         action: 'practice'
                     },
                     {
                         type: 'practice',
-                        title: "Letzte Übung!",
+                        title: "Final exercise!",
                         dialogue: [],
                         initialMessage: [
-                            "👨‍🏫 Zum Abschluss eine Aufgabe zur dritten Formel:",
-                            "Löse die allgemeine Form: (a + b)(a - b)"
+                            "👨‍🏫 To finish, a problem on the 3rd formula:",
+                            "Expand the general form: (a + b)(a - b)"
                         ],
                         problem: {
                             question: "(a + b)(a - b)",
                             correctAnswer: "a² - b²",
                             hints: [
-                                "💡 Tipp: Verwende die dritte binomische Formel",
+                                "💡 Hint: Use the 3rd binomial formula",
                                 "💡 (a + b)(a - b) = a² - b²",
-                                "💡 Das erste Glied ist a²",
-                                "💡 Das zweite Glied ist -b²",
-                                "💡 Das mittlere Glied fällt weg!"
+                                "💡 The first term is a²",
+                                "💡 The second term is -b²",
+                                "💡 The middle term cancels out!"
                             ],
-                            explanation: "Lösung: (a + b)(a - b) = a² - b²"
+                            explanation: "Solution: (a + b)(a - b) = a² - b²"
                         },
                         action: 'solve'
                     },
                     {
                         type: 'conclusion',
-                        title: "Herzlichen Glückwunsch! 🎉",
+                        title: "Congratulations! 🎉",
                         dialogue: [
-                            "👨‍🏫 Fantastisch! Du hast alle binomischen Formeln gemeistert!",
-                            "Lass uns kurz zusammenfassen:",
+                            "👨‍🏫 Fantastic! You've mastered all the binomial formulas!",
+                            "Let's quickly sum up:",
                             "1️⃣ (a + b)² = a² + 2ab + b²",
                             "2️⃣ (a - b)² = a² - 2ab + b²",
                             "3️⃣ (a + b)(a - b) = a² - b²",
-                            "Diese Formeln werden dir in der Mathematik sehr helfen!",
-                            "Jetzt bist du bereit für echte Kämpfe! ⚔️",
-                            "Möchtest du das Gelernte im Kampfmodus anwenden?"
+                            "These formulas will help you a lot in math!",
+                            "Now you're ready for real battles! ⚔️",
+                            "Want to put what you've learned to use in combat mode?"
                         ],
                         action: 'complete'
                     }
                 ]
             },
             'square-roots': {
-                title: "Wurzelrechnung Meistern",
-                description: "Lerne Wurzeln zu vereinfachen, zu kombinieren und Wurzelgleichungen zu lösen",
+                title: "Mastering Square Roots",
+                description: "Learn to simplify and combine square roots and solve square root equations",
                 steps: [
                     {
                         type: 'introduction',
-                        title: "Willkommen zur Wurzel-Akademie!",
+                        title: "Welcome to the Square Root Academy!",
                         dialogue: [
-                            "🌳 Grüße, junger Mathematiker! Ich bin Professor Radicus.",
-                            "Heute tauchen wir tief in die Wurzeln der Mathematik ein!",
-                            "Wurzeln sind wie die Fundamente eines Baumes - sie geben Stabilität.",
-                            "Lass uns gemeinsam diese natürlichen mathematischen Strukturen erforschen! 🌱"
+                            "🌳 Greetings, young mathematician! I'm Professor Radicus.",
+                            "Today we dig deep into the roots of mathematics!",
+                            "Roots are like the foundation of a tree - they give stability.",
+                            "Let's explore these natural mathematical structures together! 🌱"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'theory',
-                        title: "Was sind Wurzeln?",
+                        title: "What are square roots?",
                         dialogue: [
-                            "🌳 Eine Wurzel ist die Umkehrung des Potenzierens.",
-                            "√16 = 4, weil 4² = 16",
-                            "📏 Wurzelgesetze: √(a·b) = √a · √b",
+                            "🌳 A square root is the inverse of squaring.",
+                            "√16 = 4, because 4² = 16",
+                            "📏 Square root rules: √(a·b) = √a · √b",
                             "📏 √(a/b) = √a / √b",
-                            "🔧 Vereinfachung: √18 = √(9·2) = 3√2",
-                            "Diese Gesetze helfen uns, komplexe Wurzeln zu vereinfachen! 🍃"
+                            "🔧 Simplifying: √18 = √(9·2) = 3√2",
+                            "These rules help us simplify complex square roots! 🍃"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'example',
-                        title: "Wurzeln vereinfachen",
+                        title: "Simplifying square roots",
                         dialogue: [],
                         example: {
                             problem: "√72",
                             solution: "6√2",
                             steps: [
-                                "Zerlege 72 in Primfaktoren: 72 = 36 · 2",
-                                "Erkenne perfekte Quadrate: 36 = 6²",
-                                "Wende Wurzelgesetz an: √72 = √(36·2) = √36 · √2",
-                                "Vereinfache: √36 = 6",
-                                "Ergebnis: 6√2"
+                                "Split 72 into factors: 72 = 36 · 2",
+                                "Spot the perfect square: 36 = 6²",
+                                "Apply the square root rule: √72 = √(36·2) = √36 · √2",
+                                "Simplify: √36 = 6",
+                                "Result: 6√2"
                             ]
                         },
                         action: 'practice'
@@ -403,47 +403,47 @@ class TutorialSystem {
                 ]
             },
             'power-laws': {
-                title: "Potenzgesetze Erobern",
-                description: "Lerne die Potenzgesetze und werde zum Exponential-Piraten",
+                title: "Conquering the Exponent Rules",
+                description: "Learn the exponent rules and become an exponent pirate",
                 steps: [
                     {
                         type: 'introduction',
-                        title: "Ahoy, Matrose!",
+                        title: "Ahoy, sailor!",
                         dialogue: [
-                            "🏴‍☠️ Ahoy! Kapitän Potentius hier, bereit für ein mathematisches Abenteuer!",
-                            "Heute segeln wir durch die stürmischen Gewässer der Potenzgesetze!",
-                            "Diese mächtigen Gesetze sind wie Schätze - einmal gefunden, machen sie dich reich!",
-                            "Bereit, die Geheimnisse der Exponenten zu plündern? ⚓"
+                            "🏴‍☠️ Ahoy! Captain Potentius here, ready for a mathematical adventure!",
+                            "Today we sail through the stormy waters of the exponent rules!",
+                            "These mighty rules are like treasure - once you find them, they make you rich!",
+                            "Ready to plunder the secrets of exponents? ⚓"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'theory',
-                        title: "Die Potenzgesetze-Schatzkarte",
+                        title: "The Exponent Rules Treasure Map",
                         dialogue: [
-                            "🏴‍☠️ Hier sind die wertvollsten Schätze der Potenzgesetze:",
-                            "⚔️ Produktregel: a^m · a^n = a^(m+n)",
-                            "🗡️ Quotientenregel: a^m / a^n = a^(m-n)",
-                            "🛡️ Potenzregel: (a^m)^n = a^(m·n)",
-                            "💎 Negative Exponenten: a^(-n) = 1/a^n",
-                            "🏆 Nullexponent: a^0 = 1",
-                            "Mit diesen Waffen bist du unbesiegbar! ⚡"
+                            "🏴‍☠️ Here are the most valuable treasures of the exponent rules:",
+                            "⚔️ Product rule: a^m · a^n = a^(m+n)",
+                            "🗡️ Quotient rule: a^m / a^n = a^(m-n)",
+                            "🛡️ Power rule: (a^m)^n = a^(m·n)",
+                            "💎 Negative exponents: a^(-n) = 1/a^n",
+                            "🏆 Zero exponent: a^0 = 1",
+                            "With these weapons you're unbeatable! ⚡"
                         ],
                         action: 'continue'
                     },
                     {
                         type: 'example',
-                        title: "Potenzgesetze in Aktion",
+                        title: "Exponent rules in action",
                         dialogue: [],
                         example: {
                             problem: "2³ · 2⁵",
                             solution: "2⁸ = 256",
                             steps: [
-                                "Erkenne gleiche Basen: 2³ · 2⁵",
-                                "Wende Produktregel an: a^m · a^n = a^(m+n)",
-                                "Addiere Exponenten: 3 + 5 = 8",
-                                "Ergebnis: 2⁸",
-                                "Berechne: 2⁸ = 256"
+                                "Spot the equal bases: 2³ · 2⁵",
+                                "Apply the product rule: a^m · a^n = a^(m+n)",
+                                "Add the exponents: 3 + 5 = 8",
+                                "Result: 2⁸",
+                                "Calculate: 2⁸ = 256"
                             ]
                         },
                         action: 'practice'
@@ -618,11 +618,11 @@ class TutorialSystem {
                             <h2 class="tutor-name">${this.currentTutor.name}</h2>
                             <p class="tutor-specialty">${this.currentTutor.specialty}</p>
                             <div class="lesson-progress">
-                                <span id="tutorialProgress">Schritt 1 von 9</span>
+                                <span id="tutorialProgress">Step 1 of 9</span>
                             </div>
                         </div>
                         <div class="tutorial-header-controls">
-                            <button class="theme-toggle-btn" onclick="tutorialSystem.toggleTheme()" title="Theme wechseln">
+                            <button class="theme-toggle-btn" onclick="tutorialSystem.toggleTheme()" title="Toggle theme">
                                 <span class="theme-icon">${this.isDarkMode ? '☀️' : '🌙'}</span>
                             </button>
                             <button class="tutorial-close" onclick="tutorialSystem.exitTutorial()">✕</button>
@@ -630,7 +630,7 @@ class TutorialSystem {
                     </div>
                     
                     <div class="tutorial-content">
-                        <h3 id="tutorialStepTitle">Willkommen!</h3>
+                        <h3 id="tutorialStepTitle">Welcome!</h3>
                         <div id="tutorialDialogue" class="tutorial-dialogue"></div>
                         <div id="tutorialExample" class="tutorial-example" style="display: none;"></div>
                         <div id="tutorialProblem" class="tutorial-problem" style="display: none;"></div>
@@ -638,13 +638,13 @@ class TutorialSystem {
                     
                     <div class="tutorial-controls">
                         <button id="tutorialPrevBtn" class="tutorial-btn secondary" onclick="tutorialSystem.previousStep()" style="display: none;">
-                            ← Zurück
+                            ← Back
                         </button>
                         <button id="tutorialNextBtn" class="tutorial-btn primary" onclick="tutorialSystem.nextStep()">
-                            Weiter →
+                            Continue →
                         </button>
                         <button id="tutorialHintBtn" class="tutorial-btn hint" onclick="tutorialSystem.showHint()" style="display: none;">
-                            💡 Tipp
+                            💡 Hint
                         </button>
                     </div>
                 </div>
@@ -694,7 +694,7 @@ class TutorialSystem {
         
         // Update progress
         document.getElementById('tutorialProgress').textContent = 
-            `Schritt ${this.currentStep + 1} von ${lesson.steps.length}`;
+            `Step ${this.currentStep + 1} of ${lesson.steps.length}`;
         
         // Update title
         document.getElementById('tutorialStepTitle').textContent = step.title;
@@ -783,11 +783,11 @@ class TutorialSystem {
         exampleContainer.style.display = 'block';
         
         exampleContainer.innerHTML = `
-            <div class="example-header">📝 Beispiel:</div>
+            <div class="example-header">📝 Example:</div>
             <div class="example-problem">${example.problem}</div>
             <div class="example-solution">= ${example.solution}</div>
             <div class="example-steps">
-                <div class="steps-header">Lösungsweg:</div>
+                <div class="steps-header">Solution steps:</div>
                 ${example.steps.map((step, i) => `
                     <div class="step-item">${i + 1}. ${step}</div>
                 `).join('')}
@@ -800,10 +800,10 @@ class TutorialSystem {
         problemContainer.style.display = 'block';
         
         problemContainer.innerHTML = `
-            <div class="problem-header">🎯 Deine Aufgabe:</div>
+            <div class="problem-header">🎯 Your task:</div>
             <div class="problem-question">${problem.question} = ?</div>
-            <input type="text" id="tutorialAnswer" class="problem-input" placeholder="Deine Antwort...">
-            <button class="problem-check-btn" onclick="tutorialSystem.checkAnswer()">Antwort prüfen</button>
+            <input type="text" id="tutorialAnswer" class="problem-input" placeholder="Your answer...">
+            <button class="problem-check-btn" onclick="tutorialSystem.checkAnswer()">Check answer</button>
             <div id="problemFeedback" class="problem-feedback"></div>
         `;
         
@@ -830,7 +830,7 @@ class TutorialSystem {
             
             feedback.innerHTML = `
                 <div class="feedback-correct">
-                    ✅ Richtig! Sehr gut gemacht!
+                    ✅ Correct! Well done!
                     <div class="explanation">${step.problem.explanation}</div>
                 </div>
             `;
@@ -838,7 +838,7 @@ class TutorialSystem {
             // Enable next button and mark step as solved
             const nextBtn = document.getElementById('tutorialNextBtn');
             nextBtn.disabled = false;
-            nextBtn.textContent = 'Weiter →';
+            nextBtn.textContent = 'Continue →';
             
             // Disable answer input to prevent further changes
             document.getElementById('tutorialAnswer').disabled = true;
@@ -850,8 +850,8 @@ class TutorialSystem {
         } else {
             feedback.innerHTML = `
                 <div class="feedback-incorrect">
-                    ❌ Nicht ganz richtig. Versuch es nochmal!
-                    <div class="hint-suggestion">💡 Nutze den Tipp-Button für Hilfe</div>
+                    ❌ Not quite right. Try again!
+                    <div class="hint-suggestion">💡 Use the Hint button for help</div>
                 </div>
             `;
             
@@ -900,12 +900,12 @@ class TutorialSystem {
         // Next button
         if (step.action === 'solve') {
             nextBtn.disabled = true;
-            nextBtn.textContent = 'Löse die Aufgabe';
+            nextBtn.textContent = 'Solve the problem';
         } else if (step.action === 'complete') {
-            nextBtn.textContent = 'Tutorial beenden';
+            nextBtn.textContent = 'Finish tutorial';
         } else {
             nextBtn.disabled = false;
-            nextBtn.textContent = 'Weiter →';
+            nextBtn.textContent = 'Continue →';
         }
     }
     
@@ -971,7 +971,7 @@ class TutorialSystem {
     
     completeTutorial() {
         // Show completion message
-        alert('🎉 Tutorial abgeschlossen! Du bist jetzt bereit für echte Kämpfe!');
+        alert('🎉 Tutorial complete! You are now ready for real battles!');
         
         // Exit tutorial
         this.exitTutorial();
@@ -1039,7 +1039,7 @@ class TutorialSystem {
         flashOverlay.innerHTML = `
             <div class="success-flash-content">
                 <div class="success-icon">✅</div>
-                <div class="success-text">RICHTIG!</div>
+                <div class="success-text">CORRECT!</div>
             </div>
         `;
         

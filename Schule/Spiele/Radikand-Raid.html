@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Radikand-Raid - Dungeon der Wurzeln</title>
+    <title>Radicand Raid - Dungeon of Roots</title>
     <style>
         * {
             margin: 0;
@@ -184,38 +184,38 @@
     </style>
 </head>
 <body>
-    <div class="game-title">🏰 RADIKAND-RAID - Dungeon der Wurzeln 🏰</div>
+    <div class="game-title">🏰 RADICAND RAID - Dungeon of Roots 🏰</div>
     
     <div class="game-container">
         <div class="ui-panel">
-            <div class="panel-title">📊 Parameter</div>
+            <div class="panel-title">📊 Parameters</div>
             <div class="function-display" id="formel">f(x) = 1·√(1x + 0) + 0</div>
             
             <div class="parameter">
-                <label>a (Höhen-Streckung):</label>
+                <label>a (vertical stretch):</label>
                 <span class="parameter-value" id="param-a">1</span>
             </div>
             <div class="parameter">
-                <label>b (Horizontal-Streckung):</label>
+                <label>b (horizontal stretch):</label>
                 <span class="parameter-value" id="param-b">1</span>
             </div>
             <div class="parameter">
-                <label>c (Horizontal-Verschiebung):</label>
+                <label>c (horizontal shift):</label>
                 <span class="parameter-value" id="param-c">0</span>
             </div>
             <div class="parameter">
-                <label>d (Vertikal-Verschiebung):</label>
+                <label>d (vertical shift):</label>
                 <span class="parameter-value" id="param-d">0</span>
             </div>
             
             <div class="stats">
                 <div class="stat">
                     <span class="stat-value" id="leben">100</span>
-                    <span class="stat-label">❤️ Leben</span>
+                    <span class="stat-label">❤️ Health</span>
                 </div>
                 <div class="stat">
                     <span class="stat-value" id="schluessel">0</span>
-                    <span class="stat-label">🔑 Schlüssel</span>
+                    <span class="stat-label">🔑 Keys</span>
                 </div>
             </div>
             
@@ -227,25 +227,25 @@
         </div>
 
         <div class="ui-panel">
-            <div class="panel-title">🎒 Inventar</div>
+            <div class="panel-title">🎒 Inventory</div>
             <div class="inventory" id="inventar">
                 <div style="color: #666; text-align: center; padding: 20px;">
-                    Noch keine Parameterkarten gefunden...
+                    No parameter cards found yet...
                 </div>
             </div>
             
-            <div class="panel-title" style="margin-top: 20px;">🎯 Aktuelle Aufgabe</div>
+            <div class="panel-title" style="margin-top: 20px;">🎯 Current Quest</div>
             <div id="aufgabe" style="color: #ccc; font-size: 14px; line-height: 1.4;">
-                Erkunde das 3×3 Dungeon und sammle Parameterkarten!<br><br>
-                🏠 9 Räume verbunden durch Korridore<br>
-                🚪 Türen öffnen nur wenn bx + c ≥ 0<br>
-                📍 Startpunkt: x = -c/b
+                Explore the 3×3 dungeon and collect parameter cards!<br><br>
+                🏠 9 rooms connected by corridors<br>
+                🚪 Doors only open if bx + c ≥ 0<br>
+                📍 Starting point: x = -c/b
             </div>
         </div>
     </div>
 
     <div class="controls">
-        <strong>Steuerung:</strong> ⬅️ A | ➡️ D | ⬆️ W | ⬇️ S | 🔄 Leertaste (Karte verwenden)
+        <strong>Controls:</strong> ⬅️ A | ➡️ D | ⬆️ W | ⬇️ S | 🔄 Space (use card)
     </div>
 
     <script>
@@ -292,10 +292,10 @@
 
             getBeschreibung() {
                 const namen = {
-                    'a': 'Höhen-Streckung',
-                    'b': 'Horizontal-Streckung',
-                    'c': 'Horizontal-Verschiebung',
-                    'd': 'Vertikal-Verschiebung'
+                    'a': 'vertical stretch',
+                    'b': 'horizontal stretch',
+                    'c': 'horizontal shift',
+                    'd': 'vertical shift'
                 };
                 return `${this.typ} = ${this.wert} (${namen[this.typ]})`;
             }
@@ -396,7 +396,7 @@
                 ctx.fillStyle = '#00ff88';
                 ctx.font = '12px Courier';
                 ctx.textAlign = 'center';
-                ctx.fillText('OFFEN', 0, 4);
+                ctx.fillText('OPEN', 0, 4);
             }
         }
 
@@ -592,7 +592,7 @@
                 
                 // Prüfe Definitionsbereich
                 if (!this.spielerFunktion.istGueltig(neueX)) {
-                    this.showMessage('⚠️ Ungültiger Bereich! bx + c < 0', 'warning');
+                    this.showMessage('⚠️ Outside the domain! bx + c < 0', 'warning');
                     this.leben = Math.max(0, this.leben - 5);
                     this.updateUI();
                     return;
@@ -600,13 +600,13 @@
                 
                 // Prüfe Grenzen
                 if (neueX < -15 || neueX > 15 || neueY < -5 || neueY > 15) {
-                    this.showMessage('🚧 Dungeongrenze erreicht!', 'warning');
+                    this.showMessage('🚧 Edge of the dungeon reached!', 'warning');
                     return;
                 }
                 
                 // Prüfe Kollision mit Wänden
                 if (!this.istInErlaubtemBereich(neueX, neueY)) {
-                    this.showMessage('🧱 Wand blockiert den Weg!', 'warning');
+                    this.showMessage('🧱 A wall blocks the way!', 'warning');
                     return;
                 }
                 
@@ -655,10 +655,10 @@
                         if (item.typ === 'karte' && this.kartenVorrat.length > 0) {
                             const karte = this.kartenVorrat.shift();
                             this.inventar.push(karte);
-                            this.showMessage(`📊 Parameterkarte gefunden: ${karte.getBeschreibung()}`, 'success');
+                            this.showMessage(`📊 Parameter card found: ${karte.getBeschreibung()}`, 'success');
                         } else if (item.typ === 'schluessel') {
                             this.schluessel++;
-                            this.showMessage('🔑 Definitions-Schlüssel gefunden!', 'success');
+                            this.showMessage('🔑 Domain key found!', 'success');
                         }
                         
                         this.updateInventoryUI();
@@ -673,11 +673,11 @@
                         
                         if (tuer.pruefeOeffnung(this.spielerFunktion)) {
                             if (!tuer.wasOpen) {
-                                this.showMessage('🚪 Tür geöffnet! Definitionsbereich gültig.', 'success');
+                                this.showMessage('🚪 Door opened! Inside the domain.', 'success');
                                 tuer.wasOpen = true;
                             }
                         } else {
-                            this.showMessage('🔒 Tür verschlossen! bx + c < 0', 'warning');
+                            this.showMessage('🔒 Door locked! bx + c < 0', 'warning');
                         }
                     }
                 });
@@ -686,7 +686,7 @@
             useSelectedCard() {
                 if (this.selectedCard && !this.selectedCard.aktiviert) {
                     this.selectedCard.anwenden(this.spielerFunktion);
-                    this.showMessage(`🎯 Parameter ${this.selectedCard.typ} = ${this.selectedCard.wert} aktiviert!`, 'success');
+                    this.showMessage(`🎯 Parameter ${this.selectedCard.typ} = ${this.selectedCard.wert} activated!`, 'success');
                     this.updateUI();
                     this.updateInventoryUI();
                 }
@@ -719,14 +719,14 @@
                 const startpunkt = this.spielerFunktion.getStartpunkt();
                 const aktuellerRaum = this.getAktuellerRaum();
                 document.getElementById('aufgabe').innerHTML = 
-                    `🎯 Erkunde das 3×3 Dungeon!<br><br>📍 Startpunkt: x = ${startpunkt.toFixed(2)}<br>🔍 Gültig für: x ≥ ${startpunkt.toFixed(2)}<br>🏠 Aktueller Raum: ${aktuellerRaum}<br>📍 Position: (${this.spielerX}, ${this.spielerY})`;
+                    `🎯 Explore the 3×3 dungeon!<br><br>📍 Starting point: x = ${startpunkt.toFixed(2)}<br>🔍 Valid for: x ≥ ${startpunkt.toFixed(2)}<br>🏠 Current room: ${this.raumName(aktuellerRaum)}<br>📍 Position: (${this.spielerX}, ${this.spielerY})`;
             }
 
             updateInventoryUI() {
                 const inventarElement = document.getElementById('inventar');
                 
                 if (this.inventar.length === 0) {
-                    inventarElement.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">Noch keine Parameterkarten gefunden...</div>';
+                    inventarElement.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No parameter cards found yet...</div>';
                     return;
                 }
                 
@@ -734,7 +734,7 @@
                     `<div class="card ${karte.aktiviert ? 'activated' : ''} ${this.selectedCard === karte ? 'selected' : ''}" 
                           onclick="game.selectCard('${karte.id}')">
                         ${karte.getBeschreibung()}
-                        ${karte.aktiviert ? ' ✅' : ' (Klick für Auswahl)'}
+                        ${karte.aktiviert ? ' ✅' : ' (click to select)'}
                     </div>`
                 ).join('');
             }
@@ -742,6 +742,17 @@
             selectCard(kartenId) {
                 this.selectedCard = this.inventar.find(k => k.id === kartenId);
                 this.updateInventoryUI();
+            }
+
+            raumName(id) {
+                // Anzeige-Namen fuer Raum-IDs (IDs bleiben unveraendert)
+                const namen = {
+                    'SW': 'SW', 'S': 'S', 'SO': 'SE',
+                    'W': 'W', 'Zentrum': 'Center', 'O': 'E',
+                    'NW': 'NW', 'N': 'N', 'NO': 'NE',
+                    'Korridor': 'Corridor', 'Unbekannt': 'Unknown'
+                };
+                return namen[id] || id;
             }
 
             getAktuellerRaum() {
@@ -823,7 +834,7 @@
                 this.ctx.fillStyle = '#ccc';
                 this.ctx.font = '10px Courier';
                 this.ctx.textAlign = 'center';
-                this.ctx.fillText(raum.id, screenX + screenBreite/2, screenY + 12);
+                this.ctx.fillText(this.raumName(raum.id), screenX + screenBreite/2, screenY + 12);
             }
 
             zeichneSteinWaende(x, y, breite, hoehe) {
@@ -1025,7 +1036,7 @@
                 this.ctx.fillStyle = '#fff';
                 this.ctx.font = '14px Courier';
                 this.ctx.fillText(`Position: (${this.spielerX}, ${this.spielerY})`, 10, 30);
-                this.ctx.fillText(`Gültig: ${this.spielerFunktion.istGueltig(this.spielerX) ? 'JA' : 'NEIN'}`, 10, 50);
+                this.ctx.fillText(`Valid: ${this.spielerFunktion.istGueltig(this.spielerX) ? 'YES' : 'NO'}`, 10, 50);
                 
                 requestAnimationFrame(() => this.gameLoop());
             }

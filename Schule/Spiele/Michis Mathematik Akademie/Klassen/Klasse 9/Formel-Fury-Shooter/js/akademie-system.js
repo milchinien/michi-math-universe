@@ -9,38 +9,38 @@ class AkademieSystem {
         this.currentMode = null; // 'training' or 'quiz'
         this.availableTopics = {
             'binomial-formulas': {
-                name: '🏛️ Binomische Formeln-Bestien',
-                description: 'Die drei legendären Formeln: (a+b)², (a-b)², (a+b)(a-b)',
+                name: '🏛️ Binomial Formula Beasts',
+                description: 'The three legendary formulas: (a+b)², (a-b)², (a+b)(a-b)',
                 enabled: true,
                 tutorId: 'binomius'
             },
             'quadratic-equations': {
-                name: '⚔️ Quadratische Gleichungs-Dämonen',
-                description: 'Mitternachtsformel & p-q-Formel Krieger',
+                name: '⚔️ Quadratic Equation Demons',
+                description: 'Quadratic formula & pq formula warriors',
                 enabled: true,
                 tutorId: 'algebrar'
             },
             'quadratic-functions': {
-                name: '🌙 Parabel-Phantome',
-                description: 'Scheitelpunkt, Nullstellen & Normalform-Monster',
+                name: '🌙 Parabola Phantoms',
+                description: 'Vertex, zeros & standard form monsters',
                 enabled: true,
                 tutorId: 'parabolus'
             },
             'function-transformations': {
-                name: '🔄 Funktions-Transformations-Titanen',
-                description: 'Verschiebung, Streckung & Spiegelung der Parabeln',
+                name: '🔄 Function Transformation Titans',
+                description: 'Shifting, stretching & reflecting parabolas',
                 enabled: true,
                 tutorId: 'transformis'
             },
             'square-roots': {
-                name: '√ Wurzel-Wächter',
-                description: 'Quadratwurzeln ziehen & Wurzelgesetze anwenden',
+                name: '√ Square Root Sentinels',
+                description: 'Take square roots & apply root rules',
                 enabled: true,
                 tutorId: 'radicus'
             },
             'power-laws': {
-                name: '💥 Potenzgesetze-Piraten',
-                description: 'Negative & rationale Exponenten meistern',
+                name: '💥 Exponent Rule Pirates',
+                description: 'Master negative & rational exponents',
                 enabled: true,
                 tutorId: 'potentius'
             }
@@ -260,7 +260,7 @@ class AkademieSystem {
         
         if (!this.selectedTopic) {
             console.error('❌ No topic selected for training');
-            alert('Fehler: Kein Thema ausgewählt! Bitte wähle zuerst ein Thema aus.');
+            alert('Error: No topic selected! Please choose a topic first.');
             return;
         }
         
@@ -299,7 +299,7 @@ class AkademieSystem {
             // Add a check for null before attempting to start the tutorial
             if (this.selectedTopic === null) {
                 console.error('Cannot start tutorial: selectedTopic is null');
-                alert('Fehler: Kein Thema ausgewählt.');
+                alert('Error: No topic selected.');
                 return;
             }
 
@@ -307,12 +307,12 @@ class AkademieSystem {
             const success = window.tutorialSystem.startTutorialForTopic(this.selectedTopic);
             if (!success) {
                 console.error('Failed to start tutorial for topic:', this.selectedTopic);
-                alert(`Fehler: Tutorial für '${this.selectedTopic}' konnte nicht gestartet werden.`);
+                alert(`Error: Tutorial for '${this.selectedTopic}' could not be started.`);
                 return;
             }
         } else {
             console.error('Tutorial system not available');
-            alert('Tutorial-System ist nicht verfügbar. Bitte lade die Seite neu.');
+            alert('Tutorial system is not available. Please reload the page.');
         }
         
         console.log(`Starting training mode for ${this.selectedTopic} with tutor ${tutorId}`);
@@ -327,7 +327,7 @@ class AkademieSystem {
         this.currentMode = 'quiz';
         
         // TODO: Implement quiz mode - currently just a placeholder
-        alert('Quiz-Modus ist noch in Entwicklung! 📝\n\nBald verfügbar:\n• Zeitbasierte Aufgaben\n• Detaillierte Auswertung\n• Fortschrittsverfolgung');
+        alert('Quiz mode is still in development! 📝\n\nComing soon:\n• Timed problems\n• Detailed results\n• Progress tracking');
         
         console.log(`Quiz mode for ${this.selectedTopic} - Coming soon!`);
     }

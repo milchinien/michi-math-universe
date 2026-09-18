@@ -13,19 +13,19 @@ class ShopSystem {
         
         // Item-Kategorien und Seltenheiten
         this.rarities = {
-            common: { name: 'Gewöhnlich', color: '#ffffff', priceMultiplier: 1.0 },
-            uncommon: { name: 'Ungewöhnlich', color: '#1eff00', priceMultiplier: 1.5 },
-            rare: { name: 'Selten', color: '#0070dd', priceMultiplier: 2.5 },
-            epic: { name: 'Episch', color: '#a335ee', priceMultiplier: 4.0 },
-            legendary: { name: 'Legendär', color: '#ff8000', priceMultiplier: 6.0 }
+            common: { name: 'Common', color: '#ffffff', priceMultiplier: 1.0 },
+            uncommon: { name: 'Uncommon', color: '#1eff00', priceMultiplier: 1.5 },
+            rare: { name: 'Rare', color: '#0070dd', priceMultiplier: 2.5 },
+            epic: { name: 'Epic', color: '#a335ee', priceMultiplier: 4.0 },
+            legendary: { name: 'Legendary', color: '#ff8000', priceMultiplier: 6.0 }
         };
         
         // Functional Items Pool
         this.itemPool = [
             {
                 id: 'trank_des_leipzigers_legendary',
-                name: 'TRANK DES LEIPZIGERS',
-                description: '+500% Münzen, +300% Speed, +500% Gegner',
+                name: "LEIPZIGER'S POTION",
+                description: '+500% Coins, +300% Speed, +500% Enemies',
                 icon: '🥤',
                 rarity: 'legendary',
                 basePrice: 100,
@@ -34,8 +34,8 @@ class ShopSystem {
             },
             {
                 id: 'geodreieck_common',
-                name: 'GEODREIECK',
-                description: '+30% Bewegungsgeschwindigkeit',
+                name: 'SET SQUARE',
+                description: '+30% Movement Speed',
                 icon: '📐',
                 rarity: 'common',
                 basePrice: 15,
@@ -45,8 +45,8 @@ class ShopSystem {
             },
             {
                 id: 'energieriegel_common',
-                name: 'ENERGIERIEGEL',
-                description: '+20% HP-Regeneration',
+                name: 'ENERGY BAR',
+                description: '+20% HP Regeneration',
                 icon: '🍫',
                 rarity: 'common',
                 basePrice: 20,
@@ -56,8 +56,8 @@ class ShopSystem {
             },
             {
                 id: 'stabiler_stift_uncommon',
-                name: 'STABILER STIFT',
-                description: 'Gegner 40% langsamer beim Lösen',
+                name: 'STEADY PEN',
+                description: 'Enemies 40% slower while solving',
                 icon: '✏️',
                 rarity: 'uncommon',
                 basePrice: 35,
@@ -67,8 +67,8 @@ class ShopSystem {
             },
             {
                 id: 'taschenrechner_uncommon',
-                name: 'TASCHENRECHNER',
-                description: '+20% Zeit für Aufgaben',
+                name: 'CALCULATOR',
+                description: '+20% time for problems',
                 icon: '🧮',
                 rarity: 'uncommon',
                 basePrice: 30,
@@ -78,8 +78,8 @@ class ShopSystem {
             },
             {
                 id: 'newtons_apfel_rare',
-                name: 'NEWTONS APFEL',
-                description: '+20% Chance: Angreifer stirbt',
+                name: "NEWTON'S APPLE",
+                description: '+20% chance: attacker dies',
                 icon: '🍎',
                 rarity: 'rare',
                 basePrice: 50,
@@ -89,8 +89,8 @@ class ShopSystem {
             },
             {
                 id: 'zaubertrank_epic',
-                name: 'ZAUBERTRANK',
-                description: '-50% Gegnergeschwindigkeit',
+                name: 'MAGIC POTION',
+                description: '-50% Enemy Speed',
                 icon: '🧪',
                 rarity: 'epic',
                 basePrice: 75,
@@ -101,8 +101,8 @@ class ShopSystem {
             // NEW MOVEMENT ITEMS
             {
                 id: 'sprint_schuhe_common',
-                name: 'SPRINT-SCHUHE',
-                description: '+20% Bewegungsgeschwindigkeit',
+                name: 'SPRINT SHOES',
+                description: '+20% Movement Speed',
                 icon: '👟',
                 rarity: 'common',
                 basePrice: 75,
@@ -112,7 +112,7 @@ class ShopSystem {
             },
             {
                 id: 'raketen_stiefel_rare',
-                name: 'RAKETEN-STIEFEL',
+                name: 'ROCKET BOOTS',
                 description: '+35% Speed + Dash-Cooldown -0.5s',
                 icon: '🚀',
                 rarity: 'rare',
@@ -123,8 +123,8 @@ class ShopSystem {
             },
             {
                 id: 'teleport_guertel_epic',
-                name: 'TELEPORT-GÜRTEL',
-                description: '+50% Speed + Teleport alle 8s',
+                name: 'TELEPORT BELT',
+                description: '+50% Speed + Teleport every 8s',
                 icon: '⚡',
                 rarity: 'epic',
                 basePrice: 350,
@@ -134,8 +134,8 @@ class ShopSystem {
             },
             {
                 id: 'zeit_manipulator_legendary',
-                name: 'ZEIT-MANIPULATOR',
-                description: '+60% Speed + Zeitlupe + Dash durch Gegner',
+                name: 'TIME MANIPULATOR',
+                description: '+60% Speed + Slow Motion + Dash through enemies',
                 icon: '⏰',
                 rarity: 'legendary',
                 basePrice: 650,
@@ -146,8 +146,8 @@ class ShopSystem {
             // NEW COMBAT ITEMS
             {
                 id: 'panzer_weste_common',
-                name: 'PANZER-WESTE',
-                description: '+25% HP + Knockback-Resistenz',
+                name: 'ARMOR VEST',
+                description: '+25% HP + Knockback Resistance',
                 icon: '🛡️',
                 rarity: 'common',
                 basePrice: 80,
@@ -157,8 +157,8 @@ class ShopSystem {
             },
             {
                 id: 'blitz_kanone_rare',
-                name: 'BLITZ-KANONE',
-                description: '+40% Projektilspeed + Betäubt Gegner 1s',
+                name: 'LIGHTNING CANNON',
+                description: '+40% Projectile Speed + Stuns enemies 1s',
                 icon: '⚡',
                 rarity: 'rare',
                 basePrice: 200,
@@ -168,8 +168,8 @@ class ShopSystem {
             },
             {
                 id: 'berserker_maske_epic',
-                name: 'BERSERKER-MASKE',
-                description: '+50% Speed bei <30% HP + Unverwundbarkeit 2s',
+                name: 'BERSERKER MASK',
+                description: '+50% Speed at <30% HP + Invulnerability 2s',
                 icon: '😤',
                 rarity: 'epic',
                 basePrice: 380,
@@ -179,8 +179,8 @@ class ShopSystem {
             },
             {
                 id: 'omega_destruktor_legendary',
-                name: 'OMEGA-DESTRUKTOR',
-                description: 'Durchschlag + Explosion + Betäubt alle 3s',
+                name: 'OMEGA DESTROYER',
+                description: 'Piercing + Explosion + Stuns all 3s',
                 icon: '💥',
                 rarity: 'legendary',
                 basePrice: 750,
@@ -191,8 +191,8 @@ class ShopSystem {
             // NEW MATH ITEMS
             {
                 id: 'formel_brille_common',
-                name: 'FORMEL-BRILLE',
-                description: '+1 Sekunde Formel-Eingabezeit',
+                name: 'FORMULA GOGGLES',
+                description: '+1 second formula input time',
                 icon: '🤓',
                 rarity: 'common',
                 basePrice: 70,
@@ -202,8 +202,8 @@ class ShopSystem {
             },
             {
                 id: 'algebra_ring_rare',
-                name: 'ALGEBRA-RING',
-                description: '+25% Score + Zeigt Lösungshinweise',
+                name: 'ALGEBRA RING',
+                description: '+25% Score + Shows solution hints',
                 icon: '💍',
                 rarity: 'rare',
                 basePrice: 160,
@@ -213,8 +213,8 @@ class ShopSystem {
             },
             {
                 id: 'mathematik_krone_epic',
-                name: 'MATHEMATIK-KRONE',
-                description: '+50% Score + Combo-Zeit +3s + Fehlerschutz',
+                name: 'MATH CROWN',
+                description: '+50% Score + Combo time +3s + Mistake protection',
                 icon: '👑',
                 rarity: 'epic',
                 basePrice: 320,
@@ -224,8 +224,8 @@ class ShopSystem {
             },
             {
                 id: 'euler_artefakt_legendary',
-                name: 'EULER-ARTEFAKT',
-                description: '+100% Score + Auto-Solve 1/Welle + Zeitbonus',
+                name: 'EULER ARTIFACT',
+                description: '+100% Score + Auto-Solve 1/Wave + Time bonus',
                 icon: '🔮',
                 rarity: 'legendary',
                 basePrice: 800,
@@ -236,8 +236,8 @@ class ShopSystem {
             // NEW UTILITY ITEMS
             {
                 id: 'gluecks_muenze_common',
-                name: 'GLÜCKS-MÜNZE',
-                description: '+15% Coin-Drop-Rate',
+                name: 'LUCKY COIN',
+                description: '+15% Coin Drop Rate',
                 icon: '🪙',
                 rarity: 'common',
                 basePrice: 60,
@@ -247,8 +247,8 @@ class ShopSystem {
             },
             {
                 id: 'magnet_handschuh_rare',
-                name: 'MAGNET-HANDSCHUH',
-                description: '+30% Coins + Auto-Sammeln 2x Radius',
+                name: 'MAGNET GLOVE',
+                description: '+30% Coins + Auto-Collect 2x Radius',
                 icon: '🧲',
                 rarity: 'rare',
                 basePrice: 150,
@@ -258,8 +258,8 @@ class ShopSystem {
             },
             {
                 id: 'phoenix_feder_epic',
-                name: 'PHOENIX-FEDER',
-                description: '1x Wiederbelebung + 50% HP + 5s Schutz',
+                name: 'PHOENIX FEATHER',
+                description: '1x Revive + 50% HP + 5s Protection',
                 icon: '🪶',
                 rarity: 'epic',
                 basePrice: 400,
@@ -269,8 +269,8 @@ class ShopSystem {
             },
             {
                 id: 'chaos_wuerfel_legendary',
-                name: 'CHAOS-WÜRFEL',
-                description: 'Zufälliger Mega-Buff jede Welle',
+                name: 'CHAOS DIE',
+                description: 'Random Mega Buff every Wave',
                 icon: '🎲',
                 rarity: 'legendary',
                 basePrice: 900,
@@ -401,7 +401,7 @@ class ShopSystem {
         // Prüfen ob genug Münzen vorhanden (skip if cheat is active)
         const playerCoins = this.game?.currencySystem?.coins || 0;
         if (!hasInfiniteShop && playerCoins < item.finalPrice) {
-            this.showFeedback('Nicht genug Münzen!', 'error');
+            this.showFeedback('Not enough Coins!', 'error');
             return false;
         }
         
@@ -424,7 +424,7 @@ class ShopSystem {
         // Item aus Shop entfernen
         this.currentItems[shopSlot] = null;
         
-        this.showFeedback(`${item.name} gekauft!`, 'success');
+        this.showFeedback(`${item.name} purchased!`, 'success');
         this.updateShopDisplay();
         
         return true;
@@ -443,7 +443,7 @@ class ShopSystem {
         
         // Prüfen ob Inventar-Platz vorhanden (nur für neue Items)
         if (this.playerInventory.length >= this.maxInventorySlots) {
-            this.showFeedback('Inventar ist voll!', 'error');
+            this.showFeedback('Inventory is full!', 'error');
             return false;
         }
         
@@ -599,7 +599,7 @@ class ShopSystem {
                 itemElement.classList.remove('sold-out');
             } else if (itemElement) {
                 itemElement.innerHTML = `
-                    <div class="shop-item-sold">VERKAUFT</div>
+                    <div class="shop-item-sold">SOLD OUT</div>
                 `;
                 itemElement.style.borderColor = '#666';
                 itemElement.onclick = null;
@@ -629,7 +629,7 @@ class ShopSystem {
                     ${quantity > 1 ? `<div class="inventory-item-quantity">${quantity}</div>` : ''}
                 `;
                 slot.style.borderColor = rarity.color;
-                slot.title = `${item.name} (${quantity}x)\n${item.description}\nWelle ${item.purchaseWave}`;
+                slot.title = `${item.name} (${quantity}x)\n${item.description}\nWave ${item.purchaseWave}`;
             } else {
                 slot.innerHTML = '<div class="inventory-empty">+</div>';
             }
@@ -662,7 +662,7 @@ class ShopSystem {
         const currentWave = this.game?.waveSystem?.currentWave || 1;
         const waveElement = document.getElementById('shopWaveInfo');
         if (waveElement) {
-            waveElement.textContent = `WELLE ${currentWave}`;
+            waveElement.textContent = `WAVE ${currentWave}`;
         }
     }
     
@@ -698,7 +698,7 @@ class ShopSystem {
         }
         
         // Visual Feedback
-        this.showItemEffect('🥤 TRANK DES LEIPZIGERS AKTIVIERT!\n💰 +500% COINS | ⚡ +300% SPEED | 👾 +500% ENEMIES', '#ff8000');
+        this.showItemEffect("🥤 LEIPZIGER'S POTION ACTIVATED!\n💰 +500% COINS | ⚡ +300% SPEED | 👾 +500% ENEMIES", '#ff8000');
         
         // Console summary
         console.log('🥤 TRANK DES LEIPZIGERS EFFEKTE:');
@@ -721,7 +721,7 @@ class ShopSystem {
         }
         
         // Visual Feedback
-        this.showItemEffect('📐 GEODREIECK AKTIVIERT!\n⚡ +30% BEWEGUNGSGESCHWINDIGKEIT', '#00ff00');
+        this.showItemEffect('📐 SET SQUARE ACTIVATED!\n⚡ +30% MOVEMENT SPEED', '#00ff00');
         
         console.log('📐 GEODREIECK EFFEKT: +30% Bewegungsgeschwindigkeit');
     }
@@ -755,7 +755,7 @@ class ShopSystem {
         }
         
         // Visual Feedback
-        this.showItemEffect('🍫 ENERGIERIEGEL AKTIVIERT!\n💚 +20% HP-REGENERATION', '#00ff00');
+        this.showItemEffect('🍫 ENERGY BAR ACTIVATED!\n💚 +20% HP REGENERATION', '#00ff00');
         
         console.log('🍫 ENERGIERIEGEL EFFEKT: +20% HP-Regeneration');
     }
@@ -777,7 +777,7 @@ class ShopSystem {
         }
         
         // Visual Feedback
-        this.showItemEffect('✏️ STABILER STIFT AKTIVIERT!\n🐌 GEGNER 40% LANGSAMER', '#00ff00');
+        this.showItemEffect('✏️ STEADY PEN ACTIVATED!\n🐌 ENEMIES 40% SLOWER', '#00ff00');
         
         console.log('✏️ STABILER STIFT EFFEKT: Gegner 40% langsamer beim Lösen');
     }
@@ -799,7 +799,7 @@ class ShopSystem {
         }
         
         // Visual Feedback
-        this.showItemEffect('🧮 TASCHENRECHNER AKTIVIERT!\n⏰ +20% ZEIT FÜR AUFGABEN', '#00ff00');
+        this.showItemEffect('🧮 CALCULATOR ACTIVATED!\n⏰ +20% TIME FOR PROBLEMS', '#00ff00');
         
         console.log('🧮 TASCHENRECHNER EFFEKT: +20% Zeit für Aufgaben');
     }
@@ -821,7 +821,7 @@ class ShopSystem {
         }
         
         // Visual Feedback
-        this.showItemEffect('🍎 NEWTONS APFEL AKTIVIERT!\n⚡ +20% CHANCE: ANGREIFER STIRBT', '#ff6600');
+        this.showItemEffect("🍎 NEWTON'S APPLE ACTIVATED!\n⚡ +20% CHANCE: ATTACKER DIES", '#ff6600');
         
         console.log('🍎 NEWTONS APFEL EFFEKT: +20% Chance dass Angreifer stirbt');
     }
@@ -856,7 +856,7 @@ class ShopSystem {
         }
         
         // Visual Feedback
-        this.showItemEffect('🧪 ZAUBERTRANK AKTIVIERT!\n🐌 -50% GEGNERGESCHWINDIGKEIT', '#9966ff');
+        this.showItemEffect('🧪 MAGIC POTION ACTIVATED!\n🐌 -50% ENEMY SPEED', '#9966ff');
         
         console.log('🧪 ZAUBERTRANK EFFEKT: -50% Gegnergeschwindigkeit');
     }
@@ -875,7 +875,7 @@ class ShopSystem {
             console.log(`⚡ Speed erhöht um 20%: ${Math.round(currentSpeed)} → ${Math.round(this.game.player.speed)}`);
         }
         
-        this.showItemEffect('👟 SPRINT-SCHUHE AKTIVIERT!\n⚡ +20% BEWEGUNGSGESCHWINDIGKEIT', '#00ff00');
+        this.showItemEffect('👟 SPRINT SHOES ACTIVATED!\n⚡ +20% MOVEMENT SPEED', '#00ff00');
     }
     
     applyRaketenStiefelEffect() {
@@ -897,7 +897,7 @@ class ShopSystem {
             console.log(`🏃 Dash-Cooldown reduziert: ${this.game.player.dashCooldown}ms`);
         }
         
-        this.showItemEffect('🚀 RAKETEN-STIEFEL AKTIVIERT!\n⚡ +35% SPEED | 🏃 -0.5s DASH-COOLDOWN', '#0070dd');
+        this.showItemEffect('🚀 ROCKET BOOTS ACTIVATED!\n⚡ +35% SPEED | 🏃 -0.5s DASH-COOLDOWN', '#0070dd');
     }
     
     applyTeleportGuertelEffect() {
@@ -921,7 +921,7 @@ class ShopSystem {
             console.log('🌀 Teleport-Fähigkeit aktiviert (8s Cooldown)');
         }
         
-        this.showItemEffect('⚡ TELEPORT-GÜRTEL AKTIVIERT!\n⚡ +50% SPEED | 🌀 TELEPORT ALLE 8s', '#a335ee');
+        this.showItemEffect('⚡ TELEPORT BELT ACTIVATED!\n⚡ +50% SPEED | 🌀 TELEPORT EVERY 8s', '#a335ee');
     }
     
     applyZeitManipulatorEffect() {
@@ -952,7 +952,7 @@ class ShopSystem {
             console.log('👻 Dash durch Gegner aktiviert');
         }
         
-        this.showItemEffect('⏰ ZEIT-MANIPULATOR AKTIVIERT!\n⚡ +60% SPEED | ⏱️ ZEITLUPE | 👻 DASH DURCH GEGNER', '#ff8000');
+        this.showItemEffect('⏰ TIME MANIPULATOR ACTIVATED!\n⚡ +60% SPEED | ⏱️ SLOW MOTION | 👻 DASH THROUGH ENEMIES', '#ff8000');
     }
     
     // NEW COMBAT ITEM EFFECTS
@@ -974,7 +974,7 @@ class ShopSystem {
             console.log('🛡️ Knockback-Resistenz aktiviert');
         }
         
-        this.showItemEffect('🛡️ PANZER-WESTE AKTIVIERT!\n💚 +25% HP | 🛡️ KNOCKBACK-RESISTENZ', '#00ff00');
+        this.showItemEffect('🛡️ ARMOR VEST ACTIVATED!\n💚 +25% HP | 🛡️ KNOCKBACK RESISTANCE', '#00ff00');
     }
     
     applyBlitzKanoneEffect() {
@@ -993,7 +993,7 @@ class ShopSystem {
             console.log('⚡ Betäubung bei Treffer aktiviert (1s)');
         }
         
-        this.showItemEffect('⚡ BLITZ-KANONE AKTIVIERT!\n🚀 +40% PROJEKTILSPEED | ⚡ BETÄUBUNG 1s', '#0070dd');
+        this.showItemEffect('⚡ LIGHTNING CANNON ACTIVATED!\n🚀 +40% PROJECTILE SPEED | ⚡ STUN 1s', '#0070dd');
     }
     
     applyBerserkerMaskeEffect() {
@@ -1014,7 +1014,7 @@ class ShopSystem {
             console.log('🛡️ Unverwundbarkeit nach Treffer aktiviert (2s)');
         }
         
-        this.showItemEffect('😤 BERSERKER-MASKE AKTIVIERT!\n😤 +50% SPEED BEI LOW HP | 🛡️ UNVERWUNDBARKEIT 2s', '#a335ee');
+        this.showItemEffect('😤 BERSERKER MASK ACTIVATED!\n😤 +50% SPEED AT LOW HP | 🛡️ INVULNERABILITY 2s', '#a335ee');
     }
     
     applyOmegaDestruktorEffect() {
@@ -1040,7 +1040,7 @@ class ShopSystem {
             console.log('⚡ Massen-Betäubung aktiviert (3s)');
         }
         
-        this.showItemEffect('💥 OMEGA-DESTRUKTOR AKTIVIERT!\n🎯 DURCHSCHLAG | 💥 EXPLOSION | ⚡ MASSEN-BETÄUBUNG 3s', '#ff8000');
+        this.showItemEffect('💥 OMEGA DESTROYER ACTIVATED!\n🎯 PIERCING | 💥 EXPLOSION | ⚡ MASS STUN 3s', '#ff8000');
     }
     
     // NEW MATH ITEM EFFECTS
@@ -1053,7 +1053,7 @@ class ShopSystem {
             console.log(`⏰ Formel-Zeit erhöht: ${Math.round(this.game.formulaSystem.timeBonusMultiplier * 100)}%`);
         }
         
-        this.showItemEffect('🤓 FORMEL-BRILLE AKTIVIERT!\n⏰ +1 SEKUNDE FORMEL-EINGABEZEIT', '#00ff00');
+        this.showItemEffect('🤓 FORMULA GOGGLES ACTIVATED!\n⏰ +1 SECOND FORMULA INPUT TIME', '#00ff00');
     }
     
     applyAlgebraRingEffect() {
@@ -1072,7 +1072,7 @@ class ShopSystem {
             console.log('💡 Lösungshinweise aktiviert');
         }
         
-        this.showItemEffect('💍 ALGEBRA-RING AKTIVIERT!\n📈 +25% SCORE | 💡 LÖSUNGSHINWEISE', '#0070dd');
+        this.showItemEffect('💍 ALGEBRA RING ACTIVATED!\n📈 +25% SCORE | 💡 SOLUTION HINTS', '#0070dd');
     }
     
     applyMathematikKroneEffect() {
@@ -1096,7 +1096,7 @@ class ShopSystem {
             console.log('🛡️ Fehler-Schadenreduktion: 50%');
         }
         
-        this.showItemEffect('👑 MATHEMATIK-KRONE AKTIVIERT!\n📈 +50% SCORE | 🎯 +3s COMBO | 🛡️ FEHLERSCHUTZ', '#a335ee');
+        this.showItemEffect('👑 MATH CROWN ACTIVATED!\n📈 +50% SCORE | 🎯 +3s COMBO | 🛡️ MISTAKE PROTECTION', '#a335ee');
     }
     
     applyEulerArtefaktEffect() {
@@ -1122,7 +1122,7 @@ class ShopSystem {
             console.log('⏰ Perfekte Combo Zeitbonus aktiviert (+2s)');
         }
         
-        this.showItemEffect('🔮 EULER-ARTEFAKT AKTIVIERT!\n📈 +100% SCORE | 🤖 AUTO-SOLVE 1/WELLE | ⏰ ZEITBONUS', '#ff8000');
+        this.showItemEffect('🔮 EULER ARTIFACT ACTIVATED!\n📈 +100% SCORE | 🤖 AUTO-SOLVE 1/WAVE | ⏰ TIME BONUS', '#ff8000');
     }
     
     // NEW UTILITY ITEM EFFECTS
@@ -1135,7 +1135,7 @@ class ShopSystem {
             console.log(`💰 Coin-Drop-Rate: ${Math.round(this.game.currencySystem.coinDropMultiplier * 100)}%`);
         }
         
-        this.showItemEffect('🪙 GLÜCKS-MÜNZE AKTIVIERT!\n💰 +15% COIN-DROP-RATE', '#00ff00');
+        this.showItemEffect('🪙 LUCKY COIN ACTIVATED!\n💰 +15% COIN DROP RATE', '#00ff00');
     }
     
     applyMagnetHandschuhEffect() {
@@ -1154,7 +1154,7 @@ class ShopSystem {
             console.log(`🧲 Auto-Sammeln Radius: ${this.game.player.autoCollectRadius}px`);
         }
         
-        this.showItemEffect('🧲 MAGNET-HANDSCHUH AKTIVIERT!\n💰 +30% COINS | 🧲 AUTO-SAMMELN 2x RADIUS', '#0070dd');
+        this.showItemEffect('🧲 MAGNET GLOVE ACTIVATED!\n💰 +30% COINS | 🧲 AUTO-COLLECT 2x RADIUS', '#0070dd');
     }
     
     applyPhoenixFederEffect() {
@@ -1168,7 +1168,7 @@ class ShopSystem {
             console.log('🔄 Wiederbelebung aktiviert (1x, 50% HP, 5s Schutz)');
         }
         
-        this.showItemEffect('🪶 PHOENIX-FEDER AKTIVIERT!\n🔄 1x WIEDERBELEBUNG | 💚 50% HP | 🛡️ 5s SCHUTZ', '#a335ee');
+        this.showItemEffect('🪶 PHOENIX FEATHER ACTIVATED!\n🔄 1x REVIVE | 💚 50% HP | 🛡️ 5s PROTECTION', '#a335ee');
     }
     
     applyChaosWuerfelEffect() {
@@ -1191,7 +1191,7 @@ class ShopSystem {
         // Aktiviere ersten zufälligen Buff sofort
         this.triggerChaosWuerfelBuff();
         
-        this.showItemEffect('🎲 CHAOS-WÜRFEL AKTIVIERT!\n🎲 ZUFÄLLIGER MEGA-BUFF JEDE WELLE | 🌀 UNVORHERSAGBARE BONI', '#ff8000');
+        this.showItemEffect('🎲 CHAOS DIE ACTIVATED!\n🎲 RANDOM MEGA BUFF EVERY WAVE | 🌀 UNPREDICTABLE BONUSES', '#ff8000');
     }
     
     triggerChaosWuerfelBuff() {
@@ -1213,7 +1213,7 @@ class ShopSystem {
                 if (this.game.player) {
                     this.game.player.projectilePiercing = true;
                     this.game.player.massStunOnHit = true;
-                    this.showItemEffect(`🎲 ${randomBuff.name}!\n💥 DURCHSCHLAG + BETÄUBUNG`, '#ff6600');
+                    this.showItemEffect(`🎲 ${randomBuff.name}!\n💥 PIERCING + STUN`, '#ff6600');
                 }
                 break;
             case 'coins':
@@ -1225,13 +1225,13 @@ class ShopSystem {
             case 'time':
                 if (this.game.formulaSystem) {
                     this.game.formulaSystem.timeBonusMultiplier += randomBuff.bonus / 1000;
-                    this.showItemEffect(`🎲 ${randomBuff.name}!\n⏰ +${randomBuff.bonus / 1000}s FORMEL-ZEIT`, '#ff6600');
+                    this.showItemEffect(`🎲 ${randomBuff.name}!\n⏰ +${randomBuff.bonus / 1000}s FORMULA TIME`, '#ff6600');
                 }
                 break;
             case 'invulnerability':
                 if (this.game.player) {
                     this.game.player.temporaryInvulnerability = Date.now() + randomBuff.duration;
-                    this.showItemEffect(`🎲 ${randomBuff.name}!\n🛡️ ${randomBuff.duration / 1000}s UNVERWUNDBAR`, '#ff6600');
+                    this.showItemEffect(`🎲 ${randomBuff.name}!\n🛡️ ${randomBuff.duration / 1000}s INVULNERABLE`, '#ff6600');
                 }
                 break;
             case 'score':

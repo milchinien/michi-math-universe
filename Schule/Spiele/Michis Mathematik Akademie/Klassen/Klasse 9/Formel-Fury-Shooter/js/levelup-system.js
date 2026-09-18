@@ -29,32 +29,32 @@ class LevelUpSystem {
         this.upgradePool = [
             {
                 id: 'plus_hp_common',
-                name: 'PLUS-HP',
-                description: '+1 Maximales Leben',
+                name: 'PLUS HP',
+                description: '+1 Max HP',
                 category: 'common',
                 icon: '❤️',
                 effect: null // Will be implemented in step 2
             },
             {
                 id: 'plus_hp_rare', 
-                name: 'PLUS-HP',
-                description: '+2 Maximales Leben',
+                name: 'PLUS HP',
+                description: '+2 Max HP',
                 category: 'rare',
                 icon: '💖',
                 effect: null
             },
             {
                 id: 'plus_hp_epic',
-                name: 'PLUS-HP', 
-                description: '+3 Maximales Leben',
+                name: 'PLUS HP', 
+                description: '+3 Max HP',
                 category: 'epic',
                 icon: '💝',
                 effect: null
             },
             {
                 id: 'plus_hp_legendary',
-                name: 'PLUS-HP',
-                description: '+5 Maximales Leben', 
+                name: 'PLUS HP',
+                description: '+5 Max HP', 
                 category: 'legendary',
                 icon: '💎❤️',
                 effect: null
@@ -62,32 +62,32 @@ class LevelUpSystem {
             // HEILUNGSFORMEL Upgrades - HP Regeneration
             {
                 id: 'heilungsformel_common',
-                name: 'HEILUNGSFORMEL',
-                description: '+0.05 HP/Sek Regeneration',
+                name: 'HEALING FORMULA',
+                description: '+0.05 HP/sec Regeneration',
                 category: 'common',
                 icon: '💚',
                 effect: null
             },
             {
                 id: 'heilungsformel_rare',
-                name: 'HEILUNGSFORMEL',
-                description: '+0.15 HP/Sek Regeneration',
+                name: 'HEALING FORMULA',
+                description: '+0.15 HP/sec Regeneration',
                 category: 'rare',
                 icon: '❤️‍🩹',
                 effect: null
             },
             {
                 id: 'heilungsformel_epic',
-                name: 'HEILUNGSFORMEL',
-                description: '+0.25 HP/Sek Regeneration',
+                name: 'HEALING FORMULA',
+                description: '+0.25 HP/sec Regeneration',
                 category: 'epic',
                 icon: '✚',
                 effect: null
             },
             {
                 id: 'heilungsformel_legendary',
-                name: 'HEILUNGSFORMEL',
-                description: '+0.5 HP/Sek Regeneration',
+                name: 'HEALING FORMULA',
+                description: '+0.5 HP/sec Regeneration',
                 category: 'legendary',
                 icon: '🟢✚',
                 effect: null
@@ -95,32 +95,32 @@ class LevelUpSystem {
             // GLÜCKS-FORMEL Upgrades - Luck Enhancement
             {
                 id: 'gluecks_formel_common',
-                name: 'GLÜCKS-FORMEL',
-                description: '+2% Glück',
+                name: 'LUCKY FORMULA',
+                description: '+2% Luck',
                 category: 'common',
                 icon: '🍀',
                 effect: null
             },
             {
                 id: 'gluecks_formel_rare',
-                name: 'GLÜCKS-FORMEL',
-                description: '+4% Glück',
+                name: 'LUCKY FORMULA',
+                description: '+4% Luck',
                 category: 'rare',
                 icon: '🍀',
                 effect: null
             },
             {
                 id: 'gluecks_formel_epic',
-                name: 'GLÜCKS-FORMEL',
-                description: '+7% Glück',
+                name: 'LUCKY FORMULA',
+                description: '+7% Luck',
                 category: 'epic',
                 icon: '🍀',
                 effect: null
             },
             {
                 id: 'gluecks_formel_legendary',
-                name: 'GLÜCKS-FORMEL',
-                description: '+12% Glück',
+                name: 'LUCKY FORMULA',
+                description: '+12% Luck',
                 category: 'legendary',
                 icon: '🍀',
                 effect: null
@@ -128,8 +128,8 @@ class LevelUpSystem {
             // LERNKURVE Upgrades - XP Bonus
             {
                 id: 'lernkurve_common',
-                name: 'LERNKURVE',
-                description: '+15% XP von Gegnern',
+                name: 'LEARNING CURVE',
+                description: '+15% XP from enemies',
                 category: 'common',
                 icon: '📚',
                 effect: (player, game) => {
@@ -141,8 +141,8 @@ class LevelUpSystem {
             },
             {
                 id: 'lernkurve_rare',
-                name: 'LERNKURVE',
-                description: '+25% XP von Gegnern',
+                name: 'LEARNING CURVE',
+                description: '+25% XP from enemies',
                 category: 'rare',
                 icon: '📖',
                 effect: (player, game) => {
@@ -154,8 +154,8 @@ class LevelUpSystem {
             },
             {
                 id: 'lernkurve_epic',
-                name: 'LERNKURVE',
-                description: '+40% XP von Gegnern',
+                name: 'LEARNING CURVE',
+                description: '+40% XP from enemies',
                 category: 'epic',
                 icon: '📘',
                 effect: (player, game) => {
@@ -167,8 +167,8 @@ class LevelUpSystem {
             },
             {
                 id: 'lernkurve_legendary',
-                name: 'LERNKURVE',
-                description: '+60% XP von Gegnern',
+                name: 'LEARNING CURVE',
+                description: '+60% XP from enemies',
                 category: 'legendary',
                 icon: '📚✨',
                 effect: (player, game) => {
@@ -181,8 +181,8 @@ class LevelUpSystem {
             // BLITZSCHRITT Upgrades - Speed Enhancement
             {
                 id: 'blitzschritt_common',
-                name: 'BLITZSCHRITT',
-                description: '+10% Bewegungsgeschwindigkeit',
+                name: 'LIGHTNING STEP',
+                description: '+10% Movement Speed',
                 category: 'common',
                 icon: '⚡',
                 effect: function() {
@@ -191,8 +191,8 @@ class LevelUpSystem {
             },
             {
                 id: 'blitzschritt_rare',
-                name: 'BLITZSCHRITT',
-                description: '+18% Bewegungsgeschwindigkeit',
+                name: 'LIGHTNING STEP',
+                description: '+18% Movement Speed',
                 category: 'rare',
                 icon: '⚡',
                 effect: function() {
@@ -201,8 +201,8 @@ class LevelUpSystem {
             },
             {
                 id: 'blitzschritt_epic',
-                name: 'BLITZSCHRITT',
-                description: '+28% Bewegungsgeschwindigkeit',
+                name: 'LIGHTNING STEP',
+                description: '+28% Movement Speed',
                 category: 'epic',
                 icon: '⚡',
                 effect: function() {
@@ -211,8 +211,8 @@ class LevelUpSystem {
             },
             {
                 id: 'blitzschritt_legendary',
-                name: 'BLITZSCHRITT',
-                description: '+40% Bewegungsgeschwindigkeit',
+                name: 'LIGHTNING STEP',
+                description: '+40% Movement Speed',
                 category: 'legendary',
                 icon: '⚡',
                 effect: function() {
@@ -222,32 +222,32 @@ class LevelUpSystem {
             // KOMBOFEUER Upgrades - Combo Timer and XP Bonuses
             {
                 id: 'kombofeuer_common',
-                name: 'KOMBOFEUER',
-                description: '+2s Combo-Zeit, +5% XP ab 5x',
+                name: 'COMBO FIRE',
+                description: '+2s Combo time, +5% XP from 5x',
                 category: 'common',
                 icon: '🔥',
                 effect: null
             },
             {
                 id: 'kombofeuer_rare',
-                name: 'KOMBOFEUER',
-                description: '+4s Combo-Zeit, +10% XP ab 5x',
+                name: 'COMBO FIRE',
+                description: '+4s Combo time, +10% XP from 5x',
                 category: 'rare',
                 icon: '🔥',
                 effect: null
             },
             {
                 id: 'kombofeuer_epic',
-                name: 'KOMBOFEUER',
-                description: '+6s Combo-Zeit, +15% XP ab 5x',
+                name: 'COMBO FIRE',
+                description: '+6s Combo time, +15% XP from 5x',
                 category: 'epic',
                 icon: '🔥',
                 effect: null
             },
             {
                 id: 'kombofeuer_legendary',
-                name: 'KOMBOFEUER',
-                description: '+10s Combo-Zeit, +20% XP ab 5x',
+                name: 'COMBO FIRE',
+                description: '+10s Combo time, +20% XP from 5x',
                 category: 'legendary',
                 icon: '🔥',
                 effect: null
@@ -255,7 +255,7 @@ class LevelUpSystem {
             // MÜNZMAGNET Upgrades - Coin Collection and Bonuses
             {
                 id: 'muenzmagnet_common',
-                name: 'MÜNZMAGNET',
+                name: 'COIN MAGNET',
                 description: '50px Radius, +10% Coins',
                 category: 'common',
                 icon: '🧲',
@@ -263,7 +263,7 @@ class LevelUpSystem {
             },
             {
                 id: 'muenzmagnet_rare',
-                name: 'MÜNZMAGNET',
+                name: 'COIN MAGNET',
                 description: '100px Radius, +20% Coins',
                 category: 'rare',
                 icon: '🧲',
@@ -271,7 +271,7 @@ class LevelUpSystem {
             },
             {
                 id: 'muenzmagnet_epic',
-                name: 'MÜNZMAGNET',
+                name: 'COIN MAGNET',
                 description: '150px Radius, +35% Coins',
                 category: 'epic',
                 icon: '🧲',
@@ -279,7 +279,7 @@ class LevelUpSystem {
             },
             {
                 id: 'muenzmagnet_legendary',
-                name: 'MÜNZMAGNET',
+                name: 'COIN MAGNET',
                 description: '200px Radius, +50% Coins',
                 category: 'legendary',
                 icon: '🧲',
@@ -288,32 +288,32 @@ class LevelUpSystem {
             // ZEITDILATATION Upgrades - Enemy Slowdown
             {
                 id: 'zeitdilatation_common',
-                name: 'ZEITDILATATION',
-                description: 'Gegner 5% langsamer',
+                name: 'TIME DILATION',
+                description: 'Enemies 5% slower',
                 category: 'common',
                 icon: '⏰',
                 effect: null
             },
             {
                 id: 'zeitdilatation_rare',
-                name: 'ZEITDILATATION',
-                description: 'Gegner 12% langsamer',
+                name: 'TIME DILATION',
+                description: 'Enemies 12% slower',
                 category: 'rare',
                 icon: '⏰',
                 effect: null
             },
             {
                 id: 'zeitdilatation_epic',
-                name: 'ZEITDILATATION',
-                description: 'Gegner 20% langsamer',
+                name: 'TIME DILATION',
+                description: 'Enemies 20% slower',
                 category: 'epic',
                 icon: '⏰',
                 effect: null
             },
             {
                 id: 'zeitdilatation_legendary',
-                name: 'ZEITDILATATION',
-                description: 'Gegner 35% langsamer',
+                name: 'TIME DILATION',
+                description: 'Enemies 35% slower',
                 category: 'legendary',
                 icon: '⏰',
                 effect: null
@@ -321,32 +321,32 @@ class LevelUpSystem {
             // SCHUTZSCHILD Upgrades - Regenerating Shield
             {
                 id: 'schutzschild_common',
-                name: 'SCHUTZSCHILD',
-                description: '1 Schild, 8s Regeneration',
+                name: 'SHIELD',
+                description: '1 Shield, 8s Regeneration',
                 category: 'common',
                 icon: '🛡️',
                 effect: null
             },
             {
                 id: 'schutzschild_rare',
-                name: 'SCHUTZSCHILD',
-                description: '2 Schild, 6s Regeneration',
+                name: 'SHIELD',
+                description: '2 Shield, 6s Regeneration',
                 category: 'rare',
                 icon: '🛡️',
                 effect: null
             },
             {
                 id: 'schutzschild_epic',
-                name: 'SCHUTZSCHILD',
-                description: '3 Schild, 4s Regeneration',
+                name: 'SHIELD',
+                description: '3 Shield, 4s Regeneration',
                 category: 'epic',
                 icon: '🛡️',
                 effect: null
             },
             {
                 id: 'schutzschild_legendary',
-                name: 'SCHUTZSCHILD',
-                description: '5 Schild, 2s Regeneration',
+                name: 'SHIELD',
+                description: '5 Shield, 2s Regeneration',
                 category: 'legendary',
                 icon: '🛡️',
                 effect: null
@@ -354,7 +354,7 @@ class LevelUpSystem {
             // QUANTENSPRUNG Upgrades - Teleportation
             {
                 id: 'quantensprung_common',
-                name: 'QUANTENSPRUNG',
+                name: 'QUANTUM LEAP',
                 description: '80px Teleport, 15s Cooldown',
                 category: 'common',
                 icon: '⚛️',
@@ -362,7 +362,7 @@ class LevelUpSystem {
             },
             {
                 id: 'quantensprung_rare',
-                name: 'QUANTENSPRUNG',
+                name: 'QUANTUM LEAP',
                 description: '120px Teleport, 12s Cooldown',
                 category: 'rare',
                 icon: '⚛️',
@@ -370,7 +370,7 @@ class LevelUpSystem {
             },
             {
                 id: 'quantensprung_epic',
-                name: 'QUANTENSPRUNG',
+                name: 'QUANTUM LEAP',
                 description: '160px Teleport, 8s Cooldown',
                 category: 'epic',
                 icon: '⚛️',
@@ -378,7 +378,7 @@ class LevelUpSystem {
             },
             {
                 id: 'quantensprung_legendary',
-                name: 'QUANTENSPRUNG',
+                name: 'QUANTUM LEAP',
                 description: '200px Teleport, 5s Cooldown',
                 category: 'legendary',
                 icon: '⚛️',
@@ -388,32 +388,32 @@ class LevelUpSystem {
             // GRAVITATIONSFELD upgrades - Aura that slows nearby enemies
             {
                 id: 'gravitationsfeld_common',
-                name: 'GRAVITATIONSFELD',
-                description: 'Schwaches Gravitationsfeld',
+                name: 'GRAVITY FIELD',
+                description: 'Weak gravity field',
                 category: 'common',
                 icon: '🌀',
                 effect: null
             },
             {
                 id: 'gravitationsfeld_rare',
-                name: 'GRAVITATIONSFELD',
-                description: 'Starkes Gravitationsfeld',
+                name: 'GRAVITY FIELD',
+                description: 'Strong gravity field',
                 category: 'rare',
                 icon: '🌀',
                 effect: null
             },
             {
                 id: 'gravitationsfeld_epic',
-                name: 'GRAVITATIONSFELD',
-                description: 'Mächtiges Gravitationsfeld',
+                name: 'GRAVITY FIELD',
+                description: 'Mighty gravity field',
                 category: 'epic',
                 icon: '🌀',
                 effect: null
             },
             {
                 id: 'gravitationsfeld_legendary',
-                name: 'GRAVITATIONSFELD',
-                description: 'Schwarzes Loch der Verlangsamung',
+                name: 'GRAVITY FIELD',
+                description: 'Black hole of slowness',
                 category: 'legendary',
                 icon: '🌀',
                 effect: null
@@ -533,7 +533,7 @@ class LevelUpSystem {
     updateLevelUpCounter() {
         const pageInfoElement = document.getElementById('levelUpPageInfo');
         if (pageInfoElement) {
-            pageInfoElement.textContent = `${this.currentLevelUp} von ${this.totalLevelUps}`;
+            pageInfoElement.textContent = `${this.currentLevelUp} of ${this.totalLevelUps}`;
             console.log(`📊 Level-up counter updated: ${this.currentLevelUp} von ${this.totalLevelUps}`);
         } else {
             console.warn('⚠️ levelUpPageInfo element not found');
@@ -1038,7 +1038,7 @@ class LevelUpSystem {
             console.log('🍀 Current luck bonuses:', this.luckBonuses);
             
             // Show visual feedback
-            this.showUpgradeEffect(`🍀 +${luckBonus}% Glück!`, '#00ff00');
+            this.showUpgradeEffect(`🍀 +${luckBonus}% Luck!`, '#00ff00');
             
             // Trigger luck sparkle effect
             if (window.game && window.game.player) {
@@ -1057,7 +1057,7 @@ class LevelUpSystem {
             }
         } else {
             console.log(`🍀 Max luck stacks reached for ${rarity} (15/15)`);
-            this.showUpgradeEffect(`🍀 Max Glück erreicht!`, '#ffff00');
+            this.showUpgradeEffect(`🍀 Max Luck reached!`, '#ffff00');
         }
     }
     

@@ -21,21 +21,21 @@ class MathTopicsSystem {
         // Difficulty definitions for backward compatibility
         this.difficultyDefinitions = {
             'easy': {
-                name: 'Einfach',
+                name: 'Easy',
                 enemyMultiplier: 0.8,
                 timeMultiplier: 1.3,
                 complexityLevel: 1,
                 showExplanations: false
             },
             'medium': {
-                name: 'Mittel',
+                name: 'Medium',
                 enemyMultiplier: 1.0,
                 timeMultiplier: 1.0,
                 complexityLevel: 2,
                 showExplanations: false
             },
             'hard': {
-                name: 'Schwer',
+                name: 'Hard',
                 enemyMultiplier: 1.3,
                 timeMultiplier: 0.8,
                 complexityLevel: 3,
@@ -45,37 +45,37 @@ class MathTopicsSystem {
         
         this.topicDefinitions = {
             'binomial-formulas': {
-                name: 'Binomische Formeln-Bestien',
+                name: 'Binomial Formula Beasts',
                 difficulty: 1,
                 category: 'algebra',
                 enabled: true
             },
             'quadratic-equations': {
-                name: 'Quadratische Gleichungs-Dämonen',
+                name: 'Quadratic Equation Demons',
                 difficulty: 2,
                 category: 'algebra',
                 enabled: true
             },
             'quadratic-functions': {
-                name: 'Parabel-Phantome',
+                name: 'Parabola Phantoms',
                 difficulty: 2,
                 category: 'functions',
                 enabled: true
             },
             'function-transformations': {
-                name: 'Funktions-Transformations-Titanen',
+                name: 'Function Transformation Titans',
                 difficulty: 2,
                 category: 'functions',
                 enabled: true
             },
             'square-roots': {
-                name: 'Wurzel-Wächter',
+                name: 'Square Root Sentinels',
                 difficulty: 2,
                 category: 'radicals',
                 enabled: false
             },
             'power-laws': {
-                name: 'Potenzgesetze-Piraten',
+                name: 'Exponent Rule Pirates',
                 difficulty: 2,
                 category: 'radicals',
                 enabled: false
@@ -187,24 +187,24 @@ class MathTopicsSystem {
         
         // Hidden developer console message
         console.log(`
-        🎮 FORMEL-FURY-SHOOTER - DEVELOPER EASTER EGGS 🎮
+        🎮 FORMULA FURY - DEVELOPER EASTER EGGS 🎮
         
-        🔥 Konami Code: ↑↑↓↓←→←→BA (aktiviert Cheat-Modus)
-        🏛️ 7x Titel klicken: Aktiviert Geheimen Entwickler-Modus
-        👾 Typ 'mathgod' in Konsole: Schaltet alle Gegner frei
-        🧮 Typ 'fibonacci' in Konsole: Zeigt versteckte Fibonacci-Sequenz
+        🔥 Konami Code: ↑↑↓↓←→←→BA (activates cheat mode)
+        🏛️ Click title 7x: activates secret developer mode
+        👾 Type 'mathgod' in console: unlocks all enemies
+        🧮 Type 'fibonacci' in console: shows hidden Fibonacci sequence
         
-        Viel Spaß beim Entdecken! 🚀
+        Have fun exploring! 🚀
         `);
         
         // Console commands
         window.mathgod = () => {
-            console.log('🔓 ALLE GEGNER FREIGESCHALTET! (Nur visuell - noch nicht implementiert)');
+            console.log('🔓 ALL ENEMIES UNLOCKED! (Visual only - not implemented yet)');
             this.showAllEnemiesUnlocked();
         };
         
         window.fibonacci = () => {
-            console.log('🌟 FIBONACCI SEQUENZ AKTIVIERT!');
+            console.log('🌟 FIBONACCI SEQUENCE ACTIVATED!');
             this.showFibonacciSequence();
         };
     }
@@ -231,7 +231,7 @@ class MathTopicsSystem {
             text-shadow: 0 0 20px rgba(0,0,0,0.8);
             pointer-events: none;
         `;
-        overlay.innerHTML = '🎮 KONAMI CODE AKTIVIERT! 🎮<br><span style="font-size:0.5em;">Cheat-Modus freigeschaltet!</span>';
+        overlay.innerHTML = '🎮 KONAMI CODE ACTIVATED! 🎮<br><span style="font-size:0.5em;">Cheat mode unlocked!</span>';
         
         // Add rainbow animation
         const style = document.createElement('style');
@@ -262,7 +262,7 @@ class MathTopicsSystem {
         const originalText = title.innerHTML;
         
         // Transform title
-        title.innerHTML = '🔥 ENTWICKLER-MODUS AKTIVIERT 🔥';
+        title.innerHTML = '🔥 DEVELOPER MODE ACTIVATED 🔥';
         title.style.animation = 'none';
         title.style.background = 'linear-gradient(45deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3)';
         title.style.backgroundSize = '400% 400%';
@@ -286,15 +286,15 @@ class MathTopicsSystem {
             box-shadow: 0 0 20px rgba(0,255,0,0.5);
         `;
         secretMsg.innerHTML = `
-            <div style="font-size: 1.5em; margin-bottom: 10px;">🚀 GEHEIMER ENTWICKLER-MODUS</div>
-            <div>Alle versteckten Features freigeschaltet!</div>
+            <div style="font-size: 1.5em; margin-bottom: 10px;">🚀 SECRET DEVELOPER MODE</div>
+            <div>All hidden features unlocked!</div>
             <div style="margin-top: 10px; font-size: 0.8em; color: #ffff00;">
-                • Unendliche Gesundheit<br>
-                • Alle Formeln verfügbar<br>
-                • Debug-Informationen aktiviert
+                • Infinite health<br>
+                • All formulas available<br>
+                • Debug info enabled
             </div>
             <div style="margin-top: 15px; color: #ff6b6b;">
-                (Nur visuell - Features noch nicht implementiert)
+                (Visual only - features not implemented yet)
             </div>
         `;
         
@@ -318,7 +318,7 @@ class MathTopicsSystem {
                 
                 const comingSoon = item.querySelector('.coming-soon');
                 if (comingSoon) {
-                    comingSoon.textContent = 'FREIGESCHALTET!';
+                    comingSoon.textContent = 'UNLOCKED!';
                     comingSoon.style.background = 'rgba(0,255,0,0.2)';
                     comingSoon.style.borderColor = 'rgba(0,255,0,0.5)';
                     comingSoon.style.color = '#00ff00';
@@ -335,7 +335,7 @@ class MathTopicsSystem {
                 
                 const comingSoon = item.querySelector('.coming-soon');
                 if (comingSoon) {
-                    comingSoon.textContent = 'Bald verfügbar';
+                    comingSoon.textContent = 'Coming soon';
                     comingSoon.style.background = 'rgba(255, 107, 107, 0.1)';
                     comingSoon.style.borderColor = 'rgba(255, 107, 107, 0.3)';
                     comingSoon.style.color = '#ff6b6b';
@@ -434,13 +434,13 @@ class MathTopicsSystem {
         
         if (avgDifficulty <= 1.5) {
             difficultyElement.classList.add('difficulty-easy');
-            difficultyElement.textContent = 'Anfänger';
+            difficultyElement.textContent = 'Beginner';
         } else if (avgDifficulty <= 2.5) {
             difficultyElement.classList.add('difficulty-medium');
-            difficultyElement.textContent = 'Fortgeschritten';
+            difficultyElement.textContent = 'Advanced';
         } else {
             difficultyElement.classList.add('difficulty-hard');
-            difficultyElement.textContent = 'Experte';
+            difficultyElement.textContent = 'Expert';
         }
     }
     
@@ -452,9 +452,9 @@ class MathTopicsSystem {
         proceedBtn.disabled = !hasValidSelection;
         
         if (hasValidSelection) {
-            proceedBtn.textContent = '⚔️ IN DEN KAMPF!';
+            proceedBtn.textContent = '⚔️ INTO BATTLE!';
         } else {
-            proceedBtn.textContent = '⚠️ MINDESTENS EINEN GEGNER WÄHLEN';
+            proceedBtn.textContent = '⚠️ SELECT AT LEAST ONE ENEMY';
         }
     }
     

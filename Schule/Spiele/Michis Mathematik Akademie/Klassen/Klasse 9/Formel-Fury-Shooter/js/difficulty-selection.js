@@ -4,9 +4,9 @@ class DifficultySelectionSystem {
         this.selectedDifficulty = 'easy';
         this.difficulties = {
             easy: {
-                name: 'Formel-Krieger',
+                name: 'Formula Warrior',
                 icon: '⚔️',
-                description: 'Entspannter Kampf für Einsteiger',
+                description: 'Relaxed battle for beginners',
                 multipliers: {
                     enemyCount: 0.8,
                     enemySpeed: 0.9,
@@ -16,9 +16,9 @@ class DifficultySelectionSystem {
                 }
             },
             medium: {
-                name: 'Gleichungs-Veteran',
+                name: 'Equation Veteran',
                 icon: '🔥',
-                description: 'Ausgewogene Herausforderung',
+                description: 'Balanced challenge',
                 multipliers: {
                     enemyCount: 1.0,
                     enemySpeed: 1.0,
@@ -28,9 +28,9 @@ class DifficultySelectionSystem {
                 }
             },
             hard: {
-                name: 'Mathe-Dämon',
+                name: 'Math Demon',
                 icon: '💀',
-                description: 'Brutaler Kampf für Experten',
+                description: 'Brutal battle for experts',
                 multipliers: {
                     enemyCount: 1.3,
                     enemySpeed: 1.2,
@@ -40,9 +40,9 @@ class DifficultySelectionSystem {
                 }
             },
             nightmare: {
-                name: 'Formel-Alptraum',
+                name: 'Formula Nightmare',
                 icon: '👹',
-                description: 'Nur für wahre Mathe-Götter',
+                description: 'Only for true math gods',
                 multipliers: {
                     enemyCount: 1.8,
                     enemySpeed: 1.5,
@@ -183,7 +183,7 @@ function proceedToDifficultySelection() {
     // Validate that at least one math topic is selected
     const mathTopicsSystem = window.mathTopicsSystem;
     if (mathTopicsSystem && mathTopicsSystem.getSelectedTopics().length === 0) {
-        alert('Bitte wähle mindestens einen Gegnertyp aus!');
+        alert('Please select at least one enemy type!');
         return;
     }
     

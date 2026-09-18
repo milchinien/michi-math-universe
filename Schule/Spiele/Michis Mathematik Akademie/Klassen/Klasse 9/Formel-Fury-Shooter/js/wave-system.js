@@ -65,9 +65,9 @@ class WaveSystem {
             this.waveDisplay = document.createElement('div');
             this.waveDisplay.id = 'waveDisplay';
             this.waveDisplay.innerHTML = `
-                <div class="wave-header">WELLE <span id="waveCounter">0</span></div>
+                <div class="wave-header">WAVE <span id="waveCounter">0</span></div>
                 <div class="wave-timer">⏱ <span id="waveTimeLeft">20</span>s</div>
-                <div class="wave-status" id="waveStatus">Bereit zum Start</div>
+                <div class="wave-status" id="waveStatus">Ready to start</div>
             `;
             
             // Add CSS styles dynamically
@@ -144,7 +144,7 @@ class WaveSystem {
         
         // Update UI for boss wave
         if (this.waveStatusElement) {
-            this.waveStatusElement.textContent = `BOSS KAMPF - ${boss.name}`;
+            this.waveStatusElement.textContent = `BOSS FIGHT - ${boss.name}`;
             this.waveStatusElement.style.color = '#ff6b6b';
             this.waveStatusElement.style.fontSize = '18px';
         }
@@ -232,7 +232,7 @@ class WaveSystem {
         
         // Update status
         if (this.waveStatusElement) {
-            this.waveStatusElement.textContent = 'Welle beendet!';
+            this.waveStatusElement.textContent = 'Wave complete!';
             this.waveStatusElement.style.color = '#00ff00';
         }
         
@@ -254,7 +254,7 @@ class WaveSystem {
         const waveTimerElement = document.getElementById('waveTimer');
         
         if (waveNumberElement) {
-            waveNumberElement.textContent = `Welle ${this.currentWave}`;
+            waveNumberElement.textContent = `Wave ${this.currentWave}`;
         }
         
         if (waveTimerElement) {
@@ -274,10 +274,10 @@ class WaveSystem {
         
         if (this.waveStatusElement) {
             if (this.isWaveActive) {
-                this.waveStatusElement.textContent = 'Aktive Welle';
+                this.waveStatusElement.textContent = 'Active wave';
                 this.waveStatusElement.style.color = '#00ffff';
             } else if (this.currentWave === 0) {
-                this.waveStatusElement.textContent = 'Bereit zum Start';
+                this.waveStatusElement.textContent = 'Ready to start';
                 this.waveStatusElement.style.color = '#ffff00';
             } else {
                 this.waveStatusElement.textContent = 'Pause';
@@ -389,7 +389,7 @@ class WaveSystem {
             
             // Update wave status
             if (this.waveStatusElement) {
-                this.waveStatusElement.textContent = `BOSS KAMPF: ${boss.name}`;
+                this.waveStatusElement.textContent = `BOSS FIGHT: ${boss.name}`;
                 this.waveStatusElement.style.color = '#FF8888';
                 this.waveStatusElement.style.fontSize = '16px';
                 this.waveStatusElement.style.animation = 'none';
@@ -418,7 +418,7 @@ class WaveSystem {
         
         // Update UI back to normal
         if (this.waveStatusElement) {
-            this.waveStatusElement.textContent = 'Boss besiegt!';
+            this.waveStatusElement.textContent = 'Boss defeated!';
             this.waveStatusElement.style.color = '#00ff00';
             this.waveStatusElement.style.fontSize = '16px';
         }
@@ -447,7 +447,7 @@ class WaveSystem {
         // Update boss info
         document.getElementById('bossName').textContent = boss.name;
         document.getElementById('bossLevel').textContent = `Level ${boss.level}`;
-        document.getElementById('bossProgress').textContent = `${boss.formulasSolved}/${boss.formulasRequired} Formeln gelöst`;
+        document.getElementById('bossProgress').textContent = `${boss.formulasSolved}/${boss.formulasRequired} formulas solved`;
         
         // Show warning element
         let warningElement = document.getElementById('bossWarning');
@@ -487,7 +487,7 @@ class WaveSystem {
                     <div class="boss-health-bar">
                         <div id="bossHealthFill" class="boss-health-fill"></div>
                     </div>
-                    <div id="bossProgress" class="boss-progress">0/5 Formeln gelöst</div>
+                    <div id="bossProgress" class="boss-progress">0/5 formulas solved</div>
                 </div>
             </div>
         `;
