@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Funktions-Graffiti</title>
+  <title>Function Graffiti</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
   <style>
     :root {
@@ -58,27 +58,27 @@
 </head>
 <body>
   <div class="header">
-    <div class="title">🎨 Funktions-Graffiti</div>
+    <div class="title">🎨 Function Graffiti</div>
     <div class="stats">
       <div class="stat">Level: <b id="level">1</b></div>
-      <div class="stat">Punkte: <b id="score">0</b></div>
+      <div class="stat">Score: <b id="score">0</b></div>
     </div>
   </div>
 
   <div class="layout">
     <div class="left">
       <div class="panel">
-        <h3>Baustein-Bibliothek</h3>
+        <h3>Building Blocks</h3>
         <div class="library" id="library"></div>
       </div>
 
       <div class="panel">
-        <h3>Funktion zusammenstellen</h3>
+        <h3>Build Your Function</h3>
         <div class="builder">
           <div class="fraction">
-            <div class="frac-label">Zähler</div>
+            <div class="frac-label">Numerator</div>
             <div class="slot" id="slot-num" data-slot="num"></div>
-            <div class="frac-label">Nenner</div>
+            <div class="frac-label">Denominator</div>
             <div class="slot" id="slot-den" data-slot="den"></div>
           </div>
           <div id="functionText"></div>
@@ -86,13 +86,13 @@
       </div>
 
       <div class="panel">
-        <h3>Aktionen</h3>
+        <h3>Actions</h3>
         <div class="controls">
           <button class="btn primary" id="spray">Spray!</button>
-          <button class="btn" id="clear">Zurücksetzen</button>
-          <button class="btn" id="hint">Hinweis</button>
-          <button class="btn" id="solution">Lösung anzeigen</button>
-          <button class="btn primary" id="nextLevel" style="display: none;">Nächstes Level</button>
+          <button class="btn" id="clear">Reset</button>
+          <button class="btn" id="hint">Hint</button>
+          <button class="btn" id="solution">Show Solution</button>
+          <button class="btn primary" id="nextLevel" style="display: none;">Next Level</button>
         </div>
       </div>
     </div>
@@ -101,9 +101,9 @@
       <canvas id="gameCanvas"></canvas>
       <div class="overlay">
         <div class="legend">
-          <div><b>Zielpunkte</b>: leuchten grün</div>
-          <div><b>Sperrzonen</b>: rot (nicht sprühen)</div>
-          <div><b>Asymptoten</b>: gestrichelt</div>
+          <div><b>Target points</b>: glowing green</div>
+          <div><b>No-spray zones</b>: red (don't touch)</div>
+          <div><b>Asymptotes</b>: dashed</div>
         </div>
       </div>
     </div>
@@ -184,7 +184,7 @@
         state.builder[where].forEach((tok, idx) => {
           const tag = document.createElement('div');
           tag.className = 'tag';
-          tag.innerHTML = `<span>${tok}</span><span class="rm" title="Entfernen">✕</span>`;
+          tag.innerHTML = `<span>${tok}</span><span class="rm" title="Remove">✕</span>`;
           tag.querySelector('.rm').onclick = ()=> removeFromBuilder(where, idx);
           slot.appendChild(tag);
         });
@@ -319,7 +319,7 @@
       // forbidden zones: we consider a violation if the curve samples close to line
       for (const x0 of vlines) {
         const l = safeEval(expr, x0);
-        if (l!==null) return { ok:false, msg:`Verbotene vertikale Linie x=${x0} berührt.` };
+        if (l!==null) return { ok:false, msg:`You touched the forbidden vertical line x=${x0}.` };
       }
       for (const y0 of hlines) {
         // approximate: check limits for +/- large x for horizontal asymptote management is complex; simplified: ensure |f(±10)|<|y0|+something if required. For tutorial levels, we skip.
@@ -328,9 +328,9 @@
       const tol = 0.25;
       for (const [tx,ty] of targets) {
         const y = safeEval(expr, tx);
-        if (y===null || Math.abs(y-ty)>tol) return { ok:false, msg:`Ziel (${tx}, ${ty}) nicht getroffen.` };
+        if (y===null || Math.abs(y-ty)>tol) return { ok:false, msg:`Missed target (${tx}, ${ty}).` };
       }
-      return { ok:true, msg:'Sauber gesprüht! ✔' };
+      return { ok:true, msg:'Clean spray! ✔' };
     }
 
     function drawScene(expr=null) {
@@ -509,48 +509,48 @@
       if (level <= 3) {
         // Basic hints for beginners
         if (vlines.length > 0) {
-          hint = `Achtung: Bei x=${vlines.join(', x=')} gibt es Probleme. `;
+          hint = `Careful: there's trouble at x=${vlines.join(', x=')}. `;
         }
         if (numComponents.some(c => c.includes('^'))) {
-          hint += 'Du brauchst ein Polynom höherer Ordnung.';
+          hint += 'You need a higher-degree polynomial.';
         } else if (numComponents.some(c => c.includes('x'))) {
-          hint += 'Ein einfaches Polynom im Zähler könnte helfen.';
+          hint += 'A simple polynomial in the numerator might help.';
         } else {
-          hint += 'Probiere verschiedene Kombinationen aus Zähler und Nenner.';
+          hint += 'Try different combinations of numerator and denominator.';
         }
       } else if (level <= 6) {
         // Medium hints
         if (vlines.length > 0) {
-          hint = `Vertikale Asymptoten bei x=${vlines.join(', x=')}. `;
+          hint = `Vertical asymptotes at x=${vlines.join(', x=')}. `;
         }
         if (numComponents.length > 1) {
-          hint += 'Du brauchst mehrere Terme im Zähler.';
+          hint += 'You need several factors in the numerator.';
         } else if (denComponents.some(c => c.includes('x'))) {
-          hint += 'Der Nenner sollte einen Faktor mit x enthalten.';
+          hint += 'The denominator should contain a factor with x.';
         } else {
-          hint += 'Achte auf das Verhältnis zwischen Zähler und Nenner.';
+          hint += 'Watch the ratio between numerator and denominator.';
         }
       } else {
         // Advanced hints
         if (numComponents.some(c => denComponents.includes(c))) {
-          hint = 'Tipp: Manche Faktoren können sich wegkürzen (hebbare Lücke).';
+          hint = 'Tip: some factors can cancel out (removable discontinuity).';
         } else if (vlines.length > 1) {
-          hint = `Mehrere Asymptoten bei x=${vlines.join(', x=')}. Komplexer Nenner nötig.`;
+          hint = `Several asymptotes at x=${vlines.join(', x=')}. You need a more complex denominator.`;
         } else if (denComponents.length > 1) {
-          hint = 'Der Nenner braucht mehrere Faktoren.';
+          hint = 'The denominator needs several factors.';
         } else {
-          hint = 'Experimentiere mit komplexeren Kombinationen.';
+          hint = 'Experiment with more complex combinations.';
         }
       }
       
       // Add target info without giving away the solution
       if (targets.length > 0) {
         const targetHints = targets.map(([x, y]) => {
-          if (Math.abs(y) < 1) return `bei x=${x} einen kleinen Wert`;
-          if (Math.abs(y) > 5) return `bei x=${x} einen großen Wert`;
-          return `bei x=${x} den Wert ${y > 0 ? 'über' : 'unter'} der x-Achse`;
+          if (Math.abs(y) < 1) return `a small value at x=${x}`;
+          if (Math.abs(y) > 5) return `a large value at x=${x}`;
+          return `a value ${y > 0 ? 'above' : 'below'} the x-axis at x=${x}`;
         });
-        hint += ` Die Funktion sollte ${targetHints.join(' und ')} haben.`;
+        hint += ` The function should have ${targetHints.join(' and ')}.`;
       }
       
       return {
@@ -580,7 +580,7 @@
         document.getElementById('score').textContent = state.score;
         
         // Show success message and next level button
-        toast(`✓ Level ${state.level} geschafft! +100 Punkte`, 3000);
+        toast(`✓ Level ${state.level} cleared! +100 points`, 3000);
         document.getElementById('nextLevel').style.display = 'inline-block';
         document.getElementById('spray').disabled = true;
         
@@ -600,18 +600,18 @@
       drawScene(); 
     }
     
-    function onHint() { toast(state.levelData.hint || 'Kein Hinweis.'); }
+    function onHint() { toast(state.levelData.hint || 'No hint available.'); }
     
     function onSolution() {
       if (!state.levelData || !state.levelData.solution) {
-        toast('Keine Lösung verfügbar.');
+        toast('No solution available.');
         return;
       }
       
       const { num, den } = state.levelData.solution;
       const numStr = num.join(' × ');
       const denStr = den.join(' × ');
-      const solutionText = `Lösung: ${numStr} / ${denStr}`;
+      const solutionText = `Solution: ${numStr} / ${denStr}`;
       
       toast(solutionText, 4000); // Show for 4 seconds
     }

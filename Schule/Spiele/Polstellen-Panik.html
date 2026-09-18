@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polstellen-Panik - Mathematik Spiel</title>
+    <title>Pole Panic - Math Game</title>
     
     <!-- KaTeX CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -196,9 +196,9 @@
 <body>
     <div class="game-container">
         <div class="header">
-            <div class="title">🎯 Polstellen-Panik</div>
+            <div class="title">🎯 Pole Panic</div>
             <div class="stats">
-                <div class="stat health">❤️ Leben: <span id="healthDisplay">3</span></div>
+                <div class="stat health">❤️ Lives: <span id="healthDisplay">3</span></div>
                 <div class="stat score">🎯 Score: <span id="scoreDisplay">0</span></div>
                 <div class="stat level">📊 Level: <span id="levelDisplay">1</span></div>
             </div>
@@ -211,26 +211,26 @@
 
         <div class="controls">
             <button class="btn" id="pauseBtn">⏸️ Pause</button>
-            <button class="btn" id="restartBtn">🔄 Neustart</button>
-            <button class="btn" id="helpBtn">❓ Hilfe</button>
+            <button class="btn" id="restartBtn">🔄 Restart</button>
+            <button class="btn" id="helpBtn">❓ Help</button>
         </div>
 
         <div class="instructions" id="instructions">
-            <h2>🎯 Polstellen-Panik - Anleitung</h2>
-            <p><strong>Ziel:</strong> Du bist im Koordinatenursprung (x=0) gefangen! Schieße nur die gefährlichen Funktions-Monster ab.</p>
-            <p><strong>🔴 Gefährlich:</strong> Monster mit Polstellen bei x=0 (Nenner=0, Zähler≠0)</p>
-            <p><strong>🟢 Harmlos:</strong> Monster ohne Polstelle bei x=0</p>
-            <p><strong>🟡 Getarnt:</strong> Monster mit hebbarer Lücke bei x=0 (Nenner=0, Zähler=0) - geben Power-Ups!</p>
-            <p><strong>Steuerung:</strong> Maus zum Zielen, Klicken zum Schießen</p>
-            <p><strong>Punkte:</strong> Richtiger Abschuss +100, Power-Up +50, Falscher Abschuss -50</p>
-            <button class="btn" onclick="startGame()">🚀 Spiel starten!</button>
+            <h2>🎯 Pole Panic - How to Play</h2>
+            <p><strong>Goal:</strong> You're trapped at the origin (x=0)! Shoot only the dangerous function monsters.</p>
+            <p><strong>🔴 Dangerous:</strong> Monsters with a pole at x=0 (denominator=0, numerator≠0)</p>
+            <p><strong>🟢 Harmless:</strong> Monsters without a pole at x=0</p>
+            <p><strong>🟡 Disguised:</strong> Monsters with a removable discontinuity (hole) at x=0 (denominator=0, numerator=0) - they give power-ups!</p>
+            <p><strong>Controls:</strong> Move the mouse to aim, click to shoot</p>
+            <p><strong>Points:</strong> Correct hit +100, power-up +50, wrong hit -50</p>
+            <button class="btn" onclick="startGame()">🚀 Start Game!</button>
         </div>
 
         <div class="game-over hidden" id="gameOver">
             <h2>💀 Game Over!</h2>
-            <p>Endpunktzahl: <span id="finalScore">0</span></p>
-            <p>Erreichtes Level: <span id="finalLevel">1</span></p>
-            <button class="btn" onclick="restartGame()">🔄 Nochmal spielen</button>
+            <p>Final score: <span id="finalScore">0</span></p>
+            <p>Level reached: <span id="finalLevel">1</span></p>
+            <button class="btn" onclick="restartGame()">🔄 Play Again</button>
         </div>
     </div>
 
@@ -1052,7 +1052,7 @@
             // Button events
             document.getElementById('pauseBtn').addEventListener('click', () => {
                 gameEngine.pause();
-                document.getElementById('pauseBtn').textContent = gameState.paused ? '▶️ Weiter' : '⏸️ Pause';
+                document.getElementById('pauseBtn').textContent = gameState.paused ? '▶️ Resume' : '⏸️ Pause';
             });
             
             document.getElementById('restartBtn').addEventListener('click', restartGame);

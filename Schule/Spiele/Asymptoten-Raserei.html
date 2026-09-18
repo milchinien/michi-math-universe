@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asymptoten-Raserei</title>
+    <title>Asymptote Rush</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
         
@@ -218,31 +218,31 @@
         </div>
         
         <div id="controls">
-            <p>← Bremsen | → Beschleunigen | Leertaste: Sprung | R: Restart | P: Pause</p>
-            <p style="font-size: 10px; margin-top: 5px;">🎯 Fahre automatisch! Springe über gelbe Lücken, nutze pinke Asymptoten für Boosts!</p>
-            <p style="font-size: 10px; margin-top: 5px;">🔧 Level 8: 1/2 für Pfad-Wechsel | Level 10: Chaos-Effekte alle 2 Sekunden!</p>
+            <p>← Brake | → Accelerate | Space: Jump | R: Restart | Esc: Pause</p>
+            <p style="font-size: 10px; margin-top: 5px;">🎯 You drive automatically! Jump over yellow holes, ride the pink asymptotes for boosts!</p>
+            <p style="font-size: 10px; margin-top: 5px;">🔧 Level 8: press 1/2 to switch paths | Level 10: chaos effects every 2 seconds!</p>
 
         </div>
         
         <div id="pauseMenu" style="display: none;">
-            <h2>Spiel pausiert</h2>
+            <h2>Game Paused</h2>
             <div class="pause-buttons">
-                <button onclick="game.resumeGame()">Weiterspielen</button>
-                <button onclick="game.restart()">Neustart</button>
-                <button onclick="game.showMainMenu()">Hauptmenü</button>
+                <button onclick="game.resumeGame()">Resume</button>
+                <button onclick="game.restart()">Restart</button>
+                <button onclick="game.showMainMenu()">Main Menu</button>
             </div>
         </div>
         
         <div id="gameOver">
             <h2>Game Over!</h2>
             <p>Score: <span id="finalScore">0</span></p>
-            <button onclick="game.restart()">Nochmal spielen</button>
+            <button onclick="game.restart()">Play Again</button>
         </div>
         
         <div id="levelComplete">
-            <h2>Level geschafft!</h2>
+            <h2>Level Complete!</h2>
             <p>Bonus: <span id="levelBonus">0</span></p>
-            <button onclick="game.nextLevel()">Nächstes Level</button>
+            <button onclick="game.nextLevel()">Next Level</button>
         </div>
     </div>
 
@@ -972,7 +972,7 @@
                     this.ctx.font = 'bold 16px Orbitron';
                     this.ctx.textAlign = 'center';
                     const midX = (startPos.x + endPos.x) / 2;
-                    this.ctx.fillText(`Pfad ${index + 1}`, midX, this.offsetY - 25);
+                    this.ctx.fillText(`Path ${index + 1}`, midX, this.offsetY - 25);
                 });
             }
             
@@ -1517,17 +1517,17 @@
                     // Perfekt (90-100%)
                     bonusScore = Math.floor(bonusScore * 2.5); // 2.5x Multiplikator
                     effectType = 'perfect';
-                    message = `PERFEKT! +${bonusScore}`;
+                    message = `PERFECT! +${bonusScore}`;
                 } else if (precision >= 0.7) {
                     // Sehr gut (70-89%)
                     bonusScore = Math.floor(bonusScore * 1.8); // 1.8x Multiplikator
                     effectType = 'excellent';
-                    message = `AUSGEZEICHNET! +${bonusScore}`;
+                    message = `EXCELLENT! +${bonusScore}`;
                 } else if (precision >= 0.5) {
                     // Gut (50-69%)
                     bonusScore = Math.floor(bonusScore * 1.3); // 1.3x Multiplikator
                     effectType = 'good';
-                    message = `GUT! +${bonusScore}`;
+                    message = `GOOD! +${bonusScore}`;
                 } else {
                     // Okay (0-49%)
                     effectType = 'okay';
@@ -1652,14 +1652,14 @@
                 const functionTexts = {
                     1: 'f(x) = 1/(x-2)',
                     2: 'f(x) = 1/((x-1)(x+1))',
-                    3: 'f(x) = (x-1)/((x-1)(x-2)) — Teleporter an der gelben Lücke! Springe für Bonus.',
+                    3: 'f(x) = (x-1)/((x-1)(x-2)) — Teleporter at the yellow hole! Jump for a bonus.',
                     4: 'f(x) = (x²+1)/(x-1)',
                     5: 'f(x) = (x²-4)/((x-1)(x+2)(x-3))',
-                    6: 'f(x) = (x³-2x)/(x²-4) — Zeitlupe in grünen Zonen!',
-                    7: 'f(x) = 1/(x²-1) — Gravitationswechsel! Schwerkraft ändert sich!',
-                    8: 'f(x) = (x²-1)/(x-1) — Multi-Path! Wähle deinen Weg!',
-                    9: 'f(x) = (x³+1)/(x²-1) — Inverser Boost! Asymptoten verlangsamen!',
-                    10: 'f(x) = (x⁴-5x²+4)/(x³-2x²-x+2) — Chaos-Modus! Alles ist möglich!'
+                    6: 'f(x) = (x³-2x)/(x²-4) — Slow motion in green zones!',
+                    7: 'f(x) = 1/(x²-1) — Gravity shift! Gravity keeps changing!',
+                    8: 'f(x) = (x²-1)/(x-1) — Multi-path! Choose your route!',
+                    9: 'f(x) = (x³+1)/(x²-1) — Reverse boost! Asymptotes slow you down!',
+                    10: 'f(x) = (x⁴-5x²+4)/(x³-2x²-x+2) — Chaos mode! Anything can happen!'
                 };
                 
                 document.getElementById('function').textContent = functionTexts[level] || functionTexts[1];
@@ -1866,7 +1866,7 @@
             nextLevel() {
                 this.currentLevel++;
                 if (this.currentLevel > 10) {
-                    alert('Herzlichen Glückwunsch! Du hast alle 10 Level geschafft! Du bist ein Asymptoten-Meister! 🎉');
+                    alert('Congratulations! You beat all 10 levels! You are an Asymptote Master! 🎉');
                     this.restart();
                     return;
                 }
